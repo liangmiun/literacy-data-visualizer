@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
+
 const ScatterCanvas = ({ data, xField, yField, width, height, onPointClick }) => {
   const svgRef = useRef();
 
@@ -15,14 +16,12 @@ const ScatterCanvas = ({ data, xField, yField, width, height, onPointClick }) =>
     const xScale = d3.scaleLinear().domain(d3.extent(data, d => d[xField])).range([0, innerWidth]);
     const yScale = d3.scaleLinear().domain(d3.extent(data, d => d[yField])).range([innerHeight, 0]);
 
-    const g = svg
-      .append('g')
+    const g = svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    g.selectAll('circle')
+    const circles = g.selectAll('circle')
       .data(data)
-      .enter()
-      .append('circle')
+      .join('circle')
       .attr('cx', d => xScale(d[xField]))
       .attr('cy', d => yScale(d[yField]))
       .attr('r', 3)
@@ -40,21 +39,18 @@ const ScatterCanvas = ({ data, xField, yField, width, height, onPointClick }) =>
       .attr('class', 'y-axis')
       .call(yAxis);
 
-    g.select('.x-axis')
-      .append('text')
-      .attr('class', 'axis-label')
-      .attr('x', innerWidth / 2)
-      .attr('y', 35)
-      .text(xField);
+    const zoomBehavior = d3.zoom()
+      .scaleExtent([0.5, 5])
+      .on('zoom', (event) => {
+        const zoomState = event.transform;
+        g.selectAll('circle')
+          .attr('cx', d => zoomState.applyX(xScale(d[xField])))
+          .attr('cy', d => zoomState.applyY(yScale(d[yField])));
+        g.select('.x-axis').call(xAxis.scale(zoomState.rescaleX(xScale)));
+        g.select('.y-axis').call(yAxis.scale(zoomState.rescaleY(yScale)));
+      });
 
-    g.select('.y-axis')
-      .append('text')
-      .attr('class', 'axis-label')
-      .attr('x', -innerHeight / 2)
-      .attr('y', -30)
-      .attr('transform', 'rotate(-90)')
-      .text(yField);
-
+    svg.call(zoomBehavior);
   }, [data, xField, yField, width, height, onPointClick]);
 
   return (
@@ -63,3 +59,6 @@ const ScatterCanvas = ({ data, xField, yField, width, height, onPointClick }) =>
 };
 
 export default ScatterCanvas;
+
+
+
