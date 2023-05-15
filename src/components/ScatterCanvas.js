@@ -13,8 +13,14 @@ const ScatterCanvas = ({ data, xField, yField, width, height, onPointClick }) =>
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    const xScale = d3.scaleLinear().domain(d3.extent(data, d => d[xField])).range([0, innerWidth]);
-    const yScale = d3.scaleLinear().domain(d3.extent(data, d => d[yField])).range([innerHeight, 0]);
+    const [xMin, xMax] = d3.extent(data, d => d[xField]);
+    const xPadding = (xMax - xMin) * 0.03; // calculate 3% of the x range
+    const xScale = d3.scaleLinear().domain([xMin - xPadding, xMax + xPadding]).range([0, innerWidth]);
+
+    const [yMin, yMax] = d3.extent(data, d => d[yField]);
+    const yPadding = (yMax - yMin) * 0.03; // calculate 3% of the y range
+    const yScale = d3.scaleLinear().domain([yMin - yPadding, yMax + yPadding]).range([innerHeight, 0]);
+
 
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
