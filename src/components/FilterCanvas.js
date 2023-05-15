@@ -8,17 +8,38 @@ import { Slider, Rail, Handles, Tracks, Ticks } from 'react-compound-slider';
 const FilterRow = ({ fields, onAdd, onRemove, handleRangeChange, rangeValues }) => {
   const [logicField, setLogicField] = useState(null);
   const [subjectField, setSubjectField] = useState(null);
-  const [range, setRange] = useState(rangeValues || [0, 100]);
-  
+  const [range, setRange] = useState(rangeValues || [0, 100]);  
+
+  const [minValue, setMinValue] = useState(range[0]);
+  const [maxValue, setMaxValue] = useState(range[1]);
+
   const handleSliderChange = (newRange) => {
-    setRange(newRange);
+      setMinValue(newRange[0]);
+      setMaxValue(newRange[1]);
+      setRange(newRange);
+  };
+
+  const handleMinInputChange = (event) => {
+      const value = Number(event.target.value);
+      if (value < maxValue) {
+          setRange([value, maxValue]);
+          setMinValue(value);
+      }
+  };
+
+  const handleMaxInputChange = (event) => {
+      const value = Number(event.target.value);
+      if (value > minValue) {
+          setRange([minValue, value]);
+          setMaxValue(value);
+      }
   };
 
 
   const selectStyles = {    
 
     control: base => ({
-      width: '150px',
+      width: '80px',
     }),
 
   }
@@ -32,34 +53,6 @@ const FilterRow = ({ fields, onAdd, onRemove, handleRangeChange, rangeValues }) 
     width: '400px', // Set the desired length of the slider here
   };
 
-
-
-  // Define a custom handle component to display the selected min and max values
-  // const Handle = ({ handle: { id, value, percent }, getHandleProps }) => {
-    
-  //   return (
-  //     <div
-  //       style={{
-  //         left: `${percent}%`,
-  //         position: 'absolute',
-  //         marginLeft: -15,
-  //         marginTop: 25,
-  //         zIndex: 2,
-  //         width: 30,
-  //         height: 30,
-  //         border: 0,
-  //         textAlign: 'center',
-  //         cursor: 'pointer',
-  //         borderRadius: '50%',
-  //         backgroundColor: '#2C4870',
-  //         color: '#333',
-  //       }}
-  //       {...getHandleProps(id)}
-  //     >
-  //       <div style={{ fontFamily: 'Arial', fontSize: 'smaller', marginTop: -35 }}>{value}</div>
-  //     </div>
-  //   )
-  // }
   
   const Handle = ({ handle: { id, value, percent }, getHandleProps }) => {
     return (
@@ -107,8 +100,16 @@ const FilterRow = ({ fields, onAdd, onRemove, handleRangeChange, rangeValues }) 
         placeholder="Subject...d"
       />
 
+      <input
+          type="number"
+          value={minValue}
+          onChange={handleMinInputChange}
+          style={{ marginRight: '10px', width: '40px'  }}
+      />
       
       <div style={sliderContainerStyle}>
+
+
         <Slider
           rootStyle={{ position: 'relative', width: '100%' }}
           domain={rangeValues || [0, 100]}
@@ -168,26 +169,17 @@ const FilterRow = ({ fields, onAdd, onRemove, handleRangeChange, rangeValues }) 
             )}
           </Ticks>
         </Slider>
+
+
+
       </div>
 
-      {/* <div style={sliderContainerStyle}>
-        <div>
-          <span>{rangeValues ? rangeValues[0] : 0}</span> 
-          <span style={{ float: 'right' }}>{rangeValues ? rangeValues[1] : 100}</span>
-        </div>
-        <Slider
-          range
-          min={rangeValues ? rangeValues[0] : 0}
-          max={rangeValues ? rangeValues[1] : 100}
-          value={range}
-          onChange={handleSliderChange}
-          styles={selectStyles}
+      <input
+            type="number"
+            value={maxValue}
+            onChange={handleMaxInputChange}
+            style={{ marginLeft: '10px' , width: '40px' }}
         />
-        <div>
-          <span>{range[0]}</span> 
-          <span style={{ float: 'right' }}>{range[1]}</span>
-        </div>
-      </div> */}
 
       <button onClick={onAdd}>Add</button>
       <button onClick={onRemove}>Remove</button>
