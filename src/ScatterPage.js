@@ -14,6 +14,7 @@ const ScatterPage = () => {
   const [selectedRecord, setSelectedRecord] = useState(null); 
   const [xField, setXField] = useState('Grade');
   const [yField, setYField] = useState('LexploreScore');
+  const [colorField, setColorField] = useState('LexploreScore');
   const fields = Object.keys(data[0] || {});
 
   useEffect(() => {
@@ -30,13 +31,16 @@ const ScatterPage = () => {
         fields={fields}
         xField={xField}
         yField={yField}
+        colorField = {colorField}
         onXFieldChange={setXField}
         onYFieldChange={setYField}
+        onColorFieldChange={setColorField}
       />
       <ScatterCanvas
         data={data}
         xField={xField}
         yField={yField}
+        colorField = {colorField}
         width={600}
         height={400}
         

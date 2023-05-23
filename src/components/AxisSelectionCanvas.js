@@ -1,7 +1,7 @@
 import React from 'react';
 import Select from 'react-select';
 
-const AxisSelectionCanvas = ({ fields, xField, yField, onXFieldChange, onYFieldChange }) => {
+const AxisSelectionCanvas = ({ fields, xField, yField, colorField, onXFieldChange, onYFieldChange,onColorFieldChange  }) => {
   const options = fields.map(field => ({ value: field, label: field }));
 
   return (
@@ -19,6 +19,13 @@ const AxisSelectionCanvas = ({ fields, xField, yField, onXFieldChange, onYFieldC
         value={{ value: yField, label: yField }}
         options={options}
         onChange={option => onYFieldChange(option.value)}
+      />
+      <label htmlFor="Colorfiled">Color:</label>
+      <Select
+        id="color-field"
+        value={{ value: colorField, label: colorField }}
+        options={options}
+        onChange={option => onColorFieldChange(option.value)}
       />
     </div>
   );
