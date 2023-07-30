@@ -107,7 +107,7 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
       .enter()
       .append('rect')
       .attr('width', 18)
-      .attr('height', 18)
+      .attr('height', 4)
       .attr('y', (d, i) => i*20)
       .style('fill', getColorForValue);
 

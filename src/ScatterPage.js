@@ -5,8 +5,8 @@ import AxisSelectionCanvas from './components/AxisSelectionCanvas';
 import ScatterCanvas from './components/ScatterCanvas';
 import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
+import LogicCanvas from './components/LogicCanvas';
 import './App.css';
-//import ScatterPage from './ScatterPage';
 
 
 const ScatterPage = () => {
@@ -16,6 +16,8 @@ const ScatterPage = () => {
   const [yField, setYField] = useState('LexploreScore');
   const [colorField, setColorField] = useState('LexploreScore');
   const fields = Object.keys(data[0] || {});
+
+  //console.log("fields: " + fields);
 
   useEffect(() => {
     csv('/Literacy29fields.csv', rowParser).then(setData)
@@ -52,7 +54,10 @@ const ScatterPage = () => {
      
 
 
-      <FilterCanvas fields={fields.filter(field => field !== 'StudentID')} />
+      <FilterCanvas fields={fields.filter(field => field !== 'StudentID')} />  
+
+      <LogicCanvas  fields={fields} data ={data}/>  
+      
     </div>
     </div>
   );
