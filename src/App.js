@@ -28,6 +28,9 @@ const App = () => {
             <li style={liStyle}>
               <Link to="/about">About</Link>
             </li>
+            <li style={liStyle}>
+              <Link to="/">ClassView</Link>
+            </li>
           </ul>
         </nav>
         {/* Define routes */}
@@ -35,6 +38,7 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/alternative-plot" element={<AlternativePlot />} />
           <Route path="/" element={<ScatterPage />} />
+          
         </Routes>
       </div>
     </Router> 

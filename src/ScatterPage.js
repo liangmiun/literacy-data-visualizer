@@ -16,11 +16,12 @@ const ScatterPage = () => {
   const [yField, setYField] = useState('LexploreScore');
   const [colorField, setColorField] = useState('LexploreScore');
   const fields = Object.keys(data[0] || {});
+  const isClassView = true;
 
   //console.log("fields: " + fields);
 
   useEffect(() => {
-    csv('/Literacy29fields.csv', rowParser).then(setData)
+    csv('/LiteracySample.csv', rowParser).then(setData)
 
     }, []);
 
@@ -45,7 +46,7 @@ const ScatterPage = () => {
         colorField = {colorField}
         width={600}
         height={400}
-        
+        isClassView={isClassView}        
         onPointClick={handlePointClick}  //  setSelectedRecord
       />
 

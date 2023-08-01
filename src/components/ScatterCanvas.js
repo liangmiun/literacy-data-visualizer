@@ -2,10 +2,25 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 
-const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPointClick }) => {
+const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPointClick,isClassView }) => {
   const svgRef = useRef();
 
   useEffect(() => {
+
+    let processedData = data;
+    if (isClassView) {
+        let groupedData = d3.groups(data, d => d.Klass, d => d.Skola);
+        processedData = groupedData.flatMap(([klass, skolaData]) => 
+            skolaData.map(([skola, records]) => ({
+                Klass: klass,
+                Skola: skola,
+                [xField]: d3.mean(records, d => d[xField]),
+                [yField]: d3.mean(records, d => d[yField]),
+                [colorField]: records[0][colorField]
+            }))
+        );
+    }
+
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
@@ -13,11 +28,11 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    const [xMin, xMax] = d3.extent(data, d => d[xField]);
+    const [xMin, xMax] = d3.extent(processedData, d => d[xField]);
     const xPadding = (xMax - xMin) * 0.03; // calculate 3% of the x range
     const xScale = d3.scaleLinear().domain([xMin - xPadding, xMax + xPadding]).range([0, innerWidth]);
 
-    const [yMin, yMax] = d3.extent(data, d => d[yField]);
+    const [yMin, yMax] = d3.extent(processedData, d => d[yField]);
     const yPadding = (yMax - yMin) * 0.03; // calculate 3% of the y range
     const yScale = d3.scaleLinear().domain([yMin - yPadding, yMax + yPadding]).range([innerHeight, 0]);
 
@@ -25,18 +40,13 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
     // Color mapping function. 
     let legendDomain;
 
-    const getColor = (data) => {
+    const getColor = (processedData) => {
 
       // Generate unique values from the data colorField for the legend
-      legendDomain = Array.from(new Set(data.map(d => d[colorField])));
-
-      // const fieldValues = data.map(d => d[field]);
-      // const minVal = d3.minV(fieldValues);
-      // const maxVal = d3.maxV(fieldValues);
-      // const rangeLength = maxVal - minVal;
+      legendDomain = Array.from(new Set(processedData.map(d => d[colorField])));
 
       let minV, maxV;
-      [minV, maxV] = d3.extent(data, d => d[colorField]); //Number()
+      [minV, maxV] = d3.extent(processedData, d => d[colorField]); //Number()
       const rangeLength = maxV - minV;
       
       let step;
@@ -58,14 +68,14 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
     }   
       
 
-    const getColorForValue = getColor(data);  //, colorField
+    const getColorForValue = getColor(processedData);  //, colorField
 
 
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     const circles = g.selectAll('circle')
-      .data(data)
+      .data(processedData)
       .join('circle')
       .attr('cx', d => xScale(d[xField]))
       .attr('cy', d => yScale(d[yField]))
@@ -122,7 +132,7 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
       .text(d => d);
 
 
-  }, [data, xField, yField, colorField,width, height, onPointClick]);
+  }, [data, xField, yField, colorField,width, height, onPointClick, isClassView]);
 
   return (
     <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
