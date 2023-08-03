@@ -2,12 +2,13 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 
-const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPointClick,isClassView }) => {
+//const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPointClick,isClassView }) => {
+
+const ScatterCanvas = ({ data, xField, yField, colorField, width, height, 
+    onPointClick,isClassView ,setIsClassView, updateData, selectedRecord }) => {
   const svgRef = useRef();
 
   useEffect(() => {
-
-    console.log("isClassView:" + isClassView)
 
     let processedData = data;
     if (isClassView) {
@@ -134,7 +135,8 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
       .text(d => d);
 
 
-  }, [data, xField, yField, colorField,width, height, onPointClick, isClassView]);
+  //}, [data, xField, yField, colorField,width, height, onPointClick, isClassView]);
+}, [data, xField, yField, colorField,width, height, onPointClick, isClassView, selectedRecord]);
 
   return (
     <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
