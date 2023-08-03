@@ -12,11 +12,11 @@ import './App.css';
 const ScatterPage = () => {
   const [data, setData] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null); 
-  const [xField, setXField] = useState('Grade');
-  const [yField, setYField] = useState('LexploreScore');
-  const [colorField, setColorField] = useState('LexploreScore');
+  const [xField, setXField] = useState('ElevID');
+  const [yField, setYField] = useState('Lexplore Score');
+  const [colorField, setColorField] = useState('Lexplore Score');
   const fields = Object.keys(data[0] || {});
-  const isClassView = true;
+  //const isClassView = true;
 
   //console.log("fields: " + fields);
 
@@ -26,6 +26,18 @@ const ScatterPage = () => {
     }, []);
 
   const handlePointClick = (event,record) => setSelectedRecord(record);
+
+  // Initialize isClassView
+  const [isClassView, setIsClassView] = useState(false);
+
+    // Function to update data
+  const updateData = (newData) => {
+    setData(newData);
+  }
+
+  const toggleIsClassView = () => {
+    setIsClassView(!isClassView);
+  }
 
   return (   
     <div>    
@@ -46,8 +58,11 @@ const ScatterPage = () => {
         colorField = {colorField}
         width={600}
         height={400}
-        isClassView={isClassView}        
+        isClassView={isClassView}  
+        setIsClassView={toggleIsClassView}
+        updateData={updateData}      
         onPointClick={handlePointClick}  //  setSelectedRecord
+        selectedRecord={selectedRecord}
       />
 
       

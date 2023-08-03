@@ -2,7 +2,8 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 
-const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPointClick,isClassView }) => {
+const ScatterCanvas = ({ data, xField, yField, colorField, width, height, 
+  onPointClick,isClassView ,setIsClassView, updateData, selectedRecord }) => {
   const svgRef = useRef();
 
   useEffect(() => {
@@ -81,7 +82,16 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
       .attr('cy', d => yScale(d[yField]))
       .attr('r', 3)
       .attr('fill', d => getColorForValue(d[colorField]))
-      .on('click', onPointClick);
+      .on('click', (d) => {
+        if (isClassView) {
+          // Save the clicked class records for the "Enter" key press
+          onPointClick(d);
+        } else {
+          // If it is not class view, it behaves as before
+          onPointClick(d);
+        }
+      });
+      
 
     const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale);
@@ -132,7 +142,26 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
       .text(d => d);
 
 
-  }, [data, xField, yField, colorField,width, height, onPointClick, isClassView]);
+      // Add event listener for "Enter" key press
+    window.addEventListener('keydown', (event) => {
+      if (event.code === 'Enter' && isClassView && selectedRecord) {
+        // Get the clicked class records and update the data
+        const clickedClassRecords = data.filter(record => 
+          record.hasOwnProperty('Klass') && record.Klass === selectedRecord.Klass &&
+          record.hasOwnProperty('Skola') && record.Skola === selectedRecord.Skola
+        );
+        updateData(clickedClassRecords);
+        // Switch the isClassView
+        setIsClassView(false);
+      }
+    });
+      
+
+      // Cleanup the event listener
+      return () => window.removeEventListener('keydown', null); 
+
+
+  }, [data, xField, yField, colorField,width, height, onPointClick, isClassView, selectedRecord]);
 
   return (
     <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
