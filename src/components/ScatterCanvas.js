@@ -134,8 +134,24 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height,
       .style('text-anchor', 'start')
       .text(d => d);
 
+      // Add event listener for "Enter" key press
+      window.addEventListener('keydown', (event) => {
+        if (event.code === 'Enter' && isClassView && selectedRecord) {
+          // Get the clicked class records and update the data
+          const clickedClassRecords = data.filter(record => 
+            record.hasOwnProperty('Klass') && record.Klass === selectedRecord.Klass &&
+            record.hasOwnProperty('Skola') && record.Skola === selectedRecord.Skola
+          );
+          updateData(clickedClassRecords);
+          // Switch the isClassView
+          setIsClassView(false);
+        }
+      });
+        
+  
+      // Cleanup the event listener
+      return () => window.removeEventListener('keydown', null); 
 
-  //}, [data, xField, yField, colorField,width, height, onPointClick, isClassView]);
 }, [data, xField, yField, colorField,width, height, onPointClick, isClassView, selectedRecord]);
 
   return (
