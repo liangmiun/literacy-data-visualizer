@@ -7,6 +7,8 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
 
   useEffect(() => {
 
+    console.log("isClassView:" + isClassView)
+
     let processedData = data;
     if (isClassView) {
         let groupedData = d3.groups(data, d => d.Klass, d => d.Skola);

@@ -16,7 +16,7 @@ const ScatterPage = () => {
   const [yField, setYField] = useState('Lexplore Score');
   const [colorField, setColorField] = useState('Lexplore Score');
   const fields = Object.keys(data[0] || {});
-  const isClassView = true;
+  //const isClassView = true;
 
   //console.log("fields: " + fields);
 
@@ -26,6 +26,18 @@ const ScatterPage = () => {
     }, []);
 
   const handlePointClick = (event,record) => setSelectedRecord(record);
+
+    // Initialize isClassView
+    const [isClassView, setIsClassView] = useState(true);
+
+    // Function to update data
+  const updateData = (newData) => {
+    setData(newData);
+  }
+
+  const toggleIsClassView = () => {
+    setIsClassView(!isClassView);
+  }
 
   return (   
     <div>    
@@ -38,6 +50,7 @@ const ScatterPage = () => {
         onXFieldChange={setXField}
         onYFieldChange={setYField}
         onColorFieldChange={setColorField}
+
       />
       <ScatterCanvas
         data={data}
@@ -48,6 +61,10 @@ const ScatterPage = () => {
         height={400}
         isClassView={isClassView}        
         onPointClick={handlePointClick}  //  setSelectedRecord
+        setIsClassView={toggleIsClassView}
+        updateData={updateData}      
+        selectedRecord={selectedRecord}
+
       />
 
       
