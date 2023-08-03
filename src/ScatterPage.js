@@ -12,9 +12,9 @@ import './App.css';
 const ScatterPage = () => {
   const [data, setData] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null); 
-  const [xField, setXField] = useState('Grade');
-  const [yField, setYField] = useState('LexploreScore');
-  const [colorField, setColorField] = useState('LexploreScore');
+  const [xField, setXField] = useState('ElevID');
+  const [yField, setYField] = useState('Lexplore Score');
+  const [colorField, setColorField] = useState('Lexplore Score');
   const fields = Object.keys(data[0] || {});
   const isClassView = true;
 
