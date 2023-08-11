@@ -50,7 +50,8 @@ const ScatterPage = () => {
         onXFieldChange={setXField}
         onYFieldChange={setYField}
         onColorFieldChange={setColorField}
-
+        setIsClassView={toggleIsClassView}
+        isClassView={isClassView}   
       />
       <ScatterCanvas
         data={data}
@@ -64,7 +65,6 @@ const ScatterPage = () => {
         setIsClassView={toggleIsClassView}
         updateData={updateData}      
         selectedRecord={selectedRecord}
-
       />
 
       

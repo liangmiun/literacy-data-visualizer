@@ -1,11 +1,12 @@
 import React from 'react';
 import Select from 'react-select';
 
-const AxisSelectionCanvas = ({ fields, xField, yField, colorField, onXFieldChange, onYFieldChange,onColorFieldChange  }) => {
+const AxisSelectionCanvas = ({ fields, xField, yField, colorField, onXFieldChange, onYFieldChange,onColorFieldChange, isClassView,setIsClassView  }) => {
   const options = fields.map(field => ({ value: field, label: field }));
 
   const onSavePreset = () => {};
   const onLoadPreset= () => {};
+  const onSwitchView =  () => { setIsClassView()};
   
   return (
     <div className="axis-selection-canvas">
@@ -32,7 +33,15 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField, onXFieldChang
       />
 
       <button 
+          id="switch-class-student-view-btn"
+          onClick={() => onSwitchView()} // function to switch between class or student view.
+        >
+          {isClassView ?  'Student View': 'Class View' }
+        </button>
+
+      <button 
           id="save-preset-btn"
+          style={{ color: 'gray' }} 
           onClick={() => onSavePreset()} // function to save current state as a preset
         >
           Save Preset As
@@ -40,6 +49,7 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField, onXFieldChang
 
       <button 
         id="load-preset-btn"
+        style={{ color: 'gray' }} 
         onClick={() => onLoadPreset()} // function to load a saved preset
       >
         Load Preset

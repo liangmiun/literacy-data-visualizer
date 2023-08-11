@@ -2,8 +2,6 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 
-//const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPointClick,isClassView }) => {
-
 const ScatterCanvas = ({ data, xField, yField, colorField, width, height, 
     onPointClick,isClassView ,setIsClassView, updateData, selectedRecord }) => {
   const svgRef = useRef();
