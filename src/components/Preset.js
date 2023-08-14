@@ -1,74 +1,53 @@
-import React, { useState } from 'react';
 
-
-const Preset = ({ config, setConfig }) => {
-  //const [preset, setPreset] = useState({});
-
-  save = ({ xField, yField, colorField }) => {
-    const config = { xField, yField, colorField };
-    const file = new Blob([JSON.stringify(config)], {type: 'application/json'});
-    const fileURL = URL.createObjectURL(file);
-    const link = document.createElement('a');
-    link.href = fileURL;
-    link.download = 'config.json';
-    link.click();
-  }
-
-  
-  load= () => {
-    return new Promise((resolve, reject) => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'application/json';
-      input.onchange = event => {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const config = JSON.parse(event.target.result);
-          resolve(config);
-        };
-        reader.onerror = (error) => reject(error);
-        reader.readAsText(file);
-      };
-      input.click();
-    });
-  }
-  
-
-  // const handleSavePreset = () => {
-  //   // save current configuration to local storage or file
-  //   localStorage.setItem('preset', JSON.stringify(config));
-  //   alert('Configuration saved as preset.');
-  // }
-
-  // const handleLoadPreset = () => {
-  //   // load preset from local storage or file
-  //   const loadedPreset = JSON.parse(localStorage.getItem('preset'));
-  //   if (loadedPreset) {
-  //     setPreset(loadedPreset);
-  //     setConfig(loadedPreset);
-  //     alert('Configuration loaded from preset.');
-  //   } else {
-  //     alert('No preset found.');
-  //   }
-  // }
-
-  // return (
-  //   <>
-  //     <button 
-  //       id="save-preset-btn"
-  //       onClick={handleSavePreset}
-  //     >
-  //       Save Preset As
-  //     </button>
-  //     <button 
-  //       id="load-preset-btn"
-  //       onClick={handleLoadPreset}
-  //     >
-  //       Load Preset
-  //     </button>
-  //   </>
-  // );
+export const preset_dict = {
+  xField: '',
+  xRange: [],
+  yField: '',
+  yRange: [],
+  isClassView: false,
+  filterConfiguration: {}
 };
 
-export default Preset;
+export const updatePreset = (xField, xRange, yField, yRange, isClassView, filterConfiguration) => {
+  preset_dict.xField = xField;
+  preset_dict.xRange = xRange;
+  preset_dict.yField = yField;
+  preset_dict.yRange = yRange;
+  preset_dict.isClassView = isClassView;
+  preset_dict.filterConfiguration = filterConfiguration;
+};
+
+
+export const save = (config) => {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config));
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href",     dataStr);
+  downloadAnchorNode.setAttribute("download", "preset_config.json");
+  document.body.appendChild(downloadAnchorNode);
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+};
+
+export const load = (callback) => {
+  const uploadInputNode = document.createElement('input');
+  uploadInputNode.setAttribute("type", "file");
+  uploadInputNode.setAttribute("accept", "application/json");
+
+  uploadInputNode.onchange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target.result;
+      const loadedConfig = JSON.parse(content);
+      callback(loadedConfig);
+    };
+
+    reader.readAsText(file);
+  };
+
+  document.body.appendChild(uploadInputNode);
+  uploadInputNode.click();
+  uploadInputNode.remove();
+};
