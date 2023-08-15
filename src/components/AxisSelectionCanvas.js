@@ -1,12 +1,12 @@
 import React from 'react';
 import Select from 'react-select';
-import { save } from './Preset';  
 
-const AxisSelectionCanvas = ({ fields, xField, yField, colorField, onXFieldChange, onYFieldChange,onColorFieldChange, isClassView,setIsClassView  }) => {
+
+const AxisSelectionCanvas = ({ fields, xField, yField, colorField, onXFieldChange, onYFieldChange,onColorFieldChange, isClassView,setIsClassView, save, load, setConfig  }) => {
   const options = fields.map(field => ({ value: field, label: field }));
 
   const onSavePreset = () => {  save()};
-  const onLoadPreset= () => {};
+  const onLoadPreset= () => { load(setConfig)};
   const onSwitchView =  () => { setIsClassView()};
   
   return (
@@ -50,7 +50,6 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField, onXFieldChang
 
       <button 
         id="load-preset-btn"
-        style={{ color: 'gray' }} 
         onClick={() => onLoadPreset()} // function to load a saved preset
       >
         Load Preset

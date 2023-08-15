@@ -1,25 +1,17 @@
-
-export const preset_dict = {
-  xField: '',
-  xRange: [],
-  yField: '',
-  yRange: [],
-  isClassView: false,
-  filterConfiguration: {}
-};
-
-export const updatePreset = (xField, xRange, yField, yRange, isClassView, filterConfiguration) => {
-  preset_dict.xField = xField;
-  preset_dict.xRange = xRange;
-  preset_dict.yField = yField;
-  preset_dict.yRange = yRange;
-  preset_dict.isClassView = isClassView;
-  preset_dict.filterConfiguration = filterConfiguration;
-};
+import {preset_dict, updatePreset} from '../ScatterPage.js';
 
 
-export const save = (config) => {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config));
+// export const preset_dict = {
+//   xField: '',
+//   yField: '',
+//   isClassView: false,
+// };
+
+
+
+export const save = () => {
+  updatePreset();
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(preset_dict));
   const downloadAnchorNode = document.createElement('a');
   downloadAnchorNode.setAttribute("href",     dataStr);
   downloadAnchorNode.setAttribute("download", "preset_config.json");
