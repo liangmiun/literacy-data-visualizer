@@ -10,7 +10,7 @@
   max-width: 600px;
   grid-column: 1 / 2;  
   grid-row: 1 / 2;
-  display: flex;
+  /*display: flex; */
   justify-content: space-between;
   padding: 10px;
 }
