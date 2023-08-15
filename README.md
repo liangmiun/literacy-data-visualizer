@@ -15,7 +15,7 @@ You need Node.js and npm installed to host the application. If you haven't insta
 
 ### Known issues
 #### "digital envelope routines::unsupported"
-Run ```$env:NODE_OPTIONS = "--openssl-legacy-provider"``` before ```npm start```
+Run ```$env:NODE_OPTIONS = "--openssl-legacy-provider"``` once before ```npm start```. Once done, you do not need to do so again.
 
 #### "Module not found: ..."
 Let Liang know, and he should push a fix soon enough.
