@@ -1,13 +1,29 @@
-import React from 'react';
+import React , { useState} from 'react';
 import Select from 'react-select';
 
 
-const AxisSelectionCanvas = ({ fields, xField, yField, colorField, onXFieldChange, onYFieldChange,onColorFieldChange, isClassView,setIsClassView, save, load, setConfig  }) => {
+const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField, 
+  onXFieldChange, onYFieldChange,onColorFieldChange, isClassView,setIsClassView, 
+  save, load, setConfig, updateData , 
+  studentsChecked, setStudentsChecked,
+  showViolin, setShowViolin
+
+}) => {
   const options = fields.map(field => ({ value: field, label: field }));
+  const uniqueSkolaValues = [...new Set(data.map(record => record.Skola))];
+  const skolaOptions = uniqueSkolaValues.map(skola => ({ value: skola, label: skola }));
 
   const onSavePreset = () => {  save()};
   const onLoadPreset= () => { load(setConfig)};
   const onSwitchView =  () => { setIsClassView()};
+  const onSelectSchool = (optionValue) => {
+      const selectedSchool = optionValue;
+      const students = data.filter(d => d.Skola === selectedSchool);
+      updateData(students);
+    }
+
+ 
+  const [selectedSchool, setSelectedSchool] = useState('');
   
   return (
     <div className="axis-selection-canvas">
@@ -66,6 +82,47 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField, onXFieldChang
         >
           Load Preset
         </button>
+        <button 
+          id="select-school-btn"
+        >
+          Select School
+        </button>
+
+        <button 
+          id="show-violin-btn"
+          onClick={() => setShowViolin(!showViolin)} 
+        >
+          ViolinPlot
+        </button>
+
+        <button 
+          id="show-box-btn"
+        >
+          BoxPlot
+        </button>
+
+        <div>
+            <input 
+                type="checkbox" 
+                checked={studentsChecked} 
+                onChange={() => setStudentsChecked(!studentsChecked)} 
+            />
+            <label>Show Students</label>
+        </div>
+
+
+        <div className="field-pair">
+          <label htmlFor="select-school">Select School:</label>
+          <Select
+            id="select-school"
+            value={{ value: selectedSchool, label: selectedSchool }}
+            options={skolaOptions}
+            onChange={option => onSelectSchool(option.value)}
+          />
+        </div>
+
+
+
       </div>
     </div>
   

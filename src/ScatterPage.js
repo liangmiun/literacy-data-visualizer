@@ -12,6 +12,7 @@ import './App.css';
 
 const ScatterPage = () => {
   const [data, setData] = useState([]);
+  const [filteredData, seFilteredtData] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null); 
   const [xField, setXField] = useState('ElevID');
   const [yField, setYField] = useState('Lexplore Score');
@@ -95,10 +96,10 @@ const ScatterPage = () => {
 
   const handlePointClick = (event,record) => setSelectedRecord(record);
 
-    // Initialize isClassView
-    const [isClassView, setIsClassView] = useState(true);
+  // Initialize isClassView
+  const [isClassView, setIsClassView] = useState(true);
 
-    // Function to update data
+  // Function to update data
   const updateData = (newData) => {
     setData(newData);
   }
@@ -111,6 +112,7 @@ const ScatterPage = () => {
     <div>    
     <div className="app" >  
       <AxisSelectionCanvas
+        data={data}
         fields={fields}
         xField={xField}
         yField={yField}
@@ -123,6 +125,7 @@ const ScatterPage = () => {
         save = {save}
         load = {load}
         setConfig = {setConfigFromPreset}
+        updateData={updateData}
       />
       <ScatterCanvas
         data={data}

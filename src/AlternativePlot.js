@@ -17,6 +17,8 @@ const AlternativePage = () => {
   const [yField, setYField] = useState('Lexplore Score');
   const [colorField, setColorField] = useState('Lexplore Score');
   const fields = Object.keys(data[0] || {});
+  const [studentsChecked, setStudentsChecked] = useState(false);
+  const [showViolin, setShowViolin] = useState(false);
 
   const preset_dict = {
     xField: '',
@@ -111,6 +113,7 @@ const AlternativePage = () => {
     <div>    
     <div className="app" >  
       <AxisSelectionCanvas
+        data={data}
         fields={fields}
         xField={xField}
         yField={yField}
@@ -123,6 +126,11 @@ const AlternativePage = () => {
         save = {save}
         load = {load}
         setConfig = {setConfigFromPreset}
+        updateData={updateData}
+        setStudentsChecked={setStudentsChecked}
+        studentsChecked={studentsChecked}
+        setShowViolin={setShowViolin}
+        showViolin={showViolin}
       />
       <BoxCanvas
         data={data}
@@ -134,8 +142,9 @@ const AlternativePage = () => {
         isClassView={isClassView}        
         onPointClick={handlePointClick}  //  setSelectedRecord
         setIsClassView={toggleIsClassView}
-        updateData={updateData}      
         selectedRecord={selectedRecord}
+        studentsChecked={studentsChecked}
+        showViolin={showViolin}
       />
 
       
