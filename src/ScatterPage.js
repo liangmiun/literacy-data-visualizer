@@ -85,11 +85,13 @@ const ScatterPage = () => {
   };
 
 
-
+  //  D3.v4 version:
   useEffect(() => {
     csv('/LiteracySample.csv', rowParser).then(setData)
 
     }, []);
+
+
 
   const handlePointClick = (event,record) => setSelectedRecord(record);
 
