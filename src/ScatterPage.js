@@ -12,7 +12,7 @@ import './App.css';
 
 const ScatterPage = () => {
   const [data, setData] = useState([]);
-  const [filteredData, seFilteredtData] = useState([]);
+  const [filteredData, setFilteredtData] = useState(data);
   const [selectedRecord, setSelectedRecord] = useState(null); 
   const [xField, setXField] = useState('ElevID');
   const [yField, setYField] = useState('Lexplore Score');
@@ -57,9 +57,7 @@ const ScatterPage = () => {
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
     }
-};
-
-
+  };
 
   const load = (callback) => {
     const uploadInputNode = document.createElement('input');
@@ -85,13 +83,10 @@ const ScatterPage = () => {
     uploadInputNode.remove();
   };
 
-
   //  D3.v4 version:
   useEffect(() => {
     csv('/LiteracySample.csv', rowParser).then(setData)
-
     }, []);
-
 
 
   const handlePointClick = (event,record) => setSelectedRecord(record);
@@ -126,9 +121,10 @@ const ScatterPage = () => {
         load = {load}
         setConfig = {setConfigFromPreset}
         updateData={updateData}
+        setFilteredData={setFilteredtData}
       />
       <ScatterCanvas
-        data={data}
+        filteredData={filteredData}
         xField={xField}
         yField={yField}
         colorField = {colorField}

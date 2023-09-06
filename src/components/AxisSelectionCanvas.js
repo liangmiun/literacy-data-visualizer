@@ -4,10 +4,8 @@ import Select from 'react-select';
 
 const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField, 
   onXFieldChange, onYFieldChange,onColorFieldChange, isClassView,setIsClassView, 
-  save, load, setConfig, updateData , 
-  studentsChecked, setStudentsChecked,
-  showViolin, setShowViolin
-
+  save, load, setConfig, studentsChecked, setStudentsChecked,
+  showViolin, setShowViolin, setFilteredData
 }) => {
   const options = fields.map(field => ({ value: field, label: field }));
   const uniqueSkolaValues = [...new Set(data.map(record => record.Skola))];
@@ -19,7 +17,7 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
   const onSelectSchool = (optionValue) => {
       const selectedSchool = optionValue;
       const students = data.filter(d => d.Skola === selectedSchool);
-      updateData(students);
+      setFilteredData(students);
     }
 
  

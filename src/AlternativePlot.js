@@ -12,6 +12,7 @@ import './App.css';
 
 const AlternativePage = () => {
   const [data, setData] = useState([]);
+  const [filterdData, setFilteredData] = useState(data);
   const [selectedRecord, setSelectedRecord] = useState(null); 
   const [xField, setXField] = useState('ElevID');
   const [yField, setYField] = useState('Lexplore Score');
@@ -105,6 +106,7 @@ const AlternativePage = () => {
     setData(newData);
   }
 
+
   const toggleIsClassView = () => {
     setIsClassView(!isClassView);
   }
@@ -131,9 +133,10 @@ const AlternativePage = () => {
         studentsChecked={studentsChecked}
         setShowViolin={setShowViolin}
         showViolin={showViolin}
+        setFilteredData={setFilteredData}
       />
       <AggregateCanvas
-        data={data}
+        filteredData={filterdData}
         xField={xField}
         yField={yField}
         colorField = {colorField}

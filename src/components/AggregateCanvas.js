@@ -3,14 +3,14 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 
-const AggregateCanvas = ({ data, xField, yField, colorField, width, height, 
+const AggregateCanvas = ({ filteredData, xField, yField, colorField, width, height, 
     onPointClick, selectedRecord, studentsChecked, showViolin }) => {
 
 
     if(showViolin) {
-      return ViolinPlots(data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked);
+      return ViolinPlots(filteredData, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked);
     }
-    return BoxPlots(data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked );   
+    return BoxPlots(filteredData, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked );   
 
 
 };

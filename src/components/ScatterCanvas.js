@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 
-const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPointClick, isClassView, setIsClassView, updateData, selectedRecord }) => {
+const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height, onPointClick, isClassView, setIsClassView, updateData, selectedRecord }) => {
     const svgRef = useRef();
     useEffect(() => {
         const svg = d3.select(svgRef.current);
@@ -14,9 +14,9 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
         const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
         if (isClassView) {
             // Process data for violin plot
-            const allClasses = Array.from(new Set(data.map(d => d.Skola))); //Klass
+            const allClasses = Array.from(new Set(filteredData.map(d => d.Skola))); //Klass
 
-            const [yMin, yMax] = d3.extent(data, d => d[yField]);
+            const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
             const yPadding = 0;
             const y = d3.scaleLinear().domain([yMin - yPadding, yMax + yPadding]).range([innerHeight, 0]);
 
@@ -29,7 +29,7 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
             const histogram = d3.bin().domain(y.domain()).thresholds(y.ticks(30))
                 .value(d => d);
 
-            const grouped = d3.group(data, d => d.Skola);
+            const grouped = d3.group(filteredData, d => d.Skola);
 
             const sumstat = Array.from(grouped).map(([key, values]) => {
                 const input = values.map(g => g[yField]);
@@ -71,27 +71,52 @@ const ScatterCanvas = ({ data, xField, yField, colorField, width, height, onPoin
                 );
         } else {
             // Process data for scatter plot
-            const [xMin, xMax] = d3.extent(data, d => d[xField]);
+            const [xMin, xMax] = d3.extent(filteredData, d => d[xField]);
             const xPadding = (xMax - xMin) * 0.03;
             const xScale = d3.scaleLinear().domain([xMin - xPadding, xMax + xPadding]).range([0, innerWidth]);
-            const [yMin, yMax] = d3.extent(data, d => d[yField]);
+            const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
             const yPadding = (yMax - yMin) * 0.03;
             const yScale = d3.scaleLinear().domain([yMin - yPadding, yMax + yPadding]).range([innerHeight, 0]);
-            const colorDomain = Array.from(new Set(data.map(d => d[colorField])));
+            const colorDomain = Array.from(new Set(filteredData.map(d => d[colorField])));
             const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);
-            g.selectAll('circle')
-                .data(data)
-                .enter().append('circle')
-                .attr('cx', d => xScale(d[xField]))
-                .attr('cy', d => yScale(d[yField]))
-                .attr('r', 2)
-                .attr('fill', d => colorScale(d[colorField]))
-                .on('click', onPointClick);
-            g.append('g').attr('transform', `translate(0, ${innerHeight})`).call(d3.axisBottom(xScale));
-            g.append('g').call(d3.axisLeft(yScale));
+
+            //  Group data by ElevID
+            const elevIDGroups = d3.group(filteredData, d => d.ElevID);
+
+            //  Sort data in each group by xField
+            elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
+
+            //  Define line generator
+            const line = d3.line()
+                .x(d => xScale(d[xField]))
+                .y(d => yScale(d[yField]));
+
+            // Draw lines
+            g.selectAll('.line-path')
+                .data(Array.from(elevIDGroups.values()))
+                .enter().append('path')
+                .attr('class', 'line-path')
+                .attr('d', d => line(d))
+                .attr('fill', 'none')
+                .attr('stroke', d => colorScale(d[0][colorField]))
+                .attr('stroke-width', 0.5);
+
+            // Draw circles 
+            g.selectAll('circle')
+                .data(filteredData)
+                .enter().append('circle')
+                .attr('cx', d => xScale(d[xField]))
+                .attr('cy', d => yScale(d[yField]))
+                .attr('r', 2)
+                .attr('fill', d => colorScale(d[colorField]))
+                .on('click', onPointClick);
+
+            g.append('g').attr('transform', `translate(0, ${innerHeight})`).call(d3.axisBottom(xScale));
+            g.append('g').call(d3.axisLeft(yScale));
+
         }
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [data, xField, yField, colorField, width, height, onPointClick, isClassView, selectedRecord]);
+    }, [filteredData, xField, yField, colorField, width, height, onPointClick, isClassView, selectedRecord]);
     return (
         <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
     );
