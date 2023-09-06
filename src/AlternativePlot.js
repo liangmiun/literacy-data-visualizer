@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { csv } from 'd3';
 import * as d3 from 'd3';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
-import BoxCanvas from './components/BoxCanvas';
+import AggregateCanvas from './components/AggregateCanvas';
 import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
@@ -132,16 +132,14 @@ const AlternativePage = () => {
         setShowViolin={setShowViolin}
         showViolin={showViolin}
       />
-      <BoxCanvas
+      <AggregateCanvas
         data={data}
         xField={xField}
         yField={yField}
         colorField = {colorField}
         width={600}
-        height={400}
-        isClassView={isClassView}        
+        height={400}    
         onPointClick={handlePointClick}  //  setSelectedRecord
-        setIsClassView={toggleIsClassView}
         selectedRecord={selectedRecord}
         studentsChecked={studentsChecked}
         showViolin={showViolin}
