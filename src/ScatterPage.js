@@ -5,7 +5,7 @@ import AxisSelectionCanvas from './components/AxisSelectionCanvas';
 import ScatterCanvas from './components/ScatterCanvas';
 import DetailCanvas from './components/DetailCanvas';
 //import FilterCanvas from './components/FilterCanvas';
-//import LogicCanvas from './components/LogicCanvas';
+import LogicCanvas from './components/LogicCanvas';
 import './App.css';
 
 
@@ -144,7 +144,7 @@ const ScatterPage = () => {
 
       {/*<FilterCanvas fields={fields.filter(field => field !== 'StudentID')} />   */} 
 
-      {/*<LogicCanvas  fields={fields} data ={data}/>  */} 
+      <LogicCanvas  fields={fields} data ={data}/> 
       
     </div>
     </div>
