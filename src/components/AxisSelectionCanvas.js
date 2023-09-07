@@ -17,6 +17,7 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
   const onSwitchView =  () => { setIsClassView()};
   const onSelectSchool = (optionValue) => {
       const students = data.filter(d => d.Skola === optionValue);
+      setSelectedSchool(optionValue);
       setFilteredData(students);
     } 
   const [selectedSchool, setSelectedSchool] = useState('Rudboda skola');

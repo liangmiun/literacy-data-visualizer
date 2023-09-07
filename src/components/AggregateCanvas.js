@@ -249,6 +249,15 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onPointClick,
             .attr("stroke", "black")
             .style("width", 40);
 
+
+        g.selectAll("medianText")
+            .data(sumstat)
+            .enter().append("text")
+            .attr("x", d => x(d.key))
+            .attr("y", d => y(d.value.median) - 5) 
+            .style("text-anchor", "middle")
+            .text(d => d.value.median);
+
         // Add individual points with jitter
         if(studentsChecked) {
             PresentIndividuals(data, yField, g, x, y)
