@@ -4,8 +4,8 @@ import * as d3 from 'd3';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
 import ScatterCanvas from './components/ScatterCanvas';
 import DetailCanvas from './components/DetailCanvas';
-import FilterCanvas from './components/FilterCanvas';
-import LogicCanvas from './components/LogicCanvas';
+//import FilterCanvas from './components/FilterCanvas';
+//import LogicCanvas from './components/LogicCanvas';
 import './App.css';
 
 
@@ -128,8 +128,8 @@ const ScatterPage = () => {
         xField={xField}
         yField={yField}
         colorField = {colorField}
-        width={600}
-        height={400}
+        width= {1000}
+        height={700}
         isClassView={isClassView}        
         onPointClick={handlePointClick}  //  setSelectedRecord
         setIsClassView={toggleIsClassView}
@@ -142,9 +142,9 @@ const ScatterPage = () => {
      
 
 
-      <FilterCanvas fields={fields.filter(field => field !== 'StudentID')} />  
+      {/*<FilterCanvas fields={fields.filter(field => field !== 'StudentID')} />   */} 
 
-      <LogicCanvas  fields={fields} data ={data}/>  
+      {/*<LogicCanvas  fields={fields} data ={data}/>  */} 
       
     </div>
     </div>

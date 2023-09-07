@@ -4,8 +4,8 @@ import * as d3 from 'd3';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
 import AggregateCanvas from './components/AggregateCanvas';
 import DetailCanvas from './components/DetailCanvas';
-import FilterCanvas from './components/FilterCanvas';
-import LogicCanvas from './components/LogicCanvas';
+//import FilterCanvas from './components/FilterCanvas';
+//import LogicCanvas from './components/LogicCanvas';
 import './App.css';
 
 
@@ -140,8 +140,8 @@ const AlternativePage = () => {
         xField={xField}
         yField={yField}
         colorField = {colorField}
-        width={600}
-        height={400}    
+        width={1000}
+        height={700}    
         onPointClick={handlePointClick}  //  setSelectedRecord
         selectedRecord={selectedRecord}
         studentsChecked={studentsChecked}
@@ -149,13 +149,12 @@ const AlternativePage = () => {
       />
 
       
-      <DetailCanvas data={selectedRecord} />
-     
+      <DetailCanvas data={selectedRecord} />     
 
 
-      <FilterCanvas fields={fields.filter(field => field !== 'StudentID')} />  
+      {/*<FilterCanvas fields={fields.filter(field => field !== 'StudentID')} />   */} 
 
-      <LogicCanvas  fields={fields} data ={data}/>  
+      {/*<LogicCanvas  fields={fields} data ={data}/>   */} 
       
     </div>
     </div>

@@ -1,5 +1,4 @@
-.axis-selection-canvas {
-    max-width: 600px;
+.axis-selection-canvas {    
     display: grid;               /* Making this a grid container */
     grid-template-rows: auto auto; 
     gap: 10px;
@@ -7,8 +6,9 @@
   }  
 
   .axis-selects-row {
-    display: flex;
-    grid-template-columns: auto auto auto; 
+    display: grid;
+    grid-template-columns: auto auto auto auto; 
+    /* margin: 20px 20px 20px 20px; */
 
     /* align-items: center;     
     justify-content: space-between; 
@@ -20,9 +20,20 @@
     grid-row: 2 / 3; 
   }
 
-  .field-pair {
-    display: flex;
+  .field-pair {    
+    margin: 0% 2% 1% 2%; 
+    width: 16em;
+    /* margin-right: 20px;   */
+     
    }
+
+  .btn {
+    margin: 1% 2% 1% 2%;    
+  }
+
+
+
+
 
 
 

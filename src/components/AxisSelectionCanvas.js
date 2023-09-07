@@ -1,5 +1,6 @@
 import React , { useState} from 'react';
 import Select from 'react-select';
+import './AxisSelectionCanvas.css';
 
 
 const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField, 
@@ -10,18 +11,15 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
   const options = fields.map(field => ({ value: field, label: field }));
   const uniqueSkolaValues = [...new Set(data.map(record => record.Skola))];
   const skolaOptions = uniqueSkolaValues.map(skola => ({ value: skola, label: skola }));
-
+  
   const onSavePreset = () => {  save()};
   const onLoadPreset= () => { load(setConfig)};
   const onSwitchView =  () => { setIsClassView()};
   const onSelectSchool = (optionValue) => {
-      const selectedSchool = optionValue;
-      const students = data.filter(d => d.Skola === selectedSchool);
+      const students = data.filter(d => d.Skola === optionValue);
       setFilteredData(students);
-    }
-
- 
-  const [selectedSchool, setSelectedSchool] = useState('');
+    } 
+  const [selectedSchool, setSelectedSchool] = useState('Rudboda skola');
   
   return (
     <div className="axis-selection-canvas">
@@ -29,7 +27,7 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
       <div className="axis-selects-row"  style={{ display: 'flex' }} >
         <div className="field-pair">
           <label htmlFor="x-field">X-field:</label>
-          <Select
+          <Select 
             id="x-field"
             value={{ value: xField, label: xField }}
             options={options}
@@ -37,7 +35,7 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
           />
         </div>
 
-        <div className="field-pair">
+        <div className="field-pair" >
           <label htmlFor="y-field">Y-field:</label>
           <Select
             id="y-field"
@@ -48,7 +46,7 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
         </div>
 
         <div className="field-pair">
-          <label htmlFor="Colorfiled">Color:</label>      
+          <label htmlFor="color-field">Color:</label>      
           <Select
             id="color-field"
             value={{ value: colorField, label: colorField }}
@@ -56,61 +54,9 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
             onChange={option => onColorFieldChange(option.value)}
           />
         </div>
-      </div>
 
-      <div className="preset-buttons-row" >
-        <button 
-            id="switch-class-student-view-btn"
-            onClick={() => onSwitchView()} // function to switch between class or student view.
-          >
-            {isClassView ?  'Student View': 'Class View' }
-          </button>
-
-        <button 
-            id="save-preset-btn"
-            //style={{ color: 'gray' }} 
-            onClick={() => onSavePreset()} // function to save current state as a preset
-          >
-            Save Preset
-          </button>
-
-        <button 
-          id="load-preset-btn"
-          onClick={() => onLoadPreset()} // function to load a saved preset
-        >
-          Load Preset
-        </button>
-        <button 
-          id="select-school-btn"
-        >
-          Select School
-        </button>
-
-        <button 
-          id="show-violin-btn"
-          onClick={() => setShowViolin(!showViolin)} 
-        >
-          ViolinPlot
-        </button>
-
-        <button 
-          id="show-box-btn"
-        >
-          BoxPlot
-        </button>
-
-        <div>
-            <input 
-                type="checkbox" 
-                checked={studentsChecked} 
-                onChange={() => setStudentsChecked(!studentsChecked)} 
-            />
-            <label>Show Students</label>
-        </div>
-
-
-        <div className="field-pair">
-          <label htmlFor="select-school">Select School:</label>
+        <div className="field-pair" >
+          <label htmlFor="select-school" >Select School:</label>
           <Select
             id="select-school"
             value={{ value: selectedSchool, label: selectedSchool }}
@@ -118,11 +64,64 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
             onChange={option => onSelectSchool(option.value)}
           />
         </div>
+      </div>
 
+      <div style={{display: 'inline-flex', marginLeft:'30px'}}>
 
+         <div className="preset-buttons-row" 
+         style={{display: 'inline-flex',border: '1px solid lightgray', marginRight:'20px', padding:'10px' }}>
+
+              <button className="btn"
+                  
+                  id="save-preset-btn"
+                  //style={{ color: 'gray' }} 
+                  onClick={() => onSavePreset()} // function to save current state as a preset
+                >
+                  Save Preset
+                </button>
+
+              <button className="btn"
+                id="load-preset-btn"
+                onClick={() => onLoadPreset()} // function to load a saved preset
+              >
+                Load Preset
+              </button>
+
+          </div>
+
+          <div className='aggregate-buttons-row' 
+            style={{ display: 'inline-flex',border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
+
+              <button className="btn"      
+                id="switch-class-student-view-btn"
+                onClick={() => onSwitchView()} // function to switch between class or student view.
+              >
+                {isClassView ?  'Student View': 'Class View' }
+              </button>
+
+              <button className="btn"
+              id="show-violin-btn"
+              onClick={() => setShowViolin(!showViolin)} 
+              >
+                {showViolin ? "BoxPlot" : "ViolinPlot"}
+              </button>
+
+              <div  style={{ display: 'inline-block', marginLeft: '5%'}}>
+                  <input 
+                      type="checkbox" 
+                      checked={studentsChecked} 
+                      onChange={() => setStudentsChecked(!studentsChecked)} 
+                  />
+                  <label>Show Individuals </label>
+              </div>
+
+          </div>
 
       </div>
+
     </div>
+
+    
   
   );
 };

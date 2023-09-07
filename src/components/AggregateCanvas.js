@@ -78,8 +78,8 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
                 .style("stroke", "none")
                 .style("fill", "#69b3a2")
                 .attr("d", d3.area()
-                    .x0(d => xNum(-d.length))  //-d.length
-                    .x1(d => xNum(d.length))  //d.length
+                    .x0(d => xNum(-d.length))  
+                    .x1(d => xNum(d.length))  
                     .y(d => y(d.x0))   //d.x0
                     .curve(d3.curveCatmullRom)
                 );  
@@ -87,7 +87,7 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
             // Add individual points with jitter
             console.log("violin chart studentsChecked:", studentsChecked, typeof(studentsChecked));    
             if(studentsChecked) {                
-                PresentIndividuals(data, yField, g, x, y)
+                PresentIndividuals(data, yField, g, x, y, x.bandwidth()/2)
             }
 
             // ... rest of the zoom and event logic remains unchanged ...
@@ -202,20 +202,20 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onPointClick,
 }
 
 
-function PresentIndividuals(data, yField, g, x, y)
+function PresentIndividuals(data, yField, g, x, y, offset=0)
 {
     const jitterWidth = 20;
 
     g.selectAll("indPoints")
         .data(data)
         .enter().append("circle")
-        .attr("cx", d => x(d.Klass) - jitterWidth/2 + Math.random()*jitterWidth)
+        .attr("cx", d => x(d.Klass) + offset - jitterWidth/2 + Math.random()*jitterWidth)
         .attr("cy", d => y(d[yField]))
         .attr("r", 2)
         .style("fill", "white")
         .attr("stroke", "black")
         .style("fill-opacity", 0.5)
-        .style("stroke-opacity", 0.5); 
+        .style("stroke-opacity", 0.5);    
 
 }   
 
