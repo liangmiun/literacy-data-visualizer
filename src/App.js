@@ -23,7 +23,7 @@ const App = () => {
               <Link to="/">ScatterPlot</Link>
             </li>
             <li style={liStyle}>
-              <Link to="/alternative-plot">AlternativePlot</Link>
+              <Link to="/alternative-plot">Class Aggregation</Link>
             </li>
             <li style={liStyle}>
               <Link to="/about">About</Link>

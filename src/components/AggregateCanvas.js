@@ -18,6 +18,8 @@ const AggregateCanvas = ({ filteredData, xField, yField, colorField, width, heig
 
 const ViolinPlots = (data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked ) => {
         const svgRef = useRef();
+        const parseDate = d3.timeParse('%y%m%d');
+        const formatDate = d3.timeFormat('%y-%m-%d');
         useEffect(() => {
             const svg = d3.select(svgRef.current);
             svg.selectAll('*').remove();
@@ -34,11 +36,24 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
             const y = d3.scaleLinear().domain([yMin - yPadding, yMax + yPadding]).range([innerHeight, 0]);
 
             //const y = d3.scaleLinear().domain([0, 100]).range([innerHeight, 0]); // Assuming Y scale is between 0-100 for simplicity. Adjust if necessary.
-            g.append("g").call(d3.axisLeft(y));
+            g.append("g").call(d3.axisLeft(y).tickFormat(d => {
+                if(yField=='Födelsedatum'||yField=='Testdatum')
+                {const dateObject = parseDate(d);
+                return formatDate(dateObject);
+                }
+                return d;
+            }));
 
             const x = d3.scaleBand().range([0, innerWidth]).domain(allClasses).padding(0.05);
 
-            g.append("g").attr("transform", `translate(0, ${innerHeight})`).call(d3.axisBottom(x));
+            g.append("g").attr("transform", `translate(0, ${innerHeight})`)
+                .call(d3.axisBottom(x).tickFormat(d => {
+                    if(xField=='Födelsedatum'||xField=='Testdatum')
+                    {const dateObject = parseDate(d);
+                    return formatDate(dateObject);
+                    }
+                    return d;
+                }));
 
 
             g.append("text")
@@ -118,6 +133,8 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
 
 const BoxPlots = (data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked ) => {
     const svgRef = useRef();
+    const parseDate = d3.timeParse('%y%m%d');
+    const formatDate = d3.timeFormat('%y-%m-%d');
     useEffect(() => {
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
@@ -167,8 +184,20 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onPointClick,
             .range([innerHeight, 0]);
 
         // X & Y axis
-        g.append('g').attr('transform', `translate(0, ${innerHeight})`).call(d3.axisBottom(x));
-        g.append('g').call(d3.axisLeft(y));
+        g.append('g').attr('transform', `translate(0, ${innerHeight})`).call(d3.axisBottom(x).tickFormat(d => {
+            if(xField=='Födelsedatum'||xField=='Testdatum')
+            {const dateObject = parseDate(d);
+            return formatDate(dateObject);
+            }
+            return d;
+        }));
+        g.append('g').call(d3.axisLeft(y).tickFormat(d => {
+            if(yField=='Födelsedatum'||yField=='Testdatum')
+            {const dateObject = parseDate(d);
+            return formatDate(dateObject);
+            }
+            return d;
+        }));
 
         g.append("text")
         .attr("transform", "rotate(-90)")
