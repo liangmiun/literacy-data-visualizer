@@ -56,7 +56,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
 
         if (isClassView) {
             // Process data for violin plot
-            const allClasses = Array.from(new Set(filteredData.map(d => d.Skola))); //Klass
+            const allClasses = Array.from(new Set(filteredData.map(d => d.Klass))); //Klass
 
             const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
             const yPadding = 0;
@@ -103,7 +103,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             const histogram = d3.bin().domain(y.domain()).thresholds(y.ticks(30))
                 .value(d => d);
 
-            const grouped = d3.group(filteredData, d => d.Skola);
+            const grouped = d3.group(filteredData, d => d.Klass);
 
             const sumstat = Array.from(grouped).map(([key, values]) => {
                 const input = values.map(g => g[yField]);

@@ -90,15 +90,25 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
 
           </div>
 
-          <div className='aggregate-buttons-row' 
-            style={{ display: 'inline-flex',border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
+          <div className='scatter-buttons-row' 
+            style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
 
+              <span className="text" >ScatterPlot: </span>
+              
               <button className="btn"      
                 id="switch-class-student-view-btn"
                 onClick={() => onSwitchView()} // function to switch between class or student view.
               >
                 {isClassView ?  'Student View': 'Class View' }
               </button>
+
+
+
+          </div>
+
+          <div className='aggregate-buttons-row' 
+            style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
+              <span className="text">Class Aggregation: </span>
 
               <button className="btn"
               id="show-violin-btn"
@@ -115,7 +125,7 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
                   />
                   <label>Show Individuals </label>
               </div>
-
+          
           </div>
 
       </div>
