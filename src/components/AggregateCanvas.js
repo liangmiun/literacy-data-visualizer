@@ -21,7 +21,7 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
         useEffect(() => {
             const svg = d3.select(svgRef.current);
             svg.selectAll('*').remove();
-            const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+            const margin = { top: 20, right: 20, bottom: 80, left: 80 };
             const innerWidth = width - margin.left - margin.right;
             const innerHeight = height - margin.top - margin.bottom;
             const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
@@ -39,6 +39,23 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
             const x = d3.scaleBand().range([0, innerWidth]).domain(allClasses).padding(0.05);
 
             g.append("g").attr("transform", `translate(0, ${innerHeight})`).call(d3.axisBottom(x));
+
+
+            g.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left)
+            .attr("x", -innerHeight / 2) 
+            .attr("dy", "1em")  
+            .style("text-anchor", "middle")
+            .text(yField); 
+
+
+            g.append("text")
+            .attr("y", innerHeight + margin.bottom / 2)
+            .attr("x", innerWidth / 2)  
+            .attr("dy", "1em")  
+            .style("text-anchor", "middle")
+            .text(xField);  
 
             const histogram = d3.bin().domain(y.domain()).thresholds(y.ticks(30))
                 .value(d => d);
@@ -104,7 +121,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onPointClick,
     useEffect(() => {
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
-        const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+        const margin = { top: 20, right: 20, bottom: 80, left: 80 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
@@ -152,6 +169,22 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onPointClick,
         // X & Y axis
         g.append('g').attr('transform', `translate(0, ${innerHeight})`).call(d3.axisBottom(x));
         g.append('g').call(d3.axisLeft(y));
+
+        g.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left)
+        .attr("x", -innerHeight / 2) 
+        .attr("dy", "1em")  
+        .style("text-anchor", "middle")
+        .text(yField); 
+
+
+        g.append("text")
+        .attr("y", innerHeight + margin.bottom / 2)
+        .attr("x", innerWidth / 2)  
+        .attr("dy", "1em")  
+        .style("text-anchor", "middle")
+        .text(xField); 
 
         // Vertical lines
         const boxWidth = x.bandwidth() * 0.8; //50
