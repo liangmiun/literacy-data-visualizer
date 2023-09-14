@@ -154,9 +154,6 @@ const ScatterPage = () => {
 function rowParser(d) {
   // Apply D3 autoType first to handle all columns
   const parsedRow = d3.autoType(d);
-  const parseDate = d3.timeParse('%y%m%d');
-  const formatDate = d3.timeFormat('%Y-%m-%d'); 
-
   parsedRow['Årskurs'] = parseInt(parsedRow['Årskurs'], 10);
   parsedRow['Läsnivå (5 = hög)'] = parseInt(parsedRow['Läsnivå (5 = hög)'], 10);     
   //parsedRow['Födelsedatum'] = formatDate(parseDate(parsedRow['Födelsedatum']));  

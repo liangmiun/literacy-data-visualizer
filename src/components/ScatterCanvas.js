@@ -10,7 +10,6 @@ function ColorLegend(data, colorField, svg, width, margin) {
 
     // Define legend space
     const legendWidth = 30;
-    const legendHeight = colorDomain.length * 20;  // Assuming 20px height for each legend item
 
     // Add a group for the legend
     const legend = svg.append("g")
@@ -65,7 +64,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             //const y = d3.scaleLinear().domain([0, 100]).range([innerHeight, 0]); // Assuming Y scale is between 0-100 for simplicity. Adjust if necessary.
             g.append("g").call(
                 d3.axisLeft(y).tickFormat(d => {
-                    if(yField=='Födelsedatum'||yField=='Testdatum')
+                    if(yField==='Födelsedatum'||yField==='Testdatum')
                     {const dateObject = parseDate(d);
                     return formatDate(dateObject);
                     }
@@ -76,7 +75,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             const x = d3.scaleBand().range([0, innerWidth]).domain(allClasses).padding(0.05);
             g.append("g").attr("transform", `translate(0, ${innerHeight})`)
                 .call(d3.axisBottom(x).tickFormat(d => {
-                    if(xField=='Födelsedatum'||xField=='Testdatum')
+                    if(xField==='Födelsedatum'||xField==='Testdatum')
                     {const dateObject = parseDate(d);
                     return formatDate(dateObject);
                     }
@@ -214,7 +213,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
 
             g.append('g').attr('transform', `translate(0, ${innerHeight})`)
             .call(d3.axisBottom(xScale).tickFormat(d => {
-                if(xField=='Födelsedatum'||xField=='Testdatum')
+                if(xField==='Födelsedatum'||xField==='Testdatum')
                 {const dateObject = parseDate(d);
                 return formatDate(dateObject);
                 }
@@ -224,7 +223,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
 
             g.append('g').call(d3.axisLeft(yScale)
             .tickFormat(d => {
-                if(yField=='Födelsedatum'||yField=='Testdatum')
+                if(yField==='Födelsedatum'||yField==='Testdatum')
                 {const dateObject = parseDate(d);
                 return formatDate(dateObject);
                 }
@@ -260,47 +259,6 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
 };
 
 
-function XYScales(inputData, xField, yField, innerWidth, innerHeight) {
-
-
-    const parseTime = d3.timeParse("%Y-%m-%d");
-    var filteredData = inputData.slice();
-
-    // Check if the first element's xField is a date-formatted string and parse accordingly.
-    if (/^\d{4}-\d{2}-\d{2}$/.test(filteredData[0][xField])) {
-        filteredData.forEach(d => { d[xField] = parseTime(d[xField]) });
-    }
-    
-    // Do the same for yField.
-    if (/^\d{4}-\d{2}-\d{2}$/.test(filteredData[0][yField])) {
-        filteredData.forEach(d => { d[yField] = parseTime(d[yField]) });
-    }
-    
-    let xScale, yScale;
-    
-    // Define xScale based on the data type (date or number).
-    if (filteredData[0][xField] instanceof Date) {
-        const [xMin, xMax] = d3.extent(filteredData, d => d[xField]);
-        xScale = d3.scaleTime().domain([xMin, d3.timeDay.offset(xMax, 1)]).range([0, innerWidth]);
-    } else {
-        const [xMin, xMax] = d3.extent(filteredData, d => d[xField]);
-        const xPadding = (xMax - xMin) * 0.03;
-        xScale = d3.scaleLinear().domain([xMin - xPadding, xMax + xPadding]).range([0, innerWidth]);
-    }
-    
-    // Define yScale based on the data type (date or number).
-    if (filteredData[0][yField] instanceof Date) {
-        const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
-        yScale = d3.scaleTime().domain([yMin, d3.timeDay.offset(yMax, 1)]).range([innerHeight, 0]);
-    } else {
-        const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
-        const yPadding = (yMax - yMin) * 0.03;
-        yScale = d3.scaleLinear().domain([yMin - yPadding, yMax + yPadding]).range([innerHeight, 0]);
-    }
-    
-    return {xScale, yScale};   
-
-}
 
 
 export default ScatterCanvas;

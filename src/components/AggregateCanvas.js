@@ -37,7 +37,7 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
 
             //const y = d3.scaleLinear().domain([0, 100]).range([innerHeight, 0]); // Assuming Y scale is between 0-100 for simplicity. Adjust if necessary.
             g.append("g").call(d3.axisLeft(y).tickFormat(d => {
-                if(yField=='Födelsedatum'||yField=='Testdatum')
+                if(yField==='Födelsedatum'||yField==='Testdatum')
                 {const dateObject = parseDate(d);
                 return formatDate(dateObject);
                 }
@@ -48,7 +48,7 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
 
             g.append("g").attr("transform", `translate(0, ${innerHeight})`)
                 .call(d3.axisBottom(x).tickFormat(d => {
-                    if(xField=='Födelsedatum'||xField=='Testdatum')
+                    if(xField==='Födelsedatum'||xField==='Testdatum')
                     {const dateObject = parseDate(d);
                     return formatDate(dateObject);
                     }
@@ -123,7 +123,7 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
             }
 
             // ... rest of the zoom and event logic remains unchanged ...
-        }, [data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked]);
+        }, [data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked, formatDate, parseDate]);
         
         return (
             <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
@@ -185,14 +185,14 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onPointClick,
 
         // X & Y axis
         g.append('g').attr('transform', `translate(0, ${innerHeight})`).call(d3.axisBottom(x).tickFormat(d => {
-            if(xField=='Födelsedatum'||xField=='Testdatum')
+            if(xField==='Födelsedatum'||xField==='Testdatum')
             {const dateObject = parseDate(d);
             return formatDate(dateObject);
             }
             return d;
         }));
         g.append('g').call(d3.axisLeft(y).tickFormat(d => {
-            if(yField=='Födelsedatum'||yField=='Testdatum')
+            if(yField==='Födelsedatum'||yField==='Testdatum')
             {const dateObject = parseDate(d);
             return formatDate(dateObject);
             }
@@ -265,7 +265,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onPointClick,
               
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked]);
+    }, [data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked,formatDate, parseDate]);
     return (
         <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
     );

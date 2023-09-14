@@ -27,7 +27,7 @@ const DetailCanvas = ({ data }) => {
 
 function DetailValue(key,value)
 {
-  if(key=='Födelsedatum'||key=='Testdatum')
+  if(key==='Födelsedatum'||key==='Testdatum')
   {
     const parseDate = d3.timeParse('%y%m%d');
     const formatDate = d3.timeFormat('%Y-%m-%d'); 
