@@ -144,16 +144,17 @@ const ScatterPage = () => {
 
       
       <DetailCanvas data={selectedRecord} />
-     
 
 
       <FilterCanvas fields={fields.filter(field => field !== 'StudentID')} 
         checkedSchools={checkedSchools}
         setCheckedSchools={setCheckedSchools}
         checkedClasses={checkedClasses}
-        setCheckedClasses={setCheckedClasses}  
-      
-      
+        setCheckedClasses={setCheckedClasses}
+        weightRange={weightRange}
+        setWeightRange={setWeightRange}
+        checkedAges={checkedAges}
+        setCheckedAges={setCheckedAges}
       />   
 
       <LogicCanvas  fields={fields} data ={data}/> 

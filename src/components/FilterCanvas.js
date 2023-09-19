@@ -4,6 +4,7 @@ import Select from 'react-select';
 import 'rc-slider/assets/index.css';
 import { Slider, Rail, Handles, Tracks, Ticks } from 'react-compound-slider';
 import SchoolTreeView from './SchoolTreeView';
+import { WeightSlider, AgeCheckBoxes } from './ValueSelect';
 
 
 const FilterRow = ({ fields, onAdd, onRemove, handleRangeChange, rangeValues }) => {
@@ -188,32 +189,44 @@ const FilterRow = ({ fields, onAdd, onRemove, handleRangeChange, rangeValues }) 
   );
 };
 
-const FilterCanvas = ({ checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses,fields, handleRangeChange }) => {
-  const [rows, setRows] = useState([0]);
-  const handleAddRow = () => setRows([...rows, rows[rows.length - 1] + 1]);
-  const handleRemoveRow = index => setRows(rows.filter(row => row !== index));
+const FilterCanvas = ({ checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses, weightRange, setWeightRange,checkedAges, setCheckedAges }) => {
+  // const [rows, setRows] = useState([0]);
+  // const handleAddRow = () => setRows([...rows, rows[rows.length - 1] + 1]);
+  // const handleRemoveRow = index => setRows(rows.filter(row => row !== index));
 
   return (
-    // <div className="filter-canvas">
-    //   {rows.map(index => (
-    //     <FilterRow
-    //       key={index}
-    //       fields={fields}
-    //       onAdd={handleAddRow}
-    //       onRemove={() => handleRemoveRow(index)}
-    //       //handleRangeChange={handleRangeChange}
-    //       rangeValues={null} // Set the rangeValues according to the subjectField.
-    //     />
-    //   ))}
-    // </div>
+
     <div  className='filter-canvas'>
-    <h2>Filter by School and Class</h2>
-    <SchoolTreeView 
-      checkedSchools={checkedSchools}
-      setCheckedSchools={setCheckedSchools}
-      checkedClasses={checkedClasses}
-      setCheckedClasses={setCheckedClasses}    
-    />
+      <h2>Filter by School and Class</h2>
+      
+      {/* Detail Component */}
+      <div style={{ margin: '20px 0' }}>
+        <p>School: {checkedSchools.join(', ')}</p>
+        <p>Class: {checkedClasses.join(', ')}</p>
+        <p>Weight: {weightRange.join(', ')}</p>
+        <p>Age: {checkedAges.join(', ')}</p>
+      </div>
+
+
+      <SchoolTreeView 
+        checkedSchools={checkedSchools}
+        setCheckedSchools={setCheckedSchools}
+        checkedClasses={checkedClasses}
+        setCheckedClasses={setCheckedClasses}    
+      />
+
+      <WeightSlider
+        weightRange={weightRange}
+        setWeightRange={setWeightRange}  
+      />
+
+      <AgeCheckBoxes 
+        checkedAges={checkedAges}
+        setCheckedAges={setCheckedAges}
+      />
+
+
+
     </div>
   );
 };
