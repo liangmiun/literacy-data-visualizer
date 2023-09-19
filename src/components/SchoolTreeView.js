@@ -29,22 +29,34 @@ function generateSchoolClassMap(litData) {
 function SchoolTreeView({ data, setSchoolClassMap,  checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses}) {
 
     const school_class = generateSchoolClassMap(data);
-  
+    var school_class_map = {};      
+
+
     const handleSchoolCheckChange = (school, isChecked) => {
       if (isChecked) {
-        setCheckedSchools(prev => [...prev, school]);
+          setCheckedSchools(prev => [...prev, school]);
+          // Add all child classes of this school
+          setCheckedClasses(prev => [...prev, ...school_class[school].map(cls => `${school}.${cls}`)]);
       } else {
-        setCheckedSchools(prev => prev.filter(s => s !== school));
+          setCheckedSchools(prev => prev.filter(s => s !== school));
+          // // Remove all child classes of this school
+          // setCheckedClasses(prev => prev.filter(c => !c.startsWith(`${school}.`)));
       }
-    };
+  };  
   
+ 
+    
     const handleClassCheckChange = (schoolClass, isChecked) => {
+      const [school, cls] = schoolClass.split('.');
       if (isChecked) {
-        setCheckedClasses(prev => [...prev, schoolClass]);
+          setCheckedClasses(prev => [...prev, schoolClass]);
       } else {
-        setCheckedClasses(prev => prev.filter(c => c !== schoolClass));
+          setCheckedClasses(prev => prev.filter(c => c !== schoolClass));
+          // Uncheck the parent school
+          setCheckedSchools(prev => prev.filter(s => s !== school));
       }
-    };   
+  };
+  
   
   
     return (
@@ -62,9 +74,16 @@ function SchoolTreeView({ data, setSchoolClassMap,  checkedSchools,setCheckedSch
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Checkbox 
                       checked={checkedSchools.includes(school)}
-                      onChange={(event) => handleSchoolCheckChange(school, event.target.checked)}
+                      onChange={(event) => {handleSchoolCheckChange(school, event.target.checked)}}
                     />
                     {school}
+                    <button 
+                      onClick={() => {handleSchoolCheckChange(school, false);setCheckedClasses(prev => prev.filter(c => !c.startsWith(`${school}.`)))}}
+                      style={{marginLeft: '10px'}}
+                    >
+                        Clear
+                    </button>
+
                   </div>
                 }
                 key={school}
