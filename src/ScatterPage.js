@@ -19,6 +19,8 @@ const ScatterPage = () => {
   const [colorField, setColorField] = useState('Årskurs');
   const fields = Object.keys(data[0] || {});
 
+  const [schoolClassMap,setSchoolClassMap] = useState([]);
+
   const [checkedSchools, setCheckedSchools] = useState([]);
   const [checkedClasses, setCheckedClasses] = useState([]);
   const [checkedAges, setCheckedAges] = useState([]);
@@ -157,6 +159,7 @@ const ScatterPage = () => {
         setWeightRange={setWeightRange}
         checkedAges={checkedAges}
         setCheckedAges={setCheckedAges}
+        setSchoolClassMap={setSchoolClassMap}
       />   
 
       <LogicCanvas  fields={fields} data ={data}/> 
@@ -179,5 +182,19 @@ function rowParser(d) {
 
   return parsedRow;
 }
+
+function filterDataBySchoolAndClass(data, group_map) {
+  return data.filter(record => {
+      // Check if the school exists in the group_data
+      const schoolClasses = group_map[record.Skola];
+      if (!schoolClasses) return false;
+
+      // Check if the class exists within the classes of that school
+      return schoolClasses.includes(record.Klass);
+  });
+}
+
+
+
 
 export default ScatterPage;

@@ -1,4 +1,3 @@
-
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { TreeView } from '@mui/x-tree-view/TreeView';
 import { Checkbox } from '@mui/material';
@@ -6,11 +5,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import '../App.css';
 
-// const school_class = {
-//     "School A": ["class 1", "class 2", "class 3"],
-//     "School B": ["class x", "class y"],
-//     "School C": ["class c", "class d"]
-//   };
 
 function generateSchoolClassMap(litData) {
   const school_class = {};
@@ -32,7 +26,7 @@ function generateSchoolClassMap(litData) {
 }
 
 
-function SchoolTreeView({ data, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses}) {
+function SchoolTreeView({ data, setSchoolClassMap,  checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses}) {
 
     const school_class = generateSchoolClassMap(data);
   

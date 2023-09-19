@@ -229,20 +229,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 }
                 return d;
             })
-            ); 
-            
-            // const zoomBehavior = d3.zoom()
-            //     .scaleExtent([0.5, 5])
-            //     .on('zoom', (event) => {
-            //     const zoomState = event.transform;
-            //     g.selectAll('circle')
-            //         .attr('cx', d => zoomState.applyX(xScale(d[xField])))
-            //         .attr('cy', d => zoomState.applyY(yScale(d[yField])));
-            //     g.select('.x-axis').call(d3.axisBottom(xScale).scale(zoomState.rescaleX(xScale)));
-            //     g.select('.y-axis').call(d3.axisLeft(yScale).scale(zoomState.rescaleY(yScale)));
-            //     });
-    
-            // svg.call(zoomBehavior);         
+            );            
  
 
         }
