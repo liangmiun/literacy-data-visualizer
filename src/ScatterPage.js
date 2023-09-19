@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
 import ScatterCanvas from './components/ScatterCanvas';
 import DetailCanvas from './components/DetailCanvas';
-//import FilterCanvas from './components/FilterCanvas';
+import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
 import './App.css';
 
@@ -18,6 +18,11 @@ const ScatterPage = () => {
   const [yField, setYField] = useState('Lexplore Score');
   const [colorField, setColorField] = useState('Årskurs');
   const fields = Object.keys(data[0] || {});
+
+  const [checkedSchools, setCheckedSchools] = useState([]);
+  const [checkedClasses, setCheckedClasses] = useState([]);
+  const [checkedAges, setCheckedAges] = useState([]);
+  const [weightRange, setWeightRange] = useState([15, 35]);
 
   const preset_dict = {
     xField: '',
@@ -142,7 +147,14 @@ const ScatterPage = () => {
      
 
 
-      {/*<FilterCanvas fields={fields.filter(field => field !== 'StudentID')} />   */} 
+      <FilterCanvas fields={fields.filter(field => field !== 'StudentID')} 
+        checkedSchools={checkedSchools}
+        setCheckedSchools={setCheckedSchools}
+        checkedClasses={checkedClasses}
+        setCheckedClasses={setCheckedClasses}  
+      
+      
+      />   
 
       <LogicCanvas  fields={fields} data ={data}/> 
       
