@@ -6,14 +6,35 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import '../App.css';
 
-const data = {
-    "School A": ["class 1", "class 2", "class 3"],
-    "School B": ["class x", "class y"],
-    "School C": ["class c", "class d"]
-  };
+// const school_class = {
+//     "School A": ["class 1", "class 2", "class 3"],
+//     "School B": ["class x", "class y"],
+//     "School C": ["class c", "class d"]
+//   };
+
+function generateSchoolClassMap(litData) {
+  const school_class = {};
+
+  litData.forEach(entry => {
+      const school = entry.Skola;
+      const klass = entry.Klass;
+
+      if (!school_class[school]) {
+          school_class[school] = [];
+      }
+
+      if (school_class[school].indexOf(klass) === -1) {
+          school_class[school].push(klass);
+      }
+  });
+
+  return school_class;
+}
 
 
-function SchoolTreeView({checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses}) {
+function SchoolTreeView({ data, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses}) {
+
+    const school_class = generateSchoolClassMap(data);
   
     const handleSchoolCheckChange = (school, isChecked) => {
       if (isChecked) {
@@ -40,7 +61,7 @@ function SchoolTreeView({checkedSchools,setCheckedSchools,checkedClasses,setChec
           defaultExpandIcon={<ChevronRightIcon />}
         >
           <TreeItem nodeId="root" label="Schools">
-            {Object.entries(data).map(([school, classes], idx) => (
+            {Object.entries(school_class).map(([school, classes], idx) => (
               <TreeItem
                 nodeId={`school-${idx}`}
                 label={
@@ -73,12 +94,6 @@ function SchoolTreeView({checkedSchools,setCheckedSchools,checkedClasses,setChec
             ))}
           </TreeItem>
         </TreeView> 
-
-      {/* Detail Component */}
-      <div style={{ margin: '20px 0' }}>
-        <p>School: {checkedSchools.join(', ')}</p>
-        <p>Class: {checkedClasses.join(', ')}</p>
-      </div>
   
       </div>
     );
