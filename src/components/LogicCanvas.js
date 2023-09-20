@@ -5,8 +5,15 @@ import 'react-filter-box/lib/react-filter-box.css';
 
 const LogicCanvas = ({fields, data}) => {
 
-  const field_options = fields.slice(0,4).map(field => ({
-    columnField: field.toString(),
+  if (!fields || fields.length === 0) return null;
+
+  const field_options = fields.slice(0,7).map(field => ({
+    columnField: field,
+    type: 'text',
+  }));
+
+  const made_options = ['a','b','c','d'].map(field => ({
+    columnField: field,
     type: 'text',
   }));
 
@@ -25,7 +32,7 @@ const LogicCanvas = ({fields, data}) => {
 
 
 
-  const options2 = [
+  const options = [
     {
       columnField: 'Place',
       type: 'number',
@@ -46,27 +53,10 @@ const LogicCanvas = ({fields, data}) => {
   ];
 
 
-  const options = [
-    {
-      columnField: 'Skola',
-      type: 'n',
-    },
-    {
-      columnField: 'Årskurs',
-      type: 't',
-    },
-    {
-      columnField: 'Klass',
-      type: 's', 
-    },
-    {
-      columnField: 'ElevID',
-      type: 't',
-    },
-  ];
+
 
   console.log('start');
-  field_options.forEach(option => {
+  made_options.forEach(option => {
     console.log('fo:'+ option.columnField +  ' ' + option.type);
   });
   options.forEach(option => {
@@ -77,16 +67,11 @@ const LogicCanvas = ({fields, data}) => {
   return (
     <div className='logic-canvas'>
       <h5>Symbolic Filter</h5>
+
       <ReactFilterBox
         data={testLiteracyData}
         options={field_options}
       />
-      <ReactFilterBox
-        data={testLiteracyData}
-        options={options}
-      />
-
-
     </div>
     
   );
