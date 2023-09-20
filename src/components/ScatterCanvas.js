@@ -115,12 +115,12 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             var maxNum = 0;
             for ( var i in sumstat ){
               var allBins = sumstat[i].value
-              console.log("allBins: ", i,  allBins);
+              //console.log("allBins: ", i,  allBins);
               var lengths = allBins.map(function(a){return a.length;})   //.map(function(a){return a.length;})
               var longest = d3.max(lengths)
               if (longest > maxNum) { maxNum = longest }
             }
-            console.log("maxNum: ", maxNum, "sumstat.length: ", sumstat.length);
+            //console.log("maxNum: ", maxNum, "sumstat.length: ", sumstat.length);
 
             const xNum = d3.scaleLinear().range([0, x.bandwidth()]).domain([-maxNum, maxNum]);
             g.selectAll("myViolin")
@@ -182,8 +182,8 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             //  Sort data in each group by xField
             elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
 
-            console.log(elevIDGroups);
-            console.log(Array.from(elevIDGroups.values()));
+            // console.log(elevIDGroups);
+            // console.log(Array.from(elevIDGroups.values()));
 
 
             //  Define line generator

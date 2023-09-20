@@ -10,7 +10,7 @@ const LogicCanvas = ({fields, data}) => {
     type: 'text',
   }));
 
-    console.log(field_options);
+    //console.log(field_options);
 
   const testLiteracyData = (() => {
     const output = fields.reduce((result, field) => {

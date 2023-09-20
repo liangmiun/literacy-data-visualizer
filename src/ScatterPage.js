@@ -19,12 +19,28 @@ const ScatterPage = () => {
   const [colorField, setColorField] = useState('Årskurs');
   const fields = Object.keys(data[0] || {});
 
-  const [schoolClassMap,setSchoolClassMap] = useState([]);
-
   const [checkedSchools, setCheckedSchools] = useState([]);
   const [checkedClasses, setCheckedClasses] = useState([]);
   const [checkedAges, setCheckedAges] = useState([]);
   const [weightRange, setWeightRange] = useState([15, 35]);
+
+
+  const schoolClassFilteredData = data.filter(record => {
+    // Check if the school of the record is in checkedSchools
+    if (checkedSchools.includes(record.Skola)) {
+        return true;
+    }
+
+    // Construct the school.class string from the record
+    const schoolClassCombo = `${record.Skola}.${record.Klass}`;
+    // Check if this combo is in checkedClasses
+    if (checkedClasses.includes(schoolClassCombo)) {
+        return true;
+    }
+
+    // If none of the above conditions are met, exclude this record
+    return false;
+  });
 
   const preset_dict = {
     xField: '',
@@ -131,7 +147,7 @@ const ScatterPage = () => {
         setFilteredData={setFilteredtData}
       />
       <ScatterCanvas
-        filteredData={filteredData}
+        filteredData={schoolClassFilteredData}
         xField={xField}
         yField={yField}
         colorField = {colorField}
@@ -159,7 +175,6 @@ const ScatterPage = () => {
         setWeightRange={setWeightRange}
         checkedAges={checkedAges}
         setCheckedAges={setCheckedAges}
-        setSchoolClassMap={setSchoolClassMap}
       />   
 
       <LogicCanvas  fields={fields} data ={data}/> 

@@ -4,7 +4,7 @@ import SchoolTreeView from './SchoolTreeView';
 import { WeightSlider, AgeCheckBoxes } from './ValueSelect';
 
 
-const FilterCanvas = ({ data, setSchoolClassMap, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses, weightRange, setWeightRange,checkedAges, setCheckedAges }) => {
+const FilterCanvas = ({ data, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses, weightRange, setWeightRange,checkedAges, setCheckedAges }) => {
 
 
   return (
@@ -18,6 +18,7 @@ const FilterCanvas = ({ data, setSchoolClassMap, checkedSchools,setCheckedSchool
         <p>Class: {checkedClasses.join(', ')}</p>
         <p>Weight: {weightRange.join(', ')}</p>
         <p>Age: {checkedAges.join(', ')}</p>
+        <p>SchoolClass: {[...checkedSchools, ...checkedClasses].join(', ') }</p>
       </div>
 
 
@@ -27,7 +28,6 @@ const FilterCanvas = ({ data, setSchoolClassMap, checkedSchools,setCheckedSchool
         setCheckedSchools={setCheckedSchools}
         checkedClasses={checkedClasses}
         setCheckedClasses={setCheckedClasses}
-        setSchoolClassMap={setSchoolClassMap}    
       />
 
       <WeightSlider
