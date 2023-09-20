@@ -147,7 +147,7 @@ const ScatterPage = () => {
         setFilteredData={setFilteredtData}
       />
       <ScatterCanvas
-        filteredData={schoolClassFilteredData}
+        filteredData={filteredData}
         xField={xField}
         yField={yField}
         colorField = {colorField}
@@ -177,7 +177,11 @@ const ScatterPage = () => {
         setCheckedAges={setCheckedAges}
       />   
 
-      <LogicCanvas  fields={fields} data ={data}/> 
+      <LogicCanvas  
+        fields={fields} 
+        data ={data}
+        setFilteredData={setFilteredtData}
+      /> 
       
     </div>
     </div>
