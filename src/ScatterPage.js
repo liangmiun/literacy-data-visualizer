@@ -22,7 +22,8 @@ const ScatterPage = () => {
   const [checkedSchools, setCheckedSchools] = useState([]);
   const [checkedClasses, setCheckedClasses] = useState([]);
   const [checkedAges, setCheckedAges] = useState([]);
-  const [weightRange, setWeightRange] = useState([15, 35]);
+  //const [weightRange, setWeightRange] = useState([15, 35]);
+  const [weightSegments, setWeightSegments] = useState([]);
 
 
   const schoolClassFilteredData = data.filter(record => {
@@ -171,8 +172,8 @@ const ScatterPage = () => {
         setCheckedSchools={setCheckedSchools}
         checkedClasses={checkedClasses}
         setCheckedClasses={setCheckedClasses}
-        weightRange={weightRange}
-        setWeightRange={setWeightRange}
+        weightSegments={weightSegments}
+        setWeightSegments={setWeightSegments}
         checkedAges={checkedAges}
         setCheckedAges={setCheckedAges}
       />   

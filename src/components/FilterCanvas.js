@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import 'rc-slider/assets/index.css';
 import SchoolTreeView from './SchoolTreeView';
-import { WeightSlider, AgeCheckBoxes } from './ValueSelect';
+import {SliderGroup, AgeCheckGroup } from './ValueSelect';
 
 
-const FilterCanvas = ({ data, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses, weightRange, setWeightRange,checkedAges, setCheckedAges }) => {
+const FilterCanvas = ({ data, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses, weightSegments,setWeightSegments,checkedAges, setCheckedAges }) => {
 
 
   return (
@@ -16,7 +16,7 @@ const FilterCanvas = ({ data, checkedSchools,setCheckedSchools,checkedClasses,se
       <div style={{ margin: '20px 0' }}>
         <p>School: {checkedSchools.join(', ')}</p>
         <p>Class: {checkedClasses.join(', ')}</p>
-        <p>Weight: {weightRange.join(', ')}</p>
+        <p>Weight Range: {weightSegments.map(segment => `${segment[0]} to ${segment[1]}`).join(', ')}</p>
         <p>Age: {checkedAges.join(', ')}</p>
         <p>SchoolClass: {[...checkedSchools, ...checkedClasses].join(', ') }</p>
       </div>
@@ -30,15 +30,13 @@ const FilterCanvas = ({ data, checkedSchools,setCheckedSchools,checkedClasses,se
         setCheckedClasses={setCheckedClasses}
       />
 
-      <WeightSlider
-        weightRange={weightRange}
-        setWeightRange={setWeightRange}  
-      />
 
-      <AgeCheckBoxes 
-        checkedAges={checkedAges}
-        setCheckedAges={setCheckedAges}
-      />
+      {/* Age Component */}
+      <AgeCheckGroup checkedAges={checkedAges} setCheckedAges={setCheckedAges} />
+
+
+      {/* Weight Component */}
+      <SliderGroup weightSegments={weightSegments} setWeightSegments={setWeightSegments} />
 
 
 
