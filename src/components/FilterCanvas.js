@@ -1,10 +1,10 @@
 import React from 'react';
 import 'rc-slider/assets/index.css';
 import SchoolTreeView from './SchoolTreeView';
-import {SliderGroup, AgeCheckGroup, OptionSelectGroup } from './ValueSelect';
+import {OptionSelectGroup } from './ValueSelect';
 
 
-const FilterCanvas = ({ data, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses, weightSegments,setWeightSegments,checkedAges, setCheckedAges }) => {
+const FilterCanvas = ({ data, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses, rangeOptions,setRangeOptions,checkedOptions, setCheckedOptions }) => {
 
 
   return (
@@ -16,8 +16,22 @@ const FilterCanvas = ({ data, checkedSchools,setCheckedSchools,checkedClasses,se
       <div style={{ margin: '20px 0' }}>
         <p>School: {checkedSchools.join(', ')}</p>
         <p>Class: {checkedClasses.join(', ')}</p>
-        <p>Weight Range: {`${weightSegments[0]} to ${weightSegments[1]}`}</p>
-        <p>Age: {checkedAges.join(', ')}</p>
+        <p>Checked:
+          {Object.entries(checkedOptions).map(([key, values]) => {
+              if (values.length > 0) {
+                  return <span key={key}><br />{key}: {values.join(', ')}</span>;
+              }
+              return null;
+          })}
+        </p>
+        <p>Range:
+          {Object.entries(rangeOptions).map(([key, values]) => {
+              if (values.length > 0) {
+                  return <span key={key}><br />{key}: {values.join(', ')}</span>;
+              }
+              return null;
+          })} 
+        </p> 
         <p>SchoolClass: {[...checkedSchools, ...checkedClasses].join(', ') }</p>
       </div>
 
@@ -30,15 +44,7 @@ const FilterCanvas = ({ data, checkedSchools,setCheckedSchools,checkedClasses,se
         setCheckedClasses={setCheckedClasses}
       />
 
-      <OptionSelectGroup checkedAges={checkedAges} setCheckedAges={setCheckedAges} setWeightSegments={setWeightSegments} />
-
-
-      
-      {/* <AgeCheckGroup checkedAges={checkedAges} setCheckedAges={setCheckedAges} />
-
-
-      <SliderGroup weightSegments={weightSegments} setWeightSegments={setWeightSegments} /> */}
-
+      <OptionSelectGroup data={data} checkedOptions={checkedOptions} setCheckedOptions={setCheckedOptions}   rangeOptions={rangeOptions}  setRangeOptions={setRangeOptions} />
 
 
     </div>

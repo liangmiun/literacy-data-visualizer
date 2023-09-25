@@ -21,9 +21,16 @@ const ScatterPage = () => {
 
   const [checkedSchools, setCheckedSchools] = useState([]);
   const [checkedClasses, setCheckedClasses] = useState([]);
-  const [checkedAges, setCheckedAges] = useState([]);
-  //const [weightRange, setWeightRange] = useState([15, 35]);
-  const [weightSegments, setWeightSegments] = useState([]);
+  const [checkedOptions, setCheckedOptions] = useState(
+    {'Årskurs':[],
+    'Läsår':[],
+    'Stanine':[]}
+    );
+  const [rangeOptions, setRangeOptions] = useState(
+    {'Födelsedatum':[],
+    'Testdatum':[],
+    'Lexplore Score':[]}
+    );
 
 
   const schoolClassFilteredData = data.filter(record => {
@@ -172,10 +179,10 @@ const ScatterPage = () => {
         setCheckedSchools={setCheckedSchools}
         checkedClasses={checkedClasses}
         setCheckedClasses={setCheckedClasses}
-        weightSegments={weightSegments}
-        setWeightSegments={setWeightSegments}
-        checkedAges={checkedAges}
-        setCheckedAges={setCheckedAges}
+        rangeOptions={rangeOptions}
+        setRangeOptions={setRangeOptions}
+        checkedOptions={checkedOptions}
+        setCheckedOptions={setCheckedOptions}
       />   
 
       <LogicCanvas  
