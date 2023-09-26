@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import * as d3 from 'd3';
 import '../App.css';
 
-export function OptionSelectGroup({ data, checkedOptions, rangeOptions, setCheckedOptions, setRangeOptions }) {
+export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeOptions, setCheckedOptions, setRangeOptions }) {
     const allOptions = Object.keys(checkedOptions).concat(Object.keys(rangeOptions));
     const [selectedOptions, setSelectedOptions] = useState([]);
 
@@ -13,7 +13,7 @@ export function OptionSelectGroup({ data, checkedOptions, rangeOptions, setCheck
 
         // Reset the checkedOptions for the deselected options
         deselectedOptions.forEach(option => {
-            if (checkedOptions.hasOwnProperty(option)) {
+            if (checkedOptions.hasOwnProperty(option)) {                
                 setCheckedOptions(prev => ({ ...prev, [option]: [] }));
             }
             else if (rangeOptions.hasOwnProperty(option)) {
@@ -21,6 +21,9 @@ export function OptionSelectGroup({ data, checkedOptions, rangeOptions, setCheck
             }
         });    
         setSelectedOptions(values);
+        setFilterList(values);
+        console.log("values set to filterList: "+values);
+
 
     };
 
@@ -50,11 +53,9 @@ export function OptionSelectGroup({ data, checkedOptions, rangeOptions, setCheck
                     if (checkedOptions.hasOwnProperty(option)) {
                         const uniqueValues = [...new Set(data.map(item => item[option]))];
                         return <OptionCheckBoxes key={option} label={option} options={uniqueValues} checkedOptions={checkedOptions[option]} setCheckedOptions={setCheckedOptions} />;
-                        //return <OptionCheckBoxes key={option} label={option} checkedOptions={checkedOptions[option]} setCheckedOptions={setCheckedOptions} />;
                     } else if (rangeOptions.hasOwnProperty(option)) {
                         const [minValue, maxValue] = d3.extent(data, d => d[option]);
                         return <OptionSlider key={option} label={option} min={minValue} max={maxValue} setRangeOptions={setRangeOptions} />;
-                        //return <OptionSlider key={option} label={option} min={0} max={100} setRangeOptions={setRangeOptions} />;
                     }
                     return null;
                 })}

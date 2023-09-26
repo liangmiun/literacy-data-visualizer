@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useMemo } from 'react';
 import { csv } from 'd3';
 import * as d3 from 'd3';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
@@ -32,32 +32,36 @@ const ScatterPage = () => {
     'Lexplore Score':[]}
     );
 
+  const [filterList, setFilterList] = useState([]);
+
 
   function checkedFilteredData(data) {
-      return data.filter(record => {
-          for (let key in checkedOptions) {
-              if (checkedOptions[key].includes(record[key])) {
-                  return true;
-              }
-          }
-          return false;
-      });
+    return data.filter(record => {
+        for (let key in checkedOptions) {
+            console.log("key: "+key +" filterList: "+ filterList);
+            if ( filterList.includes(key) && ! checkedOptions[key].includes(record[key])) {
+                return false;
+            }
+        }
+        return true;
+    });
   }
 
 
   function rangeFilteredData(data) {
     return data.filter(record => {
         for (let key in rangeOptions) {
-            const [min, max] = rangeOptions[key];
-            if (record[key] >= min && record[key] <= max) {
-                return true;
-            }
+          console.log("key: "+key +" filterList: "+ filterList);
+          const [min, max] = rangeOptions[key];
+          if ( filterList.includes(key)  && !(record[key] >= min && record[key] <= max)) {
+              return false;
+          }
         }
-        return false;
+        return true;
     });
-}
+  }
 
-  
+
 
   function schoolClassFilteredData(data) {
     return data.filter(record => {
@@ -77,8 +81,14 @@ const ScatterPage = () => {
         return false;
     } );    
   }
-  
-  const shownData = checkedFilteredData(rangeFilteredData(schoolClassFilteredData(data)));  
+
+  //const shownData = checkedFilteredData(rangeFilteredData(schoolClassFilteredData(data)));
+  const shownData = useMemo(() => {
+      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(data)));
+    }, [data, checkedOptions, rangeOptions, checkedSchools, checkedClasses]);  
+
+
+
 
 
   const preset_dict = {
@@ -214,6 +224,7 @@ const ScatterPage = () => {
         setRangeOptions={setRangeOptions}
         checkedOptions={checkedOptions}
         setCheckedOptions={setCheckedOptions}
+        setFilterList=  {setFilterList}
       />   
 
       <LogicCanvas  
