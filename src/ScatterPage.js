@@ -38,7 +38,6 @@ const ScatterPage = () => {
   function checkedFilteredData(data) {
     return data.filter(record => {
         for (let key in checkedOptions) {
-            console.log("key: "+key +" filterList: "+ filterList);
             if ( filterList.includes(key) && ! checkedOptions[key].includes(record[key])) {
                 return false;
             }
@@ -51,7 +50,6 @@ const ScatterPage = () => {
   function rangeFilteredData(data) {
     return data.filter(record => {
         for (let key in rangeOptions) {
-          console.log("key: "+key +" filterList: "+ filterList);
           const [min, max] = rangeOptions[key];
           if ( filterList.includes(key)  && !(record[key] >= min && record[key] <= max)) {
               return false;

@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
@@ -151,11 +150,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
             const yPadding = (yMax - yMin) * 0.03;
             const yScale = d3.scaleLinear().domain([yMin - yPadding, yMax + yPadding]).range([innerHeight, 0]);
-            
-            //const xScale = XYScales(filteredData, xField, yField, innerWidth, innerHeight).xScale;
-            //const yScale = XYScales(filteredData, xField, yField, innerWidth, innerHeight).yScale;
-
-
+          
             const colorDomain = Array.from(new Set(filteredData.map(d => d[colorField])));
             const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);
 
@@ -182,14 +177,11 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             //  Sort data in each group by xField
             elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
 
-            // console.log(elevIDGroups);
-            // console.log(Array.from(elevIDGroups.values()));
-
 
             //  Define line generator
             const line = d3.line()
-                .x(d => xScale(d[xField]))
-                .y(d => yScale(d[yField]));
+            .x(d => xScale(d[xField]))
+            .y(d => yScale(d[yField]));
 
             //Draw lines
             g.selectAll('.line-path')
@@ -198,8 +190,9 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 .attr('class', 'line-path')
                 .attr('d', d => line(d))
                 .attr('fill', 'none')
-                .attr('stroke', d => colorScale(d[0][colorField]))
+                .attr('stroke','rgba(128, 128, 128, 0.5)' )  //d => colorScale(d[0][colorField])
                 .attr('stroke-width', 0.5);
+
 
             // Draw circles 
             g.selectAll('circle')
@@ -211,7 +204,9 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 .attr('fill', d => colorScale(d[colorField]))
                 .on('click', onPointClick);
 
+
             g.append('g').attr('transform', `translate(0, ${innerHeight})`)
+            .attr('class', 'x-axis') 
             .call(d3.axisBottom(xScale).tickFormat(d => {
                 if(xField==='Födelsedatum'||xField==='Testdatum')
                 {const dateObject = parseDate(d);
@@ -221,7 +216,9 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             }));
 
 
-            g.append('g').call(d3.axisLeft(yScale)
+            g.append('g')
+            .attr('class', 'y-axis') 
+            .call(d3.axisLeft(yScale)
             .tickFormat(d => {
                 if(yField==='Födelsedatum'||yField==='Testdatum')
                 {const dateObject = parseDate(d);
@@ -229,16 +226,52 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 }
                 return d;
             })
-            );            
+            ); 
+
+            // ... rest of the zoom and event logic remains unchanged ...   
+            const xAxis = d3.axisBottom(xScale);
+            const yAxis = d3.axisLeft(yScale);
+            
+            
+            const zoomBehavior = d3.zoom()
+                .scaleExtent([0.5, 10])
+                .on('zoom', (event) => {
+                    const zoomState = event.transform;
+
+                    const newXScale = zoomState.rescaleX(xScale);
+                    const newYScale = zoomState.rescaleY(yScale);
+
+                    // Apply zoom transformation to circles
+                    g.selectAll('circle')
+                    .attr('cx', d => {
+                        const value = newXScale(d[xField]);
+                        return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
+                    })
+                    .attr('cy', d => {
+                        const value = newYScale(d[yField]);
+                        return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
+                    });
+
+                    // Apply zoom transformation to lines
+                    g.selectAll('.line-path')
+                    .attr('d', line.x(d => newXScale(d[xField])).y(d => newYScale(d[yField])));
+
+                    // Update the axes with the new scales
+                    g.select('.x-axis').call(xAxis.scale(newXScale));
+                    g.select('.y-axis').call(yAxis.scale(newYScale));
+                });
+    
+            svg.call(zoomBehavior);
  
 
         }
 
 
         // Add color legend
-        ColorLegend(filteredData, colorField, svg, width, margin);
+        ColorLegend(filteredData, colorField, svg, width, margin);   
 
-        // ... rest of the zoom and event logic remains unchanged ...
+
+
     }, [filteredData, xField, yField, colorField, width, height, onPointClick, isClassView, selectedRecord]);
     return (
         <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
