@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
+import { set } from 'd3-collection';
 
 function ColorLegend(data, colorField, svg, width, margin) {
     // Assuming colorField is categorical
@@ -39,10 +40,16 @@ function ColorLegend(data, colorField, svg, width, margin) {
 
 }
 
-const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height, onPointClick, isClassView, setIsClassView, updateData, selectedRecord }) => {
+const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height, onPointClick, isClassView, setIsClassView, updateData, selectedRecord
+                           }) => {
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
-    let newXScale, newYScale;
+
+    const newXScaleRef = useRef(null);
+    const newYScaleRef = useRef(null);
+
+
+    //console.log("canvas newXScale: ", newXScale,"newYScale: ",newYScale);;
 
     useEffect(() => {
         const svg = d3.select(svgRef.current);
@@ -118,12 +125,10 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             var maxNum = 0;
             for ( var i in sumstat ){
               var allBins = sumstat[i].value
-              //console.log("allBins: ", i,  allBins);
               var lengths = allBins.map(function(a){return a.length;})   //.map(function(a){return a.length;})
               var longest = d3.max(lengths)
               if (longest > maxNum) { maxNum = longest }
             }
-            //console.log("maxNum: ", maxNum, "sumstat.length: ", sumstat.length);
 
             const xNum = d3.scaleLinear().range([0, x.bandwidth()]).domain([-maxNum, maxNum]);
             g.selectAll("myViolin")
@@ -133,7 +138,6 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 .append("path")
                 .datum(
                     function(d){ 
-                        //console.log(d.value);  // Check the value being set as datum
                         return d.value;
                     }
                 )
@@ -242,39 +246,45 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 .on('zoom', (event) => {
                     const zoomState = event.transform;
 
-                    newXScale = zoomState.rescaleX(xScale);
-                    newYScale = zoomState.rescaleY(yScale);
+                    const zoomXScale = zoomState.rescaleX(xScale);
+                    const zoomYScale = zoomState.rescaleY(yScale);
+
+                    newXScaleRef.current = zoomXScale;
+                    newYScaleRef.current = zoomYScale;
 
                     // Apply zoom transformation to circles
                     g.selectAll('circle')
                     .attr('cx', d => {
-                        const value = newXScale(d[xField]);
+                        const value = zoomXScale(d[xField]);
                         return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
                     })
                     .attr('cy', d => {
-                        const value = newYScale(d[yField]);
+                        const value = zoomYScale(d[yField]);
                         return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
                     });
 
                     // Apply zoom transformation to lines
                     g.selectAll('.line-path')
-                    .attr('d', line.x(d => newXScale(d[xField])).y(d => newYScale(d[yField])));
+                    .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
 
                     // Update the axes with the new scales
-                    g.select('.x-axis').call(xAxis.scale(newXScale));
-                    g.select('.y-axis').call(yAxis.scale(newYScale));
+                    g.select('.x-axis').call(xAxis.scale(zoomXScale));
+                    g.select('.y-axis').call(yAxis.scale(zoomYScale));
                 });
     
-            svg.call(zoomBehavior);
+            svg.call(zoomBehavior);          
 
 
             const brushBehavior = d3.brush()  
             .on('end', (event) => {
                 if (!event.selection) return;
                 const [[x0, y0], [x1, y1]] = event.selection;
+                const currentXScale = newXScaleRef.current || xScale;
+                const currentYScale = newYScaleRef.current || yScale;
+
                 g.selectAll('circle')
                     .attr('r', d => {
-                        if (xScale(d[xField]) >= x0 && xScale(d[xField]) <= x1 && yScale(d[yField]) >= y0 && yScale(d[yField]) <= y1) {
+                        if (currentXScale(d[xField]) >= x0 && currentXScale(d[xField]) <= x1 && currentYScale(d[yField]) >= y0 && currentYScale(d[yField]) <= y1) {
                             return 9;  // 3 times the original radius
                         }
                         return 3;
@@ -288,16 +298,30 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
 
             console.log("brushing before judge: ", brushing); 
             if (brushing) { 
-                console.log("brushing: ", brushing); 
                 svg.on('.zoom', null);  // deactivate zoom
                 brush.attr('display', null);
+
+                if (newXScaleRef.current && newYScaleRef.current) {
+                    g.selectAll('circle')
+                        .attr('cx', d => {
+                            const value = newXScaleRef.current(d[xField]);
+                            return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
+                        })
+                        .attr('cy', d => {
+                            const value = newYScaleRef.current(d[yField]);
+                            return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
+                        });
+            
+                    g.selectAll('.line-path')
+                        .attr('d', line.x(d => newXScaleRef.current(d[xField])).y(d => newYScaleRef.current(d[yField])));
+                }
+
+
             } else {
                 //svg.on('.brush', null);  // deactivate brush
                 brush.attr('display', 'none');
                 svg.call(zoomBehavior);
             }
-
-
 
         }
 
@@ -307,7 +331,9 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
 
 
 
-    }, [filteredData, xField, yField, colorField, width, height, onPointClick, isClassView, selectedRecord, brushing, newXScale, newYScale]);
+    }, [filteredData, xField, yField, colorField, width, height, onPointClick, isClassView, selectedRecord, brushing]); 
+
+
     return (
         <div>
             <button onClick={() => setBrushing(!brushing)}>
