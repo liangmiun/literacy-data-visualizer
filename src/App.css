@@ -25,6 +25,11 @@
 
 
 .scatter-canvas {
+    user-select: none; /* Standard syntax */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+
   width: 90%;
   
   margin-left: 2%;

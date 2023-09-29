@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 function ColorLegend(data, colorField, svg, width, margin) {
@@ -40,10 +40,14 @@ function ColorLegend(data, colorField, svg, width, margin) {
 }
 
 const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height, onPointClick, isClassView, setIsClassView, updateData, selectedRecord }) => {
-    const svgRef = useRef();
+    const svgRef = useRef();    
+    const [brushing, setBrushing] = useState(false);
+    let newXScale, newYScale;
+
     useEffect(() => {
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
+
         const margin = { top: 20, right: 20, bottom: 80, left: 80 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
@@ -238,8 +242,8 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 .on('zoom', (event) => {
                     const zoomState = event.transform;
 
-                    const newXScale = zoomState.rescaleX(xScale);
-                    const newYScale = zoomState.rescaleY(yScale);
+                    newXScale = zoomState.rescaleX(xScale);
+                    newYScale = zoomState.rescaleY(yScale);
 
                     // Apply zoom transformation to circles
                     g.selectAll('circle')
@@ -262,7 +266,38 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 });
     
             svg.call(zoomBehavior);
- 
+
+
+            const brushBehavior = d3.brush()  
+            .on('end', (event) => {
+                if (!event.selection) return;
+                const [[x0, y0], [x1, y1]] = event.selection;
+                g.selectAll('circle')
+                    .attr('r', d => {
+                        if (xScale(d[xField]) >= x0 && xScale(d[xField]) <= x1 && yScale(d[yField]) >= y0 && yScale(d[yField]) <= y1) {
+                            return 9;  // 3 times the original radius
+                        }
+                        return 3;
+                    });
+            });
+
+            let brush = g.append("g")
+                .attr("class", "brush")
+                .call(brushBehavior)
+                .attr('display', 'none'); 
+
+            console.log("brushing before judge: ", brushing); 
+            if (brushing) { 
+                console.log("brushing: ", brushing); 
+                svg.on('.zoom', null);  // deactivate zoom
+                brush.attr('display', null);
+            } else {
+                //svg.on('.brush', null);  // deactivate brush
+                brush.attr('display', 'none');
+                svg.call(zoomBehavior);
+            }
+
+
 
         }
 
@@ -272,9 +307,14 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
 
 
 
-    }, [filteredData, xField, yField, colorField, width, height, onPointClick, isClassView, selectedRecord]);
+    }, [filteredData, xField, yField, colorField, width, height, onPointClick, isClassView, selectedRecord, brushing, newXScale, newYScale]);
     return (
-        <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
+        <div>
+            <button onClick={() => setBrushing(!brushing)}>
+                {brushing ? 'de-brush' : 'brush'}
+            </button>
+            <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
+        </div>
     );
 };
 
