@@ -44,6 +44,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                            }) => {
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
+    const prevBrushingRef = useRef();
 
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
@@ -297,10 +298,16 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 .attr('display', 'none'); 
 
             console.log("brushing before judge: ", brushing); 
-            if (brushing) { 
-                svg.on('.zoom', null);  // deactivate zoom
-                brush.attr('display', null);
+            if (prevBrushingRef.current !== brushing) {
+                if (brushing) { 
+                    svg.on('.zoom', null);  // deactivate zoom
+                    brush.attr('display', null);
 
+                } else {
+                    //svg.on('.brush', null);  // deactivate brush
+                    brush.attr('display', 'none');
+                    svg.call(zoomBehavior);
+                }
                 if (newXScaleRef.current && newYScaleRef.current) {
                     g.selectAll('circle')
                         .attr('cx', d => {
@@ -315,13 +322,9 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                     g.selectAll('.line-path')
                         .attr('d', line.x(d => newXScaleRef.current(d[xField])).y(d => newYScaleRef.current(d[yField])));
                 }
+            }   
 
-
-            } else {
-                //svg.on('.brush', null);  // deactivate brush
-                brush.attr('display', 'none');
-                svg.call(zoomBehavior);
-            }
+            prevBrushingRef.current = brushing;
 
         }
 
