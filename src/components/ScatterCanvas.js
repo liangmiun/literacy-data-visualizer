@@ -45,7 +45,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
     const prevBrushingRef = useRef();
-
+    const [selectedCircles, setSelectedCircles] = useState([]);
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
 
@@ -209,7 +209,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 .enter().append('circle')
                 .attr('cx', d => xScale(d[xField]))
                 .attr('cy', d => yScale(d[yField]))
-                .attr('r', 3)
+                .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
                 .attr('fill', d => colorScale(d[colorField]))
                 .on('click', onPointClick);
 
@@ -275,7 +275,8 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
     
             svg.call(zoomBehavior);          
 
-
+            
+            let combinedSelection = selectedCircles;
             const brushBehavior = d3.brush()  
             .on('end', (event) => {
                 if (!event.selection) return;
@@ -283,13 +284,25 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 const currentXScale = newXScaleRef.current || xScale;
                 const currentYScale = newYScaleRef.current || yScale;
 
+                const newlySelected = filteredData.filter(d => 
+                    currentXScale(d[xField]) >= x0 && 
+                    currentXScale(d[xField]) <= x1 && 
+                    currentYScale(d[yField]) >= y0 && 
+                    currentYScale(d[yField]) <= y1
+                );
+
+                combinedSelection = [...new Set([...combinedSelection, ...newlySelected])];
+
                 g.selectAll('circle')
-                    .attr('r', d => {
-                        if (currentXScale(d[xField]) >= x0 && currentXScale(d[xField]) <= x1 && currentYScale(d[yField]) >= y0 && currentYScale(d[yField]) <= y1) {
-                            return 9;  // 3 times the original radius
-                        }
-                        return 3;
-                    });
+                .attr('r', d => {
+                    if (combinedSelection.includes(d)) {
+                        return 9;  // 3 times the original radius
+                    }
+                    return 3;
+                });
+
+                setSelectedCircles(combinedSelection);
+
             });
 
             let brush = g.append("g")
@@ -307,6 +320,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                     //svg.on('.brush', null);  // deactivate brush
                     brush.attr('display', 'none');
                     svg.call(zoomBehavior);
+                    setSelectedCircles([]);  
                 }
                 if (newXScaleRef.current && newYScaleRef.current) {
                     g.selectAll('circle')
