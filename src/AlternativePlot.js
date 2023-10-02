@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { csv } from 'd3';
 import * as d3 from 'd3';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
@@ -7,12 +7,20 @@ import DetailCanvas from './components/DetailCanvas';
 //import FilterCanvas from './components/FilterCanvas';
 //import LogicCanvas from './components/LogicCanvas';
 import './App.css';
+import { schoolClassFilteredData } from './ScatterPage';
+import SchoolTreeView from './components/SchoolTreeView';
 
 
 
 const AlternativePage = () => {
   const [data, setData] = useState([]);
   const [filterdData, setFilteredData] = useState(data);
+  //  D3.v4 version:
+  useEffect(() => {
+    csv('/LiteracySample.csv', rowParser).then(setData);
+    }, []); 
+
+
   const [selectedRecord, setSelectedRecord] = useState(null); 
   const [xField, setXField] = useState('ElevID');
   const [yField, setYField] = useState('Lexplore Score');
@@ -21,12 +29,19 @@ const AlternativePage = () => {
   const [studentsChecked, setStudentsChecked] = useState(false);
   const [showViolin, setShowViolin] = useState(false);
 
+  const [checkedSchools, setCheckedSchools] = useState([]);
+  const [checkedClasses, setCheckedClasses] = useState([]);
+
   const preset_dict = {
     xField: '',
     yField: '',
     colorField: '',
     isClassView: false,
   };
+
+  const classFilteredData = useMemo(() => {
+    return schoolClassFilteredData(data, checkedClasses, checkedSchools);
+  }, [data, checkedSchools, checkedClasses]);  
 
   const updatePreset = () => {
     preset_dict.xField = xField;
@@ -62,7 +77,6 @@ const AlternativePage = () => {
 };
 
 
-
   const load = (callback) => {
     const uploadInputNode = document.createElement('input');
     uploadInputNode.setAttribute("type", "file");
@@ -88,18 +102,10 @@ const AlternativePage = () => {
   };
 
 
-  //  D3.v4 version:
-  useEffect(() => {
-    csv('/LiteracySample.csv', rowParser).then(setData)
-
-    }, []);
-
-
-
   const handlePointClick = (event,record) => setSelectedRecord(record);
 
-    // Initialize isClassView
-    const [isClassView, setIsClassView] = useState(true);
+  // Initialize isClassView
+  const [isClassView, setIsClassView] = useState(true);
 
     // Function to update data
   const updateData = (newData) => {
@@ -134,9 +140,11 @@ const AlternativePage = () => {
         setShowViolin={setShowViolin}
         showViolin={showViolin}
         setFilteredData={setFilteredData}
+        showXField = {false}
+        showClassbar={true}
       />
       <AggregateCanvas
-        filteredData={filterdData}
+        filteredData={classFilteredData}
         xField={xField}
         yField={yField}
         colorField = {colorField}
@@ -146,6 +154,14 @@ const AlternativePage = () => {
         selectedRecord={selectedRecord}
         studentsChecked={studentsChecked}
         showViolin={showViolin}
+      />
+
+      <SchoolTreeView
+        data={data} 
+        checkedSchools={checkedSchools}
+        setCheckedSchools={setCheckedSchools}
+        checkedClasses={checkedClasses}
+        setCheckedClasses={setCheckedClasses}
       />
 
       

@@ -9,6 +9,24 @@ import LogicCanvas from './components/LogicCanvas';
 import './App.css';
 
 
+export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
+  return data.filter(record => {
+      // Check if the school of the record is in checkedSchools
+      if (checkedSchools.includes(record.Skola)) {
+          return true;
+      }
+
+      // Construct the school.class string from the record
+      const schoolClassCombo = `${record.Skola}.${record.Klass}`;
+      // Check if this combo is in checkedClasses
+      if (checkedClasses.includes(schoolClassCombo)) {
+          return true;
+      }
+
+      // If none of the above conditions are met, exclude this record
+      return false;
+  } );    
+}
 
 const ScatterPage = () => {
   const [data, setData] = useState([]);
@@ -61,28 +79,9 @@ const ScatterPage = () => {
 
 
 
-  function schoolClassFilteredData(data) {
-    return data.filter(record => {
-        // Check if the school of the record is in checkedSchools
-        if (checkedSchools.includes(record.Skola)) {
-            return true;
-        }
-
-        // Construct the school.class string from the record
-        const schoolClassCombo = `${record.Skola}.${record.Klass}`;
-        // Check if this combo is in checkedClasses
-        if (checkedClasses.includes(schoolClassCombo)) {
-            return true;
-        }
-
-        // If none of the above conditions are met, exclude this record
-        return false;
-    } );    
-  }
-
   //const shownData = checkedFilteredData(rangeFilteredData(schoolClassFilteredData(data)));
   const shownData = useMemo(() => {
-      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(data)));
+      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(data,checkedClasses,checkedSchools)));
     }, [data, checkedOptions, rangeOptions, checkedSchools, checkedClasses]);  
 
 

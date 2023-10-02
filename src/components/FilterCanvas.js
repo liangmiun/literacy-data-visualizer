@@ -13,7 +13,7 @@ const FilterCanvas = ({ data, setFilterList, checkedSchools,setCheckedSchools,ch
       <h2>Filter by School and Class</h2>
       
       {/* Detail Component */}
-      <div style={{ margin: '20px 0' }}>
+      {/* <div style={{ margin: '20px 0' }}>
         <p>School: {checkedSchools.join(', ')}</p>
         <p>Class: {checkedClasses.join(', ')}</p>
         <p>Checked:
@@ -33,7 +33,7 @@ const FilterCanvas = ({ data, setFilterList, checkedSchools,setCheckedSchools,ch
           })} 
         </p> 
         <p>SchoolClass: {[...checkedSchools, ...checkedClasses].join(', ') }</p>
-      </div>
+      </div> */}
 
 
       <SchoolTreeView

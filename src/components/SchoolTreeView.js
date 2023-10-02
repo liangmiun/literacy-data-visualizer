@@ -57,7 +57,7 @@ function SchoolTreeView({ data,  checkedSchools,setCheckedSchools,checkedClasses
   
   
     return (
-      <div className="tree-view-part" >
+      <div className="single-tree-view" >
   
         <TreeView style={{margin: '20px 20px',width: '80%' ,border: '1px solid gray' }}
           defaultCollapseIcon={<ExpandMoreIcon />}

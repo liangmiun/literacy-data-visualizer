@@ -126,7 +126,7 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
         }, [data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked, formatDate, parseDate]);
         
         return (
-            <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
+            <svg className="aggregate-canvas" ref={svgRef} width={width} height={height}></svg>
         );
     };
 

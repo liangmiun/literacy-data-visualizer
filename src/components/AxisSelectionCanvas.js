@@ -1,4 +1,4 @@
-import React , { useState} from 'react';
+import React   from 'react';
 import Select from 'react-select';
 import './AxisSelectionCanvas.css';
 
@@ -6,35 +6,29 @@ import './AxisSelectionCanvas.css';
 const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField, 
   onXFieldChange, onYFieldChange,onColorFieldChange, isClassView,setIsClassView, 
   save, load, setConfig, studentsChecked, setStudentsChecked,
-  showViolin, setShowViolin, setFilteredData
+  showViolin, setShowViolin, setFilteredData, showXField = true, showClassbar=false
 }) => {
   const options = fields.map(field => ({ value: field, label: field }));
-  const uniqueSkolaValues = [...new Set(data.map(record => record.Skola))];
-  const skolaOptions = uniqueSkolaValues.map(skola => ({ value: skola, label: skola }));
   
   const onSavePreset = () => {  save()};
   const onLoadPreset= () => { load(setConfig)};
   const onSwitchView =  () => { setIsClassView()};
-  const onSelectSchool = (optionValue) => {
-      const students = data.filter(d => d.Skola === optionValue);
-      setSelectedSchool(optionValue);
-      setFilteredData(students);
-    } 
-  const [selectedSchool, setSelectedSchool] = useState('Rudboda skola');
   
   return (
     <div className="axis-selection-canvas">
 
       <div className="axis-selects-row"  style={{ display: 'flex' }} >
-        <div className="field-pair">
-          <label htmlFor="x-field">X-field:</label>
-          <Select 
-            id="x-field"
-            value={{ value: xField, label: xField }}
-            options={options}
-            onChange={option => onXFieldChange(option.value)}
-          />
-        </div>
+        {showXField && 
+          <div className="field-pair">
+            <label htmlFor="x-field">X-field:</label>
+            <Select 
+              id="x-field"
+              value={{ value: xField, label: xField }}
+              options={options}
+              onChange={option => onXFieldChange(option.value)}
+            />
+          </div>
+        }
 
         <div className="field-pair" >
           <label htmlFor="y-field">Y-field:</label>
@@ -56,20 +50,7 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
           />
         </div>
 
-        <div className="field-pair" >
-          <label htmlFor="select-school" >Select School:</label>
-          <Select
-            id="select-school"
-            value={{ value: selectedSchool, label: selectedSchool }}
-            options={skolaOptions}
-            onChange={option => onSelectSchool(option.value)}
-          />
-        </div>
-      </div>
-
-      <div style={{display: 'inline-flex', marginLeft:'30px'}}>
-
-         <div className="preset-buttons-row" 
+        <div className="preset-buttons-row" 
          style={{display: 'inline-flex',border: '1px solid lightgray', marginRight:'20px', padding:'10px' }}>
 
               <button className="btn"
@@ -90,43 +71,35 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
 
           </div>
 
-          <div className='scatter-buttons-row' 
-            style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
+          {showClassbar &&
+            <div className='aggregate-buttons-row' 
+              style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
+                <span className="text">Class Aggregation: </span>
 
-              <span className="text" >ScatterPlot: </span>
-              
-              <button className="btn"      
-                id="switch-class-student-view-btn"
-                onClick={() => onSwitchView()} // function to switch between class or student view.
-              >
-                {isClassView ?  'Student View': 'Class View' }
-              </button>
+                <button className="btn"
+                id="show-violin-btn"
+                onClick={() => setShowViolin(!showViolin)} 
+                >
+                  {showViolin ? "BoxPlot" : "ViolinPlot"}
+                </button>
+
+                <div  style={{ display: 'inline-block', marginLeft: '5%'}}>
+                    <input 
+                        type="checkbox" 
+                        checked={studentsChecked} 
+                        onChange={() => setStudentsChecked(!studentsChecked)} 
+                    />
+                    <label>Show Individuals </label>
+                </div>
+            
+            </div>
+          }
+
+      </div>
+
+      <div style={{display: 'inline-flex', marginLeft:'30px'}}>
 
 
-
-          </div>
-
-          <div className='aggregate-buttons-row' 
-            style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
-              <span className="text">Class Aggregation: </span>
-
-              <button className="btn"
-              id="show-violin-btn"
-              onClick={() => setShowViolin(!showViolin)} 
-              >
-                {showViolin ? "BoxPlot" : "ViolinPlot"}
-              </button>
-
-              <div  style={{ display: 'inline-block', marginLeft: '5%'}}>
-                  <input 
-                      type="checkbox" 
-                      checked={studentsChecked} 
-                      onChange={() => setStudentsChecked(!studentsChecked)} 
-                  />
-                  <label>Show Individuals </label>
-              </div>
-          
-          </div>
 
       </div>
 

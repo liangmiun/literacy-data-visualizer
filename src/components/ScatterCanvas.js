@@ -352,11 +352,20 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
 
 
     return (
-        <div>
-            <button onClick={() => setBrushing(!brushing)}>
+        <div className="scatter-canvas" style={{ position: 'relative' }}>
+            <button onClick={() => setBrushing(!brushing)}
+                style={{
+                    position: 'absolute',
+                    bottom: '0px',
+                    right: '0px',
+                    // Optional: Add some spacing from the edges if needed
+                    margin: '10px'
+                }}         
+            
+            >
                 {brushing ? 'de-brush' : 'brush'}
             </button>
-            <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
+            <svg  ref={svgRef} width={width} height={height}></svg>
         </div>
     );
 };
