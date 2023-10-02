@@ -57,9 +57,11 @@ function SchoolTreeView({ data,  checkedSchools,setCheckedSchools,checkedClasses
   
   
     return (
-      <div className="single-tree-view" >
-  
-        <TreeView style={{margin: '20px 20px',width: '80%' ,border: '1px solid gray' }}
+      <div  className='school-tree-view'>
+        <h4>Filter by School and Class</h4>  
+        <TreeView style={{margin: '20px 20px',width: '80%' ,border: '1px solid gray',
+            overflowX: 'auto', maxWidth: '15vw',
+            overflowY: 'auto', maxHeight:'45vh' }}
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
         >

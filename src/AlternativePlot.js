@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
 import AggregateCanvas from './components/AggregateCanvas';
 import DetailCanvas from './components/DetailCanvas';
-//import FilterCanvas from './components/FilterCanvas';
+import FilterCanvas from './components/FilterCanvas';
 //import LogicCanvas from './components/LogicCanvas';
 import './App.css';
 import { schoolClassFilteredData } from './ScatterPage';
@@ -156,13 +156,15 @@ const AlternativePage = () => {
         showViolin={showViolin}
       />
 
-      <SchoolTreeView
-        data={data} 
+      <FilterCanvas 
+        data={data}
+        fields={fields.filter(field => field !== 'StudentID')} 
         checkedSchools={checkedSchools}
         setCheckedSchools={setCheckedSchools}
         checkedClasses={checkedClasses}
         setCheckedClasses={setCheckedClasses}
-      />
+        showOptionFilter={false}
+      />   
 
       
       <DetailCanvas data={selectedRecord} />     

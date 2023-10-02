@@ -28,39 +28,47 @@ export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeO
     };
 
     return (
-        <div>
-            <div style={{ margin: '10px 0' }}>
-                <FormControl fullWidth variant="outlined" style={{ margin: '10px 0' }}>
-                    <InputLabel  >Add Option Filter:</InputLabel>
-                    <Select
-                        multiple
-                        value={selectedOptions}
-                        onChange={handleOptionChange}
-                        renderValue={(selected) => selected.join(', ')}
-                        style={{ margin: '20px 0' }}
-                    >
-                        {allOptions.map(name => (
-                            <MenuItem key={name} value={name}>
-                                <Checkbox checked={selectedOptions.includes(name)} />
-                                <ListItemText primary={name} />
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+        <div className='option-panel'>
+            <h4>Filter by option/range </h4>
+            <div style={{ margin: '5px 0' }}>
+                    <FormControl fullWidth variant="outlined" style={{ margin: '5px 0' }}>
+                        <InputLabel  ></InputLabel>
+                        <Select
+                            multiple
+                            value={selectedOptions}
+                            onChange={handleOptionChange}
+                            renderValue={(selected) => 
+                                (
+                                    <div style={{ whiteSpace: 'normal', overflowWrap: 'break-word' }}>
+                                        {selected.join(', ')}
+                                    </div>
+                                )                         
+                            
+                            }
+                            style={{ margin: '5px 0' }}
+                        >
+                            {allOptions.map(name => (
+                                <MenuItem key={name} value={name}>
+                                    <Checkbox checked={selectedOptions.includes(name)} />
+                                    <ListItemText primary={name} />
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
             </div>
-            <div style={{ margin: '20px 0' }}>
-                {selectedOptions.map(option => {
-                    if (checkedOptions.hasOwnProperty(option)) {
-                        const uniqueValues = [...new Set(data.map(item => item[option]))];
-                        return <OptionCheckBoxes key={option} label={option} options={uniqueValues} checkedOptions={checkedOptions[option]} setCheckedOptions={setCheckedOptions} />;
-                    } else if (rangeOptions.hasOwnProperty(option)) {
-                        const [minValue, maxValue] = d3.extent(data, d => d[option]);
-                        return <OptionSlider key={option} label={option} min={minValue} max={maxValue} setRangeOptions={setRangeOptions} />;
-                    }
-                    return null;
-                })}
+            <div style={{ margin: '5px 0',overflowY: 'auto', maxHeight:'32vh', overflowX: 'auto', maxWidth: '15vw' }}>
+                    {selectedOptions.map(option => {
+                        if (checkedOptions.hasOwnProperty(option)) {
+                            const uniqueValues = [...new Set(data.map(item => item[option]))];
+                            return <OptionCheckBoxes key={option} label={option} options={uniqueValues} checkedOptions={checkedOptions[option]} setCheckedOptions={setCheckedOptions} />;
+                        } else if (rangeOptions.hasOwnProperty(option)) {
+                            const [minValue, maxValue] = d3.extent(data, d => d[option]);
+                            return <OptionSlider key={option} label={option} min={minValue} max={maxValue} setRangeOptions={setRangeOptions} />;
+                        }
+                        return null;
+                    })}
+                </div>
             </div>
-        </div>
     );
 }
 
@@ -72,7 +80,7 @@ function OptionSlider({ label, min, max, setRangeOptions }) {
     };
 
     return (
-        <div style={{ margin: '20px 20px', width: '80%' }}>
+        <div style={{ margin: '5px 5px', width: '80%' }}>
             {label}:
             <Slider
                 defaultValue={[min, max]}
@@ -98,7 +106,7 @@ function OptionCheckBoxes({ label, options, checkedOptions, setCheckedOptions })
     };
 
     return (
-        <div style={{ margin: '20px 20px', width: '80%' }}>
+        <div style={{ margin: '5px 5px', width: '80%' }}>
             {label}:
             <FormGroup row>
                 {options.map(option => (

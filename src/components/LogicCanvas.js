@@ -24,7 +24,7 @@ const LogicCanvas = ({fields, data, setFilteredData}) => {
 
   return (
     <div className='logic-canvas'>
-      <h5>Symbolic Filter</h5>
+      <h4>Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt; 500"</h4>
 
       {/* <ReactFilterBox
         data={testLiteracyData}

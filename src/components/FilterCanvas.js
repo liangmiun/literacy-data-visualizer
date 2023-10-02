@@ -2,15 +2,16 @@ import React from 'react';
 import 'rc-slider/assets/index.css';
 import SchoolTreeView from './SchoolTreeView';
 import {OptionSelectGroup } from './ValueSelect';
+import '../App.css';
 
 
-const FilterCanvas = ({ data, setFilterList, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses, rangeOptions,setRangeOptions,checkedOptions, setCheckedOptions }) => {
+const FilterCanvas = ({ data, setFilterList, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses,
+   rangeOptions,setRangeOptions,checkedOptions, setCheckedOptions, showOptionFilter=true }) => {
 
 
   return (
 
-    <div  className='filter-canvas'>
-      <h2>Filter by School and Class</h2>
+    <div  className='filter-canvas'>      
       
       {/* Detail Component */}
       {/* <div style={{ margin: '20px 0' }}>
@@ -36,7 +37,7 @@ const FilterCanvas = ({ data, setFilterList, checkedSchools,setCheckedSchools,ch
       </div> */}
 
 
-      <SchoolTreeView
+      <SchoolTreeView  className='school-tree-view' 
         data={data} 
         checkedSchools={checkedSchools}
         setCheckedSchools={setCheckedSchools}
@@ -44,10 +45,12 @@ const FilterCanvas = ({ data, setFilterList, checkedSchools,setCheckedSchools,ch
         setCheckedClasses={setCheckedClasses}
       />
 
-      <OptionSelectGroup data={data} 
-        setFilterList={setFilterList}      
-        checkedOptions={checkedOptions} setCheckedOptions={setCheckedOptions}   rangeOptions={rangeOptions}  setRangeOptions={setRangeOptions} />
-
+      { showOptionFilter &&
+        <OptionSelectGroup className='option-select-group' 
+          data={data} 
+          setFilterList={setFilterList}      
+          checkedOptions={checkedOptions} setCheckedOptions={setCheckedOptions}   rangeOptions={rangeOptions}  setRangeOptions={setRangeOptions} />
+      }
 
     </div>
   );
