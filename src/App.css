@@ -39,6 +39,10 @@
 }
 
 .detail-canvas {
+  display:flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
   width: 90%;
   height: 90%;
   margin-right: 2%;
@@ -47,6 +51,10 @@
   padding: 10px;
   border: 1px solid #ccc;
   background-color: lightgray;
+}
+
+.detail-item {
+  width: 50%; /* Takes 50% of the parent width */
 }
 
 .logic-canvas {
