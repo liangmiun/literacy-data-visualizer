@@ -1,5 +1,5 @@
 import { Checkbox, FormControlLabel, Slider, FormGroup, FormControl, InputLabel, Select, MenuItem, ListItemText } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as d3 from 'd3';
 import '../App.css';
 
@@ -7,8 +7,28 @@ export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeO
     const allOptions = Object.keys(checkedOptions).concat(Object.keys(rangeOptions));
     const [selectedOptions, setSelectedOptions] = useState([]);
 
+    // useEffect(() => {
+    //     // Initialize checkedOptions so all are checked
+    //     const newCheckedOptions = {};
+    //     Object.keys(checkedOptions).forEach(key => {
+    //         const uniqueValues = [...new Set(data.map(item => item[key]))];
+    //         newCheckedOptions[key] = uniqueValues;
+    //     });
+    //     setCheckedOptions(newCheckedOptions);
+    
+    //     // Initialize rangeOptions with min and max values
+    //     const newRangeOptions = {};
+    //     Object.keys(rangeOptions).forEach(key => {
+    //         const [minValue, maxValue] = d3.extent(data, d => d[key]);
+    //         newRangeOptions[key] = [minValue, maxValue];
+    //     });
+    //     setRangeOptions(newRangeOptions);
+    // }, [data]);
+    
+
     const handleOptionChange = (event) => {
-        const values = event.target.value;        
+        const values = event.target.value;
+        const newlySelectedOptions = values.filter(option => !selectedOptions.includes(option));        
         const deselectedOptions = selectedOptions.filter(option => !values.includes(option));
 
         // Reset the checkedOptions for the deselected options
@@ -19,7 +39,21 @@ export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeO
             else if (rangeOptions.hasOwnProperty(option)) {
                 setRangeOptions(prev => ({ ...prev, [option]: [] }));
             }
-        });    
+        });
+        
+        
+            // Set all options to be checked for the newly selected options
+        newlySelectedOptions.forEach(option => {
+            if (checkedOptions.hasOwnProperty(option)) {
+                const uniqueValues = [...new Set(data.map(item => item[option]))];
+                setCheckedOptions(prev => ({ ...prev, [option]: uniqueValues }));
+            }
+            else if (rangeOptions.hasOwnProperty(option)) {
+                const [minValue, maxValue] = d3.extent(data, d => d[option]);
+                setRangeOptions(prev => ({ ...prev, [option]: [minValue, maxValue] }));
+            }
+        });
+        
         setSelectedOptions(values);
         setFilterList(values);
         console.log("values set to filterList: "+values);
@@ -107,7 +141,14 @@ function OptionCheckBoxes({ label, options, checkedOptions, setCheckedOptions })
 
     return (
         <div style={{ margin: '5px 5px', width: '80%' }}>
-            {label}:
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                {label}:
+                <button 
+                    onClick={() => setCheckedOptions(prev => ({ ...prev, [label]: [] }))}
+                >
+                    Clear
+                </button>
+            </div>
             <FormGroup row>
                 {options.map(option => (
                     <FormControlLabel

@@ -1,5 +1,6 @@
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { TreeView } from '@mui/x-tree-view/TreeView';
+import React, { useEffect } from 'react';
 import { Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -29,6 +30,16 @@ function generateSchoolClassMap(litData) {
 function SchoolTreeView({ data,  checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses}) {
 
     const school_class = generateSchoolClassMap(data);
+
+    useEffect(() => {
+      // 1. Initialize checkedSchools and checkedClasses so all are checked
+      const allSchools = Object.keys(school_class);
+      const allClasses = allSchools.flatMap(school => 
+          school_class[school].map(cls => `${school}.${cls}`)
+      );
+      setCheckedSchools(allSchools);
+      setCheckedClasses(allClasses);
+  }, [data]);
 
     const handleSchoolCheckChange = (school, isChecked) => {
       if (isChecked) {
@@ -65,7 +76,24 @@ function SchoolTreeView({ data,  checkedSchools,setCheckedSchools,checkedClasses
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
         >
-          <TreeItem nodeId="root" label="Schools">
+          <TreeItem nodeId="root" 
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    Schools
+                    {/* 2. Add a clear button beside the "Schools" label */}
+                    <button 
+                        onClick={() => {
+                            setCheckedSchools([]);
+                            setCheckedClasses([]);
+                        }}
+                        style={{marginLeft: '10px'}}
+                    >
+                        Clear
+                    </button>
+                </div>
+            }       
+          
+          >
             {Object.entries(school_class).map(([school, classes], idx) => (
               <TreeItem
                 nodeId={`school-${idx}`}
