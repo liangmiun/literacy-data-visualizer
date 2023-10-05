@@ -235,16 +235,48 @@ const ScatterPage = () => {
   );
 };
 
-function rowParser(d) {
-  // Apply D3 autoType first to handle all columns
-  const parsedRow = d3.autoType(d);
-  parsedRow['Årskurs'] = parseInt(parsedRow['Årskurs'], 10);
-  parsedRow['Läsnivå (5 = hög)'] = parseInt(parsedRow['Läsnivå (5 = hög)'], 10);     
-  //parsedRow['Födelsedatum'] = formatDate(parseDate(parsedRow['Födelsedatum']));  
-  //parsedRow['Testdatum'] = formatDate(parseDate(parsedRow['Testdatum']));              
+const parseDate = d3.timeParse('%y%m%d');
 
-  // Convert Count to an integer
-  //parsedRow.StudentID = +parsedRow.StudentID;
+let count = 0;
+
+function rowParser(d) {
+
+  // const parsedRow = d3.autoType(d);
+
+  // d['Födelsedatum'] = String(d['Födelsedatum']);
+  // d['Testdatum'] = String(d['Testdatum']);
+
+  // if(count < 10) {
+  //   console.log(typeof d['Födelsedatum'], d['Födelsedatum']);    
+  // }
+
+  // parsedRow['Årskurs'] = parseInt(parsedRow['Årskurs'], 10);
+  // parsedRow['Läsnivå (5 = hög)'] = parseInt(parsedRow['Läsnivå (5 = hög)'], 10);     
+  // parsedRow['Födelsedatum'] = parseDate(parsedRow['Födelsedatum']);  
+  // parsedRow['Testdatum'] = parseDate(parsedRow['Testdatum']); 
+
+  // if(count < 10) {
+  //   console.log(typeof d['Födelsedatum'], parsedRow['Födelsedatum']);    
+  // } 
+  // count++;
+
+    // Initialize an empty object to hold the parsed fields
+    const parsedRow = {};
+
+    // Manually parse each field
+    for (let field in d) {
+      if (field === 'Skola' || field === 'Klass' || field === 'Läsår') {
+        parsedRow[field] = String(d[field]);
+      } else if (field === 'Födelsedatum' || field === 'Testdatum') {
+        parsedRow[field] = parseDate(d[field]);
+      } else if (field === 'Årskurs' || field === 'Läsnivå (5 = hög)') {
+        parsedRow[field] = parseInt(d[field], 10);	
+      }
+      else {
+        parsedRow[field] = d3.autoType({ [field]: d[field] })[field];
+      }
+    }
+
 
   return parsedRow;
 }

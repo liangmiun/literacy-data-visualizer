@@ -76,7 +76,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             g.append("g").call(
                 d3.axisLeft(y).tickFormat(d => {
                     if(yField==='Födelsedatum'||yField==='Testdatum')
-                    {const dateObject = parseDate(d);
+                    {const dateObject = d; //=parseDate(d)
                     return formatDate(dateObject);
                     }
                     return d;
@@ -87,8 +87,9 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             g.append("g").attr("transform", `translate(0, ${innerHeight})`)
                 .call(d3.axisBottom(x).tickFormat(d => {
                     if(xField==='Födelsedatum'||xField==='Testdatum')
-                    {const dateObject = parseDate(d);
-                    return formatDate(dateObject);
+                    {
+                        const dateObject = d; //=parseDate(d)
+                        return formatDate(dateObject);
                     }
                     return d;
                 })
@@ -152,13 +153,16 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 );
         } else {
             // Process data for scatter plot
-            const [xMin, xMax] = d3.extent(filteredData, d => d[xField]);
-            const xPadding = (xMax - xMin) * 0.03;
-            const xScale = d3.scaleLinear().domain([xMin - xPadding, xMax + xPadding]).range([0, innerWidth]);
-            
-            const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
-            const yPadding = (yMax - yMin) * 0.03;
-            const yScale = d3.scaleLinear().domain([yMin - yPadding, yMax + yPadding]).range([innerHeight, 0]);
+//             const [xMin, xMax] = d3.extent(filteredData, d => d[xField]);
+//             const xPadding = (xMax - xMin) * 0.03;
+//             const xScale = d3.scaleLinear().domain([xMin - xPadding, xMax + xPadding]).range([0, innerWidth]);
+//             
+//             const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
+//             const yPadding = (yMax - yMin) * 0.03;
+//             const yScale = d3.scaleLinear().domain([yMin - yPadding, yMax + yPadding]).range([innerHeight, 0]);
+
+            const xScale = GetScale(xField, filteredData, innerWidth);
+            const yScale = GetScale(yField, filteredData, innerHeight);
           
             const colorDomain = Array.from(new Set(filteredData.map(d => d[colorField])));
             const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);
@@ -193,14 +197,14 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             .y(d => yScale(d[yField]));
 
             //Draw lines
-            g.selectAll('.line-path')
-                .data(Array.from(elevIDGroups.values()))
-                .enter().append('path')
-                .attr('class', 'line-path')
-                .attr('d', d => line(d))
-                .attr('fill', 'none')
-                .attr('stroke','rgba(128, 128, 128, 0.5)' )  //d => colorScale(d[0][colorField])
-                .attr('stroke-width', 0.5);
+            // g.selectAll('.line-path')
+            //     .data(Array.from(elevIDGroups.values()))
+            //     .enter().append('path')
+            //     .attr('class', 'line-path')
+            //     .attr('d', d => line(d))
+            //     .attr('fill', 'none')
+            //     .attr('stroke','rgba(128, 128, 128, 0.5)' )  //d => colorScale(d[0][colorField])
+            //     .attr('stroke-width', 0.5);
 
 
             // Draw circles 
@@ -218,7 +222,8 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             .attr('class', 'x-axis') 
             .call(d3.axisBottom(xScale).tickFormat(d => {
                 if(xField==='Födelsedatum'||xField==='Testdatum')
-                {const dateObject = parseDate(d);
+                {const dateObject = d; //=parseDate(d)
+                //console.log("dateObject: ", dateObject, "formatedDate: ", formatDate(dateObject));
                 return formatDate(dateObject);
                 }
                 return d;
@@ -230,7 +235,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             .call(d3.axisLeft(yScale)
             .tickFormat(d => {
                 if(yField==='Födelsedatum'||yField==='Testdatum')
-                {const dateObject = parseDate(d);
+                {const dateObject = d; //=parseDate(d)
                 return formatDate(dateObject);
                 }
                 return d;
@@ -369,6 +374,38 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
         </div>
     );
 };
+
+function GetScale(vField, filteredData, innerWidth)
+{
+    let vScale;
+    //const variable = filteredData[filteredData.length-1][vField];
+    if (vField==='Födelsedatum'|| vField==='Testdatum') {  //variable instanceof Date && !isNaN(variable)
+        const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
+        console.log("vMin: ", vMin, "vMax: ", vMax);
+        const vPadding = (vMax - vMin) / (vMax - vMin) * 86400000;  // 1 day in milliseconds for padding
+        vScale = d3.scaleTime()
+        .domain([new Date(vMin - vPadding), new Date(vMax + vPadding)])
+        .range([0, innerWidth]);
+    }
+    else if(vField==='Skola' || vField==='Klass'){
+
+        const uniqueValues = set(filteredData.map(d => d[vField])).values();
+        vScale = d3.scalePoint()
+        .domain(uniqueValues)
+        .range([0, innerWidth])
+        .padding(0.5);  // Adjust padding to suit your needs
+
+    }
+    else {
+        const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
+        const vPadding = (vMax - vMin) * 0.03;
+        vScale = d3.scaleLinear().domain([vMin - vPadding, vMax + vPadding]).range([0, innerWidth]);
+    }
+
+
+    return vScale;
+
+}
 
 
 

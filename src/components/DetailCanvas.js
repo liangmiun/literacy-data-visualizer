@@ -30,9 +30,9 @@ function DetailValue(key,value)
 {
   if(key==='Födelsedatum'||key==='Testdatum')
   {
-    const parseDate = d3.timeParse('%y%m%d');
+    //const parseDate = d3.timeParse('%y%m%d');
     const formatDate = d3.timeFormat('%Y-%m-%d'); 
-    value = formatDate(parseDate(value));
+    value = formatDate(value);
   } 
   return value;
 
