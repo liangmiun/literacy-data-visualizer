@@ -241,24 +241,6 @@ let count = 0;
 
 function rowParser(d) {
 
-  // const parsedRow = d3.autoType(d);
-
-  // d['Födelsedatum'] = String(d['Födelsedatum']);
-  // d['Testdatum'] = String(d['Testdatum']);
-
-  // if(count < 10) {
-  //   console.log(typeof d['Födelsedatum'], d['Födelsedatum']);    
-  // }
-
-  // parsedRow['Årskurs'] = parseInt(parsedRow['Årskurs'], 10);
-  // parsedRow['Läsnivå (5 = hög)'] = parseInt(parsedRow['Läsnivå (5 = hög)'], 10);     
-  // parsedRow['Födelsedatum'] = parseDate(parsedRow['Födelsedatum']);  
-  // parsedRow['Testdatum'] = parseDate(parsedRow['Testdatum']); 
-
-  // if(count < 10) {
-  //   console.log(typeof d['Födelsedatum'], parsedRow['Födelsedatum']);    
-  // } 
-  // count++;
 
     // Initialize an empty object to hold the parsed fields
     const parsedRow = {};

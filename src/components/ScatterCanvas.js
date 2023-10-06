@@ -48,6 +48,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
     const [selectedCircles, setSelectedCircles] = useState([]);
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
+    const filteredXYData = filteredData.filter(d => d[xField] !== null && d[yField] !== null);
 
 
     //console.log("canvas newXScale: ", newXScale,"newYScale: ",newYScale);;
@@ -152,19 +153,12 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                     .curve(d3.curveCatmullRom)
                 );
         } else {
-            // Process data for scatter plot
-//             const [xMin, xMax] = d3.extent(filteredData, d => d[xField]);
-//             const xPadding = (xMax - xMin) * 0.03;
-//             const xScale = d3.scaleLinear().domain([xMin - xPadding, xMax + xPadding]).range([0, innerWidth]);
-//             
-//             const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
-//             const yPadding = (yMax - yMin) * 0.03;
-//             const yScale = d3.scaleLinear().domain([yMin - yPadding, yMax + yPadding]).range([innerHeight, 0]);
 
-            const xScale = GetScale(xField, filteredData, innerWidth);
-            const yScale = GetScale(yField, filteredData, innerHeight);
+
+            const xScale = GetScale(xField, filteredXYData, innerWidth);
+            const yScale = GetScale(yField, filteredXYData, innerHeight);
           
-            const colorDomain = Array.from(new Set(filteredData.map(d => d[colorField])));
+            const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
             const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);
 
             g.append("text")
@@ -184,7 +178,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 .text(xField);  
 
             //  Group data by ElevID; filteredXYData
-            const filteredXYData = filteredData.filter(d => d[xField] !== null && d[yField] !== null);
+
             const elevIDGroups = d3.group(filteredXYData, d => d.ElevID);
 
             //  Sort data in each group by xField
@@ -197,19 +191,19 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
             .y(d => yScale(d[yField]));
 
             //Draw lines
-            // g.selectAll('.line-path')
-            //     .data(Array.from(elevIDGroups.values()))
-            //     .enter().append('path')
-            //     .attr('class', 'line-path')
-            //     .attr('d', d => line(d))
-            //     .attr('fill', 'none')
-            //     .attr('stroke','rgba(128, 128, 128, 0.5)' )  //d => colorScale(d[0][colorField])
-            //     .attr('stroke-width', 0.5);
+            g.selectAll('.line-path')
+                .data(Array.from(elevIDGroups.values()))
+                .enter().append('path')
+                .attr('class', 'line-path')
+                .attr('d', d => line(d))
+                .attr('fill', 'none')
+                .attr('stroke','rgba(128, 128, 128, 0.5)' )  //d => colorScale(d[0][colorField])
+                .attr('stroke-width', 0.5);
 
 
             // Draw circles 
             g.selectAll('circle')
-                .data(filteredData)
+                .data(filteredXYData)  //filteredData
                 .enter().append('circle')
                 .attr('cx', d => xScale(d[xField]))
                 .attr('cy', d => yScale(d[yField]))
@@ -289,7 +283,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
                 const currentXScale = newXScaleRef.current || xScale;
                 const currentYScale = newYScaleRef.current || yScale;
 
-                const newlySelected = filteredData.filter(d => 
+                const newlySelected = filteredXYData.filter(d => 
                     currentXScale(d[xField]) >= x0 && 
                     currentXScale(d[xField]) <= x1 && 
                     currentYScale(d[yField]) >= y0 && 
@@ -349,7 +343,7 @@ const ScatterCanvas = ({ filteredData, xField, yField, colorField, width, height
 
 
         // Add color legend
-        ColorLegend(filteredData, colorField, svg, width, margin);   
+        ColorLegend(filteredXYData, colorField, svg, width, margin);   
 
 
 
@@ -381,7 +375,7 @@ function GetScale(vField, filteredData, innerWidth)
     //const variable = filteredData[filteredData.length-1][vField];
     if (vField==='Födelsedatum'|| vField==='Testdatum') {  //variable instanceof Date && !isNaN(variable)
         const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
-        console.log("vMin: ", vMin, "vMax: ", vMax);
+        //console.log("vMin: ", vMin, "vMax: ", vMax);
         const vPadding = (vMax - vMin) / (vMax - vMin) * 86400000;  // 1 day in milliseconds for padding
         vScale = d3.scaleTime()
         .domain([new Date(vMin - vPadding), new Date(vMax + vPadding)])
