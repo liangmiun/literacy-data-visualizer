@@ -60,7 +60,7 @@ const DetailCanvas = ({ data }) => {
   
   return (
     <div className="detail-canvas" style={{ fontSize: '1.0em' }}>
-      {keyList.map(key => (
+      {data && data.length>0 && keyList.map(key => (
             <div key={key} className="detail-item">
                 <strong>{key}:</strong> {aggregateData(key)}
             </div>

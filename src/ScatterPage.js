@@ -80,14 +80,9 @@ const ScatterPage = () => {
   }
 
 
-
-  //const shownData = checkedFilteredData(rangeFilteredData(schoolClassFilteredData(data)));
   const shownData = useMemo(() => {
       return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(data,checkedClasses,checkedSchools)));
     }, [data, checkedOptions, rangeOptions, checkedSchools, checkedClasses]);  
-
-
-
 
 
   const preset_dict = {
@@ -160,7 +155,7 @@ const ScatterPage = () => {
     }, []);
 
 
-  const handlePointClick = (event,record) => setSelectedRecords([record]);   //   setSelectedRecord(record)
+  const handlePointClick = (event,record) => setSelectedRecords([record]);   
 
   // Initialize isClassView
   const [isClassView, setIsClassView] = useState(false);
@@ -201,7 +196,7 @@ const ScatterPage = () => {
         colorField = {colorField}
         width= {1000}
         height={700}
-        setSelectedRecords={setSelectedRecords}    
+        setSelectedRecords={setSelectedRecords}   
       />
 
       

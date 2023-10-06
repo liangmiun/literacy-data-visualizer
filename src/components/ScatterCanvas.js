@@ -57,7 +57,7 @@ const arePropsEqual = (prevProps, nextProps) => {
 
 const ScatterCanvas =
 React.memo(
-    ({ filteredData, xField, yField, colorField, width, height,  setSelectedRecords }) => { //onPointClick
+    ({ filteredData, xField, yField, colorField, width, height,  setSelectedRecords}) => { //
 
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
@@ -135,7 +135,11 @@ React.memo(
             .attr('cy', d => yScale(d[yField]))
             .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
             .attr('fill', d => colorScale(d[colorField]))
-            ;  //.on('click', onPointClick)
+            .on('click', function (event, d) {
+                if (!brushing) {
+                    setSelectedRecords([d]);
+                }
+            });
 
 
         g.append('g').attr('transform', `translate(0, ${innerHeight})`)
