@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useMemo } from 'react';
+import React, { useState, useEffect,useMemo, useCallback } from 'react';
 import { csv } from 'd3';
 import * as d3 from 'd3';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
@@ -31,7 +31,9 @@ export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
 const ScatterPage = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredtData] = useState(data);
-  const [selectedRecord, setSelectedRecord] = useState(null); 
+
+  const [selectedRecords, setSelectedRecords] = useState([]); 
+
   const [xField, setXField] = useState('Testdatum');
   const [yField, setYField] = useState('Lexplore Score');
   const [colorField, setColorField] = useState('Årskurs');
@@ -158,7 +160,7 @@ const ScatterPage = () => {
     }, []);
 
 
-  const handlePointClick = (event,record) => setSelectedRecord(record);
+  const handlePointClick = (event,record) => setSelectedRecords([record]);   //   setSelectedRecord(record)
 
   // Initialize isClassView
   const [isClassView, setIsClassView] = useState(false);
@@ -199,15 +201,11 @@ const ScatterPage = () => {
         colorField = {colorField}
         width= {1000}
         height={700}
-        isClassView={isClassView}        
-        onPointClick={handlePointClick}  //  setSelectedRecord
-        setIsClassView={toggleIsClassView}
-        updateData={updateData}      
-        selectedRecord={selectedRecord}
+        setSelectedRecords={setSelectedRecords}    
       />
 
       
-      <DetailCanvas data={selectedRecord} />
+      <DetailCanvas data={selectedRecords} />
 
 
       <FilterCanvas 
