@@ -52,6 +52,18 @@ const ScatterPage = () => {
     'Lexplore Score':[]}
     );
 
+  const studentKeyList = 
+    ['Skola',
+    'Årskurs',
+    'Klass',
+    'ElevID',
+    'Födelsedatum',
+    'Läsår',
+    'Testdatum',
+    'Standardpoäng',
+    'Lexplore Score'
+    ];
+
   const [filterList, setFilterList] = useState([]);
 
 
@@ -200,7 +212,7 @@ const ScatterPage = () => {
       />
 
       
-      <DetailCanvas data={selectedRecords} />
+      <DetailCanvas data={selectedRecords} keyList={studentKeyList} />
 
 
       <FilterCanvas 

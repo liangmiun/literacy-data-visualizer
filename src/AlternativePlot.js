@@ -15,13 +15,22 @@ import SchoolTreeView from './components/SchoolTreeView';
 const AlternativePage = () => {
   const [data, setData] = useState([]);
   const [filterdData, setFilteredData] = useState(data);
+  const [selectedClassDetail, setSelectedClassDetail] = useState([]);
+
+  const classKeyList =
+    ['min',
+    'q1',
+    'median',
+    'q3',
+    'max'
+    ];
+
   //  D3.v4 version:
   useEffect(() => {
     csv('/LiteracySample.csv', rowParser).then(setData);
     }, []); 
 
 
-  const [selectedRecord, setSelectedRecord] = useState(null); 
   const [xField, setXField] = useState('ElevID');
   const [yField, setYField] = useState('Lexplore Score');
   const [colorField, setColorField] = useState('Lexplore Score');
@@ -102,7 +111,10 @@ const AlternativePage = () => {
   };
 
 
-  const handlePointClick = (event,record) => setSelectedRecord(record);
+  const handlePartClick = (details) => {
+    setSelectedClassDetail(details);
+  };
+
 
   // Initialize isClassView
   const [isClassView, setIsClassView] = useState(true);
@@ -150,8 +162,7 @@ const AlternativePage = () => {
         colorField = {colorField}
         width={1000}
         height={700}    
-        onPointClick={handlePointClick}  //  setSelectedRecord
-        selectedRecord={selectedRecord}
+        onPartClick={handlePartClick} 
         studentsChecked={studentsChecked}
         showViolin={showViolin}
       />
@@ -165,9 +176,8 @@ const AlternativePage = () => {
         setCheckedClasses={setCheckedClasses}
         showOptionFilter={false}
       />   
-
       
-      <DetailCanvas data={selectedRecord} />     
+      <DetailCanvas data={selectedClassDetail} keyList={classKeyList} />     
 
 
       {/*<FilterCanvas fields={fields.filter(field => field !== 'StudentID')} />   */} 

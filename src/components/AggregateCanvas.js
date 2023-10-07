@@ -4,19 +4,22 @@ import * as d3 from 'd3';
 
 
 const AggregateCanvas = ({ filteredData, xField, yField, colorField, width, height, 
-    onPointClick, selectedRecord, studentsChecked, showViolin }) => {
+    onPartClick, selectedRecord, studentsChecked, showViolin }) => {
+
+
+    filteredData = filteredData.filter(d => d[xField] !== null && d[yField] !== null);
 
 
     if(showViolin) {
-      return ViolinPlots(filteredData, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked);
+      return ViolinPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked);
     }
-    return BoxPlots(filteredData, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked );   
+    return BoxPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked );   
 
 
 };
 
 
-const ViolinPlots = (data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked ) => {
+const ViolinPlots = (data, xField, yField, colorField, width, height,  onViolinClick, selectedRecord, studentsChecked ) => {
         const svgRef = useRef();
         const parseDate = d3.timeParse('%y%m%d');
         const formatDate = d3.timeFormat('%y-%m-%d');
@@ -88,7 +91,6 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
             var maxNum = 0;
             for ( var i in sumstat ){
               var allBins = sumstat[i].value
-                console.log("allBins: ", i,  allBins);
               var lengths = allBins.map(function(a){return a.length;})   //.map(function(a){return a.length;})
               var longest = d3.max(lengths)
               if (longest > maxNum) { maxNum = longest }
@@ -114,7 +116,25 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
                     .x1(d => xNum(d.length))  
                     .y(d => y(d.x0))   //d.x0
                     .curve(d3.curveCatmullRom)
-                );  
+                )
+                .on("click", (event, d) => {
+                    console.log("violin click", d);
+                    const values = d.flatMap(bin => bin.slice(0, bin.length));
+                    const sortedValues = values.sort(d3.ascending);
+                    const q1 = d3.quantile(sortedValues, 0.25);
+                    const median = d3.quantile(sortedValues, 0.5);
+                    const q3 = d3.quantile(sortedValues, 0.75);
+                    const interQuantileRange = q3 - q1;
+                    const min = q1 - 1.5 * interQuantileRange;
+                    const max = q3 + 1.5 * interQuantileRange;
+                    onViolinClick([{
+                        min: parseInt(min,10),
+                        max: parseInt(max,10),
+                        median: parseInt(median,10),
+                        q1: parseInt(q1,10),
+                        q3: parseInt(q3,10)
+                    }]);
+                });  
 
             // Add individual points with jitter
             console.log("violin chart studentsChecked:", studentsChecked, typeof(studentsChecked));    
@@ -123,15 +143,15 @@ const ViolinPlots = (data, xField, yField, colorField, width, height, onPointCli
             }
 
             // ... rest of the zoom and event logic remains unchanged ...
-        }, [data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked, formatDate, parseDate]);
+        }, [data, xField, yField, colorField, width, height, selectedRecord, studentsChecked, formatDate, parseDate]);
         
         return (
-            <svg className="aggregate-canvas" ref={svgRef} width={width} height={height}></svg>
+            <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
         );
     };
 
 
-const BoxPlots = (data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked ) => {
+const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, selectedRecord, studentsChecked ) => {
     const svgRef = useRef();
     const parseDate = d3.timeParse('%y%m%d');
     const formatDate = d3.timeFormat('%y-%m-%d');
@@ -236,7 +256,15 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onPointClick,
             .attr("height", d => y(d.value.q1) - y(d.value.q3))
             .attr("width", boxWidth)
             .attr("stroke", "black")
-            .style("fill", "#69b3a2");
+            .style("fill", "#69b3a2")
+            .on("click", (event,d) =>{             
+                onBoxClick([{
+                min: parseInt(d.value.min,10),
+                max: parseInt(d.value.max,10),
+                median: parseInt(d.value.median,10),
+                q1: parseInt(d.value.q1,10),
+                q3: parseInt(d.value.q3,10)
+            }])});
 
         // Median lines
         g.selectAll("medianLines")
@@ -265,7 +293,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onPointClick,
               
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [data, xField, yField, colorField, width, height, onPointClick, selectedRecord, studentsChecked,formatDate, parseDate]);
+    }, [data, xField, yField, colorField, width, height,  selectedRecord, studentsChecked,formatDate, parseDate]);
     return (
         <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
     );

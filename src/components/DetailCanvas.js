@@ -2,19 +2,11 @@ import React from 'react';
 import * as d3 from 'd3';
 import '../App.css';
 
-const DetailCanvas = ({ data }) => {
+const DetailCanvas = ({ data, keyList}) => {
   //console.log("data type: "+ typeof(data) + " content:" + data );
-  const keyList = 
-  ['Skola',
-  'Årskurs',
-  'Klass',
-  'ElevID',
-  'Födelsedatum',
-  'Läsår',
-  'Testdatum',
-  'Standardpoäng',
-  'Lexplore Score'
-  ];
+
+
+
 
   const formatDate = d3.timeFormat('%Y.%m.%d');
 
