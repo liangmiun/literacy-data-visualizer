@@ -7,6 +7,7 @@ import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
 import './App.css';
+import { set } from 'd3-collection';
 
 
 export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
@@ -39,6 +40,9 @@ const ScatterPage = () => {
   const [colorField, setColorField] = useState('Årskurs');
   const fields = Object.keys(data[0] || {});
 
+  const [query, setQuery] = useState('');
+  const [expression, setExpression] = useState('');
+  //const [loadedExpression, setLoadedExpression] = useState(''); 
   const [checkedSchools, setCheckedSchools] = useState([]);
   const [checkedClasses, setCheckedClasses] = useState([]);
   const [checkedOptions, setCheckedOptions] = useState(
@@ -105,6 +109,8 @@ const ScatterPage = () => {
     checkedClasses: [],
     checkedOptions: {},
     rangeOptions: {},
+    query: '',
+    expression: []
   };
 
   const updatePreset = () => {
@@ -115,6 +121,8 @@ const ScatterPage = () => {
     preset_dict.checkedClasses = checkedClasses;
     preset_dict.checkedOptions = checkedOptions;
     preset_dict.rangeOptions = rangeOptions;
+    preset_dict.query = query;
+    preset_dict.expression = expression;
   }
 
 
@@ -126,6 +134,8 @@ const ScatterPage = () => {
     setCheckedClasses( preset.checkedClasses);
     setCheckedOptions( preset.checkedOptions);
     setRangeOptions( preset.rangeOptions);
+    setQuery( preset.query);
+    setExpression( preset.expression);
   }
 
   const save = () => {
@@ -210,7 +220,7 @@ const ScatterPage = () => {
         updateData={updateData}
       />
       <ScatterCanvas
-        filteredData={shownData}
+        shownData={shownData}
         xField={xField}
         yField={yField}
         colorField = {colorField}
@@ -241,6 +251,10 @@ const ScatterPage = () => {
         fields={fields} 
         data ={data}
         setFilteredData={setFilteredtData}
+        expression={expression}
+        setExpression={setExpression}
+        query={query}
+        setQuery={setQuery}
       /> 
       
     </div>

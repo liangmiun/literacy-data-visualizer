@@ -43,7 +43,7 @@ function ColorLegend(data, colorField, svg, width, margin) {
 
 const ScatterCanvas =
 React.memo(
-    ({ filteredData, xField, yField, colorField, width, height,  setSelectedRecords}) => { //
+    ({ shownData, xField, yField, colorField, width, height,  setSelectedRecords}) => { //
 
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
@@ -51,218 +51,220 @@ React.memo(
     //const [selectedCircles, setSelectedCircles] = useState([]);
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const filteredXYData = filteredData.filter(d => d[xField] !== null && d[yField] !== null);
+    const filteredXYData = shownData.filter(d => d[xField] !== null && d[yField] !== null);
 
 
-    function plot() { 
-        const svg = d3.select(svgRef.current);
-        svg.selectAll('*').remove();
 
-        const margin = { top: 20, right: 20, bottom: 80, left: 80 };
-        const innerWidth = width - margin.left - margin.right;
-        const innerHeight = height - margin.top - margin.bottom;
-        const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
-
-        const formatDate = d3.timeFormat('%y-%m-%d');
-
-        const xScale = GetScale(xField, filteredXYData, innerWidth);
-        const yScale = GetScale(yField, filteredXYData, innerHeight, true);
-              
-        const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
-        const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);
-
-        //  Group data by ElevID; filteredXYData
-        const elevIDGroups = d3.group(filteredXYData, d => d.ElevID);
-
-        //  Sort data in each group by xField
-        elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
-
-        const xAxis = d3.axisBottom(xScale);
-        const yAxis = d3.axisLeft(yScale);
-
-
-        g.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left)
-        .attr("x", -innerHeight / 2) 
-        .attr("dy", "1em")  
-        .style("text-anchor", "middle")
-        .text(yField); 
-
-
-        g.append("text")
-            .attr("y", innerHeight + margin.bottom / 2)
-            .attr("x", innerWidth / 2)  
-            .attr("dy", "1em")  
-            .style("text-anchor", "middle")
-            .text(xField);  
-
-        //  Define line generator
-        const line = d3.line()
-        .x(d => xScale(d[xField]))
-        .y(d => yScale(d[yField]));
-
-        //Draw lines
-        g.selectAll('.line-path')
-            .data(Array.from(elevIDGroups.values()))
-            .enter().append('path')
-            .attr('class', 'line-path')
-            .attr('d', d => line(d))
-            .attr('fill', 'none')
-            .attr('stroke','rgba(128, 128, 128, 0.5)' )  //d => colorScale(d[0][colorField])
-            .attr('stroke-width', 0.5);
-
-
-        // Draw circles 
-        g.selectAll('circle')
-            .data(filteredXYData)  //filteredData
-            .enter().append('circle')
-            .attr('cx', d => xScale(d[xField]))
-            .attr('cy', d => yScale(d[yField]))
-            .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
-            .attr('fill', d => colorScale(d[colorField]))
-            .on('click', function (event, d) {
-                if (!brushing) {
-                    setSelectedRecords([d]);
-                }
-            });
-
-
-        g.append('g').attr('transform', `translate(0, ${innerHeight})`)
-        .attr('class', 'x-axis') 
-        .call(d3.axisBottom(xScale).tickFormat(d => {
-            if(xField==='Födelsedatum'||xField==='Testdatum')
-            {const dateObject = d; //=parseDate(d)
-            //console.log("dateObject: ", dateObject, "formatedDate: ", formatDate(dateObject));
-            return formatDate(dateObject);
-            }
-            return d;
-        }));
-
-
-        g.append('g')
-        .attr('class', 'y-axis') 
-        .call(d3.axisLeft(yScale)
-        .tickFormat(d => {
-            if(yField==='Födelsedatum'||yField==='Testdatum')
-            {const dateObject = d; //=parseDate(d)
-            return formatDate(dateObject);
-            }
-            return d;
-        })
-        ); 
-        
-        
-        const zoomBehavior = d3.zoom()
-            .scaleExtent([0.5, 10])
-            .on('zoom', (event) => {
-                const zoomState = event.transform;
-
-                const zoomXScale = zoomState.rescaleX(xScale);
-                const zoomYScale = zoomState.rescaleY(yScale);
-
-                newXScaleRef.current = zoomXScale;
-                newYScaleRef.current = zoomYScale;
-
-                // Apply zoom transformation to circles
-                g.selectAll('circle')
-                .attr('cx', d => {
-                    const value = zoomXScale(d[xField]);
-                    return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
-                })
-                .attr('cy', d => {
-                    const value = zoomYScale(d[yField]);
-                    return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
-                });
-
-                // Apply zoom transformation to lines
-                g.selectAll('.line-path')
-                .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
-
-                // Update the axes with the new scales
-                g.select('.x-axis').call(xAxis.scale(zoomXScale));
-                g.select('.y-axis').call(yAxis.scale(zoomYScale));
-            });
     
-        svg.call(zoomBehavior);    
-        
-        function brush_part()
-        {
-            let combinedSelection = [];
-            const brushBehavior = d3.brush()  
-            .on('end', (event) => {
-                if (!event.selection) return;
-                const [[x0, y0], [x1, y1]] = event.selection;
-                const currentXScale = newXScaleRef.current || xScale;
-                const currentYScale = newYScaleRef.current || yScale;
-    
-                const newlySelected = filteredXYData.filter(d => 
-                    currentXScale(d[xField]) >= x0 && 
-                    currentXScale(d[xField]) <= x1 && 
-                    currentYScale(d[yField]) >= y0 && 
-                    currentYScale(d[yField]) <= y1
-                );
-    
-                combinedSelection = [...new Set([...combinedSelection, ...newlySelected])];
-                setSelectedRecords(combinedSelection);
-    
-                g.selectAll('circle')
-                .attr('r', d => {
-                    if (combinedSelection.includes(d)) {
-                        return 9;  // 3 times the original radius
-                    }
-                    return 3;
-                });
-    
-            });
-    
-            let brush = g.append("g")
-               .attr("class", "brush")
-               .call(brushBehavior)
-               .attr('display', 'none'); 
-    
-            console.log("brushing before judge: ", brushing); 
-            if (prevBrushingRef.current !== brushing) {
-                if (brushing) { 
-                    svg.on('.zoom', null);  // deactivate zoom
-                    brush.attr('display', null);
-    
-                } else {
-                    brush.attr('display', 'none');
-                    setSelectedRecords([]);
-                    svg.call(zoomBehavior);
-                }
-                if (newXScaleRef.current && newYScaleRef.current) {
+    useEffect(() => {
+        function plot() { 
+                    const svg = d3.select(svgRef.current);
+                    svg.selectAll('*').remove();
+            
+                    const margin = { top: 20, right: 20, bottom: 80, left: 80 };
+                    const innerWidth = width - margin.left - margin.right;
+                    const innerHeight = height - margin.top - margin.bottom;
+                    const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
+            
+                    const formatDate = d3.timeFormat('%y-%m-%d');
+            
+                    const xScale = GetScale(xField, filteredXYData, innerWidth);
+                    const yScale = GetScale(yField, filteredXYData, innerHeight, true);
+                          
+                    const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
+                    const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);
+            
+                    //  Group data by ElevID; filteredXYData
+                    const elevIDGroups = d3.group(filteredXYData, d => d.ElevID);
+            
+                    //  Sort data in each group by xField
+                    elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
+            
+                    const xAxis = d3.axisBottom(xScale);
+                    const yAxis = d3.axisLeft(yScale);
+            
+            
+                    g.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", -margin.left)
+                    .attr("x", -innerHeight / 2) 
+                    .attr("dy", "1em")  
+                    .style("text-anchor", "middle")
+                    .text(yField); 
+            
+            
+                    g.append("text")
+                        .attr("y", innerHeight + margin.bottom / 2)
+                        .attr("x", innerWidth / 2)  
+                        .attr("dy", "1em")  
+                        .style("text-anchor", "middle")
+                        .text(xField);  
+            
+                    //  Define line generator
+                    const line = d3.line()
+                    .x(d => xScale(d[xField]))
+                    .y(d => yScale(d[yField]));
+            
+                    //Draw lines
+                    g.selectAll('.line-path')
+                        .data(Array.from(elevIDGroups.values()))
+                        .enter().append('path')
+                        .attr('class', 'line-path')
+                        .attr('d', d => line(d))
+                        .attr('fill', 'none')
+                        .attr('stroke','rgba(128, 128, 128, 0.5)' )  //d => colorScale(d[0][colorField])
+                        .attr('stroke-width', 0.5);
+            
+            
+                    // Draw circles 
                     g.selectAll('circle')
-                        .attr('cx', d => {
-                            const value = newXScaleRef.current(d[xField]);
-                            return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
-                        })
-                        .attr('cy', d => {
-                            const value = newYScaleRef.current(d[yField]);
-                            return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
+                        .data(filteredXYData)  //filteredData
+                        .enter().append('circle')
+                        .attr('cx', d => xScale(d[xField]))
+                        .attr('cy', d => yScale(d[yField]))
+                        .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
+                        .attr('fill', d => colorScale(d[colorField]))
+                        .on('click', function (event, d) {
+                            if (!brushing) {
+                                setSelectedRecords([d]);
+                            }
                         });
             
-                    g.selectAll('.line-path')
-                        .attr('d', line.x(d => newXScaleRef.current(d[xField])).y(d => newYScaleRef.current(d[yField])));
-                }
-            }   
-    
-            prevBrushingRef.current = brushing;       
-    
-
-
-        }            
-
-        brush_part();
-
-        // Add color legend
-        ColorLegend(filteredXYData, colorField, svg, width, margin);  
-
-    }   
-
-    plot();     
-
+            
+                    g.append('g').attr('transform', `translate(0, ${innerHeight})`)
+                    .attr('class', 'x-axis') 
+                    .call(d3.axisBottom(xScale).tickFormat(d => {
+                        if(xField==='Födelsedatum'||xField==='Testdatum')
+                        {const dateObject = d; //=parseDate(d)
+                        //console.log("dateObject: ", dateObject, "formatedDate: ", formatDate(dateObject));
+                        return formatDate(dateObject);
+                        }
+                        return d;
+                    }));
+            
+            
+                    g.append('g')
+                    .attr('class', 'y-axis') 
+                    .call(d3.axisLeft(yScale)
+                    .tickFormat(d => {
+                        if(yField==='Födelsedatum'||yField==='Testdatum')
+                        {const dateObject = d; //=parseDate(d)
+                        return formatDate(dateObject);
+                        }
+                        return d;
+                    })
+                    ); 
+                    
+                    
+                    const zoomBehavior = d3.zoom()
+                        .scaleExtent([0.5, 10])
+                        .on('zoom', (event) => {
+                            const zoomState = event.transform;
+            
+                            const zoomXScale = zoomState.rescaleX(xScale);
+                            const zoomYScale = zoomState.rescaleY(yScale);
+            
+                            newXScaleRef.current = zoomXScale;
+                            newYScaleRef.current = zoomYScale;
+            
+                            // Apply zoom transformation to circles
+                            g.selectAll('circle')
+                            .attr('cx', d => {
+                                const value = zoomXScale(d[xField]);
+                                return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
+                            })
+                            .attr('cy', d => {
+                                const value = zoomYScale(d[yField]);
+                                return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
+                            });
+            
+                            // Apply zoom transformation to lines
+                            g.selectAll('.line-path')
+                            .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+            
+                            // Update the axes with the new scales
+                            g.select('.x-axis').call(xAxis.scale(zoomXScale));
+                            g.select('.y-axis').call(yAxis.scale(zoomYScale));
+                        });
+                
+                    svg.call(zoomBehavior);    
+                    
+                    function brush_part()
+                    {
+                        let combinedSelection = [];
+                        const brushBehavior = d3.brush()  
+                        .on('end', (event) => {
+                            if (!event.selection) return;
+                            const [[x0, y0], [x1, y1]] = event.selection;
+                            const currentXScale = newXScaleRef.current || xScale;
+                            const currentYScale = newYScaleRef.current || yScale;
+                
+                            const newlySelected = filteredXYData.filter(d => 
+                                currentXScale(d[xField]) >= x0 && 
+                                currentXScale(d[xField]) <= x1 && 
+                                currentYScale(d[yField]) >= y0 && 
+                                currentYScale(d[yField]) <= y1
+                            );
+                
+                            combinedSelection = [...new Set([...combinedSelection, ...newlySelected])];
+                            setSelectedRecords(combinedSelection);
+                
+                            g.selectAll('circle')
+                            .attr('r', d => {
+                                if (combinedSelection.includes(d)) {
+                                    return 9;  // 3 times the original radius
+                                }
+                                return 3;
+                            });
+                
+                        });
+                
+                        let brush = g.append("g")
+                           .attr("class", "brush")
+                           .call(brushBehavior)
+                           .attr('display', 'none'); 
+                
+                        console.log("brushing before judge: ", brushing); 
+                        if (prevBrushingRef.current !== brushing) {
+                            if (brushing) { 
+                                svg.on('.zoom', null);  // deactivate zoom
+                                brush.attr('display', null);
+                
+                            } else {
+                                brush.attr('display', 'none');
+                                setSelectedRecords([]);
+                                svg.call(zoomBehavior);
+                            }
+                            if (newXScaleRef.current && newYScaleRef.current) {
+                                g.selectAll('circle')
+                                    .attr('cx', d => {
+                                        const value = newXScaleRef.current(d[xField]);
+                                        return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
+                                    })
+                                    .attr('cy', d => {
+                                        const value = newYScaleRef.current(d[yField]);
+                                        return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
+                                    });
+                        
+                                g.selectAll('.line-path')
+                                    .attr('d', line.x(d => newXScaleRef.current(d[xField])).y(d => newYScaleRef.current(d[yField])));
+                            }
+                        }   
+                
+                        prevBrushingRef.current = brushing;       
+                
+            
+            
+                    }            
+            
+                    brush_part();
+            
+                    // Add color legend
+                    ColorLegend(filteredXYData, colorField, svg, width, margin);  
+            
+                } 
+        plot();     
+    },[xField, yField, colorField, width, height,  setSelectedRecords, brushing, filteredXYData]);
 
     return (
         <div className="scatter-canvas" style={{ position: 'relative' }}>
