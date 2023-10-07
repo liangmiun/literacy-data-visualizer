@@ -66,7 +66,7 @@ React.memo(
         const formatDate = d3.timeFormat('%y-%m-%d');
 
         const xScale = GetScale(xField, filteredXYData, innerWidth);
-        const yScale = GetScale(yField, filteredXYData, innerHeight);
+        const yScale = GetScale(yField, filteredXYData, innerHeight, true);
               
         const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);
@@ -286,7 +286,7 @@ React.memo(
 
 );
 
-function GetScale(vField, filteredData, innerWidth)
+function GetScale(vField, filteredData, innerWidth, yFlag=false)
 {
     let vScale;
     //const variable = filteredData[filteredData.length-1][vField];
@@ -311,6 +311,12 @@ function GetScale(vField, filteredData, innerWidth)
         const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
         const vPadding = (vMax - vMin) * 0.03;
         vScale = d3.scaleLinear().domain([vMin - vPadding, vMax + vPadding]).range([0, innerWidth]);
+        if (yFlag) {  // Check if the current field is yField
+            vScale = d3.scaleLinear().domain([vMin - vPadding, vMax + vPadding]).range([innerWidth, 0]);  // Invert the range values for y-axis
+        } else {
+            vScale = d3.scaleLinear().domain([vMin - vPadding, vMax + vPadding]).range([0, innerWidth]);
+        }
+
     }
 
 

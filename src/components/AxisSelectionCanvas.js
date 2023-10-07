@@ -6,7 +6,7 @@ import './AxisSelectionCanvas.css';
 const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField, 
   onXFieldChange, onYFieldChange,onColorFieldChange, isClassView,setIsClassView, 
   save, load, setConfig, studentsChecked, setStudentsChecked,
-  showViolin, setShowViolin, setFilteredData, showXField = true, showClassbar=false
+  showViolin, setShowViolin, showXField = true, showClassbar=false
 }) => {
   const options = fields.map(field => ({ value: field, label: field }));
   const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));

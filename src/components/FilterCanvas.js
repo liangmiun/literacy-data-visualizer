@@ -12,30 +12,6 @@ const FilterCanvas = ({ data, setFilterList, checkedSchools,setCheckedSchools,ch
   return (
 
     <div  className='filter-canvas'>      
-      
-      {/* Detail Component */}
-      {/* <div style={{ margin: '20px 0' }}>
-        <p>School: {checkedSchools.join(', ')}</p>
-        <p>Class: {checkedClasses.join(', ')}</p>
-        <p>Checked:
-          {Object.entries(checkedOptions).map(([key, values]) => {
-              if (values.length > 0) {
-                  return <span key={key}><br />{key}: {values.join(', ')}</span>;
-              }
-              return null;
-          })}
-        </p>
-        <p>Range:
-          {Object.entries(rangeOptions).map(([key, values]) => {
-              if (values.length > 0) {
-                  return <span key={key}><br />{key}: {values.join(', ')}</span>;
-              }
-              return null;
-          })} 
-        </p> 
-        <p>SchoolClass: {[...checkedSchools, ...checkedClasses].join(', ') }</p>
-      </div> */}
-
 
       <SchoolTreeView  className='school-tree-view' 
         data={data} 

@@ -93,8 +93,8 @@ const ScatterPage = () => {
 
 
   const shownData = useMemo(() => {
-      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(data,checkedClasses,checkedSchools)));
-    }, [data, checkedOptions, rangeOptions, checkedSchools, checkedClasses]);  
+      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(filteredData,checkedClasses,checkedSchools)));
+    }, [filteredData, checkedOptions, rangeOptions, checkedSchools, checkedClasses]);  
 
 
   const preset_dict = {
@@ -208,7 +208,6 @@ const ScatterPage = () => {
         load = {load}
         setConfig = {setConfigFromPreset}
         updateData={updateData}
-        setFilteredData={setFilteredtData}
       />
       <ScatterCanvas
         filteredData={shownData}

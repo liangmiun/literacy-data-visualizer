@@ -8,19 +8,11 @@ const LogicCanvas = ({fields, data, setFilteredData}) => {
 
   if (!fields || fields.length === 0) return null;
 
-  const field_options = fields.slice(0,7).map(field => ({
+  const field_options = ['Skola',  'Årskurs',  'Klass', 'ElevID',  'Läsår',  'Lexplore Score',  'Stanine', 'StandardPoäng'].map(field => ({
     columnField: field,
     type: 'text',
   }));
 
-  const testLiteracyData = (() => {
-    const output = fields.reduce((result, field) => {
-      result[field] = 'content';
-      return result;
-    }, {});
-  
-    return [output,output,output];
-  })();
 
   return (
     <div className='logic-canvas'>
@@ -50,11 +42,16 @@ export class FilterDemo extends React.Component {
 
   }
 
+  componentDidMount() {
+    // Set initial data when the component mounts
+    this.setData(this.state.data);
+}
+
   onParseOk(expressions) {
 
       var newData = new SimpleResultProcessing(this.options).process(this.state.data, expressions);
-      //this.setState({ data: newData });   // change to set filtered data.
       this.setData(newData);
+      //console.log("symbolic data updated", newData);
   }
 
   render() {
