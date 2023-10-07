@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 
-const AggregateCanvas = ({ filteredData, xField, yField, colorField, width, height, 
+const AggregateCanvas = ({ data, filteredData, xField, yField, colorField, width, height, 
     onPartClick, selectedRecord, studentsChecked, showViolin }) => {
 
 

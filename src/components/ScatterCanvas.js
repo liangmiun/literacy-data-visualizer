@@ -157,31 +157,9 @@ React.memo(
             const zoomBehavior = d3.zoom()
                 .scaleExtent([0.5, 10])
                 .on('zoom', (event) => {
-                    const zoomState = event.transform;
-    
-                    let zoomXScale, zoomYScale;
-        
-                    if (xScale instanceof d3.scalePoint) {
-                        const domainLength = originalXDomain.length;
-                        const zoomedIndexSpan = domainLength / zoomState.k;
-                        const startIndex = Math.floor(zoomState.x / (xScale.step() * zoomState.k));
-                        const endIndex = Math.min(startIndex + Math.floor(zoomedIndexSpan), domainLength - 1);
-                        const newDomain = originalXDomain.slice(startIndex, endIndex + 1);
-                        zoomXScale = xScale.domain(newDomain);
-                    } else {
-                        zoomXScale = zoomState.rescaleX(xScale);
-                    }
-            
-                    if (yScale instanceof d3.scalePoint) {
-                        const domainLength = originalYDomain.length;
-                        const zoomedIndexSpan = domainLength / zoomState.k;
-                        const startIndex = Math.floor(zoomState.y / (yScale.step() * zoomState.k));
-                        const endIndex = Math.min(startIndex + Math.floor(zoomedIndexSpan), domainLength - 1);
-                        const newDomain = originalYDomain.slice(startIndex, endIndex + 1);
-                        zoomYScale = yScale.domain(newDomain);
-                    } else {
-                        zoomYScale = zoomState.rescaleY(yScale);
-                    }
+                    const zoomState = event.transform;    
+                    const zoomXScale = zoomState.rescaleX(xScale);            
+                    const zoomYScale = zoomState.rescaleY(yScale);
     
                     newXScaleRef.current = zoomXScale;
                     newYScaleRef.current = zoomYScale;
