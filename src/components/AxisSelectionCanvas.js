@@ -1,19 +1,25 @@
 import React   from 'react';
 import Select from 'react-select';
 import './AxisSelectionCanvas.css';
-import { set } from 'd3-collection';
-
 
 const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField, 
-  onXFieldChange, onYFieldChange,onColorFieldChange, setIsClassView, 
+  onXFieldChange, onYFieldChange,onColorFieldChange,  
   save, load, setConfig, studentsChecked, setStudentsChecked,
-  showViolin, setShowViolin, showXField = true, showClassbar=false, isDeclined, setIsDeclined
+  showViolin, setShowViolin, showXField = true, showClassbar=false, isDeclined, setIsDeclined, handleFileUpload
 }) => {
   const options = fields.map(field => ({ value: field, label: field }));
   const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));
   
   const onSavePreset = () => {  save()};
   const onLoadPreset= () => { load(setConfig)};
+
+
+  const ImportDataButton = ({handleFileUpload}) => (
+    <button>
+      <input type="file" accept=".csv" onChange={handleFileUpload} style={{ display: 'none' }} id="fileUpload" />
+      <label htmlFor="fileUpload" className="import-button">Import Data</label>
+    </button>
+  );
   
   return (
     <div className="axis-selection-canvas">
@@ -70,7 +76,11 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
                 Load Preset
               </button>
 
-          </div>
+              <ImportDataButton  handleFileUpload={handleFileUpload} />  
+
+        </div>
+
+
 
         <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
                 <input 
@@ -80,6 +90,8 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
                 />
                 <label><br/>Only declined score </label>
         </div>
+
+
 
         {showClassbar &&
           <div className='aggregate-buttons-row' 

@@ -1,5 +1,5 @@
 import { Checkbox, FormControlLabel, Slider, FormGroup, FormControl, InputLabel, Select, MenuItem, ListItemText } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import * as d3 from 'd3';
 import '../App.css';
 

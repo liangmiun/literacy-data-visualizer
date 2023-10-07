@@ -1,5 +1,5 @@
 import React, { useState, useEffect,useMemo, useCallback } from 'react';
-import { csv } from 'd3';
+import { csv, csvParse } from 'd3';
 import * as d3 from 'd3';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
 import ScatterCanvas from './components/ScatterCanvas';
@@ -41,7 +41,6 @@ const ScatterPage = () => {
 
   const [query, setQuery] = useState('');
   const [expression, setExpression] = useState('');
-  //const [loadedExpression, setLoadedExpression] = useState(''); 
   const [checkedSchools, setCheckedSchools] = useState([]);
   const [checkedClasses, setCheckedClasses] = useState([]);
   const [checkedOptions, setCheckedOptions] = useState(
@@ -184,6 +183,22 @@ const ScatterPage = () => {
     csv('/LiteracySample.csv', rowParser).then(setData)
     }, []);
 
+  
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const csvData = e.target.result;
+        const parsedData = await csvParse(csvData, rowParser);
+        setData(parsedData);
+        setFilteredtData(parsedData);
+      };
+      reader.readAsText(file);      
+      //csv(file, rowParser).then(setData);
+    }
+  };
+
 
   const handlePointClick = (event,record) => setSelectedRecords([record]);   
 
@@ -213,6 +228,7 @@ const ScatterPage = () => {
         updateData={updateData}
         isDeclined={isDeclined}
         setIsDeclined={setIsDeclined}
+        handleFileUpload={handleFileUpload}
       />
       <ScatterCanvas
         shownData={shownData}
