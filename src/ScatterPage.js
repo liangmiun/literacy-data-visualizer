@@ -32,9 +32,8 @@ export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
 const ScatterPage = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredtData] = useState(data);
-
-  const [selectedRecords, setSelectedRecords] = useState([]); 
-
+  const [selectedRecords, setSelectedRecords] = useState([]);
+  const [isDeclined, setIsDeclined] = useState(false);
   const [xField, setXField] = useState('Testdatum');
   const [yField, setYField] = useState('Lexplore Score');
   const [colorField, setColorField] = useState('Årskurs');
@@ -95,10 +94,10 @@ const ScatterPage = () => {
     });
   }
 
-
-  const shownData = useMemo(() => {
-      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(filteredData,checkedClasses,checkedSchools)));
-    }, [filteredData, checkedOptions, rangeOptions, checkedSchools, checkedClasses]);  
+  const dataToShow = isDeclined ? DeclinedData(filteredData) : filteredData;
+  const shownData = useMemo(() => {      
+      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(dataToShow,checkedClasses,checkedSchools)));
+    }, [dataToShow, checkedOptions, rangeOptions, checkedSchools, checkedClasses]);  
 
 
   const preset_dict = {
@@ -188,17 +187,13 @@ const ScatterPage = () => {
 
   const handlePointClick = (event,record) => setSelectedRecords([record]);   
 
-  // Initialize isClassView
-  const [isClassView, setIsClassView] = useState(false);
 
   // Function to update data
   const updateData = (newData) => {
     setData(newData);
   }
 
-  const toggleIsClassView = () => {
-    setIsClassView(!isClassView);
-  }
+
 
   return (   
     <div>    
@@ -212,12 +207,12 @@ const ScatterPage = () => {
         onXFieldChange={setXField}
         onYFieldChange={setYField}
         onColorFieldChange={setColorField}
-        setIsClassView={toggleIsClassView}
-        isClassView={isClassView}   
         save = {save}
         load = {load}
         setConfig = {setConfigFromPreset}
         updateData={updateData}
+        isDeclined={isDeclined}
+        setIsDeclined={setIsDeclined}
       />
       <ScatterCanvas
         shownData={shownData}
@@ -264,7 +259,6 @@ const ScatterPage = () => {
 
 const parseDate = d3.timeParse('%y%m%d');
 
-let count = 0;
 
 function rowParser(d) {
 
@@ -290,16 +284,49 @@ function rowParser(d) {
   return parsedRow;
 }
 
-function filterDataBySchoolAndClass(data, group_map) {
-  return data.filter(record => {
-      // Check if the school exists in the group_data
-      const schoolClasses = group_map[record.Skola];
-      if (!schoolClasses) return false;
 
-      // Check if the class exists within the classes of that school
-      return schoolClasses.includes(record.Klass);
-  });
+function calculateSlope(x, y) {
+  const n = x.length;
+  const sumX = d3.sum(x);
+  const sumY = d3.sum(y);
+  const sumXY = d3.sum(x.map((xi, i) => xi * y[i]));
+  const sumXX = d3.sum(x.map(xi => xi * xi));
+
+  return (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
 }
+
+function DeclinedData(data) {
+  // 1. Parse Testdatum to a numeric format (e.g., timestamp) if it's not already numeric
+  data.forEach(d => {
+      d.Testdatum = +new Date(d.Testdatum);
+  });
+
+  data = data.filter(d => d.Testdatum !== null && d['Lexplore Score'] !== null)
+
+  // 2. Group data by ElevID
+  const groupedData = d3.group(data, d => d.ElevID);
+
+  // 3. For each group, calculate the slope of the regression line
+  const declinedGroups = [];
+  groupedData.forEach((group, elevId) => {
+      const x = group.map(d => d.Testdatum);
+      const y = group.map(d => d['Lexplore Score']);
+      const slope = calculateSlope(x, y);
+
+      // If slope is negative, it indicates a decline
+      if (slope < 0) {
+          declinedGroups.push(group);
+      }
+  });
+
+  // 4. Flatten the array of declined groups to get a single array of declined data records
+  const declinedData = [].concat(...declinedGroups);
+
+  return declinedData;
+}
+
+
+
 
 
 

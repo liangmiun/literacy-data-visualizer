@@ -1,19 +1,19 @@
 import React   from 'react';
 import Select from 'react-select';
 import './AxisSelectionCanvas.css';
+import { set } from 'd3-collection';
 
 
 const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField, 
-  onXFieldChange, onYFieldChange,onColorFieldChange, isClassView,setIsClassView, 
+  onXFieldChange, onYFieldChange,onColorFieldChange, setIsClassView, 
   save, load, setConfig, studentsChecked, setStudentsChecked,
-  showViolin, setShowViolin, showXField = true, showClassbar=false
+  showViolin, setShowViolin, showXField = true, showClassbar=false, isDeclined, setIsDeclined
 }) => {
   const options = fields.map(field => ({ value: field, label: field }));
   const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));
   
   const onSavePreset = () => {  save()};
   const onLoadPreset= () => { load(setConfig)};
-  const onSwitchView =  () => { setIsClassView()};
   
   return (
     <div className="axis-selection-canvas">
@@ -72,35 +72,38 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
 
           </div>
 
-          {showClassbar &&
-            <div className='aggregate-buttons-row' 
-              style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
-                <span className="text">Class Aggregation: </span>
+        <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
+                <input 
+                    type="checkbox" 
+                    checked = {isDeclined}
+                    onChange={() => setIsDeclined(!isDeclined)} 
+                />
+                <label><br/>Only declined score </label>
+        </div>
 
-                <button className="btn"
-                id="show-violin-btn"
-                onClick={() => setShowViolin(!showViolin)} 
-                >
-                  {showViolin ? "BoxPlot" : "ViolinPlot"}
-                </button>
+        {showClassbar &&
+          <div className='aggregate-buttons-row' 
+            style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
+              <span className="text">Class Aggregation: </span>
 
-                <div  style={{ display: 'inline-block', marginLeft: '5%'}}>
-                    <input 
-                        type="checkbox" 
-                        checked={studentsChecked} 
-                        onChange={() => setStudentsChecked(!studentsChecked)} 
-                    />
-                    <label>Show Individuals </label>
-                </div>
-            
-            </div>
-          }
+              <button className="btn"
+              id="show-violin-btn"
+              onClick={() => setShowViolin(!showViolin)} 
+              >
+                {showViolin ? "BoxPlot" : "ViolinPlot"}
+              </button>
 
-      </div>
-
-      <div style={{display: 'inline-flex', marginLeft:'30px'}}>
-
-
+              <div  style={{ display: 'inline-block', marginLeft: '5%'}}>
+                  <input 
+                      type="checkbox" 
+                      checked={studentsChecked} 
+                      onChange={() => setStudentsChecked(!studentsChecked)}
+                  />
+                  <label>Show Individuals </label>
+              </div>
+          
+          </div>
+        }
 
       </div>
 

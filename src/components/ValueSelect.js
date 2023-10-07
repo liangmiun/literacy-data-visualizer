@@ -5,26 +5,7 @@ import '../App.css';
 
 export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeOptions, setCheckedOptions, setRangeOptions }) {
     const allOptions = Object.keys(checkedOptions).concat(Object.keys(rangeOptions));
-    const [selectedOptions, setSelectedOptions] = useState([]);
-
-    // useEffect(() => {
-    //     // Initialize checkedOptions so all are checked
-    //     const newCheckedOptions = {};
-    //     Object.keys(checkedOptions).forEach(key => {
-    //         const uniqueValues = [...new Set(data.map(item => item[key]))];
-    //         newCheckedOptions[key] = uniqueValues;
-    //     });
-    //     setCheckedOptions(newCheckedOptions);
-    
-    //     // Initialize rangeOptions with min and max values
-    //     const newRangeOptions = {};
-    //     Object.keys(rangeOptions).forEach(key => {
-    //         const [minValue, maxValue] = d3.extent(data, d => d[key]);
-    //         newRangeOptions[key] = [minValue, maxValue];
-    //     });
-    //     setRangeOptions(newRangeOptions);
-    // }, [data]);
-    
+    const [selectedOptions, setSelectedOptions] = useState([]);    
 
     const handleOptionChange = (event) => {
         const values = event.target.value;
