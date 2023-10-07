@@ -101,14 +101,20 @@ const ScatterPage = () => {
     xField: '',
     yField: '',
     colorField: '',
-    isClassView: false,
+    checkedSchools: [],
+    checkedClasses: [],
+    checkedOptions: {},
+    rangeOptions: {},
   };
 
   const updatePreset = () => {
     preset_dict.xField = xField;
     preset_dict.yField = yField;
     preset_dict.colorField = colorField;
-    preset_dict.isClassView = isClassView;
+    preset_dict.checkedSchools = checkedSchools;
+    preset_dict.checkedClasses = checkedClasses;
+    preset_dict.checkedOptions = checkedOptions;
+    preset_dict.rangeOptions = rangeOptions;
   }
 
 
@@ -116,7 +122,10 @@ const ScatterPage = () => {
     setXField( preset.xField);
     setYField( preset.yField);
     setColorField( preset.colorField);
-    setIsClassView( preset.isClassView);
+    setCheckedSchools( preset.checkedSchools);
+    setCheckedClasses( preset.checkedClasses);
+    setCheckedOptions( preset.checkedOptions);
+    setRangeOptions( preset.rangeOptions);
   }
 
   const save = () => {

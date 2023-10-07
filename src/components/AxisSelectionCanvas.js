@@ -9,6 +9,7 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
   showViolin, setShowViolin, setFilteredData, showXField = true, showClassbar=false
 }) => {
   const options = fields.map(field => ({ value: field, label: field }));
+  const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));
   
   const onSavePreset = () => {  save()};
   const onLoadPreset= () => { load(setConfig)};
@@ -45,7 +46,7 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
           <Select
             id="color-field"
             value={{ value: colorField, label: colorField }}
-            options={options}
+            options={colorOptions}
             onChange={option => onColorFieldChange(option.value)}
           />
         </div>

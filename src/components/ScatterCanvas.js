@@ -9,7 +9,7 @@ function ColorLegend(data, colorField, svg, width, margin) {
         .domain(colorDomain);
 
     // Define legend space
-    const legendWidth = 30;
+    const legendWidth = 60;
 
     // Add a group for the legend
     const legend = svg.append("g")
@@ -40,20 +40,6 @@ function ColorLegend(data, colorField, svg, width, margin) {
 
 }
 
-
-const arePropsEqual = (prevProps, nextProps) => {
-    const allKeys = new Set([...Object.keys(prevProps), ...Object.keys(nextProps)]);
-    let areEqual = true;
-  
-    allKeys.forEach(key => {
-      if (prevProps[key] !== nextProps[key]) {
-        console.log(`Prop '${key}' changed from`, prevProps[key], 'to', nextProps[key]);
-        areEqual = false;
-      }
-    });
-  
-    return areEqual;
-  };
 
 const ScatterCanvas =
 React.memo(
@@ -295,11 +281,7 @@ React.memo(
             <svg  ref={svgRef} width={width} height={height}></svg>
         </div>
     );
-},
-
-arePropsEqual
-
-
+    },
 
 
 );
