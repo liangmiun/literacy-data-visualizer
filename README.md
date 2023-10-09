@@ -25,7 +25,7 @@ A data visualizer framework for the Lexplore literacy research project.
 - Clicking on load preset would load a preset json file into the current view.
   
 ### The class aggregation plot 
-    it (through the top-left link) shows box/violin plots of selected classes.
+  It (through the top-right link) shows box/violin plots of selected classes.
 - Click on the top-sided Violin/Box button to switch between box/violin view.
 - Toggle the "Show Individuals" checkbox between showing or not showing individual dots in classes.
 - Click on a single box or violin, and its aggregated detail would show in the detail panel on the right.
