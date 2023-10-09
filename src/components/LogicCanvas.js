@@ -1,8 +1,7 @@
-import ReactFilterBox ,{ AutoCompleteOption, SimpleResultProcessing }from 'react-filter-box';
+import ReactFilterBox ,{ SimpleResultProcessing }from 'react-filter-box';
 import 'react-filter-box/lib/react-filter-box.css';
 import * as React from 'react';
-import * as _ from "lodash";
-//import "fixed-data-table/dist/fixed-data-table.min.css";
+//import * as _ from "lodash";
 
 const LogicCanvas = ({fields, data, setFilteredData, expression, setExpression, query,setQuery }) => {
 

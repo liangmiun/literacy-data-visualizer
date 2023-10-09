@@ -143,7 +143,7 @@ const ViolinPlots = (data, xField, yField, colorField, width, height,  onViolinC
             }
 
             // ... rest of the zoom and event logic remains unchanged ...
-        }, [data, xField, yField, colorField, width, height, selectedRecord, studentsChecked, formatDate, parseDate]);
+        }, [data, xField, yField, colorField, width, height, selectedRecord, studentsChecked, formatDate, parseDate, onViolinClick]);
         
         return (
             <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
@@ -293,7 +293,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
               
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [data, xField, yField, colorField, width, height,  selectedRecord, studentsChecked,formatDate, parseDate]);
+    }, [data, xField, yField, colorField, width, height,  selectedRecord, studentsChecked,formatDate, parseDate, onBoxClick]);
     return (
         <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
     );

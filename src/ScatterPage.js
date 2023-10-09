@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useMemo, useCallback } from 'react';
+import React, { useState, useEffect,useMemo } from 'react';
 import { csv, csvParse } from 'd3';
 import * as d3 from 'd3';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
@@ -7,7 +7,6 @@ import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
 import './App.css';
-import { set } from 'd3-collection';
 
 
 export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {

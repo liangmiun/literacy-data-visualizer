@@ -5,16 +5,12 @@ import AxisSelectionCanvas from './components/AxisSelectionCanvas';
 import AggregateCanvas from './components/AggregateCanvas';
 import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
-//import LogicCanvas from './components/LogicCanvas';
 import './App.css';
 import { schoolClassFilteredData } from './ScatterPage';
-import SchoolTreeView from './components/SchoolTreeView';
-
 
 
 const AlternativePage = () => {
   const [data, setData] = useState([]);
-  const [filterdData, setFilteredData] = useState(data);
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
 
   const classKeyList =
@@ -151,7 +147,6 @@ const AlternativePage = () => {
         studentsChecked={studentsChecked}
         setShowViolin={setShowViolin}
         showViolin={showViolin}
-        setFilteredData={setFilteredData}
         showXField = {false}
         showClassbar={true}
       />

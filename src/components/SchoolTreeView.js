@@ -39,7 +39,7 @@ function SchoolTreeView({ data,  checkedSchools,setCheckedSchools,checkedClasses
       );
       setCheckedSchools(allSchools);
       setCheckedClasses(allClasses);
-  }, [data]);
+  },[data]);
 
     const handleSchoolCheckChange = (school, isChecked) => {
       if (isChecked) {
@@ -54,7 +54,7 @@ function SchoolTreeView({ data,  checkedSchools,setCheckedSchools,checkedClasses
  
     
     const handleClassCheckChange = (schoolClass, isChecked) => {
-      const [school, cls] = schoolClass.split('.');
+      const [school] = schoolClass.split('.');
       if (isChecked) {
 
         setCheckedClasses(prev => [...prev, schoolClass]);
