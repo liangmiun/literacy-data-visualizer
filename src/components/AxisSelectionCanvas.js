@@ -81,15 +81,16 @@ const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField,
         </div>
 
 
-
-        <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
-                <input 
-                    type="checkbox" 
-                    checked = {isDeclined}
-                    onChange={() => setIsDeclined(!isDeclined)} 
-                />
-                <label><br/>Only declined score </label>
-        </div>
+        {!showClassbar &&
+          <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
+                  <input 
+                      type="checkbox" 
+                      checked = {isDeclined}
+                      onChange={() => setIsDeclined(!isDeclined)} 
+                  />
+                  <label><br/>Only declined score </label>
+          </div>
+        }
 
 
 
