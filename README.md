@@ -19,6 +19,7 @@ A data visualizer framework for the Lexplore literacy research project.
 - Records belonging to the same student are connected by lines.
 - Select multiple individuals, by clicking on the brush button (in the bottom-right of plot) and then rectangle-brush the desired dots, and their aggregated detail would show on the detail panel. De-select them by cliking on the de-brush button.
 4. Zoom and Pan: use mouse rolling and dragging to zoom and pan. Zoom and pan would stop when you are doing brushing(group selection).
+  
 5. Saving and loading presets
 - Clicking on save preset would save a local json file containing information of  current axis and filters configurations.
 - Clicking on load preset would load a preset json file into the current view.
