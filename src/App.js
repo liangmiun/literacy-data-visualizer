@@ -52,7 +52,7 @@ const App = () => {
   };
 
   return (  
-    <Router  >
+    <Router  basename="literacy-data-visualizer" >
       <div>
         {/* Add navigation links */}
         <nav className ="headers">

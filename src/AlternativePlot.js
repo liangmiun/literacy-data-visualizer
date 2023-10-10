@@ -23,7 +23,7 @@ const AlternativePage = () => {
 
   //  D3.v4 version:
   useEffect(() => {
-    csv('/LiteracySample.csv', rowParser).then(setData);
+    csv(process.env.PUBLIC_URL +'/LiteracySample.csv', rowParser).then(setData);
     }, []); 
 
 
