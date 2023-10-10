@@ -177,10 +177,11 @@ const ScatterPage = () => {
     uploadInputNode.remove();
   };
 
-  //  D3.v4 version:
+   //D3.v4 version:
   useEffect(() => {
-    csv('/LiteracySample.csv', rowParser).then(setData)
-    }, []);
+      csv(process.env.PUBLIC_URL +'/LiteracySample.csv', rowParser)
+      .then(setData);
+    },  []);
 
   
   const handleFileUpload = (event) => {
@@ -193,8 +194,8 @@ const ScatterPage = () => {
         setData(parsedData);
         setFilteredtData(parsedData);
       };
-      reader.readAsText(file);      
-      //csv(file, rowParser).then(setData);
+      reader.readAsText(file);     
+
     }
   };
 
