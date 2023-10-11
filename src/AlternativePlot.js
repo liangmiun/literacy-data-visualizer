@@ -4,7 +4,7 @@ import AggregateCanvas from './components/AggregateCanvas';
 import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
 import './App.css';
-import { schoolClassFilteredData } from './Utils.js';
+import {schoolClassFilteredData } from './ScatterPage';
 
 
 const AlternativePage = ({

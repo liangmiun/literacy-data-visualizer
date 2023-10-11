@@ -27,48 +27,6 @@ export function rowParser(d) {
 }
 
 
-export function calculateSlope(x, y) {
-    const n = x.length;
-    const sumX = d3.sum(x);
-    const sumY = d3.sum(y);
-    const sumXY = d3.sum(x.map((xi, i) => xi * y[i]));
-    const sumXX = d3.sum(x.map(xi => xi * xi));
-  
-    return (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-  }
-
-  
-export function DeclinedData(data) {
-    // 1. Parse Testdatum to a numeric format (e.g., timestamp) if it's not already numeric
-    data.forEach(d => {
-        d.Testdatum = +new Date(d.Testdatum);
-    });
-  
-    data = data.filter(d => d.Testdatum !== null && d['Lexplore Score'] !== null)
-  
-    // 2. Group data by ElevID
-    const groupedData = d3.group(data, d => d.ElevID);
-  
-    // 3. For each group, calculate the slope of the regression line
-    const declinedGroups = [];
-    groupedData.forEach((group, elevId) => {
-        const x = group.map(d => d.Testdatum);
-        const y = group.map(d => d['Lexplore Score']);
-        const slope = calculateSlope(x, y);
-  
-        // If slope is negative, it indicates a decline
-        if (slope < 0) {
-            declinedGroups.push(group);
-        }
-    });
-  
-    // 4. Flatten the array of declined groups to get a single array of declined data records
-    const declinedData = [].concat(...declinedGroups);
-  
-    return declinedData;
-  }
-
-
 export const preset_dict = {
   xField: '',
   yField: '',
@@ -107,23 +65,6 @@ export const load = (callback) => {
 };
 
 
-export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
-  return data.filter(record => {
-      // Check if the school of the record is in checkedSchools
-      if (checkedSchools.includes(record.Skola)) {
-          return true;
-      }
 
-      // Construct the school.class string from the record
-      const schoolClassCombo = `${record.Skola}.${record.Klass}`;
-      // Check if this combo is in checkedClasses
-      if (checkedClasses.includes(schoolClassCombo)) {
-          return true;
-      }
-
-      // If none of the above conditions are met, exclude this record
-      return false;
-  } );    
-}
 
 

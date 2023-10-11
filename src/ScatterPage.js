@@ -155,7 +155,7 @@ const ScatterPage = ({
 };
 
 
-function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
+export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
   return data.filter(record => {
       // Check if the school of the record is in checkedSchools
       if (checkedSchools.includes(record.Skola)) {
