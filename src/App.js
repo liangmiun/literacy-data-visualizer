@@ -3,7 +3,7 @@ import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
 import './App.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
-import { rowParser, preset_dict } from './Utils.js';
+import { rowParser, preset_dict, load } from './Utils.js';
 import About from './About';
 import ScatterPage from './ScatterPage';
 import AlternativePlot from './AlternativePlot';
@@ -177,6 +177,8 @@ const App = () => {
                           colorField={colorField}
                           setColorField={setColorField}
                           fields={fields}
+                          save={save}
+                          load={load}
                           checkedSchools={checkedSchools}
                           setCheckedSchools={setCheckedSchools}
                           checkedClasses={checkedClasses}
@@ -185,6 +187,8 @@ const App = () => {
                           setCheckedOptions={setCheckedOptions}
                           rangeOptions={rangeOptions}
                           setRangeOptions={setRangeOptions}
+                          handleFileUpload={handleFileUpload}
+                          setConfigFromPreset={setConfigFromPreset}
                           />} />
                   }
               />
@@ -204,6 +208,8 @@ const App = () => {
                           colorField={colorField}
                           setColorField={setColorField}
                           fields={fields}
+                          save={save}
+                          load={load}
                           checkedSchools={checkedSchools}
                           setCheckedSchools={setCheckedSchools}
                           checkedClasses={checkedClasses}
@@ -212,6 +218,8 @@ const App = () => {
                           setCheckedOptions={setCheckedOptions}
                           rangeOptions={rangeOptions}
                           setRangeOptions={setRangeOptions}
+                          handleFileUpload={handleFileUpload}
+                          setConfigFromPreset={setConfigFromPreset}
                         />
                       } 
                     />
