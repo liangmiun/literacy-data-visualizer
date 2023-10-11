@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
 
-
 const parseDate = d3.timeParse('%y%m%d');
 
 
@@ -68,3 +67,63 @@ export function DeclinedData(data) {
   
     return declinedData;
   }
+
+
+export const preset_dict = {
+  xField: '',
+  yField: '',
+  colorField: '',
+  checkedSchools: [],
+  checkedClasses: [],
+  checkedOptions: {},
+  rangeOptions: {},
+  query: '',
+  expression: []
+};
+
+
+export const load = (callback) => {
+  const uploadInputNode = document.createElement('input');
+  uploadInputNode.setAttribute("type", "file");
+  uploadInputNode.setAttribute("accept", "application/json");
+
+  uploadInputNode.onchange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target.result;
+      const loadedConfig = JSON.parse(content);
+      callback(loadedConfig);
+    };
+
+    reader.readAsText(file);
+  };
+
+  document.body.appendChild(uploadInputNode);
+  uploadInputNode.click();
+  uploadInputNode.remove();
+};
+
+
+export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
+  return data.filter(record => {
+      // Check if the school of the record is in checkedSchools
+      if (checkedSchools.includes(record.Skola)) {
+          return true;
+      }
+
+      // Construct the school.class string from the record
+      const schoolClassCombo = `${record.Skola}.${record.Klass}`;
+      // Check if this combo is in checkedClasses
+      if (checkedClasses.includes(schoolClassCombo)) {
+          return true;
+      }
+
+      // If none of the above conditions are met, exclude this record
+      return false;
+  } );    
+}
+
+

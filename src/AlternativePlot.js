@@ -1,16 +1,32 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { csv } from 'd3';
-import * as d3 from 'd3';
+import React, { useState, useMemo } from 'react';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
 import AggregateCanvas from './components/AggregateCanvas';
 import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
 import './App.css';
-import { schoolClassFilteredData } from './ScatterPage';
+import { schoolClassFilteredData } from './Utils.js';
 
 
-const AlternativePage = ({data, setData}) => {
+const AlternativePage = ({
+  data,
+  xField,
+  setXField,
+  yField,
+  setYField,
+  colorField,
+  setColorField,
+  fields,
+  checkedSchools,
+  setCheckedSchools,
+  checkedClasses,
+  setCheckedClasses,
+  save,
+  load,
+  setConfigFromPreset
+}) => {
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
+  const [studentsChecked, setStudentsChecked] = useState(false);
+
 
   const classKeyList =
     ['min',
@@ -20,95 +36,92 @@ const AlternativePage = ({data, setData}) => {
     'max'
     ];
 
-
-  const [xField, setXField] = useState('ElevID');
-  const [yField, setYField] = useState('Lexplore Score');
-  const [colorField, setColorField] = useState('Lexplore Score');
-  const fields = Object.keys(data[0] || {});
-  const [studentsChecked, setStudentsChecked] = useState(false);
   const [showViolin, setShowViolin] = useState(false);
 
-  const [checkedSchools, setCheckedSchools] = useState([]);
-  const [checkedClasses, setCheckedClasses] = useState([]);
+//   const [xField, setXField] = useState('ElevID');
+//   const [yField, setYField] = useState('Lexplore Score');
+//   const [colorField, setColorField] = useState('Lexplore Score');
+//   const fields = Object.keys(data[0] || {});
+//   const [checkedSchools, setCheckedSchools] = useState([]);
+//   const [checkedClasses, setCheckedClasses] = useState([]);
 
-  const preset_dict = {
-    xField: '',
-    yField: '',
-    colorField: '',
-    checkedSchools: [],
-    checkedClasses: [],
-    checkedOptions: {},
-    rangeOptions: {},
-    query: '',
-    expression: []
-  };
+//   const preset_dict = {
+//     xField: '',
+//     yField: '',
+//     colorField: '',
+//     checkedSchools: [],
+//     checkedClasses: [],
+//     checkedOptions: {},
+//     rangeOptions: {},
+//     query: '',
+//     expression: []
+//   };
 
 
   const classFilteredData = useMemo(() => {
     return schoolClassFilteredData(data, checkedClasses, checkedSchools);
   }, [data, checkedSchools, checkedClasses]);  
 
-  const updatePreset = () => {
-    preset_dict.xField = xField;
-    preset_dict.yField = yField;
-    preset_dict.colorField = colorField;
-  }
+//   const updatePreset = () => {
+//     preset_dict.xField = xField;
+//     preset_dict.yField = yField;
+//     preset_dict.colorField = colorField;
+//   }
 
 
-  const setConfigFromPreset = (preset) => {
-    setXField( preset.xField);
-    setYField( preset.yField);
-    setColorField( preset.colorField);
-  }
+//   const setConfigFromPreset = (preset) => {
+//     setXField( preset.xField);
+//     setYField( preset.yField);
+//     setColorField( preset.colorField);
+//   }
 
-  const save = () => {
-    updatePreset();
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(preset_dict));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
+//   const save = () => {
+//     updatePreset();
+//     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(preset_dict));
+//     const downloadAnchorNode = document.createElement('a');
+//     downloadAnchorNode.setAttribute("href", dataStr);
 
-    // Ask the user for the filename
-    const fileName = prompt("Please enter the desired filename", "preset_config.json");
+//     // Ask the user for the filename
+//     const fileName = prompt("Please enter the desired filename", "preset_config.json");
     
-    // If user clicks "Cancel" on the prompt, fileName will be null. In that case, don't proceed with the download.
-    if (fileName) {
-        downloadAnchorNode.setAttribute("download", fileName);
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-    }
-};
+//     // If user clicks "Cancel" on the prompt, fileName will be null. In that case, don't proceed with the download.
+//     if (fileName) {
+//         downloadAnchorNode.setAttribute("download", fileName);
+//         document.body.appendChild(downloadAnchorNode);
+//         downloadAnchorNode.click();
+//         downloadAnchorNode.remove();
+//     }
+// };
 
 
-  const load = (callback) => {
-    const uploadInputNode = document.createElement('input');
-    uploadInputNode.setAttribute("type", "file");
-    uploadInputNode.setAttribute("accept", "application/json");
+//   const load = (callback) => {
+//     const uploadInputNode = document.createElement('input');
+//     uploadInputNode.setAttribute("type", "file");
+//     uploadInputNode.setAttribute("accept", "application/json");
   
-    uploadInputNode.onchange = (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
+//     uploadInputNode.onchange = (event) => {
+//       const file = event.target.files[0];
+//       if (!file) return;
   
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target.result;
-        const loadedConfig = JSON.parse(content);
-        callback(loadedConfig);
-      };
+//       const reader = new FileReader();
+//       reader.onload = (e) => {
+//         const content = e.target.result;
+//         const loadedConfig = JSON.parse(content);
+//         callback(loadedConfig);
+//       };
   
-      reader.readAsText(file);
-    };
+//       reader.readAsText(file);
+//     };
   
-    document.body.appendChild(uploadInputNode);
-    uploadInputNode.click();
-    uploadInputNode.remove();
-  };
+//     document.body.appendChild(uploadInputNode);
+//     uploadInputNode.click();
+//     uploadInputNode.remove();
+//   };
 
 
   const handlePartClick = (details) => {
     setSelectedClassDetail(details);
   };
-
 
 
   return (   
@@ -167,14 +180,6 @@ const AlternativePage = ({data, setData}) => {
   );
 };
 
-function rowParser(d) {
-  // Apply D3 autoType first to handle all columns
-  const parsedRow = d3.autoType(d);
 
-  // Convert Count to an integer
-  parsedRow.StudentID = +parsedRow.StudentID;
-
-  return parsedRow;
-}
 
 export default AlternativePage;
