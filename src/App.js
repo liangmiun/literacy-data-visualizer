@@ -1,6 +1,8 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
+import { csv } from 'd3';
 import './App.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+import { rowParser } from './Utils.js';
 import About from './About';
 import ScatterPage from './ScatterPage';
 import AlternativePlot from './AlternativePlot';
@@ -12,9 +14,16 @@ import Logout from './authentications/Logout';
 
 const App = () => { 
 
-  const { currentUser } = useAuth();
+  //const { currentUser } = useAuth();
+  const currentUser = true;
+  const [data, setData] = useState([]);
 
-  console.log("App: currentUser = ", currentUser);
+  //D3.v4 version:
+  useEffect(() => {
+    csv(process.env.PUBLIC_URL +'/LiteracySample.csv', rowParser)
+    .then(setData);
+  },  []);  
+
 
   const liStyle = {
     display: "inline-block",/* Display the list items in a horizontal line */
@@ -61,12 +70,12 @@ const App = () => {
               />
               <Route path="/alternative-plot" 
                   element={
-                    <ProtectedWrapper  element={<AlternativePlot/>} />
+                    <ProtectedWrapper  element={<AlternativePlot  data={data} setData={setData}   />} />
                   }
               />
               <Route path="/"               
                   element={
-                    <ProtectedWrapper  element={<ScatterPage/>} />
+                    <ProtectedWrapper  element={<ScatterPage data={data} setData={setData}/>} />
                   }
               />              
             </Routes>

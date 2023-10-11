@@ -1,11 +1,11 @@
-import React, { useState, useEffect,useMemo } from 'react';
-import { csv, csvParse } from 'd3';
-import * as d3 from 'd3';
+import React, { useState, useMemo } from 'react';
+import { csvParse } from 'd3';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
 import ScatterCanvas from './components/ScatterCanvas';
 import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
+import { DeclinedData, rowParser } from './Utils.js';
 import './App.css';
 
 
@@ -28,8 +28,8 @@ export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
   } );    
 }
 
-const ScatterPage = () => {
-  const [data, setData] = useState([]);
+const ScatterPage = ({data, setData}) => {
+  
   const [filteredData, setFilteredtData] = useState(data);
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [isDeclined, setIsDeclined] = useState(false);
@@ -177,12 +177,6 @@ const ScatterPage = () => {
     uploadInputNode.remove();
   };
 
-   //D3.v4 version:
-  useEffect(() => {
-      csv(process.env.PUBLIC_URL +'/LiteracySample.csv', rowParser)
-      .then(setData);
-    },  []);
-
   
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -203,13 +197,6 @@ const ScatterPage = () => {
   const handlePointClick = (event,record) => setSelectedRecords([record]);   
 
 
-  // Function to update data
-  const updateData = (newData) => {
-    setData(newData);
-  }
-
-
-
   return (   
     <div>    
     <div className="app" >  
@@ -225,7 +212,6 @@ const ScatterPage = () => {
         save = {save}
         load = {load}
         setConfig = {setConfigFromPreset}
-        updateData={updateData}
         isDeclined={isDeclined}
         setIsDeclined={setIsDeclined}
         handleFileUpload={handleFileUpload}
@@ -272,78 +258,6 @@ const ScatterPage = () => {
     </div>
   );
 };
-
-const parseDate = d3.timeParse('%y%m%d');
-
-
-function rowParser(d) {
-
-
-    // Initialize an empty object to hold the parsed fields
-    const parsedRow = {};
-
-    // Manually parse each field
-    for (let field in d) {
-      if (field === 'Skola' || field === 'Klass' || field === 'Läsår') {
-        parsedRow[field] = String(d[field]);
-      } else if (field === 'Födelsedatum' || field === 'Testdatum') {
-        parsedRow[field] = parseDate(d[field]);
-      } else if (field === 'Årskurs' || field === 'Läsnivå (5 = hög)') {
-        parsedRow[field] = parseInt(d[field], 10);	
-      }
-      else {
-        parsedRow[field] = d3.autoType({ [field]: d[field] })[field];
-      }
-    }
-
-
-  return parsedRow;
-}
-
-
-function calculateSlope(x, y) {
-  const n = x.length;
-  const sumX = d3.sum(x);
-  const sumY = d3.sum(y);
-  const sumXY = d3.sum(x.map((xi, i) => xi * y[i]));
-  const sumXX = d3.sum(x.map(xi => xi * xi));
-
-  return (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-}
-
-function DeclinedData(data) {
-  // 1. Parse Testdatum to a numeric format (e.g., timestamp) if it's not already numeric
-  data.forEach(d => {
-      d.Testdatum = +new Date(d.Testdatum);
-  });
-
-  data = data.filter(d => d.Testdatum !== null && d['Lexplore Score'] !== null)
-
-  // 2. Group data by ElevID
-  const groupedData = d3.group(data, d => d.ElevID);
-
-  // 3. For each group, calculate the slope of the regression line
-  const declinedGroups = [];
-  groupedData.forEach((group, elevId) => {
-      const x = group.map(d => d.Testdatum);
-      const y = group.map(d => d['Lexplore Score']);
-      const slope = calculateSlope(x, y);
-
-      // If slope is negative, it indicates a decline
-      if (slope < 0) {
-          declinedGroups.push(group);
-      }
-  });
-
-  // 4. Flatten the array of declined groups to get a single array of declined data records
-  const declinedData = [].concat(...declinedGroups);
-
-  return declinedData;
-}
-
-
-
-
 
 
 

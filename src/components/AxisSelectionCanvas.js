@@ -2,7 +2,7 @@ import React   from 'react';
 import Select from 'react-select';
 import './AxisSelectionCanvas.css';
 
-const AxisSelectionCanvas = ({ data, fields, xField, yField, colorField, 
+const AxisSelectionCanvas = ({ fields, xField, yField, colorField, 
   onXFieldChange, onYFieldChange,onColorFieldChange,  
   save, load, setConfig, studentsChecked, setStudentsChecked,
   showViolin, setShowViolin, showXField = true, showClassbar=false, isDeclined, setIsDeclined, handleFileUpload

@@ -9,8 +9,7 @@ import './App.css';
 import { schoolClassFilteredData } from './ScatterPage';
 
 
-const AlternativePage = () => {
-  const [data, setData] = useState([]);
+const AlternativePage = ({data, setData}) => {
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
 
   const classKeyList =
@@ -20,11 +19,6 @@ const AlternativePage = () => {
     'q3',
     'max'
     ];
-
-  //  D3.v4 version:
-  useEffect(() => {
-    csv(process.env.PUBLIC_URL +'/LiteracySample.csv', rowParser).then(setData);
-    }, []); 
 
 
   const [xField, setXField] = useState('ElevID');
@@ -41,8 +35,14 @@ const AlternativePage = () => {
     xField: '',
     yField: '',
     colorField: '',
-    isClassView: false,
+    checkedSchools: [],
+    checkedClasses: [],
+    checkedOptions: {},
+    rangeOptions: {},
+    query: '',
+    expression: []
   };
+
 
   const classFilteredData = useMemo(() => {
     return schoolClassFilteredData(data, checkedClasses, checkedSchools);
@@ -52,7 +52,6 @@ const AlternativePage = () => {
     preset_dict.xField = xField;
     preset_dict.yField = yField;
     preset_dict.colorField = colorField;
-    preset_dict.isClassView = isClassView;
   }
 
 
@@ -60,7 +59,6 @@ const AlternativePage = () => {
     setXField( preset.xField);
     setYField( preset.yField);
     setColorField( preset.colorField);
-    setIsClassView( preset.isClassView);
   }
 
   const save = () => {
@@ -112,18 +110,6 @@ const AlternativePage = () => {
   };
 
 
-  // Initialize isClassView
-  const [isClassView, setIsClassView] = useState(true);
-
-    // Function to update data
-  const updateData = (newData) => {
-    setData(newData);
-  }
-
-
-  const toggleIsClassView = () => {
-    setIsClassView(!isClassView);
-  }
 
   return (   
     <div>    
@@ -137,12 +123,9 @@ const AlternativePage = () => {
         onXFieldChange={setXField}
         onYFieldChange={setYField}
         onColorFieldChange={setColorField}
-        setIsClassView={toggleIsClassView}
-        isClassView={isClassView}   
         save = {save}
         load = {load}
         setConfig = {setConfigFromPreset}
-        updateData={updateData}
         setStudentsChecked={setStudentsChecked}
         studentsChecked={studentsChecked}
         setShowViolin={setShowViolin}
