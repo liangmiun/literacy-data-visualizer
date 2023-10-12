@@ -1,9 +1,10 @@
 # literacy-data-visualizer
 A data visualizer framework for the Lexplore literacy research project.
 
-## Webpage login 
+## Webpage login/logout 
 - This project is deployed as static server website in https://liangmiun.github.io/literacy-data-visualizer
 - Login with a sole account (authenticated by Firebase) for testing. Please ask the project manager/ developer for the account detail.
+- Logout by clicking on the upper-right Logout link.
 
 ## Usage
 
