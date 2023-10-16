@@ -110,7 +110,7 @@ React.memo(
                 .attr('class', 'line-path')
                 .attr('d', d => line(d))
                 .attr('fill', 'none')
-                .attr('stroke','rgba(128, 128, 128, 0.5)' )  //d => colorScale(d[0][colorField])
+                .attr('stroke','rgba(128, 128, 128, 0.2)' )  //d => colorScale(d[0][colorField])
                 .attr('stroke-width', 0.5);
     
     
@@ -184,36 +184,72 @@ React.memo(
                     g.select('.y-axis').call(yAxis.scale(zoomYScale));
                 });
         
-            svg.call(zoomBehavior);    
+            svg.call(zoomBehavior);
+            
+            function getElevIDSelected(dataSelection) {
+                let selectedElevIDs = new Set(dataSelection.map(d => d.ElevID));
+                return filteredXYData.filter(d => selectedElevIDs.has(d.ElevID));
+            }
             
             function brush_part()
             {
                 let combinedSelection = [];
-                const brushBehavior = d3.brush()  
+                // const brushBehavior = d3.brush()  
+                // .on('end', (event) => {
+                //     if (!event.selection) return;
+                //     const [[x0, y0], [x1, y1]] = event.selection;
+                //     const currentXScale = newXScaleRef.current || xScale;
+                //     const currentYScale = newYScaleRef.current || yScale;
+        
+                //     const newlySelected = filteredXYData.filter(d => 
+                //         currentXScale(d[xField]) >= x0 && 
+                //         currentXScale(d[xField]) <= x1 && 
+                //         currentYScale(d[yField]) >= y0 && 
+                //         currentYScale(d[yField]) <= y1
+                //     );
+        
+                //     combinedSelection = [...new Set([...combinedSelection, ...newlySelected])];
+                //     setSelectedRecords(combinedSelection);
+        
+                //     g.selectAll('circle')
+                //     .attr('r', d => {
+                //         if (combinedSelection.includes(d)) {
+                //             return 9;  // 3 times the original radius
+                //         }
+                //         return 3;
+                //     });        
+                // });
+
+                const brushBehavior = d3.brush()
                 .on('end', (event) => {
                     if (!event.selection) return;
                     const [[x0, y0], [x1, y1]] = event.selection;
                     const currentXScale = newXScaleRef.current || xScale;
                     const currentYScale = newYScaleRef.current || yScale;
-        
-                    const newlySelected = filteredXYData.filter(d => 
+                    
+                    let newlySelected = filteredXYData.filter(d => 
                         currentXScale(d[xField]) >= x0 && 
                         currentXScale(d[xField]) <= x1 && 
                         currentYScale(d[yField]) >= y0 && 
                         currentYScale(d[yField]) <= y1
                     );
-        
+
+                    newlySelected = getElevIDSelected(newlySelected);
+
                     combinedSelection = [...new Set([...combinedSelection, ...newlySelected])];
                     setSelectedRecords(combinedSelection);
-        
+                    
                     g.selectAll('circle')
-                    .attr('r', d => {
-                        if (combinedSelection.includes(d)) {
-                            return 9;  // 3 times the original radius
-                        }
-                        return 3;
-                    });
-        
+                        .attr('r', d => {
+                            if (combinedSelection.includes(d)) {
+                                return 9;
+                            }
+                            return 3;
+                        });
+                    
+                    g.selectAll('.line-path')
+                        .attr('stroke-width', d => combinedSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
+                        .attr('stroke', d => combinedSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)');
                 });
         
                 let brush = g.append("g")
