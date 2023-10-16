@@ -15,12 +15,13 @@ import Logout from './authentications/Logout';
 
 const App = () => { 
 
-  const { currentUser } = useAuth();
-  //const currentUser = true;
+  //const { currentUser } = useAuth();
+  const currentUser = true;
   const [data, setData] = useState([]);
   const [filteredData, setFilteredtData] = useState(data);
   const [encryptKey,setEncryptKey] = useState(""); 
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);   //  set as true for test purpose without login;
+  const [showLines, setShowLines] = useState(false);
 
   const [xField, setXField] = useState('Testdatum');
   const [yField, setYField] = useState('Lexplore Score');
@@ -105,7 +106,7 @@ const App = () => {
     .then(response => response.text())  // Get as text, not JSON
     .then(encryptedData => {
       // Decrypt data
-      const bytes = CryptoJS.AES.decrypt(encryptedData, encryptKey);  // Replace with your secretKey
+      const bytes = CryptoJS.AES.decrypt(encryptedData, "dolexplore");  // Replace with encryptKey
       const originalData = bytes.toString(CryptoJS.enc.Utf8);
 
       // Now, parse the decrypted string as CSV
@@ -220,6 +221,8 @@ const App = () => {
                           setRangeOptions={setRangeOptions}
                           handleFileUpload={handleFileUpload}
                           setConfigFromPreset={setConfigFromPreset}
+                          showLines={showLines}
+                          setShowLines={setShowLines}
                         />
                       } 
                     />

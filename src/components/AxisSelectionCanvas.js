@@ -5,7 +5,8 @@ import './AxisSelectionCanvas.css';
 const AxisSelectionCanvas = ({ fields, xField, yField, colorField, 
   onXFieldChange, onYFieldChange,onColorFieldChange,  
   save, load, setConfig, studentsChecked, setStudentsChecked,
-  showViolin, setShowViolin, showXField = true, showClassbar=false, isDeclined, setIsDeclined, handleFileUpload
+  showViolin, setShowViolin, showXField = true, showClassbar=false, 
+  isDeclined, setIsDeclined, handleFileUpload, showLines, setShowLines
 }) => {
   const options = fields.map(field => ({ value: field, label: field }));
   const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));
@@ -82,14 +83,24 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField,
 
 
         {!showClassbar &&
-          <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
-                  <input 
-                      type="checkbox" 
-                      checked = {isDeclined}
-                      onChange={() => setIsDeclined(!isDeclined)} 
-                  />
-                  <label><br/>Only declined score </label>
-          </div>
+          <>
+            <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
+                    <input 
+                        type="checkbox" 
+                        checked = {isDeclined}
+                        onChange={() => setIsDeclined(!isDeclined)} 
+                    />
+                    <label><br/>Only declining score </label>
+            </div>
+            <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
+                    <input 
+                        type="checkbox" 
+                        checked = {showLines}
+                        onChange={() => setShowLines(!showLines)} 
+                    />
+                    <label><br/>Show lines </label>
+            </div>
+          </>
         }
 
 

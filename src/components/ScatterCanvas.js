@@ -43,7 +43,7 @@ function ColorLegend(data, colorField, svg, width, margin) {
 
 const ScatterCanvas =
 React.memo(
-    ({ data, shownData, xField, yField, colorField, width, height,  setSelectedRecords}) => { //
+    ({ data, shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines}) => { //
 
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
@@ -70,13 +70,7 @@ React.memo(
             const yScale = GetScale(yField, filteredXYData, innerHeight, true);
                   
             const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
-            const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);
-    
-            //  Group data by ElevID; filteredXYData
-            const elevIDGroups = d3.group(filteredXYData, d => d.ElevID);
-    
-            //  Sort data in each group by xField
-            elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
+            const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);   
     
             const xAxis = d3.axisBottom(xScale);
             const yAxis = d3.axisLeft(yScale);
@@ -96,23 +90,34 @@ React.memo(
                 .attr("x", innerWidth / 2)  
                 .attr("dy", "1em")  
                 .style("text-anchor", "middle")
-                .text(xField);  
-    
-            //  Define line generator
+                .text(xField);
+
             const line = d3.line()
             .x(d => xScale(d[xField]))
             .y(d => yScale(d[yField]));
-    
-            //Draw lines
-            g.selectAll('.line-path')
-                .data(Array.from(elevIDGroups.values()))
-                .enter().append('path')
-                .attr('class', 'line-path')
-                .attr('d', d => line(d))
-                .attr('fill', 'none')
-                .attr('stroke','rgba(128, 128, 128, 0.2)' )  //d => colorScale(d[0][colorField])
-                .attr('stroke-width', 0.5);
-    
+
+            
+            if(showLines){
+                
+                //  Group data by ElevID; filteredXYData
+                const elevIDGroups = d3.group(filteredXYData, d => d.ElevID);
+
+                //  Sort data in each group by xField
+                elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
+        
+                //  Define line generator
+
+        
+                //Draw lines
+                g.selectAll('.line-path')
+                    .data(Array.from(elevIDGroups.values()))
+                    .enter().append('path')
+                    .attr('class', 'line-path')
+                    .attr('d', d => line(d))
+                    .attr('fill', 'none')
+                    .attr('stroke','rgba(128, 128, 128, 0.2)' )  //d => colorScale(d[0][colorField])
+                    .attr('stroke-width', 0.5);
+            }
     
             // Draw circles 
             g.selectAll('circle')
@@ -176,9 +181,11 @@ React.memo(
                     });
     
                     // Apply zoom transformation to lines
-                    g.selectAll('.line-path')
-                    .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
-    
+                    if(showLines){
+                        g.selectAll('.line-path')
+                        .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+                    }
+
                     // Update the axes with the new scales
                     g.select('.x-axis').call(xAxis.scale(zoomXScale));
                     g.select('.y-axis').call(yAxis.scale(zoomYScale));
@@ -194,31 +201,6 @@ React.memo(
             function brush_part()
             {
                 let combinedSelection = [];
-                // const brushBehavior = d3.brush()  
-                // .on('end', (event) => {
-                //     if (!event.selection) return;
-                //     const [[x0, y0], [x1, y1]] = event.selection;
-                //     const currentXScale = newXScaleRef.current || xScale;
-                //     const currentYScale = newYScaleRef.current || yScale;
-        
-                //     const newlySelected = filteredXYData.filter(d => 
-                //         currentXScale(d[xField]) >= x0 && 
-                //         currentXScale(d[xField]) <= x1 && 
-                //         currentYScale(d[yField]) >= y0 && 
-                //         currentYScale(d[yField]) <= y1
-                //     );
-        
-                //     combinedSelection = [...new Set([...combinedSelection, ...newlySelected])];
-                //     setSelectedRecords(combinedSelection);
-        
-                //     g.selectAll('circle')
-                //     .attr('r', d => {
-                //         if (combinedSelection.includes(d)) {
-                //             return 9;  // 3 times the original radius
-                //         }
-                //         return 3;
-                //     });        
-                // });
 
                 const brushBehavior = d3.brush()
                 .on('end', (event) => {

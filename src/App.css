@@ -1,7 +1,7 @@
 .app {
   display: grid;
   /*max-width: 1800px; */
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 3fr 2fr;
   grid-template-rows: 10vh 15vh 55vh 10vh;
   gap: 10px;
 }
@@ -84,18 +84,19 @@
 
 
 .filter-canvas {
-  max-width: 600px;
+  max-width: 1200px;
   grid-column: 2 / 3;
   grid-row: 3 / 4;
-  padding: 10px;
+  padding: 5px;
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: 1fr 1fr;
 }
 
 .school-tree-view {
-  max-width: 600px;
+  max-width: 800px;
   grid-column: 1 / 2;
-  padding: 10px;
+  padding: 3px;
+  margin: 3px;
 }
 
 .option-select-group {
@@ -104,6 +105,7 @@
   overflow-y: auto;
   grid-column: 2 / 3;
   padding: 2px;
+  margin: 5px;
 }
 
 .filter-row {

@@ -36,6 +36,8 @@ const ScatterPage = ({
   setQuery,
   setConfigFromPreset,
   handleFileUpload,
+  showLines,
+  setShowLines
 } ) => {  
 
   // above shared by ScatterPage and AlternativePlot
@@ -110,6 +112,8 @@ const ScatterPage = ({
         isDeclined={isDeclined}
         setIsDeclined={setIsDeclined}
         handleFileUpload={handleFileUpload}
+        showLines={showLines}
+        setShowLines={setShowLines}
       />
       <ScatterCanvas
         shownData={shownData}
@@ -118,7 +122,8 @@ const ScatterPage = ({
         colorField = {colorField}
         width= {1000}
         height={700}
-        setSelectedRecords={setSelectedRecords}   
+        setSelectedRecords={setSelectedRecords}
+        showLines={showLines}   
       />
 
       
