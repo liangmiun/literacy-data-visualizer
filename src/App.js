@@ -211,6 +211,10 @@ const App = () => {
                           fields={fields}
                           save={save}
                           load={load}
+                          query={query}
+                          setQuery={setQuery}
+                          expression={expression}
+                          setExpression={setExpression}
                           checkedSchools={checkedSchools}
                           setCheckedSchools={setCheckedSchools}
                           checkedClasses={checkedClasses}

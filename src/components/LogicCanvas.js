@@ -63,6 +63,10 @@ export class FilterDemo extends React.Component {
 
       var newData = new SimpleResultProcessing(this.options).process(this.state.data, expressions);
       this.setData(newData);
+      console.log("Type of this.props.setQuery:", typeof this.props.setQuery);
+      console.log("Value of this.props.setQuery:", this.props.setQuery);
+      console.log("Value of this.props:", this.props);
+
       this.props.setQuery(this.state.query);
       this.props.setExpression(expressions);
       // set string, set expression
