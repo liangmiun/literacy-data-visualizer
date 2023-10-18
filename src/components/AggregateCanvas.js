@@ -9,6 +9,8 @@ const AggregateCanvas = ({ data, filteredData, xField, yField, colorField, width
 
     filteredData = filteredData.filter(d => d[xField] !== null && d[yField] !== null);
 
+    console.log("showViolin", showViolin);
+    
 
     if(showViolin) {
       return ViolinPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked);
@@ -50,13 +52,7 @@ const ViolinPlots = (data, xField, yField, colorField, width, height,  onViolinC
             const x = d3.scaleBand().range([0, innerWidth]).domain(allClasses).padding(0.05);
 
             g.append("g").attr("transform", `translate(0, ${innerHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d => {
-                    if(xField==='Födelsedatum'||xField==='Testdatum')
-                    {const dateObject = parseDate(d);
-                    return formatDate(dateObject);
-                    }
-                    return d;
-                }));
+                .call(d3.axisBottom(x));
 
 
             g.append("text")
@@ -143,7 +139,7 @@ const ViolinPlots = (data, xField, yField, colorField, width, height,  onViolinC
             }
 
             // ... rest of the zoom and event logic remains unchanged ...
-        }, [data, xField, yField, colorField, width, height, selectedRecord, studentsChecked, formatDate, parseDate, onViolinClick]);
+        }, [data,xField, yField, colorField, width, height, selectedRecord, studentsChecked, formatDate, parseDate, onViolinClick]);
         
         return (
             <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
@@ -155,6 +151,60 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
     const svgRef = useRef();
     const parseDate = d3.timeParse('%y%m%d');
     const formatDate = d3.timeFormat('%y-%m-%d');
+    
+    // In your useEffect:
+    // useEffect(() => {
+    //            // Create identity classes
+    //            const identityClassesMap = new Map();
+
+    //            data.forEach(record => {
+    //                const year = parseInt(record.Läsår.split('/')[0]);
+    //                const skola = record.Skola;
+    //                const klassNum = parseInt(record.Klass[0]);
+    //                const klassSuffix = record.Klass[1];
+    //                const classId = `${skola}:${year - klassNum + 1}/${year - klassNum + 2}-${1}${klassSuffix}`;
+       
+    //                const existingClass = identityClassesMap.get(classId);
+    //                if (existingClass) {
+    //                    const existingRecord = existingClass.find(r => r.Läsår === record.Läsår && r.Klass === record.Klass);
+    //                    if (existingRecord) {
+    //                        existingRecord.ElevIDs.push(record.ElevID);
+    //                    } else {
+    //                        existingClass.push({ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] });
+    //                    }
+    //                } else {
+    //                    identityClassesMap.set(classId, [{ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] }]);
+    //                }
+    //            });
+       
+    //            const identityClasses = Array.from(identityClassesMap).map(([key, value]) => {
+    //                return { classID: key, classes: value };
+    //            });
+       
+    //            // Calculate ratios for each identity class
+    //            const ratioClasses = identityClasses.map(identityClass => {
+    //                let lowRatioReported = false;
+    //                const mostPopulatedClass = identityClass.classes.reduce((acc, curr) => acc.ElevIDs.length > curr.ElevIDs.length ? acc : curr);
+    //                const ratios = identityClass.classes.map(klass => {
+    //                    const matchingStudents = klass.ElevIDs.filter(id => mostPopulatedClass.ElevIDs.includes(id)).length;
+  
+    //                    if(!lowRatioReported && matchingStudents / klass.ElevIDs.length <0.5)
+    //                    {console.log(identityClass.classID,matchingStudents / klass.ElevIDs.length );
+    //                     lowRatioReported=true;
+    //                     }
+
+    //                    return { Läsår: klass.Läsår, Klass: klass.Klass, ratio: matchingStudents / klass.ElevIDs.length, population: klass.ElevIDs.length, ElevIDs: klass.ElevIDs };
+    //                });
+       
+    //                return { classID: identityClass.classID, classes: ratios };
+    //            });
+       
+    //            // Print the ratios
+    //            console.log(ratioClasses);
+
+    // }, [data]);  
+
+
     useEffect(() => {
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
@@ -204,13 +254,11 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
             .range([innerHeight, 0]);
 
         // X & Y axis
-        g.append('g').attr('transform', `translate(0, ${innerHeight})`).call(d3.axisBottom(x).tickFormat(d => {
-            if(xField==='Födelsedatum'||xField==='Testdatum')
-            {const dateObject = parseDate(d);
-            return formatDate(dateObject);
-            }
-            return d;
-        }));
+        g.append('g')
+            .attr('transform', `translate(0, ${innerHeight})`)
+            .call(d3.axisBottom(x));
+
+
         g.append('g').call(d3.axisLeft(y).tickFormat(d => {
             if(yField==='Födelsedatum'||yField==='Testdatum')
             {const dateObject = parseDate(d);
@@ -240,8 +288,8 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         g.selectAll("vertLines")
             .data(sumstat)
             .enter().append("line")
-            .attr("x1", d => x(d.key))
-            .attr("x2", d => x(d.key))
+            .attr("x1", d => x(d.key) + x.bandwidth() / 2)
+            .attr("x2", d => x(d.key) + x.bandwidth() / 2)
             .attr("y1", d => y(d.value.min))
             .attr("y2", d => y(d.value.max))
             .attr("stroke", "black")
@@ -251,7 +299,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         g.selectAll("boxes")
             .data(sumstat)
             .enter().append("rect")
-            .attr("x", d => x(d.key) - boxWidth/2)
+            .attr("x", d => x(d.key) ) //- boxWidth/2
             .attr("y", d => y(d.value.q3))
             .attr("height", d => y(d.value.q1) - y(d.value.q3))
             .attr("width", boxWidth)
@@ -270,8 +318,8 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         g.selectAll("medianLines")
             .data(sumstat)
             .enter().append("line")
-            .attr("x1", d => x(d.key) - boxWidth/2)
-            .attr("x2", d => x(d.key) + boxWidth/2)
+            .attr("x1", d => x(d.key))
+            .attr("x2", d => x(d.key) + boxWidth)
             .attr("y1", d => y(d.value.median))
             .attr("y2", d => y(d.value.median))
             .attr("stroke", "black")
@@ -281,7 +329,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         g.selectAll("medianText")
             .data(sumstat)
             .enter().append("text")
-            .attr("x", d => x(d.key))
+            .attr("x", d => x(d.key) + boxWidth/2)
             .attr("y", d => y(d.value.median) - 5) 
             .style("text-anchor", "middle")
             .text(d => d.value.median);

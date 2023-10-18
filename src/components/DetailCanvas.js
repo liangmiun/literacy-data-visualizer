@@ -26,14 +26,17 @@ const DetailCanvas = ({ data, keyList}) => {
         case 'Skola':
         case 'Klass':
         case 'Läsår':
-            const sortedValues = data.map(record => record[key]).sort();
-            return `${sortedValues[0]} - ${sortedValues[sortedValues.length - 1]}`;
+            const sortedStrings = data.map(record => record[key]).sort();
+            return `${sortedStrings[0]} - ${sortedStrings[sortedStrings.length - 1]}`;
+
+        case 'ElevID':
+          const sortedNumbers = data.map(record => parseInt(record[key], 10)).sort((a, b) => a - b);
+          return `${sortedNumbers[0]} - ${sortedNumbers[sortedNumbers.length - 1]}`;
+  
 
         case 'Årskurs':
             const uniqueYears = [...new Set(data.map(record => record[key]))];
             return uniqueYears.join(', ');
-
-        case 'ElevID':
         case 'Födelsedatum':
         case 'Testdatum':
             const sortedDates = data.map(record => record[key]).sort((a, b) => a - b);
