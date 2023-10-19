@@ -135,9 +135,9 @@ const ViolinPlots = (data, xField, yField, colorField, width, height,  onViolinC
 
             // Add individual points with jitter
             console.log("violin chart studentsChecked:", studentsChecked, typeof(studentsChecked));    
-            if(studentsChecked) {                
-                PresentIndividuals(data, yField, g, x, y, x.bandwidth()/2)
-            }
+            // if(studentsChecked) {                
+            //     PresentIndividuals(data, yField, g, x, y, x.bandwidth()/2)
+            // }
 
             // ... rest of the zoom and event logic remains unchanged ...
         }, [data,xField, yField, colorField, width, height, selectedRecord, studentsChecked, formatDate, parseDate, onViolinClick]);
@@ -464,20 +464,18 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
                     .attr("y1", y(startPoint.value.median))
                     .attr("y2", y(endPoint.value.median))
                     .attr("stroke", "grey") // or any other color you prefer
-                    .style("width", 2); // or any other width you prefer
+                    .attr('stroke-width', 2); // or any other width you prefer
             }
-        });
-            
-
-
-
-
+        });           
 
 
         // Add individual points with jitter
         if(studentsChecked) {
-            PresentIndividuals(data, yField, g, x0, y)
+            PresentIndividuals(data, yField, g, x0, getSubBandScale, y, subBandWidth)  //getSubBandScale,
         }
+
+
+
 
         // Add color legend
         //ColorLegend(data, "Klass", svg, width, margin);  
@@ -494,22 +492,34 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
 }
 
 
-function PresentIndividuals(data, yField, g, x, y, offset=0)
+
+function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWidth)
 {
     const jitterWidth = 20;
+    const offset =0;
 
     g.selectAll("indPoints")
         .data(data)
         .enter().append("circle")
-        .attr("cx", d => x(d.Klass) + offset - jitterWidth/2 + Math.random()*jitterWidth)
+        .attr("cx", d => {                    
+            const season = Season(d.Testdatum).toString(); // or whatever field you use for the season
+            const clazz = d.Klass.toString();
+            const x1 = getSubBandScale(season); // get the x1 scale for the current season
+            return x0(season) + x1(clazz) + offset + subBandWidth/2 - jitterWidth/2 + Math.random()*jitterWidth;
+        })
         .attr("cy", d => y(d[yField]))
         .attr("r", 2)
         .style("fill", "white")
         .attr("stroke", "black")
         .style("fill-opacity", 0.5)
-        .style("stroke-opacity", 0.5);    
+        .style("stroke-opacity", 0.5);  
+}
 
-} 
+
+
+
+
+
 
 function Season(dateObject) {
     const year = dateObject.getFullYear();
