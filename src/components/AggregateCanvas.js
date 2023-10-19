@@ -1,6 +1,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
+import { ColorLegend } from './ScatterCanvas';
 
 
 const AggregateCanvas = ({ data, filteredData, xField, yField, colorField, width, height, 
@@ -190,6 +191,8 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
 
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
+        const colorDomain = Array.from(new Set(data.map(d => d.Klass)));
+        const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);   
 
         //set margin for svg
         const margin = { top: 20, right: 20, bottom: 80, left: 80 };
@@ -285,45 +288,6 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
             .text("Seasons of Testdatum");      
 
 
-        //1. Generate the tick values
-        // let tickValues = [];
-        // seasons.forEach(season => {
-        //     seasonToClasses[season].forEach(cls => {
-        //         tickValues.push(cls + '-' + season);
-        //     });
-        // });
-
-        // Generate the tick values and positions
-        // let tickPositions = [];
-        // seasons.forEach(season => {
-        //     const subScale = getSubBandScale(season);
-        //     seasonToClasses[season].forEach(cls => {
-        //         // Calculate the combined position for each tick
-        //         const position = x0(season) + subScale(cls);
-        //         tickPositions.push({ value: cls + '-' + season, position: position });
-        //         //console.log("tickPosition", season, cls, position);
-        //     });
-        // });
-
-        // // 2. Create the x-axis using the tick positions
-        // const xAxis = d3.axisBottom(x0)
-        //     .tickValues(tickPositions.map(d => d.position)) // Use the calculated positions
-        //     .tickFormat((d, i) => { return tickPositions[i].value});  // Format the tick values to show both class and season
-
-        // 1. Create a new band scale for the combined class-season strings
-        // const combinedStrings = [];
-        // seasons.forEach(season => {
-        //     seasonToClasses[season].forEach(cls => {
-        //         combinedStrings.push(cls + '-' + season);
-        //     });
-        // });
-
-        // const x1 = d3.scaleBand()
-        //     .domain(combinedStrings)
-        //     .range([0, innerWidth])
-        //     .paddingInner(0.1)
-        //     .paddingOuter(0.5);
-
         // 2. Generate the tick values (just the combined class-season strings now)
         let tickValues = seasons; 
 
@@ -338,12 +302,6 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
             .attr("transform", `translate(0, ${innerHeight})`)
             .call(xAxis);        
  
-
-        // // 2. Create the x-axis using the tick values
-        // const xAxis = d3.axisBottom(x0)
-        //     .tickValues(tickValues)
-        //     .tickFormat(d => d); // 3. Format the tick values to show both class and season
-
 
         g.append('g').call(d3.axisLeft(y).tickFormat(d => {
             if(yField==='Födelsedatum'||yField==='Testdatum')
@@ -362,7 +320,6 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         .text(yField); 
 
         // Vertical lines
-        //const boxWidth = x1.bandwidth() * 0.8; //50
         const subBandWidth = x0.bandwidth() *0.2;
         g.selectAll("vertLines")
             .data(sumstat)
@@ -397,13 +354,10 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
             .attr("y", d => y(d.value.q3))
             .attr("height", d => y(d.value.q1) - y(d.value.q3))
             .attr("width", d => {
-                // const season = d.value.season.toString();
-                // const x1 = getSubBandScale(season);
-                // return x1.bandwidth()*0.8;
-                return x0.bandwidth()*0.2;
+                return subBandWidth;
             })
             .attr("stroke", "black")
-            .style("fill", "#69b3a2")
+            .style("fill", d => colorScale(d.value.class))  //"#69b3a2"
             .on("click", (event,d) =>{             
                 onBoxClick([{
                 class: d.value.class,
@@ -455,6 +409,9 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         if(studentsChecked) {
             PresentIndividuals(data, yField, g, x0, y)
         }
+
+        // Add color legend
+        ColorLegend(data, "Klass", svg, width, margin);  
               
 
         // ... rest of the zoom and event logic remains unchanged ...

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { set } from 'd3-collection';
 
-function ColorLegend(data, colorField, svg, width, margin) {
+export function ColorLegend(data, colorField, svg, width, margin) {
     // Assuming colorField is categorical
     const colorDomain = Array.from(new Set(data.map(d => d[colorField])));
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10)  // Example color scheme
