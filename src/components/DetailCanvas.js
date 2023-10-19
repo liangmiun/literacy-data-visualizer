@@ -5,9 +5,6 @@ import '../App.css';
 const DetailCanvas = ({ data, keyList}) => {
   //console.log("data type: "+ typeof(data) + " content:" + data );
 
-
-
-
   const formatDate = d3.timeFormat('%Y.%m.%d');
 
   const DetailValue = (key, value) => {
@@ -19,6 +16,7 @@ const DetailCanvas = ({ data, keyList}) => {
 
   const aggregateData = (key) => {
     if (data.length === 1) {
+        console.log("data length is 1:", data[0]);
         return DetailValue(key, data[0][key]);
     }
 

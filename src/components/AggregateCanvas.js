@@ -54,7 +54,6 @@ const ViolinPlots = (data, xField, yField, colorField, width, height,  onViolinC
             g.append("g").attr("transform", `translate(0, ${innerHeight})`)
                 .call(d3.axisBottom(x));
 
-
             g.append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", -margin.left)
@@ -153,110 +152,197 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
     const formatDate = d3.timeFormat('%y-%m-%d');
     
     // In your useEffect:
-    // useEffect(() => {
-    //            // Create identity classes
-    //            const identityClassesMap = new Map();
+    function identityClass()
+    {
+        // Create identity classes
+        const identityClassesMap = new Map();
 
-    //            data.forEach(record => {
-    //                const year = parseInt(record.Läsår.split('/')[0]);
-    //                const skola = record.Skola;
-    //                const klassNum = parseInt(record.Klass[0]);
-    //                const klassSuffix = record.Klass[1];
-    //                const classId = `${skola}:${year - klassNum + 1}/${year - klassNum + 2}-${1}${klassSuffix}`;
-       
-    //                const existingClass = identityClassesMap.get(classId);
-    //                if (existingClass) {
-    //                    const existingRecord = existingClass.find(r => r.Läsår === record.Läsår && r.Klass === record.Klass);
-    //                    if (existingRecord) {
-    //                        existingRecord.ElevIDs.push(record.ElevID);
-    //                    } else {
-    //                        existingClass.push({ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] });
-    //                    }
-    //                } else {
-    //                    identityClassesMap.set(classId, [{ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] }]);
-    //                }
-    //            });
-       
-    //            const identityClasses = Array.from(identityClassesMap).map(([key, value]) => {
-    //                return { classID: key, classes: value };
-    //            });
-       
-    //            // Calculate ratios for each identity class
-    //            const ratioClasses = identityClasses.map(identityClass => {
-    //                let lowRatioReported = false;
-    //                const mostPopulatedClass = identityClass.classes.reduce((acc, curr) => acc.ElevIDs.length > curr.ElevIDs.length ? acc : curr);
-    //                const ratios = identityClass.classes.map(klass => {
-    //                    const matchingStudents = klass.ElevIDs.filter(id => mostPopulatedClass.ElevIDs.includes(id)).length;
-  
-    //                    if(!lowRatioReported && matchingStudents / klass.ElevIDs.length <0.5)
-    //                    {console.log(identityClass.classID,matchingStudents / klass.ElevIDs.length );
-    //                     lowRatioReported=true;
-    //                     }
+        data.forEach(record => {
+            const year = parseInt(record.Läsår.split('/')[0]);
+            const skola = record.Skola;
+            const klassNum = parseInt(record.Klass[0]);
+            const klassSuffix = record.Klass[1];
+            const classId = `${skola}:${year - klassNum + 1}/${year - klassNum + 2}-${1}${klassSuffix}`;
 
-    //                    return { Läsår: klass.Läsår, Klass: klass.Klass, ratio: matchingStudents / klass.ElevIDs.length, population: klass.ElevIDs.length, ElevIDs: klass.ElevIDs };
-    //                });
-       
-    //                return { classID: identityClass.classID, classes: ratios };
-    //            });
-       
-    //            // Print the ratios
-    //            console.log(ratioClasses);
+            const existingClass = identityClassesMap.get(classId);
+            if (existingClass) {
+                const existingRecord = existingClass.find(r => r.Läsår === record.Läsår && r.Klass === record.Klass);
+                if (existingRecord) {
+                    existingRecord.ElevIDs.push(record.ElevID);
+                } else {
+                    existingClass.push({ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] });
+                }
+            } else {
+                identityClassesMap.set(classId, [{ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] }]);
+            }
+        });
 
-    // }, [data]);  
+        const identityClasses = Array.from(identityClassesMap).map(([key, value]) => {
+            return { classID: key, classes: value };
+        });
+
+        return identityClasses;
+
+    };  
 
 
     useEffect(() => {
+
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
+
+        //set margin for svg
         const margin = { top: 20, right: 20, bottom: 80, left: 80 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
 
 
-        // Process data for box plot
 
-        // Compute quartiles, median, inter quantile range min and max for each Klass group.
-        const grouped = d3.group(data, d => d.Klass);
-        const sumstat = Array.from(grouped).map(([key, values]) => {
-            const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
-            
-            const q1 = d3.quantile(sortedValues, 0.25);
-            const median = d3.quantile(sortedValues, 0.5);
-            const q3 = d3.quantile(sortedValues, 0.75);
-            const interQuantileRange = q3 - q1;
-            const min = q1 - 1.5 * interQuantileRange;
-            const max = q3 + 1.5 * interQuantileRange;
+        // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
+        const grouped = d3.group(data,  d => Season(d.Testdatum),d => d.Klass);
+        const sumstat = [];
 
-            return { 
-                key: key,
-                value: {
-                    q1: q1, 
-                    median: median, 
-                    q3: q3, 
-                    interQuantileRange: interQuantileRange, 
-                    min: min, 
-                    max: max
-                }
-            };
+        grouped.forEach((seasonGroup, seasonKey) => {
+            seasonGroup.forEach((values, klassKey) => {
+                const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
+                
+                const q1 = d3.quantile(sortedValues, 0.25);
+                const median = d3.quantile(sortedValues, 0.5);
+                const q3 = d3.quantile(sortedValues, 0.75);
+                const interQuantileRange = q3 - q1;
+                const min = q1 - 1.5 * interQuantileRange;
+                const max = q3 + 1.5 * interQuantileRange;
+
+                sumstat.push({
+                    key: `${klassKey}-${seasonKey}`,
+                    value: {
+                        class: klassKey,
+                        season: seasonKey,
+                        q1: q1, 
+                        median: median, 
+                        q3: q3, 
+                        interQuantileRange: interQuantileRange, 
+                        min: min, 
+                        max: max
+                    }
+                });
+            });
         });
 
-        // Scales
-        const x = d3.scaleBand()
-            .range([0, innerWidth])
-            .domain(sumstat.map(d => d.key))
-            .paddingInner(0.1)
-            .paddingOuter(0.5);
-        
+        // Sort the sumstat by key to ensure boxes layout horizontally within each season:
+        // Here sumstat is in a flat structure.
+        sumstat.sort((a, b) => {
+            const xComp = d3.ascending(a.season, b.season);
+            return xComp !== 0 ? xComp : d3.ascending(a.class, b.class);
+        });
+
+        // Create an array of unique seasons
+        const seasons = Array.from(new Set(sumstat.map(d => d.value.season.toString())));  // d => d.key.split('-')[1]  d => d.value.season.toString()
+        console.log("seasons", seasons);
+
+        // Create a mapping of each season to its classes
+        const seasonToClasses = {};
+
+        seasons.forEach(season => {
+            let classesForSeason = sumstat
+                .filter(d => d.value.season === season)
+                .map(d => d.value.class);
+            classesForSeason.sort((a, b) => a.toString().localeCompare(b.toString()));
+            seasonToClasses[season] = classesForSeason;
+            //console.log(season, classesForSeason);
+        });
+
+        // Create a function to get the sub-band scale for classes within a given season
+        function getSubBandScale(season) {
+            return d3.scaleBand()
+                .padding(0.05)
+                .domain(seasonToClasses[season])
+                .range([0, x0.bandwidth()]);
+        }
+
+
+        // Create main linear scale for y-axis
         const [yMin, yMax] = d3.extent(data, d => d[yField]);
         const y = d3.scaleLinear()
             .domain([yMin, yMax])
             .range([innerHeight, 0]);
 
-        // X & Y axis
-        g.append('g')
-            .attr('transform', `translate(0, ${innerHeight})`)
-            .call(d3.axisBottom(x));
+        // Create main band scale for seasons
+        const x0 = d3.scaleBand()
+            .domain(seasons)
+            .range([0, innerWidth])
+            .paddingInner(0.1)
+            .paddingOuter(0.5);      
+
+
+        // For the X axis label:
+        g.append("text")
+            .attr("y", innerHeight + margin.bottom / 2)
+            .attr("x", innerWidth / 2)  
+            .attr("dy", "1em")    
+            .style("text-anchor", "middle")  
+            .text("Seasons of Testdatum");      
+
+
+        //1. Generate the tick values
+        // let tickValues = [];
+        // seasons.forEach(season => {
+        //     seasonToClasses[season].forEach(cls => {
+        //         tickValues.push(cls + '-' + season);
+        //     });
+        // });
+
+        // Generate the tick values and positions
+        // let tickPositions = [];
+        // seasons.forEach(season => {
+        //     const subScale = getSubBandScale(season);
+        //     seasonToClasses[season].forEach(cls => {
+        //         // Calculate the combined position for each tick
+        //         const position = x0(season) + subScale(cls);
+        //         tickPositions.push({ value: cls + '-' + season, position: position });
+        //         //console.log("tickPosition", season, cls, position);
+        //     });
+        // });
+
+        // // 2. Create the x-axis using the tick positions
+        // const xAxis = d3.axisBottom(x0)
+        //     .tickValues(tickPositions.map(d => d.position)) // Use the calculated positions
+        //     .tickFormat((d, i) => { return tickPositions[i].value});  // Format the tick values to show both class and season
+
+        // 1. Create a new band scale for the combined class-season strings
+        // const combinedStrings = [];
+        // seasons.forEach(season => {
+        //     seasonToClasses[season].forEach(cls => {
+        //         combinedStrings.push(cls + '-' + season);
+        //     });
+        // });
+
+        // const x1 = d3.scaleBand()
+        //     .domain(combinedStrings)
+        //     .range([0, innerWidth])
+        //     .paddingInner(0.1)
+        //     .paddingOuter(0.5);
+
+        // 2. Generate the tick values (just the combined class-season strings now)
+        let tickValues = seasons; 
+
+        // 3. Create the x-axis using the new band scale `x1`
+        const xAxis = d3.axisBottom(x0)
+            .tickValues(tickValues) // Use the combined class-season strings
+            .tickFormat(d => d);  // The tick format is just the string itself now
+
+
+        // Add the x-axis to the group element
+        g.append("g")
+            .attr("transform", `translate(0, ${innerHeight})`)
+            .call(xAxis);        
+ 
+
+        // // 2. Create the x-axis using the tick values
+        // const xAxis = d3.axisBottom(x0)
+        //     .tickValues(tickValues)
+        //     .tickFormat(d => d); // 3. Format the tick values to show both class and season
 
 
         g.append('g').call(d3.axisLeft(y).tickFormat(d => {
@@ -275,21 +361,24 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         .style("text-anchor", "middle")
         .text(yField); 
 
-
-        g.append("text")
-        .attr("y", innerHeight + margin.bottom / 2)
-        .attr("x", innerWidth / 2)  
-        .attr("dy", "1em")  
-        .style("text-anchor", "middle")
-        .text(xField); 
-
         // Vertical lines
-        const boxWidth = x.bandwidth() * 0.8; //50
+        //const boxWidth = x1.bandwidth() * 0.8; //50
+        const subBandWidth = x0.bandwidth() *0.2;
         g.selectAll("vertLines")
             .data(sumstat)
             .enter().append("line")
-            .attr("x1", d => x(d.key) + x.bandwidth() / 2)
-            .attr("x2", d => x(d.key) + x.bandwidth() / 2)
+            .attr("x1", d => {
+                const season = d.value.season.toString();
+                const clazz = d.value.class.toString();
+                const x1 = getSubBandScale(season); // Get x1 scale for the current season
+                return x0(season) + x1(clazz) + subBandWidth / 2;
+            })
+            .attr("x2", d => {
+                const season = d.value.season.toString();
+                const clazz = d.value.class.toString();
+                const x1 = getSubBandScale(season); // Get x1 scale for the current season
+                return x0(season) + x1(clazz) + subBandWidth / 2;
+            })
             .attr("y1", d => y(d.value.min))
             .attr("y2", d => y(d.value.max))
             .attr("stroke", "black")
@@ -299,14 +388,26 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         g.selectAll("boxes")
             .data(sumstat)
             .enter().append("rect")
-            .attr("x", d => x(d.key) ) //- boxWidth/2
+            .attr("x", d => {
+                const season = d.value.season.toString();
+                const clazz = d.value.class.toString();
+                const x1 = getSubBandScale(season); // Get x1 scale for the current season
+                return x0(season) + x1(clazz);
+            })
             .attr("y", d => y(d.value.q3))
             .attr("height", d => y(d.value.q1) - y(d.value.q3))
-            .attr("width", boxWidth)
+            .attr("width", d => {
+                // const season = d.value.season.toString();
+                // const x1 = getSubBandScale(season);
+                // return x1.bandwidth()*0.8;
+                return x0.bandwidth()*0.2;
+            })
             .attr("stroke", "black")
             .style("fill", "#69b3a2")
             .on("click", (event,d) =>{             
                 onBoxClick([{
+                class: d.value.class,
+                season: d.value.season,
                 min: parseInt(d.value.min,10),
                 max: parseInt(d.value.max,10),
                 median: parseInt(d.value.median,10),
@@ -318,8 +419,18 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         g.selectAll("medianLines")
             .data(sumstat)
             .enter().append("line")
-            .attr("x1", d => x(d.key))
-            .attr("x2", d => x(d.key) + boxWidth)
+            .attr("x1", d => {
+                const season = d.value.season.toString();
+                const clazz = d.value.class.toString();
+                const x1 = getSubBandScale(season); // Get x1 scale for the current season
+                return x0(season) + x1(clazz);
+            })
+            .attr("x2", d => {
+                const season = d.value.season.toString();
+                const clazz = d.value.class.toString();
+                const x1 = getSubBandScale(season); // Get x1 scale for the current season
+                return x0(season) + x1(clazz) + subBandWidth;
+            })
             .attr("y1", d => y(d.value.median))
             .attr("y2", d => y(d.value.median))
             .attr("stroke", "black")
@@ -329,14 +440,20 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         g.selectAll("medianText")
             .data(sumstat)
             .enter().append("text")
-            .attr("x", d => x(d.key) + boxWidth/2)
+            .attr("x", d => {
+                const season = d.value.season.toString();
+                const clazz = d.value.class.toString();
+                const x1 = getSubBandScale(season); // Get x1 scale for the current season
+                return x0(season) + x1(clazz) + subBandWidth/2;
+            })
+            //.attr("x", d => x0(d.key.split('-')[1]) + x1(d.key.split('-')[0]) +  boxWidth/2)
             .attr("y", d => y(d.value.median) - 5) 
             .style("text-anchor", "middle")
             .text(d => d.value.median);
 
         // Add individual points with jitter
         if(studentsChecked) {
-            PresentIndividuals(data, yField, g, x, y)
+            PresentIndividuals(data, yField, g, x0, y)
         }
               
 
@@ -364,7 +481,16 @@ function PresentIndividuals(data, yField, g, x, y, offset=0)
         .style("fill-opacity", 0.5)
         .style("stroke-opacity", 0.5);    
 
-}   
+} 
+
+function Season(dateObject) {
+    const year = dateObject.getFullYear();
+    const month = dateObject.getMonth(); // 0 = January, 1 = February, ..., 11 = December
+
+    //return `${year}-${Math.ceil((month + 1) / 3)}`;
+    return `${year}-${Math.floor(month / 3)*3 +1}`;
+}
+
 
 
 

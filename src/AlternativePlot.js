@@ -29,11 +29,14 @@ const AlternativePage = ({
 
 
   const classKeyList =
-    ['min',
-    'q1',
-    'median',
-    'q3',
-    'max'
+    [
+      'class',
+      'season',
+      'min',
+      'q1',
+      'median',
+      'q3',
+      'max'
     ];
 
   const [showViolin, setShowViolin] = useState(false);
