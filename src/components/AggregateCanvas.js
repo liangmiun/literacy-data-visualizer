@@ -2,6 +2,7 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { ColorLegend } from './ScatterCanvas';
+import { interpolateSpectral } from 'd3-scale-chromatic';
 
 
 const AggregateCanvas = ({ data, filteredData, xField, yField, colorField, width, height, 
@@ -162,8 +163,8 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
             const year = parseInt(record.Läsår.split('/')[0]);
             const skola = record.Skola;
             const klassNum = parseInt(record.Klass[0]);
-            const klassSuffix = record.Klass[1];
-            const classId = `${skola}:${year - klassNum + 1}/${year - klassNum + 2}-${1}${klassSuffix}`;
+            const klassSuffix = record.Klass.length >1?  record.Klass[1]: '';
+            const classId = `${skola.substring(0,4)}:${year - klassNum + 1}-${1}${klassSuffix}`;
 
             const existingClass = identityClassesMap.get(classId);
             if (existingClass) {
@@ -186,13 +187,36 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
 
     };  
 
+    function getLastingClassID(skola, seasonKey, classKey)
+    {
+        const klassNum = parseInt(classKey[0]);
+        const testYear = parseInt(seasonKey.split('-')[0]);
+        const testSeason = parseInt(seasonKey.split('-')[1]);
+        const initYear = testSeason <7? testYear - klassNum : testYear - klassNum + 1  ;
+        const klassSuffix = classKey.length>1? classKey[1]: '';
+        const skola_short = skola.toString().substring(0,4);
+        return `${skola_short}:${initYear}-${1}${klassSuffix}`;
+    }
+
 
     useEffect(() => {
 
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
-        const colorDomain = Array.from(new Set(data.map(d => d.Klass)));
-        const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);   
+        //const colorDomain = Array.from(new Set(data.map(d => d.Klass)));
+        //const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
+        
+        const identityClasses = identityClass();  // Call the identityClass function to get the identity classes.
+        const colorDomain = identityClasses.map(ic => ic.classID);  // Get the unique classIDs.
+        //const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);  // Update the domain for colorScale.
+        const numColors = 20;
+        const quantizedScale = d3.scaleQuantize()
+            .domain([0, colorDomain.length - 1])
+            .range(d3.range(numColors).map(d => interpolateSpectral(d / (numColors - 1))));
+        
+        const colorScale = d3.scaleOrdinal()
+            .domain(colorDomain)
+            .range(colorDomain.map((_, i) => quantizedScale(i)));
 
         //set margin for svg
         const margin = { top: 20, right: 20, bottom: 80, left: 80 };
@@ -203,32 +227,37 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
 
 
         // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
-        const grouped = d3.group(data,  d => Season(d.Testdatum),d => d.Klass);
+        const grouped = d3.group(data,  d => Season(d.Testdatum), d =>d.Skola, d => d.Klass);
         const sumstat = [];
 
         grouped.forEach((seasonGroup, seasonKey) => {
-            seasonGroup.forEach((values, klassKey) => {
-                const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
-                
-                const q1 = d3.quantile(sortedValues, 0.25);
-                const median = d3.quantile(sortedValues, 0.5);
-                const q3 = d3.quantile(sortedValues, 0.75);
-                const interQuantileRange = q3 - q1;
-                const min = q1 - 1.5 * interQuantileRange;
-                const max = q3 + 1.5 * interQuantileRange;
+            seasonGroup.forEach((schoolGroup, schoolKey) => {
+                schoolGroup.forEach((values, klassKey) => {
 
-                sumstat.push({
-                    key: `${klassKey}-${seasonKey}`,
-                    value: {
-                        class: klassKey,
-                        season: seasonKey,
-                        q1: q1, 
-                        median: median, 
-                        q3: q3, 
-                        interQuantileRange: interQuantileRange, 
-                        min: min, 
-                        max: max
-                    }
+                    const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
+                    
+                    const q1 = d3.quantile(sortedValues, 0.25);
+                    const median = d3.quantile(sortedValues, 0.5);
+                    const q3 = d3.quantile(sortedValues, 0.75);
+                    const interQuantileRange = q3 - q1;
+                    const min = q1 - 1.5 * interQuantileRange;
+                    const max = q3 + 1.5 * interQuantileRange;
+
+                    sumstat.push({
+                        key: `${klassKey}-${seasonKey}`,
+                        value: {
+                            lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),
+                            skola: schoolKey,
+                            class: klassKey,
+                            season: seasonKey,
+                            q1: q1, 
+                            median: median, 
+                            q3: q3, 
+                            interQuantileRange: interQuantileRange, 
+                            min: min, 
+                            max: max
+                        }
+                    });
                 });
             });
         });
@@ -239,6 +268,8 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
             const xComp = d3.ascending(a.season, b.season);
             return xComp !== 0 ? xComp : d3.ascending(a.class, b.class);
         });
+
+        const lastingClassGroups = d3.group(sumstat, d => d.value.lastingclass);
 
         // Create an array of unique seasons
         const seasons = Array.from(new Set(sumstat.map(d => d.value.season.toString())));  // d => d.key.split('-')[1]  d => d.value.season.toString()
@@ -357,9 +388,15 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
                 return subBandWidth;
             })
             .attr("stroke", "black")
-            .style("fill", d => colorScale(d.value.class))  //"#69b3a2"
+            //.style("fill", d => colorScale(d.value.class))  //"#69b3a2"
+            .style("fill", d => {
+                const classId = getLastingClassID(d.value.skola, d.value.season, d.value.class);
+                //const classId = `${d.value.class.split('/')[0]}-${d.value.season.split('/')[0]}-${d.value.class.split('/')[1]}`;
+                return colorScale(classId);
+            })
             .on("click", (event,d) =>{             
                 onBoxClick([{
+                lastingclass: d.value.lastingclass,
                 class: d.value.class,
                 season: d.value.season,
                 min: parseInt(d.value.min,10),
@@ -405,13 +442,47 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
             .style("text-anchor", "middle")
             .text(d => d.value.median);
 
+
+        lastingClassGroups.forEach((values, lastingClassKey) => {
+            for(let i = 0; i < values.length - 1; i++) {
+                const startPoint = values[i];
+                const endPoint = values[i + 1];
+        
+                g.append("line")
+                    .attr("x1", () => {
+                        const season = startPoint.value.season.toString();
+                        const clazz = startPoint.value.class.toString();
+                        const x1 = getSubBandScale(season);
+                        return x0(season) + x1(clazz) + subBandWidth / 2;
+                    })
+                    .attr("x2", () => {
+                        const season = endPoint.value.season.toString();
+                        const clazz = endPoint.value.class.toString();
+                        const x1 = getSubBandScale(season);
+                        return x0(season) + x1(clazz) + subBandWidth / 2;
+                    })
+                    .attr("y1", y(startPoint.value.median))
+                    .attr("y2", y(endPoint.value.median))
+                    .attr("stroke", "grey") // or any other color you prefer
+                    .style("width", 2); // or any other width you prefer
+            }
+        });
+            
+
+
+
+
+
+
         // Add individual points with jitter
         if(studentsChecked) {
             PresentIndividuals(data, yField, g, x0, y)
         }
 
         // Add color legend
-        ColorLegend(data, "Klass", svg, width, margin);  
+        //ColorLegend(data, "Klass", svg, width, margin);  
+        ColorLegend(identityClasses, "classID", svg, 200, margin);
+
               
 
         // ... rest of the zoom and event logic remains unchanged ...

@@ -1,12 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { set } from 'd3-collection';
+import { interpolateSpectral } from 'd3-scale-chromatic';
 
 export function ColorLegend(data, colorField, svg, width, margin) {
     // Assuming colorField is categorical
     const colorDomain = Array.from(new Set(data.map(d => d[colorField])));
-    const colorScale = d3.scaleOrdinal(d3.schemeCategory10)  // Example color scheme
-        .domain(colorDomain);
+    // const colorScale = d3.scaleOrdinal(d3.schemeCategory10)  // Example color scheme
+    //     .domain(colorDomain);
+
+    const numColors = 20;
+    const quantizedScale = d3.scaleQuantize()
+        .domain([0, colorDomain.length - 1])
+        .range(d3.range(numColors).map(d => interpolateSpectral(d / (numColors - 1))));
+    
+    const colorScale = d3.scaleOrdinal()
+        .domain(colorDomain)
+        .range(colorDomain.map((_, i) => quantizedScale(i)));
+
 
     // Define legend space
     const legendWidth = 60;

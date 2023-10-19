@@ -30,6 +30,7 @@ const AlternativePage = ({
 
   const classKeyList =
     [
+      'lastingclass',
       'class',
       'season',
       'min',
