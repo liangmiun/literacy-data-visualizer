@@ -5,7 +5,7 @@ import ScatterCanvas from './components/ScatterCanvas';
 import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
-//import { DeclinedData } from './Utils.js';
+import { generateClassId } from './Utils.js';
 import './App.css';
 
 
@@ -170,7 +170,7 @@ export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
       }
 
       // Construct the school.class string from the record
-      const schoolClassCombo = `${record.Skola}.${record.Klass}`;
+      const schoolClassCombo = `${record.Skola}.${generateClassId(record)}`;
       // Check if this combo is in checkedClasses
       if (checkedClasses.includes(schoolClassCombo)) {
           return true;
@@ -220,8 +220,6 @@ function calculateSlope(x, y) {
 
   return (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
 }
-
-
 
 
 export default ScatterPage;

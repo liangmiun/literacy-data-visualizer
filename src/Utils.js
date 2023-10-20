@@ -65,6 +65,15 @@ export const load = (callback) => {
 };
 
 
+export function generateClassId(record) {
+  const year = parseInt(record.Läsår.split('/')[0]);
+  const skola = record.Skola;
+  const klassNum = parseInt(record.Klass[0]);
+  const klassSuffix = record.Klass.length > 1 ? record.Klass[1] : '';
+  return `${skola.substring(0, 4)}:${year - klassNum + 1}-${1}${klassSuffix}`;
+}
+
+
 
 
 

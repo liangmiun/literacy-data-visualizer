@@ -9,10 +9,7 @@ const AggregateCanvas = ({ data, filteredData, xField, yField, colorField, width
     onPartClick, selectedRecord, studentsChecked, showViolin }) => {
 
 
-    filteredData = filteredData.filter(d => d[xField] !== null && d[yField] !== null);
-
-    console.log("showViolin", showViolin);
-    
+    filteredData = filteredData.filter(d => d[xField] !== null && d[yField] !== null);   
 
     if(showViolin) {
       return ViolinPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked);
@@ -92,7 +89,6 @@ const ViolinPlots = (data, xField, yField, colorField, width, height,  onViolinC
               var longest = d3.max(lengths)
               if (longest > maxNum) { maxNum = longest }
             }
-            console.log("maxNum: ", maxNum, "sumstat.length: ", sumstat.length);
 
             const xNum = d3.scaleLinear().range([0, x.bandwidth()]).domain([-maxNum, maxNum]);
             g.selectAll("myViolin")
@@ -102,7 +98,6 @@ const ViolinPlots = (data, xField, yField, colorField, width, height,  onViolinC
                 .append("path")
                 .datum(
                     function(d){ 
-                        //console.log(d.value);  // Check the value being set as datum
                         return d.value;
                     }
                 )
@@ -115,7 +110,7 @@ const ViolinPlots = (data, xField, yField, colorField, width, height,  onViolinC
                     .curve(d3.curveCatmullRom)
                 )
                 .on("click", (event, d) => {
-                    console.log("violin click", d);
+
                     const values = d.flatMap(bin => bin.slice(0, bin.length));
                     const sortedValues = values.sort(d3.ascending);
                     const q1 = d3.quantile(sortedValues, 0.25);
@@ -134,7 +129,7 @@ const ViolinPlots = (data, xField, yField, colorField, width, height,  onViolinC
                 });  
 
             // Add individual points with jitter
-            console.log("violin chart studentsChecked:", studentsChecked, typeof(studentsChecked));    
+  
             // if(studentsChecked) {                
             //     PresentIndividuals(data, yField, g, x, y, x.bandwidth()/2)
             // }
@@ -273,7 +268,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
 
         // Create an array of unique seasons
         const seasons = Array.from(new Set(sumstat.map(d => d.value.season.toString())));  // d => d.key.split('-')[1]  d => d.value.season.toString()
-        console.log("seasons", seasons);
+
 
         // Create a mapping of each season to its classes
         const seasonToClasses = {};
@@ -284,7 +279,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
                 .map(d => d.value.class);
             classesForSeason.sort((a, b) => a.toString().localeCompare(b.toString()));
             seasonToClasses[season] = classesForSeason;
-            //console.log(season, classesForSeason);
+
         });
 
         // Create a function to get the sub-band scale for classes within a given season
@@ -388,10 +383,8 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
                 return subBandWidth;
             })
             .attr("stroke", "black")
-            //.style("fill", d => colorScale(d.value.class))  //"#69b3a2"
             .style("fill", d => {
                 const classId = getLastingClassID(d.value.skola, d.value.season, d.value.class);
-                //const classId = `${d.value.class.split('/')[0]}-${d.value.season.split('/')[0]}-${d.value.class.split('/')[1]}`;
                 return colorScale(classId);
             })
             .on("click", (event,d) =>{             
@@ -463,8 +456,10 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
                     })
                     .attr("y1", y(startPoint.value.median))
                     .attr("y2", y(endPoint.value.median))
-                    .attr("stroke", "grey") // or any other color you prefer
-                    .attr('stroke-width', 2); // or any other width you prefer
+                    .attr("stroke", d => {            
+                        const classId = getLastingClassID(startPoint.value.skola, startPoint.value.season, startPoint.value.class);
+                        return colorScale(classId);}) 
+                    .attr('stroke-width', 2); 
             }
         });           
 
@@ -492,7 +487,6 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
 }
 
 
-
 function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWidth)
 {
     const jitterWidth = 20;
@@ -516,11 +510,6 @@ function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWid
 }
 
 
-
-
-
-
-
 function Season(dateObject) {
     const year = dateObject.getFullYear();
     const month = dateObject.getMonth(); // 0 = January, 1 = February, ..., 11 = December
@@ -528,8 +517,6 @@ function Season(dateObject) {
     //return `${year}-${Math.ceil((month + 1) / 3)}`;
     return `${year}-${Math.floor(month / 3)*3 +1}`;
 }
-
-
 
 
 export default AggregateCanvas;
