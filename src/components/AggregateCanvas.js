@@ -501,7 +501,7 @@ function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWid
             const x1 = getSubBandScale(season); // get the x1 scale for the current season
             return x0(season) + x1(clazz) + offset + subBandWidth/2 - jitterWidth/2 + Math.random()*jitterWidth;
         })
-        .attr("cy", d => y(d[yField]))
+        .attr("cy", d => { return y(d[yField])})
         .attr("r", 2)
         .style("fill", "white")
         .attr("stroke", "black")
