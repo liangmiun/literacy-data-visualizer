@@ -14,7 +14,7 @@ const AggregateCanvas = ({ data, filteredData, xField, yField, colorField, width
     if(showViolin) {
       return ViolinPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked);
     }
-    return BoxPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked );   
+    return BoxPlots(data, filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked );   
 
 
 };
@@ -143,44 +143,13 @@ const ViolinPlots = (data, xField, yField, colorField, width, height,  onViolinC
     };
 
 
-const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, selectedRecord, studentsChecked ) => {
+const BoxPlots = (data, filteredData, xField, yField, colorField, width, height, onBoxClick, selectedRecord, studentsChecked ) => {
     const svgRef = useRef();
     const parseDate = d3.timeParse('%y%m%d');
     const formatDate = d3.timeFormat('%y-%m-%d');
     
     // In your useEffect:
-    function identityClass()
-    {
-        // Create identity classes
-        const identityClassesMap = new Map();
-
-        data.forEach(record => {
-            const year = parseInt(record.Läsår.split('/')[0]);
-            const skola = record.Skola;
-            const klassNum = parseInt(record.Klass[0]);
-            const klassSuffix = record.Klass.length >1?  record.Klass[1]: '';
-            const classId = `${skola.substring(0,4)}:${year - klassNum + 1}-${1}${klassSuffix}`;
-
-            const existingClass = identityClassesMap.get(classId);
-            if (existingClass) {
-                const existingRecord = existingClass.find(r => r.Läsår === record.Läsår && r.Klass === record.Klass);
-                if (existingRecord) {
-                    existingRecord.ElevIDs.push(record.ElevID);
-                } else {
-                    existingClass.push({ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] });
-                }
-            } else {
-                identityClassesMap.set(classId, [{ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] }]);
-            }
-        });
-
-        const identityClasses = Array.from(identityClassesMap).map(([key, value]) => {
-            return { classID: key, classes: value };
-        });
-
-        return identityClasses;
-
-    };  
+ 
 
     function getLastingClassID(skola, seasonKey, classKey)
     {
@@ -198,12 +167,9 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
 
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
-        //const colorDomain = Array.from(new Set(data.map(d => d.Klass)));
-        //const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
         
-        const identityClasses = identityClass();  // Call the identityClass function to get the identity classes.
+        const identityClasses = identityClass(filteredData);  // Call the identityClass function to get the identity classes.
         const colorDomain = identityClasses.map(ic => ic.classID);  // Get the unique classIDs.
-        //const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);  // Update the domain for colorScale.
         const numColors = 20;
         const quantizedScale = d3.scaleQuantize()
             .domain([0, colorDomain.length - 1])
@@ -222,7 +188,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
 
 
         // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
-        const grouped = d3.group(data,  d => Season(d.Testdatum), d =>d.Skola, d => d.Klass);
+        const grouped = d3.group(filteredData,  d => Season(d.Testdatum), d =>d.Skola, d => d.Klass);
         const sumstat = [];
 
         grouped.forEach((seasonGroup, seasonKey) => {
@@ -285,14 +251,14 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         // Create a function to get the sub-band scale for classes within a given season
         function getSubBandScale(season) {
             return d3.scaleBand()
-                .padding(0.05)
+                .padding(0.05)   //0.05
                 .domain(seasonToClasses[season])
                 .range([0, x0.bandwidth()]);
         }
 
 
         // Create main linear scale for y-axis
-        const [yMin, yMax] = d3.extent(data, d => d[yField]);
+        const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
         const y = d3.scaleLinear()
             .domain([yMin, yMax])
             .range([innerHeight, 0]);
@@ -301,7 +267,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
         const x0 = d3.scaleBand()
             .domain(seasons)
             .range([0, innerWidth])
-            .paddingInner(0.1)
+            .paddingInner(0.5)
             .paddingOuter(0.5);      
 
 
@@ -466,7 +432,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
 
         // Add individual points with jitter
         if(studentsChecked) {
-            PresentIndividuals(data, yField, g, x0, getSubBandScale, y, subBandWidth)  //getSubBandScale,
+            PresentIndividuals(filteredData, yField, g, x0, getSubBandScale, y, subBandWidth)  //getSubBandScale,
         }
 
 
@@ -479,7 +445,7 @@ const BoxPlots = (data, xField, yField, colorField, width, height, onBoxClick, s
               
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [data, xField, yField, colorField, width, height,  selectedRecord, studentsChecked,formatDate, parseDate, onBoxClick]);
+    }, [data, filteredData, xField, yField, colorField, width, height,  selectedRecord, studentsChecked,formatDate, parseDate, onBoxClick]);
     return (
         <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
     );
@@ -517,6 +483,40 @@ function Season(dateObject) {
     //return `${year}-${Math.ceil((month + 1) / 3)}`;
     return `${year}-${Math.floor(month / 3)*3 +1}`;
 }
+
+
+function identityClass(data)
+{
+    // Create identity classes
+    const identityClassesMap = new Map();
+
+    data.forEach(record => {
+        const year = parseInt(record.Läsår.split('/')[0]);
+        const skola = record.Skola;
+        const klassNum = parseInt(record.Klass[0]);
+        const klassSuffix = record.Klass.length >1?  record.Klass[1]: '';
+        const classId = `${skola.substring(0,4)}:${year - klassNum + 1}-${1}${klassSuffix}`;
+
+        const existingClass = identityClassesMap.get(classId);
+        if (existingClass) {
+            const existingRecord = existingClass.find(r => r.Läsår === record.Läsår && r.Klass === record.Klass);
+            if (existingRecord) {
+                existingRecord.ElevIDs.push(record.ElevID);
+            } else {
+                existingClass.push({ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] });
+            }
+        } else {
+            identityClassesMap.set(classId, [{ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] }]);
+        }
+    });
+
+    const identityClasses = Array.from(identityClassesMap).map(([key, value]) => {
+        return { classID: key, classes: value };
+    });
+
+    return identityClasses;
+
+}; 
 
 
 export default AggregateCanvas;
