@@ -123,7 +123,7 @@ function SchoolTreeView({
           
           >
              {Object.entries(school_class).map(([school, classesMap], idx) => (
-              <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+              <div key={school} style={{ display: 'flex', alignItems: 'flex-start' }}>
                 <Checkbox  style={{ padding: '1px' }}
                       checked={checkedSchools.includes(school)}
                       onChange={(event) => {handleSchoolCheckChange(school, event.target.checked)}}
