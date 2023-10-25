@@ -15,12 +15,11 @@ import Logout from './authentications/Logout';
 
 const App = () => { 
 
-  //const { currentUser } = useAuth();
-  const currentUser = true;
+  const { currentUser } = useAuth();
   const [data, setData] = useState([]);
   const [filteredData, setFilteredtData] = useState(data);
   const [encryptKey,setEncryptKey] = useState(""); 
-  const [isLogin, setIsLogin] = useState(true);   //  set as true for test purpose without login;
+  const [isLogin, setIsLogin] = useState(false);   //  set as true for test purpose without login;
   const [showLines, setShowLines] = useState(false);
 
   const [xField, setXField] = useState('Testdatum');
@@ -101,12 +100,13 @@ const App = () => {
 
   //D3.v4 version:
   useEffect(() => {
+    console.log("isLogin: ", isLogin);
     if(!isLogin) return;
     fetch(process.env.PUBLIC_URL +'/LiteracySampleEncrypt.csv')
     .then(response => response.text())  // Get as text, not JSON
     .then(encryptedData => {
       // Decrypt data
-      const bytes = CryptoJS.AES.decrypt(encryptedData, "dolexplore");  // Replace with encryptKey
+      const bytes = CryptoJS.AES.decrypt(encryptedData, encryptKey);  // Replace with encryptKey
       const originalData = bytes.toString(CryptoJS.enc.Utf8);
 
       // Now, parse the decrypted string as CSV
@@ -149,9 +149,9 @@ const App = () => {
                   </>
                 )}
 
-                {/* <li style={liStyle}>
+                <li style={liStyle}>
                   <Link to="/login">Login</Link>
-                </li> */}
+                </li>
 
               </ul>
             </nav>

@@ -54,7 +54,7 @@ export function ColorLegend(data, colorField, svg, width, margin) {
 
 const ScatterCanvas =
 React.memo(
-    ({ data, shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines}) => { //
+    ({ shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines}) => { //
 
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);

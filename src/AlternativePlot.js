@@ -97,6 +97,7 @@ const AlternativePage = ({
         checkedClasses={checkedClasses}
         setCheckedClasses={setCheckedClasses}
         showOptionFilter={false}
+        isAggregatedView={true}
       />   
       
       <DetailCanvas data={selectedClassDetail} keyList={classKeyList} />     

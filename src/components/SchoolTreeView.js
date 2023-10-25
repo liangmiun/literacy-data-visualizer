@@ -39,7 +39,8 @@ function SchoolTreeView({
   checkedSchools,
   setCheckedSchools,
   checkedClasses,
-  setCheckedClasses
+  setCheckedClasses,
+  isAggregatedView
 }) {
 
   const school_class = generateSchoolLastingClassMap(data);
@@ -51,9 +52,17 @@ function SchoolTreeView({
   );
 
   useEffect(() => {
+    if(isAggregatedView){
+      setCheckedSchools([]);
+      setCheckedClasses([]);
+      setCheckedAllSchools(false);
+
+    } else{
       setCheckedSchools(allSchools);
       setCheckedClasses(allClasses);
-  }, [data]);
+      setCheckedAllSchools(true);
+    }
+  }, [isAggregatedView]);
 
   const handleAllSchoolsCheckChange = (isChecked) => {
       if (isChecked) {  

@@ -40,8 +40,6 @@ const ScatterPage = ({
   setShowLines
 } ) => {  
 
-  // above shared by ScatterPage and AlternativePlot
-
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [isDeclined, setIsDeclined] = useState(false);
 
@@ -90,7 +88,7 @@ const ScatterPage = ({
     }, [dataToShow, checkedOptions, rangeOptions, checkedSchools, checkedClasses]);  
  
 
-  const handlePointClick = (event,record) => setSelectedRecords([record]);   
+  //const handlePointClick = (event,record) => setSelectedRecords([record]);   
 
 
   return (   
