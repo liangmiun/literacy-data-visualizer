@@ -27,7 +27,7 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
 
         useEffect(() => {
 
-            const {svg, g, margin, innerWidth, innerHeight, colorScale, box_sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses}  = PreparePlotStructure(svgRef, filteredData, yField, width, height);
+            const {svg, g, margin, innerWidth, innerHeight, colorScale, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses}  = PreparePlotStructure(svgRef, filteredData, yField, width, height, true);
 
             // For the X axis label:
             g.append("text")
@@ -61,28 +61,6 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
 
             
             const subBandWidth = x0.bandwidth() * 0.2;
-            const histogram = d3.bin().domain(y.domain()).thresholds(y.ticks(30)).value(d => d);
-            const grouped = d3.group(filteredData, d => Season(d.Testdatum), d => d.Skola, d => d.Klass);
-
-            const sumstat = [];
-            grouped.forEach((seasonGroup, seasonKey) => {
-                seasonGroup.forEach((schoolGroup, schoolKey) => {
-                    schoolGroup.forEach((values, klassKey) => {
-                        const input = values.map(g => g[yField]);
-                        const bins = histogram(input);
-                        sumstat.push({
-                            key: `${klassKey}-${seasonKey}`,
-                            value: {
-                                lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),                                
-                                season: seasonKey,
-                                school: schoolKey,
-                                class: klassKey,
-                                bins: bins
-                            }
-                        });
-                    });
-                });
-            });
 
             var maxNum = 0;
             for (var i in sumstat) {
@@ -109,25 +87,16 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
                     return colorScale(classId);
                 })
                 .on("click", (event, d) => {
-
-                    const values = d.value.bins.flatMap(bin => bin.slice(0, bin.length));
-                    const sortedValues = values.sort(d3.ascending);
-                    const q1 = d3.quantile(sortedValues, 0.25);
-                    const median = d3.quantile(sortedValues, 0.5);
-                    const q3 = d3.quantile(sortedValues, 0.75);
-                    const interQuantileRange = q3 - q1;
-                    const min = q1 - 1.5 * interQuantileRange;
-                    const max = q3 + 1.5 * interQuantileRange;
-                    console.log("violin click:", d, d.value);
                     onViolinClick([{
                         lastingclass: d.value.lastingclass,
                         class: d.value.class,
                         season: d.value.season,
-                        min: parseInt(min,10),
-                        max: parseInt(max,10),
-                        median: parseInt(median,10),
-                        q1: parseInt(q1,10),
-                        q3: parseInt(q3,10)
+                        min: parseInt(d.value.min)  , 
+                        max: parseInt(d.value.max)   , 
+                        median: parseInt(d.value.median) , 
+                        q1: parseInt(d.value.q1) ,
+                        q3: parseInt(d.value.q3)  ,
+                        count: parseInt(d.value.count) 
                     }]);
                 })
                 .append("path")
@@ -137,7 +106,6 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
                     }
                 )
                 .style("stroke", "none")
-                //.style("fill", "#69b3a2")
                 .attr("d", d3.area()
                     .x0(d => xNum(-d.length* widthNum))  
                     .x1(d => xNum(d.length* widthNum))  
@@ -150,7 +118,8 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
             lastingClassGroups.forEach((values, lastingClassKey) => {
                 for(let i = 0; i < values.length - 1; i++) {
                     const startPoint = values[i];
-                    const endPoint = values[i + 1];        
+                    const endPoint = values[i + 1]; 
+                    console.log("startPoint:", startPoint, "endPoint:", endPoint);       
                     g.append("line")
                         .attr("x1", () => {
                             const season = startPoint.value.season.toString();
@@ -167,9 +136,9 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
                         .attr("y1", y(startPoint.value.median))
                         .attr("y2", y(endPoint.value.median))
                         .attr("stroke", d => {            
-                            const classId = getLastingClassID(startPoint.value.skola, startPoint.value.season, startPoint.value.class);
+                            const classId = getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
                             return colorScale(classId);}) 
-                        .attr('stroke-width', 2); 
+                        .attr('stroke-width', 1.5); 
                 }
             }); 
 
@@ -271,7 +240,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             })
             .attr("stroke", "black")
             .style("fill", d => {
-                const classId = getLastingClassID(d.value.skola, d.value.season, d.value.class);
+                const classId = getLastingClassID(d.value.school, d.value.season, d.value.class);
                 return colorScale(classId);
             })
             .on("click", (event,d) =>{             
@@ -283,7 +252,8 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
                 max: parseInt(d.value.max,10),
                 median: parseInt(d.value.median,10),
                 q1: parseInt(d.value.q1,10),
-                q3: parseInt(d.value.q3,10)
+                q3: parseInt(d.value.q3,10),
+                count: parseInt(d.value.count,10)
             }])});
 
         // Median lines
@@ -343,7 +313,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
                     .attr("y1", y(startPoint.value.median))
                     .attr("y2", y(endPoint.value.median))
                     .attr("stroke", d => {            
-                        const classId = getLastingClassID(startPoint.value.skola, startPoint.value.season, startPoint.value.class);
+                        const classId = getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
                         return colorScale(classId);}) 
                     .attr('stroke-width', 2); 
             }
@@ -433,19 +403,20 @@ function identityClass(data)
 }; 
 
 
-function getLastingClassID(skola, seasonKey, classKey)
+function getLastingClassID(school, seasonKey, classKey)
 {
+    //console.log("getLastingClassID:", school, seasonKey, classKey);
     const klassNum = parseInt(classKey[0]);
     const testYear = parseInt(seasonKey.split('-')[0]);
     const testSeason = parseInt(seasonKey.split('-')[1]);
     const initYear = testSeason <7? testYear - klassNum : testYear - klassNum + 1  ;
     const klassSuffix = classKey.length>1? classKey[1]: '';
-    const skola_short = skola.toString().substring(0,4);
+    const skola_short = school.toString().substring(0,4);
     return `${skola_short}:${initYear}-${1}${klassSuffix}`;
 }
 
 
-function PreparePlotStructure(svgRef, filteredData, yField, width, height){
+function PreparePlotStructure(svgRef, filteredData, yField, width, height, isViolin=false){
             const svg = d3.select(svgRef.current);
             svg.selectAll('*').remove();
             
@@ -466,41 +437,91 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height){
             const innerHeight = height - margin.top - margin.bottom;
             const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
 
+            // Create main linear scale for y-axis
+            const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
+            const y = d3.scaleLinear()
+                .domain([yMin, yMax])
+                .range([innerHeight, 0]);
 
             // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
-            const grouped = d3.group(filteredData,  d => Season(d.Testdatum), d =>d.Skola, d => d.Klass);
             const sumstat = [];
-            grouped.forEach((seasonGroup, seasonKey) => {
-                seasonGroup.forEach((schoolGroup, schoolKey) => {
-                    schoolGroup.forEach((values, klassKey) => {
+            if(isViolin){
 
-                        const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
-                        
-                        const q1 = d3.quantile(sortedValues, 0.25);
-                        const median = d3.quantile(sortedValues, 0.5);
-                        const q3 = d3.quantile(sortedValues, 0.75);
-                        const interQuantileRange = q3 - q1;
-                        const min = q1 - 1.5 * interQuantileRange;
-                        const max = q3 + 1.5 * interQuantileRange;
+                const histogram = d3.bin().domain(y.domain()).thresholds(y.ticks(30)).value(d => d);
+                const grouped = d3.group(filteredData, d => Season(d.Testdatum), d => d.Skola, d => d.Klass);   
 
-                        sumstat.push({
-                            key: `${klassKey}-${seasonKey}`,
-                            value: {
-                                lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),
-                                skola: schoolKey,
-                                class: klassKey,
-                                season: seasonKey,
-                                q1: q1, 
-                                median: median, 
-                                q3: q3, 
-                                interQuantileRange: interQuantileRange, 
-                                min: min, 
-                                max: max
-                            }
+                grouped.forEach((seasonGroup, seasonKey) => {
+                    seasonGroup.forEach((schoolGroup, schoolKey) => {
+                        schoolGroup.forEach((values, klassKey) => {
+                            const input = values.map(g => g[yField]);
+                            const bins = histogram(input);
+                            const bin_values = bins.flatMap(bin => bin.slice(0, bin.length));
+                            const sortedValues = bin_values.sort(d3.ascending);
+                            const q1 = d3.quantile(sortedValues, 0.25);
+                            const median = d3.quantile(sortedValues, 0.5);
+                            const q3 = d3.quantile(sortedValues, 0.75);
+                            const interQuantileRange = q3 - q1;
+                            const min = q1 - 1.5 * interQuantileRange;
+                            const max = q3 + 1.5 * interQuantileRange;
+
+                            sumstat.push({
+                                key: `${klassKey}-${seasonKey}`,
+                                value: {
+                                    lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),                                
+                                    season: seasonKey,
+                                    school: schoolKey,
+                                    class: klassKey,
+                                    bins: bins,
+                                    q1: q1, 
+                                    median: median, 
+                                    q3: q3, 
+                                    interQuantileRange: interQuantileRange, 
+                                    min: min, 
+                                    max: max,
+                                    count: sortedValues.length
+                                }
+                            });
                         });
                     });
                 });
-            });
+
+            }
+            else {
+                const grouped = d3.group(filteredData,  d => Season(d.Testdatum), d =>d.Skola, d => d.Klass);
+                grouped.forEach((seasonGroup, seasonKey) => {
+                    seasonGroup.forEach((schoolGroup, schoolKey) => {
+                        schoolGroup.forEach((values, klassKey) => {
+
+                            const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
+                            
+                            const q1 = d3.quantile(sortedValues, 0.25);
+                            const median = d3.quantile(sortedValues, 0.5);
+                            const q3 = d3.quantile(sortedValues, 0.75);
+                            const interQuantileRange = q3 - q1;
+                            const min = q1 - 1.5 * interQuantileRange;
+                            const max = q3 + 1.5 * interQuantileRange;
+
+                            sumstat.push({
+                                key: `${klassKey}-${seasonKey}`,
+                                value: {
+                                    lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),
+                                    school: schoolKey,
+                                    class: klassKey,
+                                    season: seasonKey,
+                                    q1: q1, 
+                                    median: median, 
+                                    q3: q3, 
+                                    interQuantileRange: interQuantileRange, 
+                                    min: min, 
+                                    max: max,
+                                    count: sortedValues.length
+                                }
+                            });
+                        });
+                    });
+                });
+            }
+
 
             // Sort the sumstat by key to ensure boxes layout horizontally within each season:
             // Here sumstat is in a flat structure.
@@ -535,26 +556,22 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height){
                     .range([0, x0.bandwidth()]);
             }
 
-            // Create main linear scale for y-axis
-            const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
-            const y = d3.scaleLinear()
-                .domain([yMin, yMax])
-                .range([innerHeight, 0]);
-
             // Create main band scale for seasons
             const x0 = d3.scaleBand()
-                .domain(seasons)
-                .range([0, innerWidth])
-                .paddingInner(0.5)
-                .paddingOuter(0.5);
+            .domain(seasons)
+            .range([0, innerWidth])
+            .paddingInner(0.5)
+            .paddingOuter(0.5);
 
-            // 2. Generate the tick values (just the combined class-season strings now)
+            // Generate the tick values (just the combined class-season strings now)
             let tickValues = seasons; 
 
-            // 3. Create the x-axis using the new band scale `x1`
+            // Create the x-axis using the new band scale `x1`
             const xAxis = d3.axisBottom(x0)
                 .tickValues(tickValues) // Use the combined class-season strings
                 .tickFormat(d => d);  // The tick format is just the string itself now
+
+
                 
             return {svg, g, margin, innerWidth, innerHeight, colorScale, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses};
 

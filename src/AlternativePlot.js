@@ -37,7 +37,8 @@ const AlternativePage = ({
       'q1',
       'median',
       'q3',
-      'max'
+      'max',
+      'count'
     ];
 
   const [showViolin, setShowViolin] = useState(false);
