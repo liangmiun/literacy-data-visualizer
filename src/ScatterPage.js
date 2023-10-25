@@ -45,9 +45,6 @@ const ScatterPage = ({
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [isDeclined, setIsDeclined] = useState(false);
 
-  console.log("Value of  Scatterpage .setQuery and query:", setQuery, query);
-
-
   const studentKeyList = 
     ['Skola',
     'Årskurs',

@@ -77,8 +77,8 @@ React.memo(
     
             const formatDate = d3.timeFormat('%y-%m-%d');    
 
-            const xScale = GetScale(xField, filteredXYData, innerWidth);
-            const yScale = GetScale(yField, filteredXYData, innerHeight, true);
+            const {scale: xScale, type: xType}  = GetScale(xField, filteredXYData, innerWidth);
+            const {scale: yScale, type: yType}= GetScale(yField, filteredXYData, innerHeight, true);
                   
             const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
             const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);   
@@ -149,10 +149,10 @@ React.memo(
             .attr('class', 'x-axis') 
             .call(d3.axisBottom(xScale).tickFormat(d => {
                 if(xField==='Födelsedatum'||xField==='Testdatum')
-                {const dateObject = d; //=parseDate(d)
-                //console.log("dateObject: ", dateObject, "formatedDate: ", formatDate(dateObject));
-                return formatDate(dateObject);
+                {   const dateObject = d; 
+                    return formatDate(dateObject);
                 }
+                console.log("x tics d: ", d)
                 return d;
             }));
     
@@ -162,24 +162,43 @@ React.memo(
             .call(d3.axisLeft(yScale)
             .tickFormat(d => {
                 if(yField==='Födelsedatum'||yField==='Testdatum')
-                {const dateObject = d; //=parseDate(d)
-                return formatDate(dateObject);
+                {
+                    const dateObject = d; //=parseDate(d)
+                    return formatDate(dateObject);
                 }
                 return d;
             })
             ); 
+
+            function rescale(scale, zoomState, scaleType, dimension) {
+                if (scaleType === 'point') {
+                  const domain = scale.domain();
+                  const range = scale.range();
+                  const rangePoints = d3.range(domain.length).map(i => range[0] + i * (range[1] - range[0]) / (domain.length - 1));
+                  const zoomedRangePoints = rangePoints.map(r => zoomState.applyX(r));
+                  const newDomain = zoomedRangePoints.map(r => {
+                    const index = d3.bisect(rangePoints, r);
+                    const a = domain[Math.max(0, index - 1)];
+                    const b = domain[Math.min(domain.length - 1, index)];
+                    return a && b ? d3.interpolate(a, b)(r - rangePoints[index - 1] / (rangePoints[index] - rangePoints[index - 1])) : a || b;
+                  });
+                  return scale.copy().domain(newDomain);
+                } else {
+                  return dimension === 'x' ? zoomState.rescaleX(scale) : zoomState.rescaleY(scale);
+                }
+              }
             
             
             const zoomBehavior = d3.zoom()
                 .scaleExtent([0.5, 10])
                 .on('zoom', (event) => {
                     const zoomState = event.transform;    
-                    const zoomXScale = zoomState.rescaleX(xScale);            
-                    const zoomYScale = zoomState.rescaleY(yScale);
-    
+                    const zoomXScale = rescale(xScale, zoomState, xType, 'x');   //zoomState.rescaleX(xScale)         
+                    const zoomYScale = rescale(yScale, zoomState, yType, 'y' ) ;//zoomState.rescaleY(yScale);
+
                     newXScaleRef.current = zoomXScale;
                     newYScaleRef.current = zoomYScale;
-    
+
                     // Apply zoom transformation to circles
                     g.selectAll('circle')
                     .attr('cx', d => {
@@ -190,7 +209,7 @@ React.memo(
                         const value = zoomYScale(d[yField]);
                         return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
                     });
-    
+
                     // Apply zoom transformation to lines
                     if(showLines){
                         g.selectAll('.line-path')
@@ -198,10 +217,24 @@ React.memo(
                     }
 
                     // Update the axes with the new scales
-                    g.select('.x-axis').call(xAxis.scale(zoomXScale));
-                    g.select('.y-axis').call(yAxis.scale(zoomYScale));
+                    const xAxisGroup = g.select('.x-axis');
+                    const yAxisGroup = g.select('.y-axis');
+
+                    if (xType === 'point') {  
+                    xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));
+                    } else {
+                    xAxisGroup.call(xAxis.scale(zoomXScale));
+                    }
+
+                    if (yType === 'point') {  
+                    yAxisGroup.call(yAxis.scale(zoomYScale).tickValues(yScale.domain()));
+                    } else {
+                    yAxisGroup.call(yAxis.scale(zoomYScale));
+                    }
+
                 });
-        
+
+            
             svg.call(zoomBehavior);
             
             function getElevIDSelected(dataSelection) {
@@ -250,7 +283,6 @@ React.memo(
                    .call(brushBehavior)
                    .attr('display', 'none'); 
         
-                console.log("brushing before judge: ", brushing); 
                 if (prevBrushingRef.current !== brushing) {
                     if (brushing) { 
                         svg.on('.zoom', null);  // deactivate zoom
@@ -290,7 +322,7 @@ React.memo(
             
                 } 
         plot();     
-    },[xField, yField, colorField, width, height,  setSelectedRecords, brushing, filteredXYData]);
+    },[xField, yField, colorField, width, height,  setSelectedRecords, brushing, filteredXYData, showLines]);
 
     return (
         <div className="scatter-canvas" style={{ position: 'relative' }}>
@@ -316,15 +348,14 @@ React.memo(
 
 function GetScale(vField, filteredData, innerWidth, yFlag=false)
 {
-    let vScale;
-    //const variable = filteredData[filteredData.length-1][vField];
-    if (vField==='Födelsedatum'|| vField==='Testdatum') {  //variable instanceof Date && !isNaN(variable)
+    let vScale, type;
+    if (vField==='Födelsedatum'|| vField==='Testdatum') { 
         const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
-        //console.log("vMin: ", vMin, "vMax: ", vMax);
         const vPadding = (vMax - vMin) / (vMax - vMin) * 86400000;  // 1 day in milliseconds for padding
         vScale = d3.scaleTime()
         .domain([new Date(vMin - vPadding), new Date(vMax + vPadding)])
         .range([0, innerWidth]);
+        type = 'time';
     }
     else if(vField==='Skola' || vField==='Klass'){
 
@@ -333,6 +364,7 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
         .domain(uniqueValues)
         .range([0, innerWidth])
         .padding(0.5);  // Adjust padding to suit your needs
+        type = 'point';
 
     }
     else {
@@ -344,11 +376,12 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
         } else {
             vScale = d3.scaleLinear().domain([vMin - vPadding, vMax + vPadding]).range([0, innerWidth]);
         }
+        type = 'linear';
 
     }
 
 
-    return vScale;
+    return {scale: vScale, type: type};
 
 }
 
