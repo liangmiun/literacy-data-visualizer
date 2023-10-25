@@ -27,7 +27,7 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
 
         useEffect(() => {
 
-            const {svg, g, margin, innerWidth, innerHeight, colorScale, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses}  = PreparePlotStructure(svgRef, filteredData, yField, width, height, true);
+            const {svg, g, margin, innerWidth, innerHeight, colorScale, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses}  = PreparePlotStructure(svgRef, filteredData, yField, width, height, true);
 
             // For the X axis label:
             g.append("text")
@@ -169,7 +169,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
     // In your useEffect: 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, colorScale, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses}  = PreparePlotStructure(svgRef, filteredData, yField, width, height);
+        const {svg, g, margin, innerWidth, innerHeight, colorScale, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses}  = PreparePlotStructure(svgRef, filteredData, yField, width, height);
 
         // For the X axis label:
         g.append("text")
@@ -182,16 +182,18 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
         // Add the x-axis to the group element
         g.append("g")
             .attr("transform", `translate(0, ${innerHeight})`)
-            .call(xAxis);        
- 
-
-        g.append('g').call(d3.axisLeft(y).tickFormat(d => {
+            .call(xAxis);
+            
+            
+        const yAxis =d3.axisLeft(y).tickFormat(d => {
             if(yField==='Födelsedatum'||yField==='Testdatum')
             {const dateObject = parseDate(d);
             return formatDate(dateObject);
             }
             return d;
-        }));
+        })
+
+        g.append('g').call(yAxis);
 
         g.append("text")
         .attr("transform", "rotate(-90)")
@@ -317,8 +319,8 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
                         return colorScale(classId);}) 
                     .attr('stroke-width', 2); 
             }
-        });           
-
+        });
+       
 
         // Add individual points with jitter
         if(studentsChecked) {
@@ -576,6 +578,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
             return {svg, g, margin, innerWidth, innerHeight, colorScale, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses};
 
 }
+
 
 
 export default AggregateCanvas;
