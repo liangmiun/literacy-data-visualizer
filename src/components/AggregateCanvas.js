@@ -73,6 +73,7 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
                         sumstat.push({
                             key: `${klassKey}-${seasonKey}`,
                             value: {
+                                lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),                                
                                 season: seasonKey,
                                 school: schoolKey,
                                 class: klassKey,
@@ -93,7 +94,7 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
 
             const xNum = d3.scaleLinear().range([0, subBandWidth]).domain([-maxNum, maxNum]);
 
-
+            const widthNum = 2;
             g.selectAll("myViolin")
                 .data(sumstat)
                 .enter().append("g")
@@ -103,23 +104,13 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
                     const x1 = getSubBandScale(season); // Get x1 scale for the current season
                     return `translate(${x0(season) + x1(clazz)}, 0)`;
                 })
-                .append("path")
-                .datum(
-                    function(d){ 
-                        return d.value.bins;
-                    }
-                )
-                .style("stroke", "none")
-                .style("fill", "#69b3a2")
-                .attr("d", d3.area()
-                    .x0(d => xNum(-d.length))  
-                    .x1(d => xNum(d.length))  
-                    .y(d => y(d.x0))   //d.x0
-                    .curve(d3.curveCatmullRom)
-                )
+                .style("fill", d => {
+                    const classId = getLastingClassID(d.value.school, d.value.season, d.value.class);
+                    return colorScale(classId);
+                })
                 .on("click", (event, d) => {
 
-                    const values = d.flatMap(bin => bin.slice(0, bin.length));
+                    const values = d.value.bins.flatMap(bin => bin.slice(0, bin.length));
                     const sortedValues = values.sort(d3.ascending);
                     const q1 = d3.quantile(sortedValues, 0.25);
                     const median = d3.quantile(sortedValues, 0.5);
@@ -127,22 +118,72 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
                     const interQuantileRange = q3 - q1;
                     const min = q1 - 1.5 * interQuantileRange;
                     const max = q3 + 1.5 * interQuantileRange;
+                    console.log("violin click:", d, d.value);
                     onViolinClick([{
+                        lastingclass: d.value.lastingclass,
+                        class: d.value.class,
+                        season: d.value.season,
                         min: parseInt(min,10),
                         max: parseInt(max,10),
                         median: parseInt(median,10),
                         q1: parseInt(q1,10),
                         q3: parseInt(q3,10)
                     }]);
-                });  
+                })
+                .append("path")
+                .datum(
+                    function(d){ 
+                        return d.value.bins;
+                    }
+                )
+                .style("stroke", "none")
+                //.style("fill", "#69b3a2")
+                .attr("d", d3.area()
+                    .x0(d => xNum(-d.length* widthNum))  
+                    .x1(d => xNum(d.length* widthNum))  
+                    .y(d => y(d.x0))   //d.x0
+                    .curve(d3.curveCatmullRom)
+                )
+;  
+
+
+            lastingClassGroups.forEach((values, lastingClassKey) => {
+                for(let i = 0; i < values.length - 1; i++) {
+                    const startPoint = values[i];
+                    const endPoint = values[i + 1];        
+                    g.append("line")
+                        .attr("x1", () => {
+                            const season = startPoint.value.season.toString();
+                            const clazz = startPoint.value.class.toString();
+                            const x1 = getSubBandScale(season);
+                            return x0(season) + x1(clazz) + subBandWidth / 2;
+                        })
+                        .attr("x2", () => {
+                            const season = endPoint.value.season.toString();
+                            const clazz = endPoint.value.class.toString();
+                            const x1 = getSubBandScale(season);
+                            return x0(season) + x1(clazz) + subBandWidth / 2;
+                        })
+                        .attr("y1", y(startPoint.value.median))
+                        .attr("y2", y(endPoint.value.median))
+                        .attr("stroke", d => {            
+                            const classId = getLastingClassID(startPoint.value.skola, startPoint.value.season, startPoint.value.class);
+                            return colorScale(classId);}) 
+                        .attr('stroke-width', 2); 
+                }
+            }); 
+
 
             // Add individual points with jitter
   
-            // if(studentsChecked) {                
-            //     PresentIndividuals(data, yField, g, x, y, x.bandwidth()/2)
-            // }
+            if(studentsChecked) {       
+                PresentIndividuals(filteredData, yField, g, x0, getSubBandScale, y, subBandWidth)       
+                
+            }
 
-            // ... rest of the zoom and event logic remains unchanged ...
+            // Add color legend
+            ColorLegend(identityClasses, "classID", svg, 200, margin);   
+
         }, [filteredData,xField, yField, colorField, width, height, selectedRecord, studentsChecked, formatDate, parseDate, onViolinClick]);
         
         return (
@@ -315,7 +356,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
         }
 
         // Add color legend
-        ColorLegend(identityClasses, "classID", svg, 200, margin);  //svg              
+        ColorLegend(identityClasses, "classID", svg, 200, margin);          
 
         // ... rest of the zoom and event logic remains unchanged ...
     }, [filteredData, xField, yField, colorField, width, height,  selectedRecord, studentsChecked,formatDate, parseDate, onBoxClick]);
