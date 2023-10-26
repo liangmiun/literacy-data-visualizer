@@ -42,6 +42,7 @@ A data visualizer framework for the Lexplore literacy research project.
 - Click on the top-sided Violin/Box button to switch between box/violin view.
 - Toggle the "Show Individuals" checkbox between showing or not showing individual dots in classes.
 - Click on a single box or violin, and its aggregated detail would show in the detail panel on the right.
+- The box/violin plots represent the performance of students from the same class across different years, with each cross-year-class consistently color-coded for easy comparison. The lines connecting the box plots illustrate the progression or trends of these student groups over the years.
 
 ## Running the web server locally
 While we have a working URL for the visualisation tool, it can also be hosted locally.
