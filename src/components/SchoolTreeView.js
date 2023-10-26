@@ -62,7 +62,7 @@ function SchoolTreeView({
       setCheckedClasses(allClasses);
       setCheckedAllSchools(true);
     }
-  }, [isAggregatedView]);
+  }, [data, isAggregatedView]);
 
   const handleAllSchoolsCheckChange = (isChecked) => {
       if (isChecked) {  
