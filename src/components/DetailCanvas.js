@@ -63,6 +63,4 @@ const DetailCanvas = ({ data, keyList}) => {
 };
 
 
-
-
 export default DetailCanvas;

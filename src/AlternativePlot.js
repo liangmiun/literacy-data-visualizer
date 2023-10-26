@@ -37,7 +37,8 @@ const AlternativePage = ({
       'q1',
       'median',
       'q3',
-      'max'
+      'max',
+      'count'
     ];
 
   const [showViolin, setShowViolin] = useState(false);
@@ -76,6 +77,7 @@ const AlternativePage = ({
         showClassbar={true}
       />
       <AggregateCanvas
+        data = {data}
         filteredData={classFilteredData}
         xField={xField}
         yField={yField}
@@ -95,6 +97,7 @@ const AlternativePage = ({
         checkedClasses={checkedClasses}
         setCheckedClasses={setCheckedClasses}
         showOptionFilter={false}
+        isAggregatedView={true}
       />   
       
       <DetailCanvas data={selectedClassDetail} keyList={classKeyList} />     

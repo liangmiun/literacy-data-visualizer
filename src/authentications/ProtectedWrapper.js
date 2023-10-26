@@ -3,9 +3,10 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
 const ProtectedWrapper = ( {element}) => {
-  //const { currentUser } = useAuth();
-  const currentUser = true;
+  const { currentUser } = useAuth();
+  //const currentUser = true;
 
+  //console.log('ProtectedWrapper: currentUser:', currentUser);
   return (
     currentUser 
       ? element
