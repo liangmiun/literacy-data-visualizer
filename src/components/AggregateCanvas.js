@@ -1,7 +1,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
-import { ColorLegend } from './ScatterCanvas';
+import { ColorLegend, rescale } from './ScatterCanvas';
 import { interpolateSpectral } from 'd3-scale-chromatic';
 
 
@@ -165,6 +165,8 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
     const svgRef = useRef();
     const parseDate = d3.timeParse('%y%m%d');
     const formatDate = d3.timeFormat('%y-%m-%d');
+    const newXScaleRef = useRef(null);
+    const newYScaleRef = useRef(null);
     
     // In your useEffect: 
     useEffect(() => {
@@ -182,7 +184,8 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
         // Add the x-axis to the group element
         g.append("g")
             .attr("transform", `translate(0, ${innerHeight})`)
-            .call(xAxis);
+            .call(xAxis)
+            .attr('class', 'x-axis') ;
             
             
         const yAxis =d3.axisLeft(y).tickFormat(d => {
@@ -205,9 +208,10 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
 
         // Vertical lines
         const subBandWidth = x0.bandwidth() *0.2;
-        g.selectAll("vertLines")
+        g.selectAll(".vertLines")
             .data(sumstat)
             .enter().append("line")
+            .attr("class", "vertLines") 
             .attr("x1", d => {
                 const season = d.value.season.toString();
                 const clazz = d.value.class.toString();
@@ -226,9 +230,10 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             .style("width", 40);
 
         // Boxes
-        g.selectAll("boxes")
+        g.selectAll(".boxes")
             .data(sumstat)
             .enter().append("rect")
+            .attr("class", "boxes") 
             .attr("x", d => {
                 const season = d.value.season.toString();
                 const clazz = d.value.class.toString();
@@ -259,9 +264,10 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             }])});
 
         // Median lines
-        g.selectAll("medianLines")
+        g.selectAll(".medianLines")
             .data(sumstat)
             .enter().append("line")
+            .attr("class", "medianLines") 
             .attr("x1", d => {
                 const season = d.value.season.toString();
                 const clazz = d.value.class.toString();
@@ -280,9 +286,10 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             .style("width", 40);
 
 
-        g.selectAll("medianText")
+        g.selectAll(".medianText")
             .data(sumstat)
             .enter().append("text")
+            .attr("class", "medianText") 
             .attr("x", d => {
                 const season = d.value.season.toString();
                 const clazz = d.value.class.toString();
@@ -300,6 +307,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
                 const startPoint = values[i];
                 const endPoint = values[i + 1];        
                 g.append("line")
+                    .attr("class", "lastingClassLines")
                     .attr("x1", () => {
                         const season = startPoint.value.season.toString();
                         const clazz = startPoint.value.class.toString();
@@ -317,7 +325,11 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
                     .attr("stroke", d => {            
                         const classId = getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
                         return colorScale(classId);}) 
-                    .attr('stroke-width', 2); 
+                    .attr('stroke-width', 2)
+                    .attr("startSeason", startPoint.value.season.toString())
+                    .attr("startClass", startPoint.value.class.toString())
+                    .attr("endSeason", endPoint.value.season.toString())
+                    .attr("endClass", endPoint.value.class.toString())
             }
         });
        
@@ -326,6 +338,12 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
         if(studentsChecked) {
             PresentIndividuals(filteredData, yField, g, x0, getSubBandScale, y, subBandWidth)  //getSubBandScale,
         }
+
+        // Setup zoom behavior
+        const zoomBehavior = createZoomBehavior(x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale);
+
+        // Apply the zoom behavior to the SVG
+        svg.call(zoomBehavior)
 
         // Add color legend
         ColorLegend(identityClasses, "classID", svg, 200, margin);          
@@ -578,6 +596,101 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
             return {svg, g, margin, innerWidth, innerHeight, colorScale, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses};
 
 }
+
+
+function createZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale) {
+    return d3.zoom()
+      .scaleExtent([0.5, 10])
+      .on('zoom', (event) => {
+        const zoomState = event.transform;    
+        const zoomXScale = rescale(xScale, zoomState, xType, 'x');         
+        const zoomYScale = rescale(yScale, zoomState, yType, 'y' );
+        //console.log("aggregate zoom started: zoomXScale:", zoomXScale, "zoomYScale:", zoomYScale)
+  
+        newXScaleRef.current = zoomXScale;
+        newYScaleRef.current = zoomYScale;
+        const subBandWidth = xScale.bandwidth() * 0.2;
+  
+        // Apply zoom transformation to circles
+        g.selectAll('.boxes, .medianText')  //
+        .attr("x", d => {  //d
+            console.log("zoomed an x value");
+            const season = d.value.season.toString();
+            const clazz = d.value.class.toString();
+            const x1 = getSubBandScale(season); // Get x1 scale for the current season
+            const value = zoomXScale(season) + x1(clazz)    //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
+            console.log("value:", value, "old:", xScale(season) + x1(clazz));
+            return isNaN(value) ? 0 : value;         
+        })
+
+
+        g.selectAll('.medianLines')
+        .attr("x1", d => {
+            const season = d.value.season.toString();
+            const clazz = d.value.class.toString();
+            const x1 = getSubBandScale(season); // Get x1 scale for the current season
+            const value = zoomXScale(season) + x1(clazz)    //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
+            return value; })
+        .attr("x2", d => {
+            const season = d.value.season.toString();
+            const clazz = d.value.class.toString();
+            const x1 = getSubBandScale(season); // Get x1 scale for the current season
+            const value = zoomXScale(season) + x1(clazz)    //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
+            return value + subBandWidth; })
+
+
+        g.selectAll('.vertLines')
+        .attr("x1", d => {
+            const season = d.value.season.toString();
+            const clazz = d.value.class.toString();
+            const x1 = getSubBandScale(season); // Get x1 scale for the current season
+            const value = zoomXScale(season) + x1(clazz) + subBandWidth / 2   //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
+            return value; })
+        .attr("x2", d => {
+            const season = d.value.season.toString();
+            const clazz = d.value.class.toString();
+            const x1 = getSubBandScale(season); // Get x1 scale for the current season
+            const value = zoomXScale(season) + x1(clazz) + subBandWidth / 2   //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
+            return value ; })
+
+
+        g.selectAll('.lastingClassLines')
+        .attr("x1", function(){
+            const startSeason = d3.select(this).attr('startSeason');
+            const startClass = d3.select(this).attr('startClass');
+            return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClass) + subBandWidth / 2;
+        })
+        .attr("x2", function(){
+            const endSeason = d3.select(this).attr('endSeason');
+            const endClass = d3.select(this).attr('endClass');
+            return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClass) + subBandWidth / 2;
+        })
+
+  
+        // Apply zoom transformation to lines
+        if (showLines) {
+          g.selectAll('.line-path')
+            .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+        }
+  
+        // Update the axes with the new scales
+        const xAxisGroup = g.select('.x-axis');
+        const yAxisGroup = g.select('.y-axis');
+  
+        if (xType === 'point') {  
+          xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));
+        } else {
+          xAxisGroup.call(xAxis.scale(zoomXScale));
+        }
+  
+        if (yType === 'point') {  
+          yAxisGroup.call(yAxis.scale(zoomYScale).tickValues(yScale.domain()));
+        } else {
+          yAxisGroup.call(yAxis.scale(zoomYScale));
+        }
+      });
+  }
+
 
 
 

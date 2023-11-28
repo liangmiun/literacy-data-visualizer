@@ -323,7 +323,7 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 }
 
 
-function createZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef) {
+export function createZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef) {
     return d3.zoom()
       .scaleExtent([0.5, 10])
       .on('zoom', (event) => {
@@ -370,7 +370,7 @@ function createZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, 
   }
 
 
-function rescale(scale, zoomState, scaleType, dimension) {
+export function rescale(scale, zoomState, scaleType, dimension) {
     if (scaleType === 'point') {
         const domain = scale.domain();
         const range = scale.range();
@@ -385,6 +385,7 @@ function rescale(scale, zoomState, scaleType, dimension) {
         return scale.copy().domain(newDomain);
     } else if (scaleType === 'band') {
         // Handle band scale
+        console.log("rescale as band")
         const domain = scale.domain();
         const range = scale.range();
         const bandWidth = scale.bandwidth();
