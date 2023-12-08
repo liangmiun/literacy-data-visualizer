@@ -60,7 +60,7 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
             .text(yField); 
 
             
-            const subBandWidth = x0.bandwidth() * 0.2;
+            const subBandWidth = x0.bandwidth() * 0.1;
 
             var maxNum = 0;
             for (var i in sumstat) {
@@ -570,6 +570,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
 
             // Create a function to get the sub-band scale for classes within a given season
             function getSubBandScale(season) {
+                //console.log("getSubBandScale:", season, "x0.bandwidth():", x0.bandwidth());
                 return d3.scaleBand()
                     .padding(0.05)   //0.05
                     .domain(seasonToClasses[season])
@@ -609,7 +610,8 @@ function createZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, 
   
         newXScaleRef.current = zoomXScale;
         newYScaleRef.current = zoomYScale;
-        const subBandWidth = xScale.bandwidth() * 0.2;
+        const subBandWidth = zoomXScale.bandwidth() * 0.1;  //xScale.bandwidth() * 0.2
+        //zoomRatio = zoomState.k;
   
         // Apply zoom transformation to circles
         g.selectAll('.boxes, .medianText')  //
@@ -618,10 +620,13 @@ function createZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, 
             const season = d.value.season.toString();
             const clazz = d.value.class.toString();
             const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            const value = zoomXScale(season) + x1(clazz)    //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
-            console.log("value:", value, "old:", xScale(season) + x1(clazz));
+            const value = zoomXScale(season) + x1(clazz) * zoomState.k   //zoomXScale(season) + x1(clazz) 
+            //console.log("value:", value, "old:", xScale(season) + x1(clazz));
             return isNaN(value) ? 0 : value;         
         })
+        .attr("width", d => {
+            console.log("zoomed a width value",subBandWidth, "k:", zoomState.k);
+            return subBandWidth; })
 
 
         g.selectAll('.medianLines')
@@ -629,13 +634,13 @@ function createZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, 
             const season = d.value.season.toString();
             const clazz = d.value.class.toString();
             const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            const value = zoomXScale(season) + x1(clazz)    //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
+            const value = zoomXScale(season) + x1(clazz)* zoomState.k    //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
             return value; })
         .attr("x2", d => {
             const season = d.value.season.toString();
             const clazz = d.value.class.toString();
             const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            const value = zoomXScale(season) + x1(clazz)    //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
+            const value = zoomXScale(season) + x1(clazz) * zoomState.k    //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
             return value + subBandWidth; })
 
 
@@ -644,13 +649,13 @@ function createZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, 
             const season = d.value.season.toString();
             const clazz = d.value.class.toString();
             const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            const value = zoomXScale(season) + x1(clazz) + subBandWidth / 2   //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
+            const value = zoomXScale(season) + x1(clazz)* zoomState.k + subBandWidth / 2   //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
             return value; })
         .attr("x2", d => {
             const season = d.value.season.toString();
             const clazz = d.value.class.toString();
             const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            const value = zoomXScale(season) + x1(clazz) + subBandWidth / 2   //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
+            const value = zoomXScale(season) + x1(clazz)* zoomState.k + subBandWidth / 2   //zoomXScale(xScale(season)) + zoomXScale(x1(clazz)) 
             return value ; })
 
 
@@ -658,12 +663,12 @@ function createZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, 
         .attr("x1", function(){
             const startSeason = d3.select(this).attr('startSeason');
             const startClass = d3.select(this).attr('startClass');
-            return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClass) + subBandWidth / 2;
+            return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClass)* zoomState.k + subBandWidth / 2;
         })
         .attr("x2", function(){
             const endSeason = d3.select(this).attr('endSeason');
             const endClass = d3.select(this).attr('endClass');
-            return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClass) + subBandWidth / 2;
+            return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClass)* zoomState.k + subBandWidth / 2;
         })
 
   
