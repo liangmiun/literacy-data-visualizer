@@ -207,21 +207,23 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
 
         // Vertical lines
         const subBandWidth = x0.bandwidth() *0.2;
+        function zoomedX(d) {
+            const season = d.value.season.toString();
+            const clazz = d.value.class.toString();
+            const x1 = getSubBandScale(season); // Get x1 scale for the current season
+            return x0(season) + x1(clazz) 
+        }
+
+
         g.selectAll(".vertLines")
             .data(sumstat)
             .enter().append("line")
             .attr("class", "vertLines") 
             .attr("x1", d => {
-                const season = d.value.season.toString();
-                const clazz = d.value.class.toString();
-                const x1 = getSubBandScale(season); // Get x1 scale for the current season
-                return x0(season) + x1(clazz) + subBandWidth / 2;
+                return zoomedX(d) + subBandWidth / 2;
             })
             .attr("x2", d => {
-                const season = d.value.season.toString();
-                const clazz = d.value.class.toString();
-                const x1 = getSubBandScale(season); // Get x1 scale for the current season
-                return x0(season) + x1(clazz) + subBandWidth / 2;
+                return zoomedX(d) + subBandWidth / 2;
             })
             .attr("y1", d => y(d.value.min))
             .attr("y2", d => y(d.value.max))
@@ -234,10 +236,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             .enter().append("rect")
             .attr("class", "boxes") 
             .attr("x", d => {
-                const season = d.value.season.toString();
-                const clazz = d.value.class.toString();
-                const x1 = getSubBandScale(season); // Get x1 scale for the current season
-                return x0(season) + x1(clazz);
+                return zoomedX(d);
             })
             .attr("y", d => y(d.value.q3))
             .attr("height", d => y(d.value.q1) - y(d.value.q3))
@@ -268,16 +267,10 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             .enter().append("line")
             .attr("class", "medianLines") 
             .attr("x1", d => {
-                const season = d.value.season.toString();
-                const clazz = d.value.class.toString();
-                const x1 = getSubBandScale(season); // Get x1 scale for the current season
-                return x0(season) + x1(clazz);
+                return zoomedX(d);
             })
             .attr("x2", d => {
-                const season = d.value.season.toString();
-                const clazz = d.value.class.toString();
-                const x1 = getSubBandScale(season); // Get x1 scale for the current season
-                return x0(season) + x1(clazz) + subBandWidth;
+                return zoomedX(d) + subBandWidth;
             })
             .attr("y1", d => y(d.value.median))
             .attr("y2", d => y(d.value.median))
@@ -290,12 +283,8 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             .enter().append("text")
             .attr("class", "medianText") 
             .attr("x", d => {
-                const season = d.value.season.toString();
-                const clazz = d.value.class.toString();
-                const x1 = getSubBandScale(season); // Get x1 scale for the current season
-                return x0(season) + x1(clazz) + subBandWidth/2;
+                return zoomedX(d) + subBandWidth/2;
             })
-            //.attr("x", d => x0(d.key.split('-')[1]) + x1(d.key.split('-')[0]) +  boxWidth/2)
             .attr("y", d => y(d.value.median) - 5) 
             .style("text-anchor", "middle")
             .text(d => d.value.median);
@@ -308,16 +297,10 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
                 g.append("line")
                     .attr("class", "lastingClassLines")
                     .attr("x1", () => {
-                        const season = startPoint.value.season.toString();
-                        const clazz = startPoint.value.class.toString();
-                        const x1 = getSubBandScale(season);
-                        return x0(season) + x1(clazz) + subBandWidth / 2;
+                        return zoomedX(startPoint) + subBandWidth / 2;
                     })
                     .attr("x2", () => {
-                        const season = endPoint.value.season.toString();
-                        const clazz = endPoint.value.class.toString();
-                        const x1 = getSubBandScale(season);
-                        return x0(season) + x1(clazz) + subBandWidth / 2;
+                        return zoomedX(endPoint) + subBandWidth / 2;
                     })
                     .attr("y1", y(startPoint.value.median))
                     .attr("y2", y(endPoint.value.median))
