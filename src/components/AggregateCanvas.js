@@ -4,6 +4,8 @@ import * as d3 from 'd3';
 import { ColorLegend, rescale } from './ScatterCanvas';
 import { interpolateSpectral } from 'd3-scale-chromatic';
 
+const singleViolinWidthRatio = 0.6; // The width of a single violin relative to the sub-band width
+
 
 const AggregateCanvas = ({ data, filteredData, xField, yField, colorField, width, height, 
     onPartClick, selectedRecord, studentsChecked, showViolin }) => {
@@ -117,8 +119,8 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
                 )
         .style("stroke", "none")
         .attr("d", d3.area()
-                .x0(d => xNum(-d.length* subBandWidth))  
-                .x1(d => xNum(d.length* subBandWidth))  
+                .x0(d => xNum(-d.length* subBandWidth * singleViolinWidthRatio))  
+                .x1(d => xNum(d.length* subBandWidth * singleViolinWidthRatio))  
                 .y(d => y(d.x0))   //d.x0
                 .curve(d3.curveCatmullRom)
                 );  
@@ -718,19 +720,11 @@ function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, 
                 })
             .selectAll('.area')
             .attr("d", d3.area()
-                    .x0(d => xNum(-d.length* subBandWidth))  //
-                    .x1(d => xNum(d.length* subBandWidth) )  
+                    .x0(d => xNum(-d.length* subBandWidth*singleViolinWidthRatio))  //
+                    .x1(d => xNum(d.length* subBandWidth*singleViolinWidthRatio) )  
                     .y(d => yScale(d.x0))   //d.x0
                     .curve(d3.curveCatmullRom)
                     );  
-
-                //////////
-            // const season = d.value.season.toString();
-            // const clazz = d.value.class.toString();
-            // const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            // const value = zoomXScale(season) + x1(clazz) * zoomState.k   //zoomXScale(season) + x1(clazz) 
-            // return isNaN(value) ? 0 : value;              
-            /////////  
 
             g.selectAll('.lastingClassLines')
             .attr("x1", function(){
