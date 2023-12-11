@@ -5,6 +5,8 @@ import { ColorLegend, rescale } from './ScatterCanvas';
 import { interpolateSpectral } from 'd3-scale-chromatic';
 
 const singleViolinWidthRatio = 0.6; // The width of a single violin relative to the sub-band width
+const indv_jitterWidth = 10;
+const indv_offset =0;
 
 
 const AggregateCanvas = ({ data, filteredData, xField, yField, colorField, width, height, 
@@ -167,7 +169,7 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
         }
 
         // Setup zoom behavior
-        const zoomBehavior = createViolinZoomBehavior(x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, sumstat, xNum);
+        const zoomBehavior = createViolinZoomBehavior(x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked);
 
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
@@ -345,7 +347,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
         }
 
         // Setup zoom behavior
-        const zoomBehavior = createBoxZoomBehavior(x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale);
+        const zoomBehavior = createBoxZoomBehavior(x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked);
 
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
@@ -364,24 +366,25 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
 
 function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWidth)
 {
-    const jitterWidth = 20;
-    const offset =0;
-
-    g.selectAll("indPoints")
+    g.selectAll(".indvPoints")
         .data(data)
         .enter().append("circle")
+        .attr("class", "indvPoints")
         .attr("cx", d => {                    
             const season = Season(d.Testdatum).toString(); // or whatever field you use for the season
             const clazz = d.Klass.toString();
             const x1 = getSubBandScale(season); // get the x1 scale for the current season
-            return x0(season) + x1(clazz) + offset + subBandWidth/2 - jitterWidth/2 + Math.random()*jitterWidth;
+            return x0(season) + x1(clazz)  + subBandWidth/2 + indv_offset- indv_jitterWidth/2 + Math.random()*indv_jitterWidth;
         })
         .attr("cy", d => { return y(d[yField])})
         .attr("r", 2)
         .style("fill", "white")
         .attr("stroke", "black")
         .style("fill-opacity", 0.5)
-        .style("stroke-opacity", 0.5);  
+        .style("stroke-opacity", 0.5)  
+        .attr("indv_season", d => {return Season(d.Testdatum).toString()})
+        .attr("indv_class", d => { return d.Klass.toString()})
+        .attr("jitterOffset", () => { return indv_offset- indv_jitterWidth/2 + Math.random()*indv_jitterWidth});
 }
 
 
@@ -602,7 +605,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
 }
 
 
-function createBoxZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale) {
+function createBoxZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked) {
     return d3.zoom()
       .scaleExtent([0.5, 10])
       .on('zoom', (event) => {
@@ -653,11 +656,67 @@ function createBoxZoomBehavior(xScale, yScale, xType, yType, xField, yField, lin
                 g.selectAll('.line-path')
                 .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
             }
-  
+            
+            if( studentsChecked) {
+                zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale);
+            }
   
 
       });
   }
+
+
+function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked)
+{
+    //xScale, yScale, xType, yType,   xField,   yField, line, showLines, g, xAxis, yAxis,         newXScaleRef, newYScaleRef, getSubBandScale,  sumstat = null, y = null, xNum
+    //x0,       y,   'band', 'linear', 'season', yField, null, false,    g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale,  sumstat, y, xNum
+    return d3.zoom()
+      .scaleExtent([0.5, 10])
+      .on('zoom', (event) => {
+            const {zoomState, zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(event, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale);
+            
+ 
+            console.log("xNum "+ xNum + "xNUm type: "+ typeof(xNum) + xNum.length)        
+            
+            g.selectAll('.violins')
+            .attr("transform",  d => {
+                return `translate(${zoomedX(d)}, 0)`;  
+                })
+            .selectAll('.area')
+            .attr("d", d3.area()
+                    .x0(d => xNum(-d.length* subBandWidth*singleViolinWidthRatio))  //
+                    .x1(d => xNum(d.length* subBandWidth*singleViolinWidthRatio) )  
+                    .y(d => yScale(d.x0))   //d.x0
+                    .curve(d3.curveCatmullRom)
+                    );  
+
+            g.selectAll('.lastingClassLines')
+            .attr("x1", function(){
+                const startSeason = d3.select(this).attr('startSeason');
+                const startClass = d3.select(this).attr('startClass');
+                return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClass)* zoomState.k + subBandWidth / 2;
+            })
+            .attr("x2", function(){
+                const endSeason = d3.select(this).attr('endSeason');
+                const endClass = d3.select(this).attr('endClass');
+                return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClass)* zoomState.k + subBandWidth / 2;
+            })
+
+
+            // Apply zoom transformation to lines
+            if (showLines) {
+                g.selectAll('.line-path')
+                .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+            }
+
+            
+            if( studentsChecked) {
+                zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale);
+            }
+
+      });
+
+}
 
 
 function init_ZoomSetting(event, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale)
@@ -700,53 +759,16 @@ function init_ZoomSetting(event, xScale, yScale, xType, yType, g, xAxis, yAxis, 
 }
 
 
-
-function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, sumstat, xNum)
+function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale)
 {
-    //xScale, yScale, xType, yType,   xField,   yField, line, showLines, g, xAxis, yAxis,         newXScaleRef, newYScaleRef, getSubBandScale,  sumstat = null, y = null, xNum
-    //x0,       y,   'band', 'linear', 'season', yField, null, false,    g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale,  sumstat, y, xNum
-    return d3.zoom()
-      .scaleExtent([0.5, 10])
-      .on('zoom', (event) => {
-            const {zoomState, zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(event, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale);
-            
- 
-            console.log("xNum "+ xNum + "xNUm type: "+ typeof(xNum) + xNum.length)        
-            
-            g.selectAll('.violins')
-            .attr("transform",  d => {
-                console.log("zoom violins")
-                return `translate(${zoomedX(d)}, 0)`;  
-                })
-            .selectAll('.area')
-            .attr("d", d3.area()
-                    .x0(d => xNum(-d.length* subBandWidth*singleViolinWidthRatio))  //
-                    .x1(d => xNum(d.length* subBandWidth*singleViolinWidthRatio) )  
-                    .y(d => yScale(d.x0))   //d.x0
-                    .curve(d3.curveCatmullRom)
-                    );  
-
-            g.selectAll('.lastingClassLines')
-            .attr("x1", function(){
-                const startSeason = d3.select(this).attr('startSeason');
-                const startClass = d3.select(this).attr('startClass');
-                return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClass)* zoomState.k + subBandWidth / 2;
-            })
-            .attr("x2", function(){
-                const endSeason = d3.select(this).attr('endSeason');
-                const endClass = d3.select(this).attr('endClass');
-                return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClass)* zoomState.k + subBandWidth / 2;
-            })
-
-
-            // Apply zoom transformation to lines
-            if (showLines) {
-                g.selectAll('.line-path')
-                .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
-            }
-
-      });
-
+    g.selectAll(".indvPoints")
+    .attr("cx", function() {
+        const season = d3.select(this).attr("indv_season");
+        const clazz = d3.select(this).attr("indv_class");
+        const jitterOffset = d3.select(this).attr("jitterOffset");
+        //console.log(d +  " length: " + d.length )                    
+        return zoomXScale(season) + getSubBandScale(season)(clazz) * zoomState.k + subBandWidth/2 + jitterOffset*zoomState.k;
+    })
 }
 
 export default AggregateCanvas;
