@@ -16,7 +16,6 @@ const DetailCanvas = ({ data, keyList}) => {
 
   const aggregateData = (key) => {
     if (data.length === 1) {
-        console.log("data length is 1:", data[0]);
         return DetailValue(key, data[0][key]);
     }
 

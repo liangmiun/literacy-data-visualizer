@@ -131,6 +131,9 @@ React.memo(
             }
     
             // Draw circles 
+            let lastSelectedCircle = null;
+            let combinedIDSelection = [];
+            let selectedCircles = [];
             g.selectAll('circle')
                 .data(filteredXYData)  //filteredData
                 .enter().append('circle')
@@ -140,9 +143,67 @@ React.memo(
                 .attr('fill', d => colorScale(d[colorField]))
                 .on('click', function (event, d) {
                     if (!brushing) {
-                        setSelectedRecords([d]);
+                        const currentCircle = d3.select(this);
+
+
+                        if (event.ctrlKey) {
+                            console.log("ctrlKey pressed");
+                            ContinuousSelection(currentCircle);
+                        }
+                        else
+                        {
+                            combinedIDSelection = [];
+                            if (selectedCircles.length > 0) {
+                                for (let i = 0; i < selectedCircles.length; i++) {
+                                    selectedCircles[i].style('stroke-width', 0);
+                                }
+                            }
+                            selectedCircles = [];
+                            ContinuousSelection(currentCircle);
+                        }
+
                     }
                 });
+
+            
+            function OneShotSelection(currentCircle)
+            {
+                // if (lastSelectedCircle) {
+                //     lastSelectedCircle.style('stroke-width', 0);
+                // }
+                // lastSelectedCircle = currentCircle; 
+                g.selectAll('circle')
+                .attr('stroke-width', 0);
+
+                const newlySelectedIDs = getElevIDSelected(currentCircle.data());
+                g.selectAll('.line-path')
+                    .attr('stroke-width', d => newlySelectedIDs[0].ElevID === d[0].ElevID ? 2 : 0.5)
+                    .attr('stroke', d => newlySelectedIDs[0].ElevID === d[0].ElevID ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)');
+
+                setSelectedRecords([currentCircle.data()[0]]);
+            }
+
+            function ContinuousSelection(currentCircle)
+            {
+                selectedCircles = [...selectedCircles, currentCircle];
+                for (let i = 0; i < selectedCircles.length; i++) {
+                    selectedCircles[i].style('stroke', "black");
+                    selectedCircles[i].style('stroke-width', 2);
+                }
+
+
+                const newlySelectedIDs = getElevIDSelected(currentCircle.data());
+                //console.log("combinedSelection ", combinedIDSelection);
+
+                combinedIDSelection = [...new Set([...combinedIDSelection, ...newlySelectedIDs])];
+                g.selectAll('.line-path')
+                .attr('stroke-width',  d => combinedIDSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
+                .attr('stroke', d => combinedIDSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)');
+
+                setSelectedRecords(combinedIDSelection);
+
+            }
+
     
     
             g.append('g').attr('transform', `translate(0, ${innerHeight})`)
@@ -152,7 +213,6 @@ React.memo(
                 {   const dateObject = d; 
                     return formatDate(dateObject);
                 }
-                console.log("x tics d: ", d)
                 return d;
             }));
     
