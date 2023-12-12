@@ -122,117 +122,116 @@ const App = () => {
 
   const liStyle = {
     display: "inline-block",/* Display the list items in a horizontal line */
-    marginRight: "10px",
+    marginRight: "10px" 
   };
 
   return ( 
       <Router  basename="literacy-data-visualizer" >
-          <div>
+          <div className = "grid-container">
             {/* Add navigation links */}
-            <nav className ="headers">
-              <ul>
-
+            <nav >
+              <ul className ="headers">
                 {currentUser && (
                   <>
-                  <li style={liStyle}>
+                  <li   style={liStyle}>
                     <Link to="/">ScatterPlot</Link>
                   </li>
-                  <li style={liStyle}>
+                  <li  style={liStyle}>
                     <Link to="/alternative-plot">Class Aggregation</Link>
                   </li>
-                  <li style={liStyle}>
+                  <li  style={liStyle}>
                     <Link to="/about">About</Link>
                   </li>
-                  <li style={liStyle}>
+                  <li  style={liStyle}>
                     <Link to="/logout">Logout</Link>
                   </li>
                   </>
                 )}
-
-                <li style={liStyle}>
+                <li  style={liStyle}>
                   <Link to="/login">Login</Link>
                 </li>
-
               </ul>
             </nav>
             {/* Define routes */}
-            <Routes>
-              <Route path="/login" element={ <Login   setEncryptKey={setEncryptKey} setIsLogin={setIsLogin} />} />
-              <Route path="/logout" element={ <Logout setIsLogin={setIsLogin} />} />
-              <Route path="/about" 
-                  element={
-                    <ProtectedWrapper  element={<About/>} />
-                  } 
-              />
-              <Route path="/alternative-plot" 
-                  element={
-                    <ProtectedWrapper  
-                      element={
-                        <AlternativePlot
-                          data={data} 
-                          setData={setData}
-                          xField={xField}
-                          setXField={setXField}
-                          yField={yField}
-                          setYField={setYField}
-                          colorField={colorField}
-                          setColorField={setColorField}
-                          fields={fields}
-                          save={save}
-                          load={load}
-                          checkedSchools={checkedSchools}
-                          setCheckedSchools={setCheckedSchools}
-                          checkedClasses={checkedClasses}
-                          setCheckedClasses={setCheckedClasses}
-                          checkedOptions={checkedOptions}
-                          setCheckedOptions={setCheckedOptions}
-                          rangeOptions={rangeOptions}
-                          setRangeOptions={setRangeOptions}
-                          handleFileUpload={handleFileUpload}
-                          setConfigFromPreset={setConfigFromPreset}
-                          />} />
-                  }
-              />
-              <Route path="/"               
-                  element={
-                    <ProtectedWrapper  
-                      element={
-                        <ScatterPage 
-                          data={data} 
-                          setData={setData}
-                          filteredData={filteredData}
-                          setFilteredData={setFilteredtData}
-                          xField={xField}
-                          setXField={setXField}
-                          yField={yField}
-                          setYField={setYField}
-                          colorField={colorField}
-                          setColorField={setColorField}
-                          fields={fields}
-                          save={save}
-                          load={load}
-                          query={query}
-                          setQuery={setQuery}
-                          expression={expression}
-                          setExpression={setExpression}
-                          checkedSchools={checkedSchools}
-                          setCheckedSchools={setCheckedSchools}
-                          checkedClasses={checkedClasses}
-                          setCheckedClasses={setCheckedClasses}
-                          checkedOptions={checkedOptions}
-                          setCheckedOptions={setCheckedOptions}
-                          rangeOptions={rangeOptions}
-                          setRangeOptions={setRangeOptions}
-                          handleFileUpload={handleFileUpload}
-                          setConfigFromPreset={setConfigFromPreset}
-                          showLines={showLines}
-                          setShowLines={setShowLines}
-                        />
-                      } 
-                    />
-                  }
-              />              
-            </Routes>
+            <div className="content">
+              <Routes>
+                <Route path="/login" element={ <Login   setEncryptKey={setEncryptKey} setIsLogin={setIsLogin} />} />
+                <Route path="/logout" element={ <Logout setIsLogin={setIsLogin} />} />
+                <Route path="/about" 
+                    element={
+                      <ProtectedWrapper  element={<About/>} />
+                    } 
+                />
+                <Route path="/alternative-plot" 
+                    element={
+                      <ProtectedWrapper  
+                        element={
+                          <AlternativePlot
+                            data={data} 
+                            setData={setData}
+                            xField={xField}
+                            setXField={setXField}
+                            yField={yField}
+                            setYField={setYField}
+                            colorField={colorField}
+                            setColorField={setColorField}
+                            fields={fields}
+                            save={save}
+                            load={load}
+                            checkedSchools={checkedSchools}
+                            setCheckedSchools={setCheckedSchools}
+                            checkedClasses={checkedClasses}
+                            setCheckedClasses={setCheckedClasses}
+                            checkedOptions={checkedOptions}
+                            setCheckedOptions={setCheckedOptions}
+                            rangeOptions={rangeOptions}
+                            setRangeOptions={setRangeOptions}
+                            handleFileUpload={handleFileUpload}
+                            setConfigFromPreset={setConfigFromPreset}
+                            />} />
+                    }
+                />
+                <Route path="/"               
+                    element={
+                      <ProtectedWrapper  
+                        element={
+                          <ScatterPage 
+                            data={data} 
+                            setData={setData}
+                            filteredData={filteredData}
+                            setFilteredData={setFilteredtData}
+                            xField={xField}
+                            setXField={setXField}
+                            yField={yField}
+                            setYField={setYField}
+                            colorField={colorField}
+                            setColorField={setColorField}
+                            fields={fields}
+                            save={save}
+                            load={load}
+                            query={query}
+                            setQuery={setQuery}
+                            expression={expression}
+                            setExpression={setExpression}
+                            checkedSchools={checkedSchools}
+                            setCheckedSchools={setCheckedSchools}
+                            checkedClasses={checkedClasses}
+                            setCheckedClasses={setCheckedClasses}
+                            checkedOptions={checkedOptions}
+                            setCheckedOptions={setCheckedOptions}
+                            rangeOptions={rangeOptions}
+                            setRangeOptions={setRangeOptions}
+                            handleFileUpload={handleFileUpload}
+                            setConfigFromPreset={setConfigFromPreset}
+                            showLines={showLines}
+                            setShowLines={setShowLines}
+                          />
+                        } 
+                      />
+                    }
+                />              
+              </Routes>
+            </div>
           </div>
       </Router> 
   );

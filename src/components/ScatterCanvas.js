@@ -131,7 +131,6 @@ React.memo(
             }
     
             // Draw circles 
-            let lastSelectedCircle = null;
             let combinedIDSelection = [];
             let selectedCircles = [];
             g.selectAll('circle')
@@ -144,8 +143,6 @@ React.memo(
                 .on('click', function (event, d) {
                     if (!brushing) {
                         const currentCircle = d3.select(this);
-
-
                         if (event.ctrlKey) {
                             console.log("ctrlKey pressed");
                             ContinuousSelection(currentCircle);
@@ -163,25 +160,8 @@ React.memo(
                         }
 
                     }
-                });
+                });          
 
-            
-            function OneShotSelection(currentCircle)
-            {
-                // if (lastSelectedCircle) {
-                //     lastSelectedCircle.style('stroke-width', 0);
-                // }
-                // lastSelectedCircle = currentCircle; 
-                g.selectAll('circle')
-                .attr('stroke-width', 0);
-
-                const newlySelectedIDs = getElevIDSelected(currentCircle.data());
-                g.selectAll('.line-path')
-                    .attr('stroke-width', d => newlySelectedIDs[0].ElevID === d[0].ElevID ? 2 : 0.5)
-                    .attr('stroke', d => newlySelectedIDs[0].ElevID === d[0].ElevID ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)');
-
-                setSelectedRecords([currentCircle.data()[0]]);
-            }
 
             function ContinuousSelection(currentCircle)
             {
@@ -203,7 +183,6 @@ React.memo(
                 setSelectedRecords(combinedIDSelection);
 
             }
-
     
     
             g.append('g').attr('transform', `translate(0, ${innerHeight})`)
@@ -263,12 +242,8 @@ React.memo(
                     setSelectedRecords(combinedSelection);
                     
                     g.selectAll('circle')
-                        .attr('r', d => {
-                            if (combinedSelection.includes(d)) {
-                                return 9;
-                            }
-                            return 3;
-                        });
+                        .attr('stroke', d => combinedSelection.includes(d) ? 'black' : 'transparent')  
+                        .attr('stroke-width', d => combinedSelection.includes(d) ? 2 : 0);  //
                     
                     g.selectAll('.line-path')
                         .attr('stroke-width', d => combinedSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)

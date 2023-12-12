@@ -24,10 +24,11 @@
 .headers{
   display: flex;
   justify-content: flex-end;
-  position: fixed;
+  /* position: fixed;   */
   top: 0;
   right: 100px;
 }
+
 
 .axis-selection-canvas {
   /*max-width: 1800px;*/
@@ -115,8 +116,3 @@
   gap: 10px;
   margin-bottom: 10px;
 }
-
-
-
-
-
