@@ -136,7 +136,7 @@ React.memo(
             g.selectAll('circle')
                 .data(filteredXYData)  //filteredData
                 .enter().append('circle')
-                .attr('cx', d => xScale(d[xField]))
+                .attr('cx',  function(d) { return xScale(d[xField]);})
                 .attr('cy', d => yScale(d[yField]))
                 .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
                 .attr('fill', d => colorScale(d[colorField]))
@@ -420,7 +420,7 @@ export function rescale(scale, zoomState, scaleType, dimension) {
         return scale.copy().domain(newDomain);
     } else if (scaleType === 'band') {
         // Handle band scale
-        console.log("rescale as band")
+        //console.log("rescale as band")
         const domain = scale.domain();
         const range = scale.range();
         const bandWidth = scale.bandwidth();

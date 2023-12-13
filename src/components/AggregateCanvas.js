@@ -9,7 +9,7 @@ const indv_jitterWidth = 10;
 const indv_offset =0;
 
 
-const AggregateCanvas = ({ data, filteredData, xField, yField, colorField, width, height, 
+const AggregateCanvas = ({ filteredData, xField, yField, colorField, width, height, 
     onPartClick, selectedRecord, studentsChecked, showViolin }) => {
 
     //showViolin= true;
@@ -728,7 +728,7 @@ function init_ZoomSetting(event, xScale, yScale, xType, yType, g, xAxis, yAxis, 
     newXScaleRef.current = zoomXScale;
     newYScaleRef.current = zoomYScale;
     const subBandWidth = zoomXScale.bandwidth() * 0.1;  //xScale.bandwidth() * 0.2
-    console.log("subBandWidth", subBandWidth)
+    //console.log("subBandWidth", subBandWidth)
 
     function zoomedX(d) {
         const season = d.value.season.toString();

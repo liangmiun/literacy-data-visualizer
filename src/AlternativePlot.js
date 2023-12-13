@@ -77,7 +77,6 @@ const AlternativePage = ({
         showClassbar={true}
       />
       <AggregateCanvas
-        data = {data}
         filteredData={classFilteredData}
         xField={xField}
         yField={yField}

@@ -6,7 +6,6 @@ const ProtectedWrapper = ( {element}) => {
   const { currentUser } = useAuth();
   //const currentUser = true;
 
-  //console.log('ProtectedWrapper: currentUser:', currentUser);
   return (
     currentUser 
       ? element
