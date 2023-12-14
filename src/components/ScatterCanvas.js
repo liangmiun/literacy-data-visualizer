@@ -104,12 +104,23 @@ React.memo(
                 connecting_lines_plot();
             }
 
-            console.log("svg node", svg.node());
+            //console.log("svg node", svg.node(), svg.node().__zoom , "brushing: ", brushing, "prevBrushingRef.current: ", prevBrushingRef.current);
 
-            if(svg.node() && svg.node().__zoom) {
+            if(svg.node() && svg.node().__zoom && svg.node().__zoom != d3.zoomIdentity) {                
                 const zoomState = svg.node().__zoom; // Get the current zoom state
                 console.log("zoomState II: ", zoomState, "showLines: ", showLines);
                 zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef);
+                if(!brushing && prevBrushingRef.current !== brushing){
+                    console.log("rebuiding zoom behavior");
+                    svg.call(d3.zoom().on("zoom",  (event) =>zoomRender(event.transform, svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef)));
+                }
+            }
+            else {
+                const svg = d3.select(svgRef.current);
+                const zoomBehavior = createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef); 
+                console.log("zoomState: ",  svg.node().__zoom);
+                svg.call(zoomBehavior);       
+
             }
 
 
@@ -316,8 +327,7 @@ React.memo(
                 }   
         
                 prevBrushingRef.current = brushing;       
-        
-    
+       
     
             }
             
@@ -330,18 +340,10 @@ React.memo(
     },[filteredXYData, xField, yField, colorField, width, height,  setSelectedRecords, brushing,  showLines, newXScaleRef, newYScaleRef, zoomStateRef]);
 
     useEffect(() => {
-
-        const svg = d3.select(svgRef.current);
-        const zoomBehavior = createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef); 
-
-        console.log("zoomState: ",  svg.node().__zoom);
-
-        svg.call(zoomBehavior); 
-
-        return () => {
-            // Cleanup code here
-            svg.on(".zoom", null); // This removes the zoom behavior
-        };
+        // return () => {
+        //     // Cleanup code here
+        //     svg.on(".zoom", null); // This removes the zoom behavior
+        // };
 
     },[]);
 
@@ -407,9 +409,6 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 }
 
 
-
-
-
 export function rescale(scale, zoomState, scaleType, dimension) {
     if (scaleType === 'point') {
         const domain = scale.domain();
@@ -458,6 +457,7 @@ function createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, l
         zoomRender(event.transform, svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef);
       });
 }
+
 
 function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef){
     const currentZoomState = zoomState;
