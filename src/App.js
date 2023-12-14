@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import { csvParse } from 'd3';
+import React, {useState, useEffect, useRef} from 'react';
+import { zoomIdentity, csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
 import './App.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
@@ -20,8 +20,9 @@ const App = () => {
   const [filteredData, setFilteredtData] = useState(data);
   const [encryptKey,setEncryptKey] = useState(""); 
   const [isLogin, setIsLogin] = useState(false);   //  set as true for test purpose without login;
-  const [showLines, setShowLines] = useState(false);
 
+  const zoomStateRef = useRef(null);
+  const [showLines, setShowLines] = useState(false);
   const [xField, setXField] = useState('Testdatum');
   const [yField, setYField] = useState('Lexplore Score');
   const [colorField, setColorField] = useState('Årskurs');
@@ -225,6 +226,7 @@ const App = () => {
                             setConfigFromPreset={setConfigFromPreset}
                             showLines={showLines}
                             setShowLines={setShowLines}
+                            zoomStateRef={zoomStateRef}
                           />
                         } 
                       />

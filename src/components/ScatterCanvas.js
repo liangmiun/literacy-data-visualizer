@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
+
 import { set } from 'd3-collection';
 import { interpolateSpectral } from 'd3-scale-chromatic';
 
@@ -54,70 +55,124 @@ export function ColorLegend(data, colorField, svg, width, margin) {
 
 const ScatterCanvas =
 React.memo(
-    ({ shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines}) => { //
+    ({ shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines, zoomStateRef}) => { //
 
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
     const prevBrushingRef = useRef();
-    //const [selectedCircles, setSelectedCircles] = useState([]);
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
     const filteredXYData = shownData.filter(d => d[xField] !== null && d[yField] !== null);
 
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove();
+    const margin = { top: 20, right: 20, bottom: 80, left: 80 };
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
+    const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`).attr('id', 'g-Id');
+    const formatDate = d3.timeFormat('%y-%m-%d');    
+    const {scale: xScale, type: xType}  = GetScale(xField, filteredXYData, innerWidth);
+    const {scale: yScale, type: yType}= GetScale(yField, filteredXYData, innerHeight, true);              
+    const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
+    const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+
+    const line = d3.line()
+    .x(d => xScale(d[xField]))
+    .y(d => yScale(d[yField])); 
+
+    //console.log("newXScaleRef.current ", newXScaleRef.current, "newYScaleRef.current ", newYScaleRef.current);
     
     useEffect(() => {
-        function plot() { 
-            const svg = d3.select(svgRef.current);
-            svg.selectAll('*').remove();
-    
-            const margin = { top: 20, right: 20, bottom: 80, left: 80 };
-            const innerWidth = width - margin.left - margin.right;
-            const innerHeight = height - margin.top - margin.bottom;
-            const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
-    
-            const formatDate = d3.timeFormat('%y-%m-%d');    
+        plot();  
 
-            const {scale: xScale, type: xType}  = GetScale(xField, filteredXYData, innerWidth);
-            const {scale: yScale, type: yType}= GetScale(yField, filteredXYData, innerHeight, true);
-                  
-            const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
-            const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain);   
+        function plot() { 
+
+            let combinedIDSelection = [];
+            let selectedCircles = [];
+
+
+            //Start plotting:
+            axes_and_captions_plot();
+
+            dots_plot();
+
+            //console.log("initial circles size: ", g.selectAll('circle').size(), g.selectAll('circle').attr('id'));
+
+            if(showLines){
+                connecting_lines_plot();
+            }
+
+            console.log("svg node", svg.node());
+
+            if(svg.node() && svg.node().__zoom) {
+                const zoomState = svg.node().__zoom; // Get the current zoom state
+                console.log("zoomState II: ", zoomState, "showLines: ", showLines);
+                zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef);
+            }
+
+
+            brush_part();
     
-            const xAxis = d3.axisBottom(xScale);
-            const yAxis = d3.axisLeft(yScale);
+            // Add color legend
+            ColorLegend(filteredXYData, colorField, svg, width, margin);  
+
+    
+
     
     
-            g.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -margin.left)
-            .attr("x", -innerHeight / 2) 
-            .attr("dy", "1em")  
-            .style("text-anchor", "middle")
-            .text(yField); 
-    
-    
-            g.append("text")
-                .attr("y", innerHeight + margin.bottom / 2)
-                .attr("x", innerWidth / 2)  
+            function axes_and_captions_plot() {
+
+                g.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left)
+                .attr("x", -innerHeight / 2) 
                 .attr("dy", "1em")  
                 .style("text-anchor", "middle")
-                .text(xField);
+                .text(yField); 
+        
+        
+                g.append("text")
+                    .attr("y", innerHeight + margin.bottom / 2)
+                    .attr("x", innerWidth / 2)  
+                    .attr("dy", "1em")  
+                    .style("text-anchor", "middle")
+                    .text(xField);
 
-            const line = d3.line()
-            .x(d => xScale(d[xField]))
-            .y(d => yScale(d[yField]));
 
-            
-            if(showLines){
-                
+                g.append('g').attr('transform', `translate(0, ${innerHeight})`)
+                .attr('class', 'x-axis') 
+                .call(d3.axisBottom(xScale).tickFormat(d => {
+                    if(xField==='Födelsedatum'||xField==='Testdatum')
+                    {   const dateObject = d; 
+                        return formatDate(dateObject);
+                    }
+                    return d;
+                }));
+        
+        
+                g.append('g')
+                .attr('class', 'y-axis') 
+                .call(d3.axisLeft(yScale)
+                .tickFormat(d => {
+                    if(yField==='Födelsedatum'||yField==='Testdatum')
+                    {
+                        const dateObject = d; //=parseDate(d)
+                        return formatDate(dateObject);
+                    }
+                    return d;
+                })); 
+
+            }
+
+
+            function connecting_lines_plot() {
                 //  Group data by ElevID; filteredXYData
                 const elevIDGroups = d3.group(filteredXYData, d => d.ElevID);
 
                 //  Sort data in each group by xField
                 elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
-        
-                //  Define line generator
-
         
                 //Draw lines
                 g.selectAll('.line-path')
@@ -128,40 +183,43 @@ React.memo(
                     .attr('fill', 'none')
                     .attr('stroke','rgba(128, 128, 128, 0.2)' )  //d => colorScale(d[0][colorField])
                     .attr('stroke-width', 0.5);
+
             }
-    
-            // Draw circles 
-            let combinedIDSelection = [];
-            let selectedCircles = [];
-            g.selectAll('circle')
-                .data(filteredXYData)  //filteredData
-                .enter().append('circle')
-                .attr('cx',  function(d) { return xScale(d[xField]);})
-                .attr('cy', d => yScale(d[yField]))
-                .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
-                .attr('fill', d => colorScale(d[colorField]))
-                .on('click', function (event, d) {
-                    if (!brushing) {
-                        const currentCircle = d3.select(this);
-                        if (event.ctrlKey) {
-                            console.log("ctrlKey pressed");
-                            ContinuousSelection(currentCircle);
-                        }
-                        else
-                        {
-                            combinedIDSelection = [];
-                            if (selectedCircles.length > 0) {
-                                for (let i = 0; i < selectedCircles.length; i++) {
-                                    selectedCircles[i].style('stroke-width', 0);
-                                }
+
+            function dots_plot(){
+                // Draw circles 
+                g.selectAll('circle')
+                    .attr('id', 'unique circle')
+                    .data(filteredXYData)  //filteredData
+                    .enter().append('circle')
+                    .attr('cx',  function(d) { return xScale(d[xField]);})
+                    .attr('cy', d => yScale(d[yField]))
+                    .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
+                    .attr('fill', d => colorScale(d[colorField]))
+                    .on('click', function (event, d) {
+                        if (!brushing) {
+                            const currentCircle = d3.select(this);
+                            if (event.ctrlKey) {
+                                console.log("ctrlKey pressed");
+                                ContinuousSelection(currentCircle);
                             }
-                            selectedCircles = [];
-                            ContinuousSelection(currentCircle);
+                            else
+                            {
+                                combinedIDSelection = [];
+                                if (selectedCircles.length > 0) {
+                                    for (let i = 0; i < selectedCircles.length; i++) {
+                                        selectedCircles[i].style('stroke-width', 0);
+                                    }
+                                }
+                                selectedCircles = [];
+                                ContinuousSelection(currentCircle);
+                            }
+
                         }
+                    }); 
 
-                    }
-                });          
-
+            }
+            
 
             function ContinuousSelection(currentCircle)
             {
@@ -182,42 +240,15 @@ React.memo(
 
                 setSelectedRecords(combinedIDSelection);
 
-            }
-    
-    
-            g.append('g').attr('transform', `translate(0, ${innerHeight})`)
-            .attr('class', 'x-axis') 
-            .call(d3.axisBottom(xScale).tickFormat(d => {
-                if(xField==='Födelsedatum'||xField==='Testdatum')
-                {   const dateObject = d; 
-                    return formatDate(dateObject);
-                }
-                return d;
-            }));
-    
-    
-            g.append('g')
-            .attr('class', 'y-axis') 
-            .call(d3.axisLeft(yScale)
-            .tickFormat(d => {
-                if(yField==='Födelsedatum'||yField==='Testdatum')
-                {
-                    const dateObject = d; //=parseDate(d)
-                    return formatDate(dateObject);
-                }
-                return d;
-            })); 
+            }   
 
-            const zoomBehavior = createZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef);
-         
-            
-            svg.call(zoomBehavior);
             
             function getElevIDSelected(dataSelection) {
                 let selectedElevIDs = new Set(dataSelection.map(d => d.ElevID));
                 return filteredXYData.filter(d => selectedElevIDs.has(d.ElevID));
             }
             
+
             function brush_part()
             {
                 let combinedSelection = [];
@@ -235,8 +266,10 @@ React.memo(
                         currentYScale(d[yField]) >= y0 && 
                         currentYScale(d[yField]) <= y1
                     );
-
-                    newlySelected = getElevIDSelected(newlySelected);
+                    
+                    if(showLines){
+                        newlySelected = getElevIDSelected(newlySelected);
+                    }
 
                     combinedSelection = [...new Set([...combinedSelection, ...newlySelected])];
                     setSelectedRecords(combinedSelection);
@@ -263,7 +296,7 @@ React.memo(
                     } else {
                         brush.attr('display', 'none');
                         setSelectedRecords([]);
-                        svg.call(zoomBehavior);
+                        //svg.call(zoomBehavior);
                     }
                     if (newXScaleRef.current && newYScaleRef.current) {
                         g.selectAll('circle')
@@ -274,10 +307,11 @@ React.memo(
                             .attr('cy', d => {
                                 const value = newYScaleRef.current(d[yField]);
                                 return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
-                            });
-                
+                            });                
+
                         g.selectAll('.line-path')
-                            .attr('d', line.x(d => newXScaleRef.current(d[xField])).y(d => newYScaleRef.current(d[yField])));
+                        .attr('d', line.x(d => newXScaleRef.current(d[xField])).y(d => newYScaleRef.current(d[yField])));
+
                     }
                 }   
         
@@ -285,16 +319,31 @@ React.memo(
         
     
     
-            }            
-    
-            brush_part();
-    
-            // Add color legend
-            ColorLegend(filteredXYData, colorField, svg, width, margin);  
+            }
             
-                } 
-        plot();     
-    },[xField, yField, colorField, width, height,  setSelectedRecords, brushing, filteredXYData, showLines]);
+
+
+
+            
+        } 
+   
+    },[filteredXYData, xField, yField, colorField, width, height,  setSelectedRecords, brushing,  showLines, newXScaleRef, newYScaleRef, zoomStateRef]);
+
+    useEffect(() => {
+
+        const svg = d3.select(svgRef.current);
+        const zoomBehavior = createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef); 
+
+        console.log("zoomState: ",  svg.node().__zoom);
+
+        svg.call(zoomBehavior); 
+
+        return () => {
+            // Cleanup code here
+            svg.on(".zoom", null); // This removes the zoom behavior
+        };
+
+    },[]);
 
     return (
         <div className="scatter-canvas" style={{ position: 'relative' }}>
@@ -358,51 +407,7 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 }
 
 
-export function createZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef) {
-    return d3.zoom()
-      .scaleExtent([0.5, 10])
-      .on('zoom', (event) => {
-        const zoomState = event.transform;    
-        const zoomXScale = rescale(xScale, zoomState, xType, 'x');         
-        const zoomYScale = rescale(yScale, zoomState, yType, 'y' );
-  
-        newXScaleRef.current = zoomXScale;
-        newYScaleRef.current = zoomYScale;
-  
-        // Apply zoom transformation to circles
-        g.selectAll('circle')
-          .attr('cx', d => {
-            const value = zoomXScale(d[xField]);
-            return isNaN(value) ? 0 : value;
-          })
-          .attr('cy', d => {
-            const value = zoomYScale(d[yField]);
-            return isNaN(value) ? 0 : value;
-          });
-  
-        // Apply zoom transformation to lines
-        if (showLines) {
-          g.selectAll('.line-path')
-            .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
-        }
-  
-        // Update the axes with the new scales
-        const xAxisGroup = g.select('.x-axis');
-        const yAxisGroup = g.select('.y-axis');
-  
-        if (xType === 'point') {  
-          xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));
-        } else {
-          xAxisGroup.call(xAxis.scale(zoomXScale));
-        }
-  
-        if (yType === 'point') {  
-          yAxisGroup.call(yAxis.scale(zoomYScale).tickValues(yScale.domain()));
-        } else {
-          yAxisGroup.call(yAxis.scale(zoomYScale));
-        }
-      });
-  }
+
 
 
 export function rescale(scale, zoomState, scaleType, dimension) {
@@ -443,6 +448,66 @@ export function rescale(scale, zoomState, scaleType, dimension) {
         return dimension === 'x' ? zoomState.rescaleX(scale) : zoomState.rescaleY(scale);
     }
 }
+
+
+function createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef) {
+
+    return d3.zoom()
+      .scaleExtent([0.5, 10])
+      .on('zoom', (event) => {
+        zoomRender(event.transform, svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef);
+      });
+}
+
+function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef){
+    const currentZoomState = zoomState;
+    const zoomXScale = rescale(xScale, currentZoomState, xType, 'x');         
+    const zoomYScale = rescale(yScale, currentZoomState, yType, 'y' ); 
+    newXScaleRef.current = zoomXScale;
+    newYScaleRef.current = zoomYScale;
+
+
+    // Apply zoom transformation to circles
+    svg.selectAll('circle')
+      .attr('cx', d => {
+        //console.log("d[xField]: ", d[xField]);
+        const value = zoomXScale(d[xField]);
+        return isNaN(value) ? 0 : value;
+      })
+      .attr('cy', d => {
+        const value = zoomYScale(d[yField]);
+        return isNaN(value) ? 0 : value;
+      });
+
+    // Apply zoom transformation to lines
+    // if (showLines) {
+    //     console.log("zoom render showLines: ", showLines);
+    // }
+
+    svg.selectAll('.line-path')
+    .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+
+    // Update the axes with the new scales
+    const xAxisGroup = svg.select('.x-axis');
+    const yAxisGroup = svg.select('.y-axis');
+
+    if (xType === 'point') {  
+      xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));
+    } else {
+      xAxisGroup.call(xAxis.scale(zoomXScale));
+    }
+
+    if (yType === 'point') {  
+      yAxisGroup.call(yAxis.scale(zoomYScale).tickValues(yScale.domain()));
+    } else {
+      yAxisGroup.call(yAxis.scale(zoomYScale));
+    }
+
+
+
+}
+
+
   
 
 
