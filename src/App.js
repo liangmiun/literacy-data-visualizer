@@ -20,8 +20,6 @@ const App = () => {
   const [filteredData, setFilteredtData] = useState(data);
   const [encryptKey,setEncryptKey] = useState(""); 
   const [isLogin, setIsLogin] = useState(false);   //  set as true for test purpose without login;
-
-  const zoomStateRef = useRef(null);
   const [showLines, setShowLines] = useState(false);
   const [xField, setXField] = useState('Testdatum');
   const [yField, setYField] = useState('Lexplore Score');
@@ -226,7 +224,6 @@ const App = () => {
                             setConfigFromPreset={setConfigFromPreset}
                             showLines={showLines}
                             setShowLines={setShowLines}
-                            zoomStateRef={zoomStateRef}
                           />
                         } 
                       />

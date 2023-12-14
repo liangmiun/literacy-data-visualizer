@@ -37,8 +37,7 @@ const ScatterPage = ({
   setConfigFromPreset,
   handleFileUpload,
   showLines,
-  setShowLines,
-  zoomStateRef
+  setShowLines
 } ) => {  
 
   const [selectedRecords, setSelectedRecords] = useState([]);
@@ -119,10 +118,9 @@ const ScatterPage = ({
         yField={yField}
         colorField = {colorField}
         width= {1000}
-        height={700}
+        height={800}
         setSelectedRecords={setSelectedRecords}
         showLines={showLines} 
-        zoomStateRef={zoomStateRef}
       />
 
       

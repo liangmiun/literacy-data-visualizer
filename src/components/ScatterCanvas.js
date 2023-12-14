@@ -55,7 +55,7 @@ export function ColorLegend(data, colorField, svg, width, margin) {
 
 const ScatterCanvas =
 React.memo(
-    ({ shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines, zoomStateRef}) => { //
+    ({ shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines}) => { //
 
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
@@ -106,9 +106,9 @@ React.memo(
 
             //console.log("svg node", svg.node(), svg.node().__zoom , "brushing: ", brushing, "prevBrushingRef.current: ", prevBrushingRef.current);
 
-            if(svg.node() && svg.node().__zoom && svg.node().__zoom != d3.zoomIdentity) {                
-                const zoomState = svg.node().__zoom; // Get the current zoom state
-                console.log("zoomState II: ", zoomState, "showLines: ", showLines);
+            if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {          //svg.node() && svg.node().__zoom && svg.node().__zoom != d3.zoomIdentity        
+                const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
+                console.log("zoomState II: ", zoomState, "showLines: ", showLines, "width: ", svg.node().width, svg.node().height, d3.zoomTransform(svg.node()));
                 zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef);
                 if(!brushing && prevBrushingRef.current !== brushing){
                     console.log("rebuiding zoom behavior");
@@ -337,15 +337,9 @@ React.memo(
             
         } 
    
-    },[filteredXYData, xField, yField, colorField, width, height,  setSelectedRecords, brushing,  showLines, newXScaleRef, newYScaleRef, zoomStateRef]);
+    },[filteredXYData, xField, yField, colorField, width, height,  setSelectedRecords, brushing,  showLines, newXScaleRef, newYScaleRef]);
 
-    useEffect(() => {
-        // return () => {
-        //     // Cleanup code here
-        //     svg.on(".zoom", null); // This removes the zoom behavior
-        // };
 
-    },[]);
 
     return (
         <div className="scatter-canvas" style={{ position: 'relative' }}>
@@ -465,10 +459,10 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
     const zoomYScale = rescale(yScale, currentZoomState, yType, 'y' ); 
     newXScaleRef.current = zoomXScale;
     newYScaleRef.current = zoomYScale;
-
+    g = svg.select('#g-Id');
 
     // Apply zoom transformation to circles
-    svg.selectAll('circle')
+    g.selectAll('circle')
       .attr('cx', d => {
         //console.log("d[xField]: ", d[xField]);
         const value = zoomXScale(d[xField]);
@@ -479,17 +473,13 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
         return isNaN(value) ? 0 : value;
       });
 
-    // Apply zoom transformation to lines
-    // if (showLines) {
-    //     console.log("zoom render showLines: ", showLines);
-    // }
 
-    svg.selectAll('.line-path')
+    g.selectAll('.line-path')
     .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
 
     // Update the axes with the new scales
-    const xAxisGroup = svg.select('.x-axis');
-    const yAxisGroup = svg.select('.y-axis');
+    const xAxisGroup = g.select('.x-axis');
+    const yAxisGroup = g.select('.y-axis');
 
     if (xType === 'point') {  
       xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));
@@ -502,8 +492,6 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
     } else {
       yAxisGroup.call(yAxis.scale(zoomYScale));
     }
-
-
 
 }
 
