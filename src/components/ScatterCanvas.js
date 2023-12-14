@@ -66,6 +66,7 @@ React.memo(
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
+
     const margin = { top: 20, right: 20, bottom: 80, left: 80 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
@@ -129,9 +130,6 @@ React.memo(
             // Add color legend
             ColorLegend(filteredXYData, colorField, svg, width, margin);  
 
-    
-
-    
     
             function axes_and_captions_plot() {
 
@@ -200,7 +198,6 @@ React.memo(
             function dots_plot(){
                 // Draw circles 
                 g.selectAll('circle')
-                    .attr('id', 'unique circle')
                     .data(filteredXYData)  //filteredData
                     .enter().append('circle')
                     .attr('cx',  function(d) { return xScale(d[xField]);})
@@ -332,14 +329,10 @@ React.memo(
             }
             
 
-
-
             
         } 
    
     },[filteredXYData, xField, yField, colorField, width, height,  setSelectedRecords, brushing,  showLines, newXScaleRef, newYScaleRef]);
-
-
 
     return (
         <div className="scatter-canvas" style={{ position: 'relative' }}>
@@ -355,7 +348,8 @@ React.memo(
             >
                 {brushing ? 'de-brush' : 'brush'}
             </button>
-            <svg  ref={svgRef} width={width} height={height}></svg>
+            <svg  ref={svgRef} width={width} height={height}  ></svg>
+                {/* width={width} height={height} */}
         </div>
     );
     },
