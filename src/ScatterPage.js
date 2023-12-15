@@ -179,10 +179,10 @@ export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
 function DeclinedData(data) {
   // 1. Parse Testdatum to a numeric format (e.g., timestamp) if it's not already numeric
   data.forEach(d => {
-      d.Testdatum = +new Date(d.Testdatum);
+      d.numericTestdatum = +new Date(d.Testdatum);
   });
 
-  data = data.filter(d => d.Testdatum !== null && d['Lexplore Score'] !== null)
+  data = data.filter(d => d.numericTestdatum !== null && d['Lexplore Score'] !== null)
 
   // 2. Group data by ElevID
   const groupedData = d3.group(data, d => d.ElevID);
@@ -190,7 +190,7 @@ function DeclinedData(data) {
   // 3. For each group, calculate the slope of the regression line
   const declinedGroups = [];
   groupedData.forEach((group, elevId) => {
-      const x = group.map(d => d.Testdatum);
+      const x = group.map(d => d.numericTestdatum);
       const y = group.map(d => d['Lexplore Score']);
       const slope = calculateSlope(x, y);
 

@@ -109,10 +109,8 @@ React.memo(
 
             if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {          //svg.node() && svg.node().__zoom && svg.node().__zoom != d3.zoomIdentity        
                 const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-                console.log("zoomState II: ", zoomState, "showLines: ", showLines, "width: ", svg.node().width, svg.node().height, d3.zoomTransform(svg.node()));
                 zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField, line, showLines, xAxis, yAxis, newXScaleRef, newYScaleRef);
                 if(!brushing && prevBrushingRef.current !== brushing){
-                    console.log("rebuiding zoom behavior");
                     svg.call(d3.zoom().on("zoom",  (event) =>zoomRender(event.transform, svg, xScale, yScale, xType, yType, xField, yField, line, showLines,  xAxis, yAxis, newXScaleRef, newYScaleRef)));
                 }
             }
@@ -281,6 +279,8 @@ React.memo(
 
                     combinedSelection = [...new Set([...combinedSelection, ...newlySelected])];
                     setSelectedRecords(combinedSelection);
+
+                    console.log("brushing: circles size: ", g.selectAll('circle').size());
                     
                     g.selectAll('circle')
                         .attr('stroke', d => combinedSelection.includes(d) ? 'black' : 'transparent')  
@@ -475,7 +475,6 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
     const xAxisGroup = g.select('.x-axis');
     const yAxisGroup = g.select('.y-axis');
 
-    console.log("xAxis.scale ",xAxis.scale);
     if (xType === 'point') {  
       xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));
     } else {
@@ -489,9 +488,6 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
     }
 
 }
-
-
-  
 
 
 export default ScatterCanvas;

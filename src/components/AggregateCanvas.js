@@ -389,6 +389,7 @@ function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWid
 
 
 function Season(dateObject) {
+    console.log("dataObject for data:", dateObject)
     const year = dateObject.getFullYear();
     const month = dateObject.getMonth(); // 0 = January, 1 = February, ..., 11 = December
 
@@ -514,7 +515,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
 
             }
             else {
-                const grouped = d3.group(filteredData,  d => Season(d.Testdatum), d =>d.Skola, d => d.Klass);
+                const grouped = d3.group(filteredData,  function(d){console.log("test d: ",d); return Season(d.Testdatum)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
                 grouped.forEach((seasonGroup, seasonKey) => {
                     seasonGroup.forEach((schoolGroup, schoolKey) => {
                         schoolGroup.forEach((values, klassKey) => {
