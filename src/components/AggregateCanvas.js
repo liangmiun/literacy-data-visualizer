@@ -78,7 +78,7 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
         }
 
         const xNum = d3.scaleLinear().range([0, subBandWidth]).domain([-maxNum, maxNum]);
-        console.log("init xNum "+ xNum + typeof(xNum) + xNum.length)
+        //console.log("init xNum "+ xNum + typeof(xNum) + xNum.length)
 
         function bandedX(d) {
             const season = d.value.season.toString();
@@ -389,7 +389,7 @@ function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWid
 
 
 function Season(dateObject) {
-    console.log("dataObject for data:", dateObject)
+    //console.log("dataObject for data:", dateObject)
     const year = dateObject.getFullYear();
     const month = dateObject.getMonth(); // 0 = January, 1 = February, ..., 11 = December
 
@@ -515,7 +515,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
 
             }
             else {
-                const grouped = d3.group(filteredData,  function(d){console.log("test d: ",d); return Season(d.Testdatum)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
+                const grouped = d3.group(filteredData,  function(d){ return Season(d.Testdatum)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
                 grouped.forEach((seasonGroup, seasonKey) => {
                     seasonGroup.forEach((schoolGroup, schoolKey) => {
                         schoolGroup.forEach((values, klassKey) => {
@@ -677,7 +677,7 @@ function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, 
             const {zoomState, zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(event, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale);
             
  
-            console.log("xNum "+ xNum + "xNUm type: "+ typeof(xNum) + xNum.length)        
+            //console.log("xNum "+ xNum + "xNUm type: "+ typeof(xNum) + xNum.length)        
             
             g.selectAll('.violins')
             .attr("transform",  d => {

@@ -55,7 +55,7 @@ export function ColorLegend(data, colorField, svg, width, margin) {
 
 const ScatterCanvas =
 React.memo(
-    ({ shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines}) => { //
+    ({ shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines, viewSwitchCount}) => { //
 
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
@@ -64,31 +64,38 @@ React.memo(
     const newYScaleRef = useRef(null);
     const filteredXYData = shownData.filter(d => d[xField] !== null && d[yField] !== null);
 
-    const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove();
 
-    const margin = { top: 20, right: 20, bottom: 80, left: 80 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
-    const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`).attr('id', 'g-Id');
-    const formatDate = d3.timeFormat('%y-%m-%d');    
-    const {scale: xScale, type: xType}  = GetScale(xField, filteredXYData, innerWidth);
-    const {scale: yScale, type: yType}= GetScale(yField, filteredXYData, innerHeight, true);              
-    const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
-    const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
-    const xAxis = d3.axisBottom(xScale);
-    const yAxis = d3.axisLeft(yScale);
-
-    const line = d3.line()
-    .x(d => xScale(d[xField]))
-    .y(d => yScale(d[yField])); 
 
     //console.log("newXScaleRef.current ", newXScaleRef.current, "newYScaleRef.current ", newYScaleRef.current);
     
     useEffect(() => {
+
+        const svg = d3.select(svgRef.current);
+        svg.selectAll('*').remove();
+        const margin = { top: 20, right: 20, bottom: 80, left: 80 };
+        const innerWidth = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+        const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`).attr('id', 'g-Id');
+        const formatDate = d3.timeFormat('%y-%m-%d');    
+        const {scale: xScale, type: xType}  = GetScale(xField, filteredXYData, innerWidth);
+        const {scale: yScale, type: yType}= GetScale(yField, filteredXYData, innerHeight, true);              
+        const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
+        const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
+        const xAxis = d3.axisBottom(xScale);
+        const yAxis = d3.axisLeft(yScale);
+    
+        const line = d3.line()
+        .x(d => xScale(d[xField]))
+        .y(d => yScale(d[yField])); 
+        
+        console.log("viewSwitchCount", viewSwitchCount);
+
         plot();  
 
         function plot() { 
+
+            console.log("plotting: ", xField, yField, colorField, width, height, showLines, brushing, viewSwitchCount);
+            console.log("g: ", g);
 
             let combinedIDSelection = [];
             let selectedCircles = [];
@@ -115,9 +122,9 @@ React.memo(
                 }
             }
             else {
-                const svg = d3.select(svgRef.current);
+                //const svg = d3.select(svgRef.current);
                 const zoomBehavior = createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, showLines,  xAxis, yAxis, newXScaleRef, newYScaleRef); 
-                console.log("zoomState: ",  svg.node().__zoom);
+                //console.log("zoomState: ",  svg.node().__zoom);
                 svg.call(zoomBehavior);       
 
             }
@@ -332,7 +339,7 @@ React.memo(
             
         } 
    
-    },[filteredXYData, xField, yField, colorField, width, height,  setSelectedRecords, brushing,  showLines, newXScaleRef, newYScaleRef]);
+    },[filteredXYData, xField, yField, colorField, width, height,  setSelectedRecords, brushing,  showLines, newXScaleRef, newYScaleRef, viewSwitchCount]);
 
     return (
         <div className="scatter-canvas" style={{ position: 'relative' }}>

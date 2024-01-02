@@ -1,12 +1,13 @@
-import React   from 'react';
+import React, { useState }   from 'react';
 import Select from 'react-select';
 import './AxisSelectionCanvas.css';
+import { SettingsPhone } from '@mui/icons-material';
 
 const AxisSelectionCanvas = ({ fields, xField, yField, colorField, 
   onXFieldChange, onYFieldChange,onColorFieldChange,  
   save, load, setConfig, studentsChecked, setStudentsChecked,
   showViolin, setShowViolin, showXField = true, showClassbar=false, 
-  isDeclined, setIsDeclined, handleFileUpload, showLines, setShowLines
+  isDeclined, setIsDeclined, handleFileUpload, showLines, setShowLines, isClassView, setIsClassView, viewSwitchCount, setViewSwitchCount
 }) => {
   const options = fields.map(field => ({ value: field, label: field }));
   const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));
@@ -99,6 +100,14 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField,
                         onChange={() => setShowLines(!showLines)} 
                     />
                     <label><br/>Show lines </label>
+            </div>
+            <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
+                    <input 
+                        type="checkbox" 
+                        checked = {isClassView}
+                        onChange={() => {setIsClassView(!isClassView); setViewSwitchCount(viewSwitchCount+1) }}   
+                    />
+                    <label><br/>Class View </label>
             </div>
           </>
         }

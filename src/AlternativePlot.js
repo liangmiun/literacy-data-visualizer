@@ -26,6 +26,7 @@ const AlternativePage = ({
 }) => {
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
+  const [isClassView, setIsClassView] = useState(false);
 
 
   const classKeyList =
@@ -75,6 +76,8 @@ const AlternativePage = ({
         showViolin={showViolin}
         showXField = {false}
         showClassbar={true}
+        isClassView={isClassView}
+        setIsClassView={setIsClassView}
       />
       <AggregateCanvas
         filteredData={classFilteredData}

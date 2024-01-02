@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import React, { useState, useMemo } from 'react';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
+import AggregateCanvas from './components/AggregateCanvas';
 import ScatterCanvas from './components/ScatterCanvas';
 import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
@@ -42,6 +43,15 @@ const ScatterPage = ({
 
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [isDeclined, setIsDeclined] = useState(false);
+  const [isClassView, setIsClassView] = useState(false);
+  const [viewSwitchCount, setViewSwitchCount] = useState(0);
+  const [selectedClassDetail, setSelectedClassDetail] = useState([]);
+
+
+  const handlePartClick = (details) => {
+    setSelectedClassDetail(details);
+  };
+
 
   const studentKeyList = 
     ['Skola',
@@ -111,20 +121,42 @@ const ScatterPage = ({
         handleFileUpload={handleFileUpload}
         showLines={showLines}
         setShowLines={setShowLines}
+        isClassView={isClassView}
+        setIsClassView={setIsClassView}
+        viewSwitchCount={viewSwitchCount}
+        setViewSwitchCount={setViewSwitchCount}
       />
-      <ScatterCanvas
-        shownData={shownData}
+
+      {isClassView ?
+
+        <AggregateCanvas
+        filteredData={shownData}
         xField={xField}
         yField={yField}
         colorField = {colorField}
-        width= {1000}
-        height={800}
-        setSelectedRecords={setSelectedRecords}
-        showLines={showLines} 
-      />
+        width={1000}
+        height={700}    
+        onPartClick={handlePartClick} 
+        // studentsChecked={studentsChecked}
+        // showViolin={showViolin}
+        />
+        :
+        <ScatterCanvas
+          shownData={shownData}
+          xField={xField}
+          yField={yField}
+          colorField = {colorField}
+          width= {1000}
+          height={800}
+          setSelectedRecords={setSelectedRecords}
+          showLines={showLines} 
+          viewSwitchCount={viewSwitchCount}
+          
+        />
 
+      }
       
-      <DetailCanvas data={selectedRecords} keyList={studentKeyList} />
+      <DetailCanvas data={isClassView? selectedClassDetail :selectedRecords} keyList={studentKeyList} />
 
 
       <FilterCanvas 
