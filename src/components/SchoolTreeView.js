@@ -13,7 +13,7 @@ function generateSchoolLastingClassMap(litData) {
 
   litData.forEach(entry => {
       const school = entry.Skola;
-      const classId = generateClassId(entry); // Use the function from AA.js to generate the classID
+      const classId = generateClassId(entry); // Use the function from Utils.js to generate the classID
 
       if (!schoolMap[school]) {
           schoolMap[school] = {};
@@ -30,7 +30,26 @@ function generateSchoolLastingClassMap(litData) {
       }
   });
 
-  return schoolMap;
+      // Convert the schoolMap to a sorted array of schools
+      const sortedSchools = Object.keys(schoolMap).sort().map(school => {
+        // Sort class IDs for each school
+        const sortedClasses = Object.keys(schoolMap[school]).sort().reduce((acc, classId) => {
+            acc[classId] = schoolMap[school][classId];
+            return acc;
+        }, {});
+
+        return { school, classes: sortedClasses };
+    });
+
+    // Convert back to object if needed, or you can keep it as an array
+    const sortedSchoolMap = {};
+    sortedSchools.forEach(schoolItem => {
+        sortedSchoolMap[schoolItem.school] = schoolItem.classes;
+    });
+
+    return sortedSchoolMap;
+
+  //return schoolMap;
 }
 
 
@@ -43,9 +62,11 @@ function SchoolTreeView({
   isAggregatedView
 }) {
 
-  const school_class = generateSchoolLastingClassMap(data);
+  const school_class = generateSchoolLastingClassMap(data);   // Generate the school_class map from the data
   const [checkedAllSchools, setCheckedAllSchools] = useState(true);
   const allSchools = Object.keys(school_class);
+
+  console.log("allSchools: ", Object.keys(school_class), Object.keys(school_class).sort(), allSchools);
 
   const allClasses = allSchools.flatMap(school => 
       Object.keys(school_class[school]).map(classId => `${school}.${classId}`)
@@ -63,6 +84,7 @@ function SchoolTreeView({
       setCheckedAllSchools(true);
     }
   }, [data, isAggregatedView]);
+
 
   const handleAllSchoolsCheckChange = (isChecked) => {
       if (isChecked) {  
