@@ -65,12 +65,14 @@ function SchoolTreeView({
   const school_class = generateSchoolLastingClassMap(data);   // Generate the school_class map from the data
   const [checkedAllSchools, setCheckedAllSchools] = useState(true);
   const allSchools = Object.keys(school_class);
-
-  console.log("allSchools: ", Object.keys(school_class), Object.keys(school_class).sort(), allSchools);
-
   const allClasses = allSchools.flatMap(school => 
       Object.keys(school_class[school]).map(classId => `${school}.${classId}`)
   );
+
+  //const schoolNodeIdArray = Array.from({ length: allSchools.length }, (v, i) => `school-${i}`);
+  //console.log("schoolNodeIdArray: ", schoolNodeIdArray);
+
+  const [expandedSchools, setExpandedSchools] = useState(['root']);
 
   useEffect(() => {
     if(isAggregatedView){
@@ -116,6 +118,10 @@ function SchoolTreeView({
       }
   };
 
+
+
+
+
   return (
         <div  className='school-tree-view' style={{ margin: '5px 5px'}}>
         <h4>Filter by School and Class</h4>  
@@ -124,6 +130,8 @@ function SchoolTreeView({
             overflowY: 'auto', maxHeight:'45vh' }}
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
+          defaultExpanded={expandedSchools}    
+
         >
 
         <div style={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -150,7 +158,7 @@ function SchoolTreeView({
                     {/* 2. Add a clear button beside the "Schools" label */}
 
                 </div>
-            }       
+            }  
           
           >
              {Object.entries(school_class).map(([school, classesMap], idx) => (
@@ -163,7 +171,7 @@ function SchoolTreeView({
                   nodeId={`school-${idx}`}
                   label={
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                      {school}
+                      {school }
                     </div>
                   }
                   key={school}
@@ -177,7 +185,7 @@ function SchoolTreeView({
                             checked={checkedClasses.includes(`${school}.${classId}`)}
                             onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
                           />
-                          {classId}
+                          {classId }
                         </div>
                       }
                       key={classId}
