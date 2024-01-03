@@ -65,6 +65,19 @@ const ScatterPage = ({
     'Lexplore Score'
     ];
 
+  const classKeyList =
+  [
+    'lastingclass',
+    'class',
+    'season',
+    'min',
+    'q1',
+    'median',
+    'q3',
+    'max',
+    'count'
+  ];
+
   const [filterList, setFilterList] = useState([]);
 
 
@@ -156,7 +169,7 @@ const ScatterPage = ({
 
       }
       
-      <DetailCanvas data={isClassView? selectedClassDetail :selectedRecords} keyList={studentKeyList} />
+      <DetailCanvas data={isClassView? selectedClassDetail :selectedRecords} keyList={isClassView? classKeyList : studentKeyList} />
 
 
       <FilterCanvas 
