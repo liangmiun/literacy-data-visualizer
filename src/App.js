@@ -125,10 +125,10 @@ const App = () => {
   };
 
   return ( 
-      <Router  basename="literacy-data-visualizer" >
+      <Router  basename="literacy-data-visualizer"  >
           <div className = "grid-container">
             {/* Add navigation links */}
-            <nav >
+            <nav className='navigation'>
               <ul className ="headers">
                 {currentUser && (
                   <>

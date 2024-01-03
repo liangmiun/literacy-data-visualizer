@@ -56,7 +56,6 @@ const AlternativePage = ({
 
 
   return (   
-    <div>    
     <div className="app" >  
       <AxisSelectionCanvas
         data={data}
@@ -109,7 +108,6 @@ const AlternativePage = ({
 
       {/*<LogicCanvas  fields={fields} data ={data}/>   */} 
       
-    </div>
     </div>
   );
 };

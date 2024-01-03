@@ -115,7 +115,6 @@ const ScatterPage = ({
 
 
   return (   
-    <div>    
     <div className="app" >  
       <AxisSelectionCanvas
         data={data}
@@ -196,7 +195,6 @@ const ScatterPage = ({
         setQuery={setQuery}
       /> 
       
-    </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { Box, Checkbox, FormControlLabel, Slider, FormGroup, FormControl, InputLabel, Select, MenuItem, ListItemText } from '@mui/material';
 import React, { useState, useEffect } from 'react';
+import Button from '@mui/material/Button';
 import * as d3 from 'd3';
 import '../App.css';
 
@@ -60,42 +61,16 @@ export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeO
     };
 
     return (
-        <div className='option-panel' >
-            <h4>Filter by option/range </h4>
-            {/* <div style={{ margin: '5px 10px' }}>
-                <FormControl fullWidth variant="outlined" style={{ margin: '5px 0'}}>
-                    <InputLabel  ></InputLabel>
-                    <Select
-                        multiple
-                        value={selectedOptions}
-                        onChange={handleOptionChange}
-                        renderValue={(selected) => 
-                            (
-                                <div style={{ whiteSpace: 'normal', overflowWrap: 'break-word' }}>
-                                    {selected.join(', ')}
-                                </div>
-                            )                         
-                        
-                        }
-                        style={{ margin: '5px 0' , fontSize: '12px' }}
-                    >
-                        {allOptions.map(name => (
-                            <MenuItem key={name} value={name}>
-                                <Checkbox checked={selectedOptions.includes(name)} />
-                                <ListItemText primary={name} />
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            </div> */}
-            <div style={{ margin: '5px 30px',overflowY: 'auto', maxHeight:'50vh', overflowX: 'auto', maxWidth: '20vw', justifyContent: 'center', fontSize: '12px'}}>
+        <div className='option-panel'  tyle={{ margin: '0px 3px'}}>
+            <h4 style={{ textAlign: 'center' }}>Filter by option/range </h4>
+
+            <div style={{ margin: '5px 30px',overflowY: 'auto',  overflowX: 'auto', maxWidth: '20vw', justifyContent: 'center', fontSize: '12px'}}>
                 {selectedOptions.map(option => {
                     if (checkedOptions.hasOwnProperty(option)) {
                         const uniqueValues = [...new Set(data.map(item => item[option]))];
                         return <OptionCheckBoxes   key={option} label={option} options={uniqueValues} checkedOptions={checkedOptions[option]} setCheckedOptions={setCheckedOptions} />;
                     } else if (rangeOptions.hasOwnProperty(option)) {
                         const [minValue, maxValue] = d3.extent(data, d => d[option]);
-                        console.log("minValue: ", minValue, "maxValue: ", maxValue, "option: ", option);
                         return <OptionSlider   key={option} label={option} min={+minValue} max={+maxValue} setRangeOptions={setRangeOptions} />;
                     }
                     return null;
@@ -125,6 +100,7 @@ function OptionSlider({ label, min, max, setRangeOptions }) {
         <div style={{ margin: '5px 10px', width: '80%' }}>
             {label}:
             <Slider
+                size="small"
                 defaultValue={[min, max]}
                 aria-labelledby="range-slider"
                 step={1}
@@ -155,14 +131,14 @@ function OptionCheckBoxes({ label, options, checkedOptions, setCheckedOptions })
 
 
     return (
-        <div style={{ margin: '5px 5px', width: '90%'  }}>
+        <div style={{ margin: '5px 5px', width: '95%'  }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                 {label}:
-                <button 
+                <Button size="small" style={{ marginLeft: '1px', minWidth: 0, minHeight: 0 }}
                     onClick={() => setCheckedOptions(prev => ({ ...prev, [label]: [] }))}
                 >
-                    Clear
-                </button>
+                    X
+                </Button>
             </div>
             <FormGroup row>
                 {sorted_options.map(option => (

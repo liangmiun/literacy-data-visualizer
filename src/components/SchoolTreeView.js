@@ -1,5 +1,6 @@
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { TreeView } from '@mui/x-tree-view/TreeView';
+import Button from '@mui/material/Button';
 import React, { useState, useEffect } from 'react';
 import { Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -123,8 +124,8 @@ function SchoolTreeView({
 
 
   return (
-        <div  className='school-tree-view' style={{ margin: '5px 5px'}}>
-        <h4>Filter by School and Class</h4>  
+        <div  className='school-tree-view' style={{ margin: '0px 3px'}}>
+        <h4 style={{ textAlign: 'center' }} >Filter by School and Class</h4>  
         <TreeView  style={{margin: '5px 5px',width: '100%' ,border: '1px solid gray',
             overflowX: 'auto', maxWidth: '20vw',
             overflowY: 'auto', maxHeight:'45vh' }}
@@ -140,16 +141,16 @@ function SchoolTreeView({
               onChange={(event) => {handleAllSchoolsCheckChange(event.target.checked)}}
           /> 
 
-          <button 
+          <Button variant="text" size="small"
               onClick={() => {
                   setCheckedSchools([]);
                   setCheckedClasses([]);
                   setCheckedAllSchools(false);
               }}
-              style={{marginLeft: '1px'}}
+              style={{marginLeft: '1px', minWidth: 0  }}
             >
                 X
-          </button>
+          </Button>
 
           <TreeItem nodeId="root" 
               label={
@@ -194,12 +195,12 @@ function SchoolTreeView({
                 </TreeItem>
 
 
-                <button 
+                <Button size="small"
                         onClick={() => {handleSchoolCheckChange(school, false);setCheckedClasses(prev => prev.filter(c => !c.startsWith(`${school}.`)))}}
-                        style={{marginLeft: '10px'}}
+                        style={{marginLeft: '10px',  minWidth: 0 }}
                       >
-                          Clear
-                </button>
+                          X
+                </Button>
 
               </div>
             ))}
