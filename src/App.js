@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef} from 'react';
-import { zoomIdentity, csvParse } from 'd3';
+import React, {useState, useEffect} from 'react';
+import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
 import './App.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
@@ -99,7 +99,6 @@ const App = () => {
 
   //D3.v4 version:
   useEffect(() => {
-    console.log("isLogin: ", isLogin);
     if(!isLogin) return;
     fetch(process.env.PUBLIC_URL +'/LiteracySampleEncrypt.csv')
     .then(response => response.text())  // Get as text, not JSON
@@ -107,10 +106,7 @@ const App = () => {
       // Decrypt data
       const bytes = CryptoJS.AES.decrypt(encryptedData, encryptKey);  // Replace with encryptKey
       const originalData = bytes.toString(CryptoJS.enc.Utf8);
-
-      // Now, parse the decrypted string as CSV
-      const parsedData = csvParse(originalData, rowParser);
-      
+      const parsedData = csvParse(originalData, rowParser);     
       setData(parsedData);
     })
     .catch((error) => {
@@ -130,32 +126,37 @@ const App = () => {
             {/* Add navigation links */}
             <nav className='navigation'>
               <ul className ="headers">
-                {currentUser && (
+                {currentUser? 
                   <>
                   <li   style={liStyle}>
                     <Link to="/">ScatterPlot</Link>
                   </li>
                   <li  style={liStyle}>
-                    <Link to="/alternative-plot">Class Aggregation</Link>
+                    <Link to="/alternative-plot">Aggregation</Link>
                   </li>
                   <li  style={liStyle}>
                     <Link to="/about">About</Link>
                   </li>
-                  <li  style={liStyle}>
-                    <Link to="/logout">Logout</Link>
-                  </li>
-                  </>
-                )}
-                <li  style={liStyle}>
+                  <li   style={liStyle}>
+                    <Link to="/logout">Logout</Link>
+                  </li>
+                  </>                  
+                  :
+                  <li  style={liStyle}>
                   <Link to="/login">Login</Link>
                 </li>
+                }
               </ul>
             </nav>
             {/* Define routes */}
             <div className="content">
               <Routes>
                 <Route path="/login" element={ <Login   setEncryptKey={setEncryptKey} setIsLogin={setIsLogin} />} />
-                <Route path="/logout" element={ <Logout setIsLogin={setIsLogin} />} />
+                <Route path="/logout" 
+                    element={
+                      <ProtectedWrapper element={ <Logout setIsLogin={setIsLogin} />}/>
+                    } 
+                />
                 <Route path="/about" 
                     element={
                       <ProtectedWrapper  element={<About/>} />

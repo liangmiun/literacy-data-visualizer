@@ -14,7 +14,7 @@ const Logout = ({setIsLogin}) => {
     })();
   }, [logout, navigate, setIsLogin]);
 
-  return null; // render nothing
+  return null; // render nothing or (<div/>)
 };
 
 export default Logout;

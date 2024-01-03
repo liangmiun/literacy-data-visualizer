@@ -24,7 +24,7 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField,
   );
   
   return (
-    <div className="axis-selection-canvas">
+    <div className="axis-selection-canvas" >
 
       <div className="axis-selects-row"  style={{ display: 'flex' }} >
         {showXField && 
