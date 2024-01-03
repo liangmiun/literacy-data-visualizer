@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
-
 import { set } from 'd3-collection';
 import { interpolateSpectral } from 'd3-scale-chromatic';
 
@@ -114,6 +113,7 @@ React.memo(
 
             //console.log("svg node", svg.node(), svg.node().__zoom , "brushing: ", brushing, "prevBrushingRef.current: ", prevBrushingRef.current);
 
+            
             if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {          //svg.node() && svg.node().__zoom && svg.node().__zoom != d3.zoomIdentity        
                 const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
                 zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField, line, showLines, xAxis, yAxis, newXScaleRef, newYScaleRef);
@@ -122,9 +122,7 @@ React.memo(
                 }
             }
             else {
-                //const svg = d3.select(svgRef.current);
                 const zoomBehavior = createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, showLines,  xAxis, yAxis, newXScaleRef, newYScaleRef); 
-                //console.log("zoomState: ",  svg.node().__zoom);
                 svg.call(zoomBehavior);       
 
             }
