@@ -6,7 +6,7 @@ import ScatterCanvas from './components/ScatterCanvas';
 import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
-import { generateClassId } from './Utils.js';
+import { generateClassId, generateSchoolLastingClassMap} from './Utils.js';
 import './App.css';
 
 
@@ -48,6 +48,8 @@ const ScatterPage = ({
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
   const [showViolin, setShowViolin] = useState(false);
+
+  const schoolClasses = generateSchoolLastingClassMap(data);
 
 
   const handlePartClick = (details) => {
@@ -157,6 +159,7 @@ const ScatterPage = ({
         onPartClick={handlePartClick} 
         studentsChecked={studentsChecked}
         showViolin={showViolin}
+        schoolClasses={schoolClasses}
         />
         :
         <ScatterCanvas

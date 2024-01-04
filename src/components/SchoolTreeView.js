@@ -5,53 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { generateClassId } from '../Utils.js';
+import { generateSchoolLastingClassMap } from '../Utils.js';
 import '../App.css';
-
-
-function generateSchoolLastingClassMap(litData) {
-  const schoolMap = {};
-
-  litData.forEach(entry => {
-      const school = entry.Skola;
-      const classId = generateClassId(entry); // Use the function from Utils.js to generate the classID
-
-      if (!schoolMap[school]) {
-          schoolMap[school] = {};
-      }
-
-      if (!schoolMap[school][classId]) {
-          schoolMap[school][classId] = {
-              classes: [],
-          };
-      }
-
-      if (!schoolMap[school][classId].classes.some(klass => klass.Klass === entry.Klass)) {
-          schoolMap[school][classId].classes.push({ Läsår: entry.Läsår, Klass: entry.Klass });
-      }
-  });
-
-      // Convert the schoolMap to a sorted array of schools
-      const sortedSchools = Object.keys(schoolMap).sort().map(school => {
-        // Sort class IDs for each school
-        const sortedClasses = Object.keys(schoolMap[school]).sort().reduce((acc, classId) => {
-            acc[classId] = schoolMap[school][classId];
-            return acc;
-        }, {});
-
-        return { school, classes: sortedClasses };
-    });
-
-    // Convert back to object if needed, or you can keep it as an array
-    const sortedSchoolMap = {};
-    sortedSchools.forEach(schoolItem => {
-        sortedSchoolMap[schoolItem.school] = schoolItem.classes;
-    });
-
-    return sortedSchoolMap;
-
-  //return schoolMap;
-}
 
 
 function SchoolTreeView({

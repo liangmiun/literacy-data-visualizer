@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { ColorLegend, rescale } from './ScatterCanvas';
 import { interpolateSpectral } from 'd3-scale-chromatic';
+import { generateSchoolClassColorScale} from '../Utils.js';
 
 const singleViolinWidthRatio = 0.6; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 10;
@@ -9,15 +10,17 @@ const indv_offset =0;
 
 
 const AggregateCanvas = ({ filteredData, xField, yField, colorField, width, height, 
-    onPartClick, selectedRecord, studentsChecked, showViolin }) => {
+    onPartClick, selectedRecord, studentsChecked, showViolin, schoolClasses }) => {
 
-    //showViolin= true;
-    filteredData = filteredData.filter(d => d[xField] !== null && d[yField] !== null);   
+    filteredData = filteredData.filter(d => d[xField] !== null && d[yField] !== null); 
+    const schoolClassColors = generateSchoolClassColorScale(schoolClasses);
+    const schoolColors = schoolClassColors.school;
+    const classColors = schoolClassColors.class;
 
     if(showViolin) {
       return ViolinPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked);
     }
-    return BoxPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked );   
+    return BoxPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked, schoolColors, classColors, schoolClasses);  
 
 
 };
@@ -189,7 +192,7 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
     };
 
 
-const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBoxClick, selectedRecord, studentsChecked ) => {
+const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBoxClick, selectedRecord, studentsChecked,schoolColors, classColors, schoolClasses ) => {
     const svgRef = useRef();
     const parseDate = d3.timeParse('%y%m%d');
     const formatDate = d3.timeFormat('%y-%m-%d');
@@ -258,6 +261,29 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             .attr("y2", d => y(d.value.max))
             .attr("stroke", "black")
             .style("width", 40);
+        
+        for (const school in schoolClasses) {
+            for(var classID in schoolClasses[school])
+                //console.log(classID);
+                addGradient(svg, classID, classColors[school](classID), schoolColors(school));
+        }
+
+        var lg = svg.append("defs").append("linearGradient")
+        .attr("id", "mygrad")//id of the gradient
+        .attr("x1", "0%")
+        .attr("x2", "0%")
+        .attr("y1", "0%")
+        .attr("y2", "100%")//since its a vertical linear gradient 
+        ;
+        lg.append("stop")
+        .attr("offset", "0%")
+        .style("stop-color", "red")//end in red
+        .style("stop-opacity", 1)
+
+        lg.append("stop")
+        .attr("offset", "100%")
+        .style("stop-color", "rgb(230, 90, 73)")//start in blue
+        .style("stop-opacity", 1)
 
         // Boxes
         g.selectAll(".boxes")
@@ -272,10 +298,15 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             .attr("width", d => {
                 return subBandWidth;
             })
-            .attr("stroke", "black")
             .style("fill", d => {
-                const classId = getLastingClassID(d.value.school, d.value.season, d.value.class);
-                return colorScale(classId);
+                const classID = getLastingClassID(d.value.school, d.value.season, d.value.class);
+                //console.log( "url:", `url(#mygrad-${classID})`,`mygrad-${classID}`);
+                const gradient = document.getElementById(`mygrad-${classID}`);
+                if (gradient) {
+                    console.log("urlgridient",gradient.innerHTML);
+                }
+
+                return  `url(#mygrad-${classID})`   ;  // colorScale(classId)  "url(#mygrad)"  `url(#mygrad-${classID})`
             })
             .on("click", (event,d) =>{             
                 onBoxClick([{
@@ -365,7 +396,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
         ColorLegend(identityClasses, "classID", svg, 200, margin);          
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [filteredData, xField, yField, colorField, width, height,  selectedRecord, studentsChecked,formatDate, parseDate, onBoxClick]); 
+    }, [filteredData, xField, yField, colorField, width, height,  selectedRecord, studentsChecked,formatDate, parseDate, onBoxClick,schoolColors, classColors, schoolClasses]); 
     return (
         <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
     );
@@ -397,6 +428,33 @@ function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWid
 }
 
 
+function addGradient(svg, idSuffix, classColor ,schoolColor) {
+    //console.log(idSuffix, classColor, schoolColor);
+    var lg = svg.append("defs").append("linearGradient")
+        .attr("id", "mygrad-" + idSuffix)
+        .attr("x1", "0%")
+        .attr("x2", "0%")
+        .attr("y1", "0%")
+        .attr("y2", "100%");
+    
+    lg.append("stop")
+        .attr("offset", "0%")
+        .style("stop-color", classColor.toString())
+        .style("stop-opacity", 1);
+
+    lg.append("stop")
+        .attr("offset", "75%")
+        .style("stop-color", classColor.toString())
+        .style("stop-opacity", 1);
+
+    lg.append("stop")
+        .attr("offset", "100%")
+        .style("stop-color", schoolColor.toString())
+        .style("stop-opacity", 1);
+}
+
+
+
 function Season(dateObject) {
     //console.log("dataObject for data:", dateObject)
     const year = dateObject.getFullYear();
@@ -417,9 +475,14 @@ function identityClass(data)
         const skola = record.Skola;
         const klassNum = parseInt(record.Klass[0]);
         const klassSuffix = record.Klass.length >1?  record.Klass[1]: '';
-        const classId = `${skola.substring(0,4)}:${year - klassNum + 1}-${1}${klassSuffix}`;
+        const classId = `${skola.substring(0,4).replace(/\s+/g, '_')}:${year - klassNum + 1}-${1}${klassSuffix}`;
 
-        const existingClass = identityClassesMap.get(classId);
+        //const existingClass = identityClassesMap.get(classId)&identityClassesMap.get(classId)[0];
+        let existingClass;
+        const classArray = identityClassesMap.get(classId);
+        if (classArray && classArray.length > 0) {
+            existingClass = classArray[0];
+        }
         if (existingClass) {
             const existingRecord = existingClass.find(r => r.Läsår === record.Läsår && r.Klass === record.Klass);
             if (existingRecord) {
@@ -428,12 +491,12 @@ function identityClass(data)
                 existingClass.push({ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] });
             }
         } else {
-            identityClassesMap.set(classId, [{ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] }]);
+            identityClassesMap.set(classId, [[{ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] }], skola]);
         }
     });
 
     const identityClasses = Array.from(identityClassesMap).map(([key, value]) => {
-        return { classID: key, classes: value };
+        return { classID: key, classes: value[0], school: value[1] };
     });
 
     return identityClasses;
@@ -444,11 +507,11 @@ function identityClass(data)
 function getLastingClassID(school, seasonKey, classKey)
 {
     const klassNum = parseInt(classKey[0]);
-    const testYear = parseInt(seasonKey.split('-')[0]);
+    const testYear = parseInt(seasonKey.split('-')[0]) - 2000;
     const testSeason = parseInt(seasonKey.split('-')[1]);
     const initYear = testSeason <7? testYear - klassNum : testYear - klassNum + 1  ;
     const klassSuffix = classKey.length>1? classKey[1]: '';
-    const skola_short = school.toString().substring(0,4);
+    const skola_short = school.toString().substring(0,4).replace(/\s+/g, '_');
     return `${skola_short}:${initYear}-${1}${klassSuffix}`;
 }
 
@@ -458,6 +521,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
             svg.selectAll('*').remove();
             
             const identityClasses = identityClass(filteredData);  // Call the identityClass function to get the identity classes.
+            //console.log("identityClasses", identityClasses);
             const colorDomain = identityClasses.map(ic => ic.classID);  // Get the unique classIDs.
             const numColors = 20;
             const quantizedScale = d3.scaleQuantize()
@@ -467,6 +531,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
             const colorScale = d3.scaleOrdinal()
                 .domain(colorDomain)
                 .range(colorDomain.map((_, i) => quantizedScale(i)));
+
 
             //set margin for svg
             const margin = { top: 20, right: 20, bottom: 80, left: 80 };

@@ -1,4 +1,6 @@
 import * as d3 from 'd3';
+import { interpolateSpectral } from 'd3-scale-chromatic';
+
 
 const parseDate = d3.timeParse('%y%m%d');
 
@@ -67,11 +69,80 @@ export const load = (callback) => {
 
 export function generateClassId(record) {
   const year = parseInt(record.Läsår.split('/')[0]);
+  console.log(year);
   const skola = record.Skola;
   const klassNum = parseInt(record.Klass[0]);
   const klassSuffix = record.Klass.length > 1 ? record.Klass[1] : '';
-  return `${skola.substring(0, 4)}:${year - klassNum + 1}-${1}${klassSuffix}`;
+  const skolaShort = skola.substring(0, 4).replace(/\s+/g, '_');
+  return `${skolaShort}:${year - klassNum + 1}-${1}${klassSuffix}`;
 }
+
+
+export function generateSchoolLastingClassMap(litData) {
+  const schoolMap = {};
+
+  litData.forEach(entry => {
+      const school = entry.Skola;
+      const classId = generateClassId(entry); // Use the function from Utils.js to generate the classID
+
+      if (!schoolMap[school]) {
+          schoolMap[school] = {};
+      }
+
+      if (!schoolMap[school][classId]) {
+          schoolMap[school][classId] = {
+              classes: [],
+          };
+      }
+
+      if (!schoolMap[school][classId].classes.some(klass => klass.Klass === entry.Klass)) {
+          schoolMap[school][classId].classes.push({ Läsår: entry.Läsår, Klass: entry.Klass });
+      }
+  });
+
+      // Convert the schoolMap to a sorted array of schools
+      const sortedSchools = Object.keys(schoolMap).sort().map(school => {
+        // Sort class IDs for each school
+        const sortedClasses = Object.keys(schoolMap[school]).sort().reduce((acc, classId) => {
+            acc[classId] = schoolMap[school][classId];
+            return acc;
+        }, {});
+
+        return { school, classes: sortedClasses };
+    });
+
+    // Convert back to object if needed, or you can keep it as an array
+    const sortedSchoolMap = {};
+    sortedSchools.forEach(schoolItem => {
+        sortedSchoolMap[schoolItem.school] = schoolItem.classes;
+    });
+
+    return sortedSchoolMap;
+
+}
+
+
+export function generateSchoolClassColorScale(schoolClasses) {
+
+    const classColorScaleMap = {};
+    const numClassColors = 20;
+
+    for(const school in schoolClasses){
+      const classsIDs = Object.keys(schoolClasses[school]);
+      const classColorScale = d3.scaleOrdinal()
+          .domain(classsIDs)
+          .range(d3.range(numClassColors).map(d => interpolateSpectral(d / (numClassColors - 1))));
+      classColorScaleMap[school] = classColorScale;
+    }
+
+    const schools = Object.keys(schoolClasses);
+    const schoolColorScale = d3.scaleOrdinal()
+    .domain(schools)
+    .range(d3.range(numClassColors).map(d => interpolateSpectral(d / (numClassColors - 1))));
+
+
+    return { school: schoolColorScale, class: classColorScaleMap };
+  }
 
 
 
