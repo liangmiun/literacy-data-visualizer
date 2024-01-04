@@ -46,6 +46,8 @@ const ScatterPage = ({
   const [isClassView, setIsClassView] = useState(false);
   const [viewSwitchCount, setViewSwitchCount] = useState(0);
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
+  const [studentsChecked, setStudentsChecked] = useState(false);
+  const [showViolin, setShowViolin] = useState(false);
 
 
   const handlePartClick = (details) => {
@@ -128,6 +130,10 @@ const ScatterPage = ({
         save = {save}
         load = {load}
         setConfig = {setConfigFromPreset}
+        studentsChecked = {studentsChecked}
+        setStudentsChecked = {setStudentsChecked}
+        showViolin = {showViolin}
+        setShowViolin = {setShowViolin}
         isDeclined={isDeclined}
         setIsDeclined={setIsDeclined}
         handleFileUpload={handleFileUpload}
@@ -149,8 +155,8 @@ const ScatterPage = ({
         width={1000}
         height={700}    
         onPartClick={handlePartClick} 
-        // studentsChecked={studentsChecked}
-        // showViolin={showViolin}
+        studentsChecked={studentsChecked}
+        showViolin={showViolin}
         />
         :
         <ScatterCanvas

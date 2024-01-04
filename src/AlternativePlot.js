@@ -25,7 +25,8 @@ const AlternativePage = ({
   setConfigFromPreset
 }) => {
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
-  const [studentsChecked, setStudentsChecked] = useState(false);
+  const [aggrStudentsChecked, setAggrStudentsChecked] = useState(false);
+  const [showAggrViolin, setShowAggrViolin] = useState(false);
   const [isClassView, setIsClassView] = useState(false);
 
 
@@ -42,7 +43,6 @@ const AlternativePage = ({
       'count'
     ];
 
-  const [showViolin, setShowViolin] = useState(false);
 
   const classFilteredData = useMemo(() => {
     return schoolClassFilteredData(data, checkedClasses, checkedSchools);
@@ -69,10 +69,10 @@ const AlternativePage = ({
         save = {save}
         load = {load}
         setConfig = {setConfigFromPreset}
-        setStudentsChecked={setStudentsChecked}
-        studentsChecked={studentsChecked}
-        setShowViolin={setShowViolin}
-        showViolin={showViolin}
+        setStudentsChecked={setAggrStudentsChecked}
+        studentsChecked={aggrStudentsChecked}
+        setShowViolin={setShowAggrViolin}
+        showViolin={showAggrViolin}
         showXField = {false}
         showClassbar={true}
         isClassView={isClassView}
@@ -86,8 +86,8 @@ const AlternativePage = ({
         width={1000}
         height={700}    
         onPartClick={handlePartClick} 
-        studentsChecked={studentsChecked}
-        showViolin={showViolin}
+        studentsChecked={aggrStudentsChecked}
+        showViolin={showAggrViolin}
       />
 
       <FilterCanvas 

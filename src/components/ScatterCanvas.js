@@ -62,10 +62,6 @@ React.memo(
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
     const filteredXYData = shownData.filter(d => d[xField] !== null && d[yField] !== null);
-
-
-
-    //console.log("newXScaleRef.current ", newXScaleRef.current, "newYScaleRef.current ", newYScaleRef.current);
     
     useEffect(() => {
 
@@ -82,37 +78,23 @@ React.memo(
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
         const xAxis = d3.axisBottom(xScale);
         const yAxis = d3.axisLeft(yScale);
-    
         const line = d3.line()
         .x(d => xScale(d[xField]))
         .y(d => yScale(d[yField])); 
-        
-        console.log("viewSwitchCount", viewSwitchCount);
+       
 
         plot();  
 
         function plot() { 
 
-            console.log("plotting: ", xField, yField, colorField, width, height, showLines, brushing, viewSwitchCount);
-            console.log("g: ", g);
-
             let combinedIDSelection = [];
             let selectedCircles = [];
-
-
-            //Start plotting:
             axes_and_captions_plot();
-
             dots_plot();
-
-            //console.log("initial circles size: ", g.selectAll('circle').size(), g.selectAll('circle').attr('id'));
 
             if(showLines){
                 connecting_lines_plot();
             }
-
-            //console.log("svg node", svg.node(), svg.node().__zoom , "brushing: ", brushing, "prevBrushingRef.current: ", prevBrushingRef.current);
-
             
             if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {          //svg.node() && svg.node().__zoom && svg.node().__zoom != d3.zoomIdentity        
                 const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
@@ -211,7 +193,6 @@ React.memo(
                         if (!brushing) {
                             const currentCircle = d3.select(this);
                             if (event.ctrlKey) {
-                                console.log("ctrlKey pressed");
                                 ContinuousSelection(currentCircle);
                             }
                             else
@@ -242,8 +223,6 @@ React.memo(
 
 
                 const newlySelectedIDs = getElevIDSelected(currentCircle.data());
-                //console.log("combinedSelection ", combinedIDSelection);
-
                 combinedIDSelection = [...new Set([...combinedIDSelection, ...newlySelectedIDs])];
                 g.selectAll('.line-path')
                 .attr('stroke-width',  d => combinedIDSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
@@ -284,8 +263,6 @@ React.memo(
 
                     combinedSelection = [...new Set([...combinedSelection, ...newlySelected])];
                     setSelectedRecords(combinedSelection);
-
-                    console.log("brushing: circles size: ", g.selectAll('circle').size());
                     
                     g.selectAll('circle')
                         .attr('stroke', d => combinedSelection.includes(d) ? 'black' : 'transparent')  
@@ -417,7 +394,6 @@ export function rescale(scale, zoomState, scaleType, dimension) {
         return scale.copy().domain(newDomain);
     } else if (scaleType === 'band') {
         // Handle band scale
-        //console.log("rescale as band")
         const domain = scale.domain();
         const range = scale.range();
         const bandWidth = scale.bandwidth();
@@ -463,7 +439,6 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
     // Apply zoom transformation to circles
     g.selectAll('circle')
       .attr('cx', d => {
-        //console.log("d[xField]: ", d[xField]);
         const value = zoomXScale(d[xField]);
         return isNaN(value) ? 0 : value;
       })

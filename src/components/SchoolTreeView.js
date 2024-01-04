@@ -70,8 +70,6 @@ function SchoolTreeView({
       Object.keys(school_class[school]).map(classId => `${school}.${classId}`)
   );
 
-  //const schoolNodeIdArray = Array.from({ length: allSchools.length }, (v, i) => `school-${i}`);
-  //console.log("schoolNodeIdArray: ", schoolNodeIdArray);
 
   const [expandedSchools, setExpandedSchools] = useState(['root']);
 
@@ -101,7 +99,6 @@ function SchoolTreeView({
       if (isChecked) {
           setCheckedSchools(prev => [...prev, school]);
           setCheckedClasses(prev => [...prev, ...Object.keys(school_class[school]).map(classId => `${school}.${classId}`)]);
-          //console.log("from school checkedClasses: ", checkedClasses);
       } else {   
           setCheckedSchools(prev => prev.filter(s => s !== school));
       }
@@ -111,11 +108,9 @@ function SchoolTreeView({
       const [school, classId] = schoolClass.split('.');
       if (isChecked) {
           setCheckedClasses(prev => [...prev, schoolClass]);
-          //console.log("checkedClasses: ", checkedClasses);
       } else {
           setCheckedClasses(prev => prev.filter(c => c !== schoolClass));
           setCheckedSchools(prev => prev.filter(s => s !== school));
-          //console.log("after uncheck, checkedClasses: ", checkedClasses);
       }
   };
 

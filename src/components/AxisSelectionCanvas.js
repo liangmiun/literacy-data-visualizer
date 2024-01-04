@@ -1,7 +1,6 @@
 import React, { useState }   from 'react';
 import Select from 'react-select';
 import './AxisSelectionCanvas.css';
-import { SettingsPhone } from '@mui/icons-material';
 
 const AxisSelectionCanvas = ({ fields, xField, yField, colorField, 
   onXFieldChange, onYFieldChange,onColorFieldChange,  
@@ -114,10 +113,9 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField,
 
 
 
-        {showClassbar &&
+        {isClassView &&
           <div className='aggregate-buttons-row' 
             style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
-              <span className="text">Class Aggregation: </span>
 
               <button className="btn"
               id="show-violin-btn"

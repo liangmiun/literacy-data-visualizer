@@ -10,55 +10,23 @@ export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeO
     
     useEffect(() => {
         // Automatically select all options when the component mounts
-        setSelectedOptions(allOptions);
-        setFilterList(allOptions);
-        allOptions.forEach(option => {
-            if (checkedOptions.hasOwnProperty(option)) {
-                const uniqueValues = [...new Set(data.map(item => item[option]))];
-                setCheckedOptions(prev => ({ ...prev, [option]: uniqueValues }));
-            }
-            else if (rangeOptions.hasOwnProperty(option)) {
-                const [minValue, maxValue] = d3.extent(data, d => d[option]);
-                setRangeOptions(prev => ({ ...prev, [option]: [minValue, maxValue] }));
-            }
-        });
-    }, []);
+        if(data.length > 0) 
+        {
+            setSelectedOptions(allOptions);
+            setFilterList(allOptions);
+            allOptions.forEach(option => {
+                if (checkedOptions.hasOwnProperty(option)) {
+                    const uniqueValues = [...new Set(data.map(item => item[option]))];
+                    setCheckedOptions(prev => ({ ...prev, [option]: uniqueValues }));
+                }
+                else if (rangeOptions.hasOwnProperty(option)) {
+                    const [minValue, maxValue] = d3.extent(data, d => d[option]);
+                    setRangeOptions(prev => ({ ...prev, [option]: [minValue, maxValue] }));
+                }
+            });
+        }
+    }, [data]);
 
-
-    const handleOptionChange = (event) => {
-        const values = event.target.value;
-        const newlySelectedOptions = values.filter(option => !selectedOptions.includes(option));        
-        const deselectedOptions = selectedOptions.filter(option => !values.includes(option));
-
-        // Reset the checkedOptions for the deselected options
-        deselectedOptions.forEach(option => {
-            if (checkedOptions.hasOwnProperty(option)) {                
-                setCheckedOptions(prev => ({ ...prev, [option]: [] }));
-            }
-            else if (rangeOptions.hasOwnProperty(option)) {
-                setRangeOptions(prev => ({ ...prev, [option]: [] }));
-            }
-        });
-        
-        
-            // Set all options to be checked for the newly selected options
-        newlySelectedOptions.forEach(option => {
-            if (checkedOptions.hasOwnProperty(option)) {
-                const uniqueValues = [...new Set(data.map(item => item[option]))];
-                setCheckedOptions(prev => ({ ...prev, [option]: uniqueValues }));
-            }
-            else if (rangeOptions.hasOwnProperty(option)) {
-                const [minValue, maxValue] = d3.extent(data, d => d[option]);
-                setRangeOptions(prev => ({ ...prev, [option]: [minValue, maxValue] }));
-            }
-        });
-        
-        setSelectedOptions(values);
-        setFilterList(values);
-        //console.log("values set to filterList: "+values);
-
-
-    };
 
     return (
         <div className='option-panel'  tyle={{ margin: '0px 3px'}}>
@@ -124,7 +92,6 @@ function OptionCheckBoxes({ label, options, checkedOptions, setCheckedOptions })
         }
     };
 
-    console.log("options: "+options);
     const sorted_options = options
     .filter(option => option !== null)
     .sort((a, b) => a.toString().localeCompare(b.toString()));
