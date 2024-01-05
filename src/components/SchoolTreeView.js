@@ -5,8 +5,9 @@ import React, { useState, useEffect } from 'react';
 import { Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { generateSchoolLastingClassMap } from '../Utils.js';
+import { generateSchoolClassColorScale } from '../Utils.js';
 import '../App.css';
+import * as d3 from 'd3';
 
 
 function SchoolTreeView({
@@ -15,17 +16,18 @@ function SchoolTreeView({
   setCheckedSchools,
   checkedClasses,
   setCheckedClasses,
-  isAggregatedView
+  isAggregatedView,
+  school_class
 }) {
 
-  const school_class = generateSchoolLastingClassMap(data);   // Generate the school_class map from the data
   const [checkedAllSchools, setCheckedAllSchools] = useState(true);
   const allSchools = Object.keys(school_class);
   const allClasses = allSchools.flatMap(school => 
       Object.keys(school_class[school]).map(classId => `${school}.${classId}`)
   );
-
-
+  const classColors = generateSchoolClassColorScale(school_class).classColor;
+  const [classTagColor, setClassTagColor] = useState('red');
+  const [paletteID, setPaletteID] = useState('');
   const [expandedSchools, setExpandedSchools] = useState(['root']);
 
   useEffect(() => {
@@ -67,6 +69,13 @@ function SchoolTreeView({
           setCheckedClasses(prev => prev.filter(c => c !== schoolClass));
           setCheckedSchools(prev => prev.filter(s => s !== school));
       }
+  };
+
+  const handleColorChange = (newColor) => {
+    setClassTagColor(newColor);
+    setPaletteID('');
+    // Update classColors with the new color for this school and classId
+    // ... your logic to update classColors
   };
 
 
@@ -128,6 +137,7 @@ function SchoolTreeView({
                   key={school}
                 >
                   {Object.entries(classesMap).map(([classId, classes], cIdx) => (
+                    <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
                     <TreeItem
                       nodeId={`class-${idx}-${cIdx}`}
                       label={
@@ -141,6 +151,29 @@ function SchoolTreeView({
                       }
                       key={classId}
                     />
+                    {/* <div style={{ width: '10px', height: '10px', backgroundColor: classColors[school](classId), marginLeft: '5px' }} /> */}
+                    <div>
+                      <div 
+                        style={{ width: '10px', height: '10px', backgroundColor: classColors[school](classId), marginLeft: '5px' }}
+                        onClick={() => setPaletteID(classId)}
+                      />
+                      {paletteID===classId && (
+                        <div style={{ marginTop: '5px' }}>
+                          {[0, 1].map(row => (
+                            <div key={row} style={{ display: 'flex' }}>
+                              {d3.schemeCategory10.slice(row * 5, (row + 1) * 5).map((paletteColor, index) => (
+                                <div 
+                                  key={index}
+                                  style={{ width: '10px', height: '10px', backgroundColor: paletteColor, marginLeft: '2px' }}
+                                  onClick={() => handleColorChange(paletteColor)}
+                                />
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   ))}
                 </TreeItem>
 

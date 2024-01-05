@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
-import { ColorLegend, rescale } from './ScatterCanvas';
+import {  rescale } from './ScatterCanvas';
 import { interpolateSpectral } from 'd3-scale-chromatic';
-import { generateSchoolClassColorScale} from '../Utils.js';
+import { generateSchoolClassColorScale, ColorLegend} from '../Utils.js';
 
 const singleViolinWidthRatio = 0.6; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 10;
@@ -14,8 +14,8 @@ const AggregateCanvas = ({ filteredData, xField, yField, colorField, width, heig
 
     filteredData = filteredData.filter(d => d[xField] !== null && d[yField] !== null); 
     const schoolClassColors = generateSchoolClassColorScale(schoolClasses);
-    const schoolColors = schoolClassColors.school;
-    const classColors = schoolClassColors.class;
+    const schoolColors = schoolClassColors.schoolColor;
+    const classColors = schoolClassColors.classColor;
 
     if(showViolin) {
       return ViolinPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked);
@@ -260,30 +260,8 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             .attr("y1", d => y(d.value.min))
             .attr("y2", d => y(d.value.max))
             .attr("stroke", "black")
-            .style("width", 40);
-        
-        for (const school in schoolClasses) {
-            for(var classID in schoolClasses[school])
-                //console.log(classID);
-                addGradient(svg, classID, classColors[school](classID), schoolColors(school));
-        }
+            .style("width", 40);     
 
-        var lg = svg.append("defs").append("linearGradient")
-        .attr("id", "mygrad")//id of the gradient
-        .attr("x1", "0%")
-        .attr("x2", "0%")
-        .attr("y1", "0%")
-        .attr("y2", "100%")//since its a vertical linear gradient 
-        ;
-        lg.append("stop")
-        .attr("offset", "0%")
-        .style("stop-color", "red")//end in red
-        .style("stop-opacity", 1)
-
-        lg.append("stop")
-        .attr("offset", "100%")
-        .style("stop-color", "rgb(230, 90, 73)")//start in blue
-        .style("stop-opacity", 1)
 
         // Boxes
         g.selectAll(".boxes")
@@ -300,13 +278,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             })
             .style("fill", d => {
                 const classID = getLastingClassID(d.value.school, d.value.season, d.value.class);
-                //console.log( "url:", `url(#mygrad-${classID})`,`mygrad-${classID}`);
-                const gradient = document.getElementById(`mygrad-${classID}`);
-                // if (gradient) {
-                //     console.log("urlgridient",gradient.innerHTML);
-                // }
-
-                return  `url(#mygrad-${classID})`   ;  // colorScale(classId)  "url(#mygrad)"  `url(#mygrad-${classID})`
+                return  classColors[d.value.school](classID)   ;  // colorScale(classId)  "url(#mygrad)"  `url(#mygrad-${classID})`
             })
             .on("click", (event,d) =>{             
                 onBoxClick([{
@@ -365,8 +337,8 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
                     .attr("y1", y(startPoint.value.median))
                     .attr("y2", y(endPoint.value.median))
                     .attr("stroke", d => {            
-                        const classId = getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
-                        return colorScale(classId);}) 
+                        const classID = getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
+                        return classColors[startPoint.value.school](classID);}) 
                     .attr('stroke-width', 2)
                     .attr("startSeason", startPoint.value.season.toString())
                     .attr("startClass", startPoint.value.class.toString())
@@ -393,7 +365,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
         svg.call(zoomBehavior)
 
         // Add color legend
-        ColorLegend(identityClasses, "classID", svg, 200, margin);          
+        //ColorLegend(identityClasses, "classID", svg, 200, margin);          
 
         // ... rest of the zoom and event logic remains unchanged ...
     }, [filteredData, xField, yField, colorField, width, height,  selectedRecord, studentsChecked,formatDate, parseDate, onBoxClick,schoolColors, classColors, schoolClasses]); 

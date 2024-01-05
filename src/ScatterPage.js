@@ -192,6 +192,7 @@ const ScatterPage = ({
         checkedOptions={checkedOptions}
         setCheckedOptions={setCheckedOptions}
         setFilterList=  {setFilterList}
+        school_class={schoolClasses}
       />   
 
       <LogicCanvas  

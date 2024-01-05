@@ -125,15 +125,12 @@ export function generateSchoolLastingClassMap(litData) {
 export function generateSchoolClassColorScale(schoolClasses) {
 
     const classColorScaleMap = {};
-    //const numClassColors = 20;
     const colors = d3.schemeCategory10;
     const brighterColors = colors.map(color => d3.color(color).brighter(1).toString());
     const Colors20 = colors.concat(brighterColors);
-    console.log("color20",Colors20);
 
     for(const school in schoolClasses){
       const classsIDs = Object.keys(schoolClasses[school]);
-      //console.log(school, classsIDs.length);
       const classColorScale = d3.scaleOrdinal()
       .domain(classsIDs)
       .range(classsIDs.map(d => Colors20[classsIDs.indexOf(d) % 20]));  
@@ -145,10 +142,57 @@ export function generateSchoolClassColorScale(schoolClasses) {
     .domain(schools)
     .range(schools.map(d => Colors20[schools.indexOf(d) % 20]));
 
-
-    return { school: schoolColorScale, class: classColorScaleMap };
+    return { schoolColor: schoolColorScale, classColor: classColorScaleMap };
   }
 
+
+  export function ColorLegend(data, colorField, svg, width, margin) {
+    // Assuming colorField is categorical
+    const colorDomain = Array.from(new Set(data.map(d => d[colorField])));
+    const numColors = 20;
+    const quantizedScale = d3.scaleQuantize()
+        .domain([0, colorDomain.length - 1])
+        .range(d3.range(numColors).map(d => interpolateSpectral(d / (numColors - 1))));    
+    const colorScale = d3.scaleOrdinal()
+        .domain(colorDomain)
+        .range(colorDomain.map((_, i) => quantizedScale(i)));
+
+    const colors = d3.schemeCategory10;
+    const brighterColors = colors.map(color => d3.color(color).brighter(1).toString());
+    const Colors20 = colors.concat(brighterColors);
+
+
+    // Define legend space
+    const legendWidth = 60;
+
+    // Add a group for the legend
+    const legend = svg.append("g")
+        .attr("transform", `translate(${width - legendWidth}, ${margin.top})`);  // Adjust position as required
+
+    legend.append("text")
+    .attr("x", 0)
+    .attr("y", -5)  // Position the title a bit above the colored rectangles
+    .style("font-weight", "bold")  // Make the title bold (optional)
+    .text(colorField);
+
+    colorDomain.forEach((value, index) => {
+        // Draw colored rectangle
+        legend.append("rect")
+            .attr("x", 0)
+            .attr("y", index * 20)
+            .attr("width", 15)
+            .attr("height", 15)
+            .style("fill", colorScale(value));
+
+        // Draw text beside rectangle
+        legend.append("text")
+            .attr("x", 25)  // Adjust for padding beside rectangle
+            .attr("y", index * 20 + 12)  // Adjust to vertically center text
+            .text(value);
+    });
+
+
+}
 
 
 
