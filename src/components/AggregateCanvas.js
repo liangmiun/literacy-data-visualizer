@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import {  rescale } from './ScatterCanvas';
 import { interpolateSpectral } from 'd3-scale-chromatic';
-import { generateSchoolClassColorScale, ColorLegend} from '../Utils.js';
+import {  ColorLegend} from '../Utils.js';
 
 const singleViolinWidthRatio = 0.6; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 10;
@@ -10,18 +10,13 @@ const indv_offset =0;
 
 
 const AggregateCanvas = ({ filteredData, xField, yField, colorField, width, height, 
-    onPartClick, selectedRecord, studentsChecked, showViolin, schoolClasses }) => {
+    onPartClick, selectedRecord, studentsChecked, showViolin, classColors }) => {
 
     filteredData = filteredData.filter(d => d[xField] !== null && d[yField] !== null); 
-    const schoolClassColors = generateSchoolClassColorScale(schoolClasses);
-    const schoolColors = schoolClassColors.schoolColor;
-    const classColors = schoolClassColors.classColor;
-
     if(showViolin) {
       return ViolinPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked);
     }
-    return BoxPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked, schoolColors, classColors, schoolClasses);  
-
+    return BoxPlots(filteredData, xField, yField, colorField, width, height, onPartClick, selectedRecord, studentsChecked, classColors);  
 
 };
 
@@ -192,7 +187,7 @@ const ViolinPlots = (filteredData, xField, yField, colorField, width, height,  o
     };
 
 
-const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBoxClick, selectedRecord, studentsChecked,schoolColors, classColors, schoolClasses ) => {
+const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBoxClick, selectedRecord, studentsChecked,classColors ) => {
     const svgRef = useRef();
     const parseDate = d3.timeParse('%y%m%d');
     const formatDate = d3.timeFormat('%y-%m-%d');
@@ -202,7 +197,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
     // In your useEffect: 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, colorScale, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses}  = PreparePlotStructure(svgRef, filteredData, yField, width, height);
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups }  = PreparePlotStructure(svgRef, filteredData, yField, width, height);
         
         // For the X axis label:
         g.append("text")
@@ -278,7 +273,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
             })
             .style("fill", d => {
                 const classID = getLastingClassID(d.value.school, d.value.season, d.value.class);
-                return  classColors[d.value.school](classID)   ;  // colorScale(classId)  "url(#mygrad)"  `url(#mygrad-${classID})`
+                return  classColors[d.value.school][classID]   ;  // colorScale(classId)  "url(#mygrad)"  `url(#mygrad-${classID})`
             })
             .on("click", (event,d) =>{             
                 onBoxClick([{
@@ -338,7 +333,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
                     .attr("y2", y(endPoint.value.median))
                     .attr("stroke", d => {            
                         const classID = getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
-                        return classColors[startPoint.value.school](classID);}) 
+                        return classColors[startPoint.value.school][classID];}) 
                     .attr('stroke-width', 2)
                     .attr("startSeason", startPoint.value.season.toString())
                     .attr("startClass", startPoint.value.class.toString())
@@ -368,7 +363,7 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
         //ColorLegend(identityClasses, "classID", svg, 200, margin);          
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [filteredData, xField, yField, colorField, width, height,  selectedRecord, studentsChecked,formatDate, parseDate, onBoxClick,schoolColors, classColors, schoolClasses]); 
+    }, [filteredData, xField, yField, colorField, width, height,  selectedRecord, studentsChecked,formatDate, parseDate, onBoxClick, classColors]); 
     return (
         <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
     );

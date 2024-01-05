@@ -9,14 +9,7 @@ const AAA = () => {
   // Generating darker colors
   const SndColors = colors.map(color => d3.color(color).darker(0.5).toString());
   const TrdColors = colors.map(color => d3.color(color).brighter(1).toString());
-
-  function desaturate(color, amount) {
-    let hsl = d3.hsl(color);
-    hsl.s -= amount; // Reduce the saturation by the amount
-    hsl.s = Math.max(0, Math.min(1, hsl.s)); // Ensure saturation remains between 0 and 1
-    return hsl.toString();
-  }
-  
+ 
 
   return (
     <table>

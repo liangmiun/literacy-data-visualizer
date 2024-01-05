@@ -6,7 +6,7 @@ import ScatterCanvas from './components/ScatterCanvas';
 import DetailCanvas from './components/DetailCanvas';
 import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
-import { generateClassId, generateSchoolLastingClassMap} from './Utils.js';
+import { generateClassId, generateSchoolLastingClassMap, generateSchoolClassColorScale} from './Utils.js';
 import './App.css';
 
 
@@ -50,12 +50,21 @@ const ScatterPage = ({
   const [showViolin, setShowViolin] = useState(false);
 
   const schoolClasses = generateSchoolLastingClassMap(data);
-
+  const generatedColorScale = generateSchoolClassColorScale(schoolClasses).classColor;
+  const [classColorScale,setClassColorScale] = useState(generatedColorScale);
 
   const handlePartClick = (details) => {
     setSelectedClassDetail(details);
   };
 
+  const handleClassColorPaletteClick= (school, classID, newColor) => {
+    setClassColorScale(prevSchools => {   
+      const prevClasses = prevSchools[school] || {};
+      // Update the color for the specified classID within the school
+      const updatedClasses = { ...prevClasses, [classID]: newColor };    
+      // Return the new state with the updated school's classes
+      return { ...prevSchools, [school]: updatedClasses }; });
+  };
 
   const studentKeyList = 
     ['Skola',
@@ -159,7 +168,7 @@ const ScatterPage = ({
         onPartClick={handlePartClick} 
         studentsChecked={studentsChecked}
         showViolin={showViolin}
-        schoolClasses={schoolClasses}
+        classColors={classColorScale}
         />
         :
         <ScatterCanvas
@@ -193,6 +202,8 @@ const ScatterPage = ({
         setCheckedOptions={setCheckedOptions}
         setFilterList=  {setFilterList}
         school_class={schoolClasses}
+        onColorPaletteClick={handleClassColorPaletteClick}
+        classColors = {classColorScale}
       />   
 
       <LogicCanvas  

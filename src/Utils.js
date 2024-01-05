@@ -131,11 +131,18 @@ export function generateSchoolClassColorScale(schoolClasses) {
 
     for(const school in schoolClasses){
       const classsIDs = Object.keys(schoolClasses[school]);
-      const classColorScale = d3.scaleOrdinal()
-      .domain(classsIDs)
-      .range(classsIDs.map(d => Colors20[classsIDs.indexOf(d) % 20]));  
+      const classColorScale = classsIDs.reduce((acc, classID, index) => {
+        acc[classID] = Colors20[index % 20];
+        return acc;
+      }, {});
+      // const classColorScale = d3.scaleOrdinal()
+      // .domain(classsIDs)
+      // .range(classsIDs.map(d => Colors20[classsIDs.indexOf(d) % 20]));  
+      //console.log(classColorScale);
       classColorScaleMap[school] = classColorScale;
     }
+
+    //console.log(classColorScaleMap);
 
     const schools = Object.keys(schoolClasses);
     const schoolColorScale = d3.scaleOrdinal()
@@ -156,11 +163,6 @@ export function generateSchoolClassColorScale(schoolClasses) {
     const colorScale = d3.scaleOrdinal()
         .domain(colorDomain)
         .range(colorDomain.map((_, i) => quantizedScale(i)));
-
-    const colors = d3.schemeCategory10;
-    const brighterColors = colors.map(color => d3.color(color).brighter(1).toString());
-    const Colors20 = colors.concat(brighterColors);
-
 
     // Define legend space
     const legendWidth = 60;

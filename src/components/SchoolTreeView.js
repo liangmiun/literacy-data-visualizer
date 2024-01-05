@@ -17,7 +17,9 @@ function SchoolTreeView({
   checkedClasses,
   setCheckedClasses,
   isAggregatedView,
-  school_class
+  school_class,
+  onColorPaletteClick,
+  classColors
 }) {
 
   const [checkedAllSchools, setCheckedAllSchools] = useState(true);
@@ -25,8 +27,6 @@ function SchoolTreeView({
   const allClasses = allSchools.flatMap(school => 
       Object.keys(school_class[school]).map(classId => `${school}.${classId}`)
   );
-  const classColors = generateSchoolClassColorScale(school_class).classColor;
-  const [classTagColor, setClassTagColor] = useState('red');
   const [paletteID, setPaletteID] = useState('');
   const [expandedSchools, setExpandedSchools] = useState(['root']);
 
@@ -41,7 +41,7 @@ function SchoolTreeView({
       setCheckedClasses(allClasses);
       setCheckedAllSchools(true);
     }
-  }, [data, isAggregatedView]);
+  }, [data, isAggregatedView]);  
 
 
   const handleAllSchoolsCheckChange = (isChecked) => {
@@ -62,7 +62,7 @@ function SchoolTreeView({
   };
 
   const handleClassCheckChange = (schoolClass, isChecked) => {
-      const [school, classId] = schoolClass.split('.');
+      const [school, ] = schoolClass.split('.');
       if (isChecked) {
           setCheckedClasses(prev => [...prev, schoolClass]);
       } else {
@@ -71,9 +71,9 @@ function SchoolTreeView({
       }
   };
 
-  const handleColorChange = (newColor) => {
-    setClassTagColor(newColor);
+  const handleColorChange = (school, classID, newColor) => {
     setPaletteID('');
+    onColorPaletteClick(school, classID, newColor);
     // Update classColors with the new color for this school and classId
     // ... your logic to update classColors
   };
@@ -154,7 +154,7 @@ function SchoolTreeView({
                     {/* <div style={{ width: '10px', height: '10px', backgroundColor: classColors[school](classId), marginLeft: '5px' }} /> */}
                     <div>
                       <div 
-                        style={{ width: '10px', height: '10px', backgroundColor: classColors[school](classId), marginLeft: '5px' }}
+                        style={{ width: '10px', height: '10px', backgroundColor: classColors[school][classId], marginLeft: '5px' }}
                         onClick={() => setPaletteID(classId)}
                       />
                       {paletteID===classId && (
@@ -165,7 +165,7 @@ function SchoolTreeView({
                                 <div 
                                   key={index}
                                   style={{ width: '10px', height: '10px', backgroundColor: paletteColor, marginLeft: '2px' }}
-                                  onClick={() => handleColorChange(paletteColor)}
+                                  onClick={() => handleColorChange(school, classId, paletteColor)}
                                 />
                               ))}
                             </div>
