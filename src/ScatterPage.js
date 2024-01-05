@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import AxisSelectionCanvas from './components/AxisSelectionCanvas';
 import AggregateCanvas from './components/AggregateCanvas';
 import ScatterCanvas from './components/ScatterCanvas';
@@ -38,7 +38,9 @@ const ScatterPage = ({
   setConfigFromPreset,
   handleFileUpload,
   showLines,
-  setShowLines
+  setShowLines,
+  schoolClasses,
+  generatedColorScale
 } ) => {  
 
   const [selectedRecords, setSelectedRecords] = useState([]);
@@ -48,10 +50,19 @@ const ScatterPage = ({
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
   const [showViolin, setShowViolin] = useState(false);
+  //const schoolClasses = generateSchoolLastingClassMap(data);
+  //const generatedColorScale = generateSchoolClassColorScale(schoolClasses).classColor;
+  console.log("1st generated class scale", generatedColorScale);
+  const [classColorScale,setClassColorScale] = useState(generatedColorScale);  
+  console.log("scatterpage class scale", classColorScale, generatedColorScale);
 
-  const schoolClasses = generateSchoolLastingClassMap(data);
-  const generatedColorScale = generateSchoolClassColorScale(schoolClasses).classColor;
-  const [classColorScale,setClassColorScale] = useState(generatedColorScale);
+  useEffect(() => {
+    // Update classColorScale when the data it depends on changes
+    if(generatedColorScale){
+      setClassColorScale(generatedColorScale.classColor);
+    }
+  }, [generatedColorScale]);   
+  
 
   const handlePartClick = (details) => {
     setSelectedClassDetail(details);

@@ -614,6 +614,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
                     .map(d => d.value.class);
                 classesForSeason.sort((a, b) => a.toString().localeCompare(b.toString()));
                 seasonToClasses[season] = classesForSeason;
+                //console.log("seasonToClasses", season, seasonToClasses[season]);
 
             });
 

@@ -3,7 +3,7 @@ import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
 import './App.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
-import { rowParser, preset_dict, load } from './Utils.js';
+import { rowParser, preset_dict, load, generateSchoolLastingClassMap, generateSchoolClassColorScale } from './Utils.js';
 import About from './About';
 import ScatterPage from './ScatterPage';
 import AlternativePlot from './AlternativePlot';
@@ -39,6 +39,9 @@ const App = () => {
     'Testdatum':[],
     'Lexplore Score':[]}
     );
+
+  const schoolClasses = generateSchoolLastingClassMap(data);
+  const generatedColorScale = generateSchoolClassColorScale(schoolClasses).classColor;
 
   const updatePreset = () => {
     preset_dict.xField = xField;
@@ -225,6 +228,8 @@ const App = () => {
                             setConfigFromPreset={setConfigFromPreset}
                             showLines={showLines}
                             setShowLines={setShowLines}
+                            schoolClasses={schoolClasses}
+                            generatedColorScale={generatedColorScale}
                           />
                         } 
                       />

@@ -29,6 +29,7 @@ function SchoolTreeView({
   );
   const [paletteID, setPaletteID] = useState('');
   const [expandedSchools, setExpandedSchools] = useState(['root']);
+  console.log("classColors", classColors);
 
   useEffect(() => {
     if(isAggregatedView){
