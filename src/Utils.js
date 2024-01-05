@@ -69,7 +69,7 @@ export const load = (callback) => {
 
 export function generateClassId(record) {
   const year = parseInt(record.Läsår.split('/')[0]);
-  console.log(year);
+  //console.log(year);
   const skola = record.Skola;
   const klassNum = parseInt(record.Klass[0]);
   const klassSuffix = record.Klass.length > 1 ? record.Klass[1] : '';
@@ -125,20 +125,25 @@ export function generateSchoolLastingClassMap(litData) {
 export function generateSchoolClassColorScale(schoolClasses) {
 
     const classColorScaleMap = {};
-    const numClassColors = 20;
+    //const numClassColors = 20;
+    const colors = d3.schemeCategory10;
+    const brighterColors = colors.map(color => d3.color(color).brighter(1).toString());
+    const Colors20 = colors.concat(brighterColors);
+    console.log("color20",Colors20);
 
     for(const school in schoolClasses){
       const classsIDs = Object.keys(schoolClasses[school]);
+      //console.log(school, classsIDs.length);
       const classColorScale = d3.scaleOrdinal()
-          .domain(classsIDs)
-          .range(d3.range(numClassColors).map(d => interpolateSpectral(d / (numClassColors - 1))));
+      .domain(classsIDs)
+      .range(classsIDs.map(d => Colors20[classsIDs.indexOf(d) % 20]));  
       classColorScaleMap[school] = classColorScale;
     }
 
     const schools = Object.keys(schoolClasses);
     const schoolColorScale = d3.scaleOrdinal()
     .domain(schools)
-    .range(d3.range(numClassColors).map(d => interpolateSpectral(d / (numClassColors - 1))));
+    .range(schools.map(d => Colors20[schools.indexOf(d) % 20]));
 
 
     return { school: schoolColorScale, class: classColorScaleMap };

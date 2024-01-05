@@ -302,9 +302,9 @@ const BoxPlots = (filteredData, xField, yField, colorField, width, height, onBox
                 const classID = getLastingClassID(d.value.school, d.value.season, d.value.class);
                 //console.log( "url:", `url(#mygrad-${classID})`,`mygrad-${classID}`);
                 const gradient = document.getElementById(`mygrad-${classID}`);
-                if (gradient) {
-                    console.log("urlgridient",gradient.innerHTML);
-                }
+                // if (gradient) {
+                //     console.log("urlgridient",gradient.innerHTML);
+                // }
 
                 return  `url(#mygrad-${classID})`   ;  // colorScale(classId)  "url(#mygrad)"  `url(#mygrad-${classID})`
             })

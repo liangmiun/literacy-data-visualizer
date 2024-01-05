@@ -1,33 +1,44 @@
 // About.js
+import * as d3 from 'd3';
 import React from 'react';
 
 const AAA = () => {
-    const numRows = 20;
-    const numCols = 20;
+  // Original color scale from d3
+  const colors = d3.schemeCategory10;
 
-    // Generate a table with varying hue and saturation
-    const tableRows = [];
-    for (let row = 0; row < numRows; row++) {
-        const cells = [];
-        for (let col = 0; col < numCols; col++) {
-            // Calculating hue and saturation values
-            const hue = (col / numCols) * 360; // Hue varies from 0 to 360
-            const saturation = 100 - (row / numRows) * 80; // Saturation varies from 100% to 0%
+  // Generating darker colors
+  const SndColors = colors.map(color => d3.color(color).darker(0.5).toString());
+  const TrdColors = colors.map(color => d3.color(color).brighter(1).toString());
 
-            // Set the background color using HSL
-            const style = { backgroundColor: `hsl(${hue}, ${saturation}%, 40%)`,
-                            width: '20px',
-                            height: '20px' };
-            cells.push(<td key={col} style={style}></td>);
-        }
-        tableRows.push(<tr key={row}>{cells}</tr>);
-    }
+  function desaturate(color, amount) {
+    let hsl = d3.hsl(color);
+    hsl.s -= amount; // Reduce the saturation by the amount
+    hsl.s = Math.max(0, Math.min(1, hsl.s)); // Ensure saturation remains between 0 and 1
+    return hsl.toString();
+  }
+  
 
-    return (
-        <table>
-            <tbody>{tableRows}</tbody>
-        </table>
-    );
+  return (
+    <table>
+      <tbody>
+        <tr>
+          {colors.map((color, index) => (
+            <td key={index} style={{ width: '30px', height: '30px', backgroundColor: color }} />
+          ))}
+        </tr>
+        <tr>
+          {SndColors.map((color, index) => (
+            <td key={index} style={{ width: '30px', height: '30px', backgroundColor: color }} />
+          ))}
+        </tr>
+        <tr>
+          {TrdColors.map((color, index) => (
+            <td key={index} style={{ width: '30px', height: '30px', backgroundColor: color }} />
+          ))}
+        </tr>
+      </tbody>
+    </table>
+  );
 };
 
 
