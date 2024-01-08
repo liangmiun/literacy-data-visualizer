@@ -1,9 +1,10 @@
 import React, {useState, useEffect} from 'react';
+import * as d3 from 'd3';
 import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
 import './App.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
-import { rowParser, preset_dict, load, generateSchoolLastingClassMap, generateSchoolClassColorScale } from './Utils.js';
+import { rowParser, preset_dict, load, generateSchoolLastingClassMap} from './Utils.js';
 import About from './About';
 import ScatterPage from './ScatterPage';
 import AlternativePlot from './AlternativePlot';
@@ -40,8 +41,10 @@ const App = () => {
     'Lexplore Score':[]}
     );
 
-  const schoolClasses = generateSchoolLastingClassMap(data);
-  const generatedColorScale = generateSchoolClassColorScale(schoolClasses).classColor;
+
+  //const generatedColorScale = generateSchoolClassColorScale(schoolClasses).classColor;
+  //console.log("app schoolclass", schoolClasses,  "generatedScale",generatedColorScale);
+
 
   const updatePreset = () => {
     preset_dict.xField = xField;
@@ -115,6 +118,9 @@ const App = () => {
     .catch((error) => {
       console.error('Error fetching or parsing data:', error);
     });
+
+    console.log("data parsed");
+
   },  [isLogin, encryptKey]);  
 
 
@@ -162,7 +168,15 @@ const App = () => {
                 />
                 <Route path="/about" 
                     element={
-                      <ProtectedWrapper  element={<About/>} />
+                      <ProtectedWrapper  
+                        element={
+                          <About
+                            data = {data}
+                     
+                          />
+                        } 
+
+                      />
                     } 
                 />
                 <Route path="/alternative-plot" 
@@ -194,7 +208,7 @@ const App = () => {
                             />} />
                     }
                 />
-                <Route path="/"               
+                {/* <Route path="/"               
                     element={
                       <ProtectedWrapper  
                         element={
@@ -229,12 +243,13 @@ const App = () => {
                             showLines={showLines}
                             setShowLines={setShowLines}
                             schoolClasses={schoolClasses}
-                            generatedColorScale={generatedColorScale}
+                            classColorScale={classColorScale}
+                            setClassColorScale={setClassColorScale}
                           />
                         } 
                       />
                     }
-                />              
+                />               */}
               </Routes>
             </div>
           </div>
@@ -242,5 +257,34 @@ const App = () => {
   );
 };
 
+export function generateSchoolClassColorScale(schoolClasses) {
+
+  const classColorScaleMap = {};
+  const colors = d3.schemeCategory10;
+  const brighterColors = colors.map(color => d3.color(color).brighter(1).toString());
+  const Colors20 = colors.concat(brighterColors);
+
+  for(const school in schoolClasses){
+    const classsIDs = Object.keys(schoolClasses[school]);
+    const classColorScale = classsIDs.reduce((acc, classID, index) => {
+      acc[classID] = Colors20[index % 20];
+      return acc;
+    }, {});
+    // const classColorScale = d3.scaleOrdinal()
+    // .domain(classsIDs)
+    // .range(classsIDs.map(d => Colors20[classsIDs.indexOf(d) % 20]));  
+    //console.log(classColorScale);
+    classColorScaleMap[school] = classColorScale;
+  }
+
+  //console.log(classColorScaleMap);
+
+  const schools = Object.keys(schoolClasses);
+  const schoolColorScale = d3.scaleOrdinal()
+  .domain(schools)
+  .range(schools.map(d => Colors20[schools.indexOf(d) % 20]));
+
+  return { schoolColor: schoolColorScale, classColor: classColorScaleMap };
+}
 
 export default App;

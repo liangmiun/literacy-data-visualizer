@@ -8,6 +8,7 @@ import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
 import { generateClassId, generateSchoolLastingClassMap, generateSchoolClassColorScale} from './Utils.js';
 import './App.css';
+import { set } from 'd3-collection';
 
 
 const ScatterPage = ({
@@ -40,7 +41,8 @@ const ScatterPage = ({
   showLines,
   setShowLines,
   schoolClasses,
-  generatedColorScale
+  classColorScale,
+  setClassColorScale
 } ) => {  
 
   const [selectedRecords, setSelectedRecords] = useState([]);
@@ -50,18 +52,30 @@ const ScatterPage = ({
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
   const [showViolin, setShowViolin] = useState(false);
+
   //const schoolClasses = generateSchoolLastingClassMap(data);
-  //const generatedColorScale = generateSchoolClassColorScale(schoolClasses).classColor;
-  console.log("1st generated class scale", generatedColorScale);
-  const [classColorScale,setClassColorScale] = useState(generatedColorScale);  
-  console.log("scatterpage class scale", classColorScale, generatedColorScale);
+  const generatedColorScale = generateSchoolClassColorScale(schoolClasses).classColor;
 
   useEffect(() => {
-    // Update classColorScale when the data it depends on changes
-    if(generatedColorScale){
-      setClassColorScale(generatedColorScale.classColor);
+    if(Object.keys(classColorScale).length === 0 && Object.keys(generatedColorScale).length > 0)
+    {
+      console.log("scatterpage effect class scale", Object.keys(classColorScale).length, classColorScale, "generatedScale",generatedColorScale);
+      setClassColorScale(generatedColorScale);
     }
-  }, [generatedColorScale]);   
+  }, [setClassColorScale, classColorScale,generatedColorScale]);
+
+  console.log("scatterpage class scale", Object.keys(classColorScale).length, classColorScale, "generatedScale",generatedColorScale);
+
+
+  //console.log("1st generated class scale", generatedColorScale);
+  //console.log("scatterpage class scale", classColorScale, generatedColorScale);
+
+  // useEffect(() => {
+  //   // Update classColorScale when the data it depends on changes
+  //   if(generatedColorScale){
+  //     setClassColorScale(generatedColorScale.classColor);
+  //   }
+  // }, [generatedColorScale]);   
   
 
   const handlePartClick = (details) => {

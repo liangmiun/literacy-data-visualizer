@@ -13,7 +13,7 @@ const Login = ({setEncryptKey, setIsLogin}) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       setIsLogin(true);
-      navigate('/');
+      navigate('/about');
       console.log("Login successful");
     } catch (error) {
       console.error('Login Error:', error);
