@@ -40,9 +40,6 @@ const ScatterPage = ({
   handleFileUpload,
   showLines,
   setShowLines,
-  schoolClasses,
-  classColorScale,
-  setClassColorScale
 } ) => {  
 
   const [selectedRecords, setSelectedRecords] = useState([]);
@@ -52,30 +49,17 @@ const ScatterPage = ({
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
   const [showViolin, setShowViolin] = useState(false);
+  const [schoolClassesAndColorScale, setSchoolClassesAndColorScale ]= useState({schoolClasses:{}, colorScale: {}});
 
-  //const schoolClasses = generateSchoolLastingClassMap(data);
-  const generatedColorScale = generateSchoolClassColorScale(schoolClasses).classColor;
 
   useEffect(() => {
-    if(Object.keys(classColorScale).length === 0 && Object.keys(generatedColorScale).length > 0)
+    if (Object.keys(data).length > 0)
     {
-      console.log("scatterpage effect class scale", Object.keys(classColorScale).length, classColorScale, "generatedScale",generatedColorScale);
-      setClassColorScale(generatedColorScale);
+      const newSchoolClasses = generateSchoolLastingClassMap(data);
+      const newClassColorScale = generateSchoolClassColorScale(newSchoolClasses).classColor;
+      setSchoolClassesAndColorScale({ schoolClasses: newSchoolClasses, colorScale: newClassColorScale});
     }
-  }, [setClassColorScale, classColorScale,generatedColorScale]);
-
-  console.log("scatterpage class scale", Object.keys(classColorScale).length, classColorScale, "generatedScale",generatedColorScale);
-
-
-  //console.log("1st generated class scale", generatedColorScale);
-  //console.log("scatterpage class scale", classColorScale, generatedColorScale);
-
-  // useEffect(() => {
-  //   // Update classColorScale when the data it depends on changes
-  //   if(generatedColorScale){
-  //     setClassColorScale(generatedColorScale.classColor);
-  //   }
-  // }, [generatedColorScale]);   
+  }, [data]);  
   
 
   const handlePartClick = (details) => {
@@ -83,12 +67,26 @@ const ScatterPage = ({
   };
 
   const handleClassColorPaletteClick= (school, classID, newColor) => {
-    setClassColorScale(prevSchools => {   
-      const prevClasses = prevSchools[school] || {};
-      // Update the color for the specified classID within the school
-      const updatedClasses = { ...prevClasses, [classID]: newColor };    
-      // Return the new state with the updated school's classes
-      return { ...prevSchools, [school]: updatedClasses }; });
+    // setClassColorScale(prevSchools => {   
+    //   const prevClasses = prevSchools[school] || {};
+    //   // Update the color for the specified classID within the school
+    //   const updatedClasses = { ...prevClasses, [classID]: newColor };    
+    //   // Return the new state with the updated school's classes
+    //   return { ...prevSchools, [school]: updatedClasses }; });
+    setSchoolClassesAndColorScale(prevState => {
+      // Extracting the current state of schoolClasses and colorScale
+      const { schoolClasses, colorScale } = prevState;
+      const prevClasses = colorScale[school] || {};
+      const updatedClasses = { ...prevClasses, [classID]: newColor };
+    
+      // Returning the new state with the updated colorScale and unchanged schoolClasses
+      return {
+        schoolClasses: schoolClasses, // keeping the existing schoolClasses unchanged
+        colorScale: { ...colorScale, [school]: updatedClasses } // updating the colorScale
+      };
+    });
+    
+
   };
 
   const studentKeyList = 
@@ -193,7 +191,7 @@ const ScatterPage = ({
         onPartClick={handlePartClick} 
         studentsChecked={studentsChecked}
         showViolin={showViolin}
-        classColors={classColorScale}
+        classColors={schoolClassesAndColorScale.colorScale}
         />
         :
         <ScatterCanvas
@@ -226,9 +224,9 @@ const ScatterPage = ({
         checkedOptions={checkedOptions}
         setCheckedOptions={setCheckedOptions}
         setFilterList=  {setFilterList}
-        school_class={schoolClasses}
+        school_class={schoolClassesAndColorScale.schoolClasses}
         onColorPaletteClick={handleClassColorPaletteClick}
-        classColors = {classColorScale}
+        classColors = {schoolClassesAndColorScale.colorScale}
       />   
 
       <LogicCanvas  

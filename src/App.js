@@ -42,10 +42,6 @@ const App = () => {
     );
 
 
-  //const generatedColorScale = generateSchoolClassColorScale(schoolClasses).classColor;
-  //console.log("app schoolclass", schoolClasses,  "generatedScale",generatedColorScale);
-
-
   const updatePreset = () => {
     preset_dict.xField = xField;
     preset_dict.yField = yField;
@@ -208,7 +204,7 @@ const App = () => {
                             />} />
                     }
                 />
-                {/* <Route path="/"               
+                <Route path="/"               
                     element={
                       <ProtectedWrapper  
                         element={
@@ -242,14 +238,11 @@ const App = () => {
                             setConfigFromPreset={setConfigFromPreset}
                             showLines={showLines}
                             setShowLines={setShowLines}
-                            schoolClasses={schoolClasses}
-                            classColorScale={classColorScale}
-                            setClassColorScale={setClassColorScale}
                           />
                         } 
                       />
                     }
-                />               */}
+                />              
               </Routes>
             </div>
           </div>
