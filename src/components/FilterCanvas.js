@@ -6,7 +6,7 @@ import '../App.css';
 
 
 const FilterCanvas = ({ data, setFilterList, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses,
-   rangeOptions,setRangeOptions,checkedOptions, setCheckedOptions, showOptionFilter=true, isAggregatedView=false, school_class, onColorPaletteClick,classColors }) => {
+   rangeOptions,setRangeOptions,checkedOptions, setCheckedOptions, showOptionFilter=true, isClassView=false, school_class, onColorPaletteClick,classColors }) => {
 
   console.log("filter canvas classColors", classColors);
   return (
@@ -19,7 +19,7 @@ const FilterCanvas = ({ data, setFilterList, checkedSchools,setCheckedSchools,ch
         setCheckedSchools={setCheckedSchools}
         checkedClasses={checkedClasses}
         setCheckedClasses={setCheckedClasses}
-        isAggregatedView={isAggregatedView}
+        isClassView={isClassView}
         school_class={school_class}
         onColorPaletteClick={onColorPaletteClick}
         classColors = {classColors}

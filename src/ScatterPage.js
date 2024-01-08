@@ -224,6 +224,7 @@ const ScatterPage = ({
         checkedOptions={checkedOptions}
         setCheckedOptions={setCheckedOptions}
         setFilterList=  {setFilterList}
+        isClassView={isClassView}
         school_class={schoolClassesAndColorScale.schoolClasses}
         onColorPaletteClick={handleClassColorPaletteClick}
         classColors = {schoolClassesAndColorScale.colorScale}

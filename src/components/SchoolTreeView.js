@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react';
 import { Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { generateSchoolClassColorScale } from '../Utils.js';
 import '../App.css';
 import * as d3 from 'd3';
 
@@ -16,7 +15,7 @@ function SchoolTreeView({
   setCheckedSchools,
   checkedClasses,
   setCheckedClasses,
-  isAggregatedView,
+  isClassView,
   school_class,
   onColorPaletteClick,
   classColors
@@ -32,17 +31,11 @@ function SchoolTreeView({
   console.log("classColors", classColors);
 
   useEffect(() => {
-    if(isAggregatedView){
-      setCheckedSchools([]);
-      setCheckedClasses([]);
-      setCheckedAllSchools(false);
-
-    } else{
+      //console.log("SCView allSchools", allSchools, "allClasses", allClasses);
       setCheckedSchools(allSchools);
       setCheckedClasses(allClasses);
       setCheckedAllSchools(true);
-    }
-  }, [data, isAggregatedView]);  
+  }, [school_class]);  
 
 
   const handleAllSchoolsCheckChange = (isChecked) => {
@@ -155,17 +148,17 @@ function SchoolTreeView({
                     {/* <div style={{ width: '10px', height: '10px', backgroundColor: classColors[school](classId), marginLeft: '5px' }} /> */}
                     <div>
                       <div 
-                        style={{ width: '10px', height: '10px', backgroundColor: classColors[school][classId], marginLeft: '5px' }}
+                        style={{ width: '10px', height: '10px', backgroundColor: isClassView? classColors[school][classId]: 'white', marginLeft: '5px' }}
                         onClick={() => setPaletteID(classId)}
                       />
-                      {paletteID===classId && (
+                      {paletteID===classId && isClassView && (
                         <div style={{ marginTop: '5px' }}>
                           {[0, 1].map(row => (
                             <div key={row} style={{ display: 'flex' }}>
                               {d3.schemeCategory10.slice(row * 5, (row + 1) * 5).map((paletteColor, index) => (
                                 <div 
                                   key={index}
-                                  style={{ width: '10px', height: '10px', backgroundColor: paletteColor, marginLeft: '2px' }}
+                                  style={{ width: '10px', height: '10px', backgroundColor:  paletteColor, marginLeft: '2px' }}
                                   onClick={() => handleColorChange(school, classId, paletteColor)}
                                 />
                               ))}
