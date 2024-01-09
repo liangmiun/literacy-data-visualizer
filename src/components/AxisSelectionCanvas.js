@@ -4,12 +4,7 @@ import './AxisSelectionCanvas.css';
 
 const AxisSelectionCanvas = (props) => {
   const options = props.fields.map(field => ({ value: field, label: field }));
-  const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));
-  const {
-    showXField = true, 
-    showClassbar=false, 
-  } = props;
-  
+  const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));  
   const onSavePreset = () => {  props.save()};
   const onLoadPreset= () => { props.load(props.setConfig)};
 
@@ -25,17 +20,17 @@ const AxisSelectionCanvas = (props) => {
     <div className="axis-selection-canvas" >
 
       <div className="axis-selects-row"  style={{ display: 'flex' }} >
-        {showXField && 
-          <div className="field-pair">
-            <label htmlFor="x-field">X-field:</label>
-            <Select 
-              id="x-field"
-              value={{ value: props.xField, label: props.xField }}
-              options={options}
-              onChange={option => props.onXFieldChange(option.value)}
-            />
-          </div>
-        }
+
+        <div className="field-pair"  >
+          <label htmlFor="x-field">X-field:</label>
+          <Select 
+            isDisabled = {props.isClassView} 
+            id="x-field"
+            value={{ value: props.xField, label: props.xField }}
+            options={options}
+            onChange={option => props.onXFieldChange(option.value)}
+          />
+        </div>       
 
         <div className="field-pair" >
           <label htmlFor="y-field">Y-field:</label>
@@ -50,6 +45,7 @@ const AxisSelectionCanvas = (props) => {
         <div className="field-pair">
           <label htmlFor="color-field">Color:</label>      
           <Select
+            isDisabled = {props.isClassView}
             id="color-field"
             value={{ value: props.colorField, label: props.colorField }}
             options={colorOptions}
@@ -80,37 +76,32 @@ const AxisSelectionCanvas = (props) => {
 
         </div>
 
-
-        {!showClassbar &&
-          <>
-            <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
-                    <input 
-                        type="checkbox" 
-                        checked = {props.isDeclined}
-                        onChange={() => props.setIsDeclined(!props.isDeclined)} 
-                    />
-                    <label><br/>Only declining score </label>
-            </div>
-            <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
-                    <input 
-                        type="checkbox" 
-                        checked = {props.showLines}
-                        onChange={() => props.setShowLines(!props.showLines)} 
-                    />
-                    <label><br/>Show lines </label>
-            </div>
-            <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
-                    <input 
-                        type="checkbox" 
-                        checked = {props.isClassView}
-                        onChange={() => {props.setIsClassView(!props.isClassView); props.setViewSwitchCount(props.viewSwitchCount+1) }}   
-                    />
-                    <label><br/>Class View </label>
-            </div>
-          </>
-        }
-
-
+        <div className='check-boxes'  style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
+                  <input 
+                      type="checkbox" 
+                      checked = {props.isDeclined}
+                      onChange={() => props.setIsDeclined(!props.isDeclined)} 
+                  />
+                  <label><br/>Only declining score </label>
+          </div>
+          <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
+                  <input 
+                      type="checkbox" 
+                      checked = {props.showLines}
+                      onChange={() => props.setShowLines(!props.showLines)} 
+                  />
+                  <label><br/>Show lines </label>
+          </div>
+          <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
+                  <input 
+                      type="checkbox" 
+                      checked = {props.isClassView}
+                      onChange={() => {props.setIsClassView(!props.isClassView); props.setViewSwitchCount(props.viewSwitchCount+1) }}   
+                  />
+                  <label><br/>Class View </label>
+          </div>
+        </div>
 
         {props.isClassView &&
           <div className='aggregate-buttons-row' 

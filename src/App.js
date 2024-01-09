@@ -4,10 +4,9 @@ import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
 import './App.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
-import { rowParser, preset_dict, load, generateSchoolLastingClassMap} from './Utils.js';
+import { rowParser, preset_dict, load} from './Utils.js';
 import About from './About';
 import ScatterPage from './ScatterPage';
-import AlternativePlot from './AlternativePlot';
 import { useAuth } from './authentications/AuthContext';
 import ProtectedWrapper from './authentications/ProtectedWrapper';
 import Login from './authentications/Login';
@@ -134,10 +133,7 @@ const App = () => {
                 {currentUser? 
                   <>
                   <li   style={liStyle}>
-                    <Link to="/">ScatterPlot</Link>
-                  </li>
-                  <li  style={liStyle}>
-                    <Link to="/alternative-plot">Aggregation</Link>
+                    <Link to="/">Plot</Link>
                   </li>
                   <li  style={liStyle}>
                     <Link to="/about">About</Link>
@@ -174,35 +170,6 @@ const App = () => {
 
                       />
                     } 
-                />
-                <Route path="/alternative-plot" 
-                    element={
-                      <ProtectedWrapper  
-                        element={
-                          <AlternativePlot
-                            data={data} 
-                            setData={setData}
-                            xField={xField}
-                            setXField={setXField}
-                            yField={yField}
-                            setYField={setYField}
-                            colorField={colorField}
-                            setColorField={setColorField}
-                            fields={fields}
-                            save={save}
-                            load={load}
-                            checkedSchools={checkedSchools}
-                            setCheckedSchools={setCheckedSchools}
-                            checkedClasses={checkedClasses}
-                            setCheckedClasses={setCheckedClasses}
-                            checkedOptions={checkedOptions}
-                            setCheckedOptions={setCheckedOptions}
-                            rangeOptions={rangeOptions}
-                            setRangeOptions={setRangeOptions}
-                            handleFileUpload={handleFileUpload}
-                            setConfigFromPreset={setConfigFromPreset}
-                            />} />
-                    }
                 />
                 <Route path="/"               
                     element={

@@ -2,7 +2,6 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import {  rescale } from './ScatterCanvas';
 import { interpolateSpectral } from 'd3-scale-chromatic';
-import {  ColorLegend} from '../Utils.js';
 
 const singleViolinWidthRatio = 0.6; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 10;
@@ -19,7 +18,7 @@ const AggregateCanvas = (props) => {
                 props.showViolin?
                 <ViolinPlots filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} width={props.width} height={props.height} onPartClick={props.onPartClick} selectedRecord={props.selectedRecord} studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}/>
                 :
-                <BoxPlots filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} width={props.width} height={props.height} onPartClick={props.onPartClick} selectedRecord={props.selectedRecord} studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}/>
+                <BoxPlots    filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} width={props.width} height={props.height} onPartClick={props.onPartClick} selectedRecord={props.selectedRecord} studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}/>
             }
         </>
     )
@@ -35,7 +34,7 @@ const ViolinPlots = (props ) => {
 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, colorScale, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses}  = PreparePlotStructure(svgRef, props.filteredData, props.yField, props.width, props.height, true);
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = PreparePlotStructure(svgRef, props.filteredData, props.yField, props.width, props.height, true);
 
         // For the X axis label:
         g.append("text")
@@ -98,8 +97,8 @@ const ViolinPlots = (props ) => {
             return `translate(${bandedX(d)}, 0)`;  
             })
         .style("fill", d => {
-            const classId = getLastingClassID(d.value.school, d.value.season, d.value.class);
-            return colorScale(classId);
+            const classID = getLastingClassID(d.value.school, d.value.season, d.value.class);
+            return  props.classColors[d.value.school][classID]   ; 
         })
         .on("click", (event, d) => {
             props.onViolinClick([{
@@ -151,8 +150,8 @@ const ViolinPlots = (props ) => {
                     .attr("y1", y(startPoint.value.median))
                     .attr("y2", y(endPoint.value.median))
                     .attr("stroke", d => {            
-                        const classId = getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
-                        return colorScale(classId);}) 
+                        const classID = getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
+                        return  props.classColors[startPoint.value.school][classID]; }) 
                     .attr('stroke-width', 1.5)
                     .attr("startSeason", startPoint.value.season.toString())
                     .attr("startClass", startPoint.value.class.toString())
@@ -180,9 +179,7 @@ const ViolinPlots = (props ) => {
 
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
-
-        // Add color legend
-        ColorLegend(identityClasses, "classID", svg, 200, margin);   
+  
 
     }, [props.filteredData,props.xField, props.yField, props.colorField, props.width, props.height, props.selectedRecord, props.studentsChecked, formatDate, parseDate, props.onViolinClick]);
     
@@ -463,20 +460,7 @@ function getLastingClassID(school, seasonKey, classKey)
 
 function PreparePlotStructure(svgRef, filteredData, yField, width, height, isViolin=false){
             const svg = d3.select(svgRef.current);
-            svg.selectAll('*').remove();
-            
-            const identityClasses = identityClass(filteredData);  // Call the identityClass function to get the identity classes.
-            //console.log("identityClasses", identityClasses);
-            const colorDomain = identityClasses.map(ic => ic.classID);  // Get the unique classIDs.
-            const numColors = 20;
-            const quantizedScale = d3.scaleQuantize()
-                .domain([0, colorDomain.length - 1])
-                .range(d3.range(numColors).map(d => interpolateSpectral(d / (numColors - 1))));
-            
-            const colorScale = d3.scaleOrdinal()
-                .domain(colorDomain)
-                .range(colorDomain.map((_, i) => quantizedScale(i)));
-
+            svg.selectAll('*').remove();           
 
             //set margin for svg
             const margin = { top: 20, right: 20, bottom: 80, left: 80 };
@@ -569,7 +553,6 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
                 });
             }
 
-
             // Sort the sumstat by key to ensure boxes layout horizontally within each season:
             // Here sumstat is in a flat structure.
             sumstat.sort((a, b) => {
@@ -621,7 +604,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
 
 
                 
-            return {svg, g, margin, innerWidth, innerHeight, colorScale, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups, identityClasses};
+            return {svg, g, margin, innerWidth, innerHeight, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups};
 
 }
 
