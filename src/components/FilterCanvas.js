@@ -5,32 +5,32 @@ import {OptionSelectGroup } from './ValueSelect';
 import '../App.css';
 
 
-const FilterCanvas = ({ data, setFilterList, checkedSchools,setCheckedSchools,checkedClasses,setCheckedClasses,
-   rangeOptions,setRangeOptions,checkedOptions, setCheckedOptions, showOptionFilter=true, isClassView=false, school_class, onColorPaletteClick,classColors }) => {
+const FilterCanvas = (props) => {
 
-  console.log("filter canvas classColors", classColors);
   return (
 
     <div  className='filter-canvas'>      
 
       <SchoolTreeView  className='school-tree-view' 
-        data={data} 
-        checkedSchools={checkedSchools}
-        setCheckedSchools={setCheckedSchools}
-        checkedClasses={checkedClasses}
-        setCheckedClasses={setCheckedClasses}
-        isClassView={isClassView}
-        school_class={school_class}
-        onColorPaletteClick={onColorPaletteClick}
-        classColors = {classColors}
+        checkedSchools={props.checkedSchools}
+        setCheckedSchools={props.setCheckedSchools}
+        checkedClasses={props.checkedClasses}
+        setCheckedClasses={props.setCheckedClasses}
+        isClassView={props.isClassView}
+        school_class={props.school_class}
+        onColorPaletteClick={props.onColorPaletteClick}
+        classColors = {props.classColors}
       />
 
-      { showOptionFilter &&
-        <OptionSelectGroup className='option-select-group' 
-          data={data} 
-          setFilterList={setFilterList}      
-          checkedOptions={checkedOptions} setCheckedOptions={setCheckedOptions}   rangeOptions={rangeOptions}  setRangeOptions={setRangeOptions} />
-      }
+
+      <OptionSelectGroup className='option-select-group' 
+        data={props.data} 
+        setFilterList={props.setFilterList}      
+        checkedOptions={props.checkedOptions} 
+        setCheckedOptions={props.setCheckedOptions}   
+        rangeOptions={props.rangeOptions}  
+        setRangeOptions={props.setRangeOptions}
+      />
 
     </div>
   );

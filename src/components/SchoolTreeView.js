@@ -9,71 +9,56 @@ import '../App.css';
 import * as d3 from 'd3';
 
 
-function SchoolTreeView({
-  data, 
-  checkedSchools,
-  setCheckedSchools,
-  checkedClasses,
-  setCheckedClasses,
-  isClassView,
-  school_class,
-  onColorPaletteClick,
-  classColors
-}) {
+function SchoolTreeView(props) {
 
   const [checkedAllSchools, setCheckedAllSchools] = useState(true);
-  const allSchools = Object.keys(school_class);
+  const allSchools = Object.keys(props.school_class);
   const allClasses = allSchools.flatMap(school => 
-      Object.keys(school_class[school]).map(classId => `${school}.${classId}`)
+      Object.keys(props.school_class[school]).map(classId => `${school}.${classId}`)
   );
   const [paletteID, setPaletteID] = useState('');
-  const [expandedSchools, setExpandedSchools] = useState(['root']);
-  console.log("classColors", classColors);
+  const [expandedSchools, ] = useState(['root']);
+  console.log("classColors", props.classColors);
 
   useEffect(() => {
       //console.log("SCView allSchools", allSchools, "allClasses", allClasses);
-      setCheckedSchools(allSchools);
-      setCheckedClasses(allClasses);
+      props.setCheckedSchools(allSchools);
+      props.setCheckedClasses(allClasses);
       setCheckedAllSchools(true);
-  }, [school_class]);  
+  }, [props.school_class]);  
 
 
   const handleAllSchoolsCheckChange = (isChecked) => {
       if (isChecked) {  
-          setCheckedSchools(allSchools);
-          setCheckedClasses(allClasses);
+          props.setCheckedSchools(allSchools);
+          props.setCheckedClasses(allClasses);
           setCheckedAllSchools(true);
       }
   }
 
   const handleSchoolCheckChange = (school, isChecked) => {
       if (isChecked) {
-          setCheckedSchools(prev => [...prev, school]);
-          setCheckedClasses(prev => [...prev, ...Object.keys(school_class[school]).map(classId => `${school}.${classId}`)]);
+          props.setCheckedSchools(prev => [...prev, school]);
+          props.setCheckedClasses(prev => [...prev, ...Object.keys(props.school_class[school]).map(classId => `${school}.${classId}`)]);
       } else {   
-          setCheckedSchools(prev => prev.filter(s => s !== school));
+          props.setCheckedSchools(prev => prev.filter(s => s !== school));
       }
   };
 
   const handleClassCheckChange = (schoolClass, isChecked) => {
       const [school, ] = schoolClass.split('.');
       if (isChecked) {
-          setCheckedClasses(prev => [...prev, schoolClass]);
+          props.setCheckedClasses(prev => [...prev, schoolClass]);
       } else {
-          setCheckedClasses(prev => prev.filter(c => c !== schoolClass));
-          setCheckedSchools(prev => prev.filter(s => s !== school));
+          props.setCheckedClasses(prev => prev.filter(c => c !== schoolClass));
+          props.setCheckedSchools(prev => prev.filter(s => s !== school));
       }
   };
 
   const handleColorChange = (school, classID, newColor) => {
     setPaletteID('');
-    onColorPaletteClick(school, classID, newColor);
-    // Update classColors with the new color for this school and classId
-    // ... your logic to update classColors
+    props.onColorPaletteClick(school, classID, newColor);
   };
-
-
-
 
 
   return (
@@ -96,8 +81,8 @@ function SchoolTreeView({
 
           <Button variant="text" size="small"
               onClick={() => {
-                  setCheckedSchools([]);
-                  setCheckedClasses([]);
+                  props.setCheckedSchools([]);
+                  props.setCheckedClasses([]);
                   setCheckedAllSchools(false);
               }}
               style={{marginLeft: '1px', minWidth: 0  }}
@@ -115,10 +100,10 @@ function SchoolTreeView({
             }  
           
           >
-             {Object.entries(school_class).map(([school, classesMap], idx) => (
+             {Object.entries(props.school_class).map(([school, classesMap], idx) => (
               <div key={school} style={{ display: 'flex', alignItems: 'flex-start' }}>
                 <Checkbox  style={{ padding: '1px' }}
-                      checked={checkedSchools.includes(school)}
+                      checked={props.checkedSchools.includes(school)}
                       onChange={(event) => {handleSchoolCheckChange(school, event.target.checked)}}
                 />
                 <TreeItem
@@ -137,7 +122,7 @@ function SchoolTreeView({
                       label={
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                           <Checkbox 
-                            checked={checkedClasses.includes(`${school}.${classId}`)}
+                            checked={props.checkedClasses.includes(`${school}.${classId}`)}
                             onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
                           />
                           {classId }
@@ -148,10 +133,10 @@ function SchoolTreeView({
                     {/* <div style={{ width: '10px', height: '10px', backgroundColor: classColors[school](classId), marginLeft: '5px' }} /> */}
                     <div>
                       <div 
-                        style={{ width: '10px', height: '10px', backgroundColor: isClassView? classColors[school][classId]: 'white', marginLeft: '5px' }}
+                        style={{ width: '10px', height: '10px', backgroundColor: props.isClassView? props.classColors[school][classId]: 'white', marginLeft: '5px' }}
                         onClick={() => setPaletteID(classId)}
                       />
-                      {paletteID===classId && isClassView && (
+                      {paletteID===classId && props.isClassView && (
                         <div style={{ marginTop: '5px' }}>
                           {[0, 1].map(row => (
                             <div key={row} style={{ display: 'flex' }}>
@@ -173,7 +158,7 @@ function SchoolTreeView({
 
 
                 <Button size="small"
-                        onClick={() => {handleSchoolCheckChange(school, false);setCheckedClasses(prev => prev.filter(c => !c.startsWith(`${school}.`)))}}
+                        onClick={() => {handleSchoolCheckChange(school, false);props.setCheckedClasses(prev => prev.filter(c => !c.startsWith(`${school}.`)))}}
                         style={{marginLeft: '10px',  minWidth: 0 }}
                       >
                           X
@@ -198,9 +183,8 @@ function SchoolTreeView({
 
   );
 }
-
   
-  export default SchoolTreeView;
+export default SchoolTreeView;
 
 
 

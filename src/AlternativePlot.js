@@ -7,28 +7,11 @@ import './App.css';
 import {schoolClassFilteredData } from './ScatterPage';
 
 
-const AlternativePage = ({
-  data,
-  xField,
-  setXField,
-  yField,
-  setYField,
-  colorField,
-  setColorField,
-  fields,
-  checkedSchools,
-  setCheckedSchools,
-  checkedClasses,
-  setCheckedClasses,
-  save,
-  load,
-  setConfigFromPreset
-}) => {
+const AlternativePage = (props) => {
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [aggrStudentsChecked, setAggrStudentsChecked] = useState(false);
   const [showAggrViolin, setShowAggrViolin] = useState(false);
   const [isClassView, setIsClassView] = useState(false);
-
 
   const classKeyList =
     [
@@ -43,32 +26,28 @@ const AlternativePage = ({
       'count'
     ];
 
-
   const classFilteredData = useMemo(() => {
-    return schoolClassFilteredData(data, checkedClasses, checkedSchools);
-  }, [data, checkedSchools, checkedClasses]);  
-
-
+    return schoolClassFilteredData(props.data, props.checkedClasses, props.checkedSchools);
+  }, [props.data, props.checkedSchools, props.checkedClasses]);  
 
   const handlePartClick = (details) => {
     setSelectedClassDetail(details);
   };
 
-
   return (   
     <div className="app" >  
       <AxisSelectionCanvas
-        data={data}
-        fields={fields}
-        xField={xField}
-        yField={yField}
-        colorField = {colorField}
-        onXFieldChange={setXField}
-        onYFieldChange={setYField}
-        onColorFieldChange={setColorField}
-        save = {save}
-        load = {load}
-        setConfig = {setConfigFromPreset}
+        data={props.data}
+        fields={props.fields}
+        xField={props.xField}
+        yField={props.yField}
+        colorField = {props.colorField}
+        onXFieldChange={props.setXField}
+        onYFieldChange={props.setYField}
+        onColorFieldChange={props.setColorField}
+        save = {props.save}
+        load = {props.load}
+        setConfig = {props.setConfigFromPreset}
         setStudentsChecked={setAggrStudentsChecked}
         studentsChecked={aggrStudentsChecked}
         setShowViolin={setShowAggrViolin}
@@ -80,9 +59,9 @@ const AlternativePage = ({
       />
       <AggregateCanvas
         filteredData={classFilteredData}
-        xField={xField}
-        yField={yField}
-        colorField = {colorField}
+        xField={props.xField}
+        yField={props.yField}
+        colorField = {props.colorField}
         width={1000}
         height={700}    
         onPartClick={handlePartClick} 
@@ -91,12 +70,12 @@ const AlternativePage = ({
       />
 
       <FilterCanvas 
-        data={data}
-        fields={fields.filter(field => field !== 'StudentID')} 
-        checkedSchools={checkedSchools}
-        setCheckedSchools={setCheckedSchools}
-        checkedClasses={checkedClasses}
-        setCheckedClasses={setCheckedClasses}
+        data={props.data}
+        fields={props.fields.filter(field => field !== 'StudentID')} 
+        checkedSchools={props.checkedSchools}
+        setCheckedSchools={props.setCheckedSchools}
+        checkedClasses={props.checkedClasses}
+        setCheckedClasses={props.setCheckedClasses}
         showOptionFilter={false}
         isAggregatedView={true}
       />   
@@ -111,7 +90,6 @@ const AlternativePage = ({
     </div>
   );
 };
-
 
 
 export default AlternativePage;

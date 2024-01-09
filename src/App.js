@@ -263,14 +263,9 @@ export function generateSchoolClassColorScale(schoolClasses) {
       acc[classID] = Colors20[index % 20];
       return acc;
     }, {});
-    // const classColorScale = d3.scaleOrdinal()
-    // .domain(classsIDs)
-    // .range(classsIDs.map(d => Colors20[classsIDs.indexOf(d) % 20]));  
-    //console.log(classColorScale);
     classColorScaleMap[school] = classColorScale;
   }
 
-  //console.log(classColorScaleMap);
 
   const schools = Object.keys(schoolClasses);
   const schoolColorScale = d3.scaleOrdinal()

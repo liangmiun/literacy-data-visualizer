@@ -1,18 +1,17 @@
-import React, { useState }   from 'react';
+import React   from 'react';
 import Select from 'react-select';
 import './AxisSelectionCanvas.css';
 
-const AxisSelectionCanvas = ({ fields, xField, yField, colorField, 
-  onXFieldChange, onYFieldChange,onColorFieldChange,  
-  save, load, setConfig, studentsChecked, setStudentsChecked,
-  showViolin, setShowViolin, showXField = true, showClassbar=false, 
-  isDeclined, setIsDeclined, handleFileUpload, showLines, setShowLines, isClassView, setIsClassView, viewSwitchCount, setViewSwitchCount
-}) => {
-  const options = fields.map(field => ({ value: field, label: field }));
+const AxisSelectionCanvas = (props) => {
+  const options = props.fields.map(field => ({ value: field, label: field }));
   const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));
+  const {
+    showXField = true, 
+    showClassbar=false, 
+  } = props;
   
-  const onSavePreset = () => {  save()};
-  const onLoadPreset= () => { load(setConfig)};
+  const onSavePreset = () => {  props.save()};
+  const onLoadPreset= () => { props.load(props.setConfig)};
 
 
   const ImportDataButton = ({handleFileUpload}) => (
@@ -31,9 +30,9 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField,
             <label htmlFor="x-field">X-field:</label>
             <Select 
               id="x-field"
-              value={{ value: xField, label: xField }}
+              value={{ value: props.xField, label: props.xField }}
               options={options}
-              onChange={option => onXFieldChange(option.value)}
+              onChange={option => props.onXFieldChange(option.value)}
             />
           </div>
         }
@@ -42,9 +41,9 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField,
           <label htmlFor="y-field">Y-field:</label>
           <Select
             id="y-field"
-            value={{ value: yField, label: yField }}
+            value={{ value: props.yField, label: props.yField }}
             options={options}
-            onChange={option => onYFieldChange(option.value)}
+            onChange={option => props.onYFieldChange(option.value)}
           />
         </div>
 
@@ -52,9 +51,9 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField,
           <label htmlFor="color-field">Color:</label>      
           <Select
             id="color-field"
-            value={{ value: colorField, label: colorField }}
+            value={{ value: props.colorField, label: props.colorField }}
             options={colorOptions}
-            onChange={option => onColorFieldChange(option.value)}
+            onChange={option => props.onColorFieldChange(option.value)}
           />
         </div>
 
@@ -77,7 +76,7 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField,
                 Load Preset
               </button>
 
-              <ImportDataButton  handleFileUpload={handleFileUpload} />  
+              <ImportDataButton  handleFileUpload={props.handleFileUpload} />  
 
         </div>
 
@@ -87,24 +86,24 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField,
             <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
                     <input 
                         type="checkbox" 
-                        checked = {isDeclined}
-                        onChange={() => setIsDeclined(!isDeclined)} 
+                        checked = {props.isDeclined}
+                        onChange={() => props.setIsDeclined(!props.isDeclined)} 
                     />
                     <label><br/>Only declining score </label>
             </div>
             <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
                     <input 
                         type="checkbox" 
-                        checked = {showLines}
-                        onChange={() => setShowLines(!showLines)} 
+                        checked = {props.showLines}
+                        onChange={() => props.setShowLines(!props.showLines)} 
                     />
                     <label><br/>Show lines </label>
             </div>
             <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
                     <input 
                         type="checkbox" 
-                        checked = {isClassView}
-                        onChange={() => {setIsClassView(!isClassView); setViewSwitchCount(viewSwitchCount+1) }}   
+                        checked = {props.isClassView}
+                        onChange={() => {props.setIsClassView(!props.isClassView); props.setViewSwitchCount(props.viewSwitchCount+1) }}   
                     />
                     <label><br/>Class View </label>
             </div>
@@ -113,22 +112,22 @@ const AxisSelectionCanvas = ({ fields, xField, yField, colorField,
 
 
 
-        {isClassView &&
+        {props.isClassView &&
           <div className='aggregate-buttons-row' 
             style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
 
               <button className="btn"
               id="show-violin-btn"
-              onClick={() => setShowViolin(!showViolin)} 
+              onClick={() => props.setShowViolin(!props.showViolin)} 
               >
-                {showViolin ? "BoxPlot" : "ViolinPlot"}
+                {props.showViolin ? "BoxPlot" : "ViolinPlot"}
               </button>
 
               <div  style={{ display: 'inline-block', marginLeft: '5%'}}>
                   <input 
                       type="checkbox" 
-                      checked={studentsChecked} 
-                      onChange={() => setStudentsChecked(!studentsChecked)}
+                      checked={props.studentsChecked} 
+                      onChange={() => props.setStudentsChecked(!props.studentsChecked)}
                   />
                   <label>Show Individuals </label>
               </div>

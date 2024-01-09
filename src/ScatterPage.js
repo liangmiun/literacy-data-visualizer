@@ -8,39 +8,9 @@ import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
 import { generateClassId, generateSchoolLastingClassMap, generateSchoolClassColorScale} from './Utils.js';
 import './App.css';
-import { set } from 'd3-collection';
 
 
-const ScatterPage = ({
-  data,
-  xField,
-  setXField,
-  yField,
-  setYField,
-  colorField,
-  setColorField,
-  fields,
-  checkedSchools,
-  setCheckedSchools,
-  checkedClasses,
-  setCheckedClasses,
-  checkedOptions,
-  setCheckedOptions,
-  rangeOptions,
-  setRangeOptions,
-  filteredData,
-  setFilteredData,
-  save,
-  load,
-  expression,
-  setExpression,
-  query,
-  setQuery,
-  setConfigFromPreset,
-  handleFileUpload,
-  showLines,
-  setShowLines,
-} ) => {  
+const ScatterPage = (props ) => {  
 
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [isDeclined, setIsDeclined] = useState(false);
@@ -53,13 +23,13 @@ const ScatterPage = ({
 
 
   useEffect(() => {
-    if (Object.keys(data).length > 0)
+    if (Object.keys(props.data).length > 0)
     {
-      const newSchoolClasses = generateSchoolLastingClassMap(data);
+      const newSchoolClasses = generateSchoolLastingClassMap(props.data);
       const newClassColorScale = generateSchoolClassColorScale(newSchoolClasses).classColor;
       setSchoolClassesAndColorScale({ schoolClasses: newSchoolClasses, colorScale: newClassColorScale});
     }
-  }, [data]);  
+  }, [props.data]);  
   
 
   const handlePartClick = (details) => {
@@ -67,26 +37,17 @@ const ScatterPage = ({
   };
 
   const handleClassColorPaletteClick= (school, classID, newColor) => {
-    // setClassColorScale(prevSchools => {   
-    //   const prevClasses = prevSchools[school] || {};
-    //   // Update the color for the specified classID within the school
-    //   const updatedClasses = { ...prevClasses, [classID]: newColor };    
-    //   // Return the new state with the updated school's classes
-    //   return { ...prevSchools, [school]: updatedClasses }; });
     setSchoolClassesAndColorScale(prevState => {
       // Extracting the current state of schoolClasses and colorScale
       const { schoolClasses, colorScale } = prevState;
       const prevClasses = colorScale[school] || {};
-      const updatedClasses = { ...prevClasses, [classID]: newColor };
-    
+      const updatedClasses = { ...prevClasses, [classID]: newColor };   
       // Returning the new state with the updated colorScale and unchanged schoolClasses
       return {
         schoolClasses: schoolClasses, // keeping the existing schoolClasses unchanged
         colorScale: { ...colorScale, [school]: updatedClasses } // updating the colorScale
       };
     });
-    
-
   };
 
   const studentKeyList = 
@@ -119,8 +80,8 @@ const ScatterPage = ({
 
   function checkedFilteredData(data) {
     return data.filter(record => {
-        for (let key in checkedOptions) {
-            if ( filterList.includes(key) && ! checkedOptions[key].includes(record[key])) {
+        for (let key in props.checkedOptions) {
+            if ( filterList.includes(key) && ! props.checkedOptions[key].includes(record[key])) {
                 return false;
             }
         }
@@ -131,8 +92,8 @@ const ScatterPage = ({
 
   function rangeFilteredData(data) {
     return data.filter(record => {
-        for (let key in rangeOptions) {
-          const [min, max] = rangeOptions[key];
+        for (let key in props.rangeOptions) {
+          const [min, max] = props.rangeOptions[key];
           if ( filterList.includes(key)  && !(record[key] >= min && record[key] <= max)) {
               return false;
           }
@@ -141,10 +102,10 @@ const ScatterPage = ({
     });
   }
 
-  const dataToShow = isDeclined ? DeclinedData(filteredData) : filteredData;
+  const dataToShow = isDeclined ? DeclinedData(props.filteredData) : props.filteredData;
   const shownData = useMemo(() => {      
-      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(dataToShow,checkedClasses,checkedSchools)));
-    }, [dataToShow, checkedOptions, rangeOptions, checkedSchools, checkedClasses]);  
+      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(dataToShow,props.checkedClasses,props.checkedSchools)));
+    }, [dataToShow, props.checkedOptions, props.rangeOptions, props.checkedSchools, props.checkedClasses]);  
  
 
   //const handlePointClick = (event,record) => setSelectedRecords([record]);   
@@ -153,26 +114,26 @@ const ScatterPage = ({
   return (   
     <div className="app" >  
       <AxisSelectionCanvas
-        data={data}
-        fields={fields}
-        xField={xField}
-        yField={yField}
-        colorField = {colorField}
-        onXFieldChange={setXField}
-        onYFieldChange={setYField}
-        onColorFieldChange={setColorField}
-        save = {save}
-        load = {load}
-        setConfig = {setConfigFromPreset}
+        data={props.data}
+        fields={props.fields}
+        xField={props.xField}
+        yField={props.yField}
+        colorField = {props.colorField}
+        onXFieldChange={props.setXField}
+        onYFieldChange={props.setYField}
+        onColorFieldChange={props.setColorField}
+        save = {props.save}
+        load = {props.load}
+        setConfig = {props.setConfigFromPreset}
         studentsChecked = {studentsChecked}
         setStudentsChecked = {setStudentsChecked}
         showViolin = {showViolin}
         setShowViolin = {setShowViolin}
         isDeclined={isDeclined}
         setIsDeclined={setIsDeclined}
-        handleFileUpload={handleFileUpload}
-        showLines={showLines}
-        setShowLines={setShowLines}
+        handleFileUpload={props.handleFileUpload}
+        showLines={props.showLines}
+        setShowLines={props.setShowLines}
         isClassView={isClassView}
         setIsClassView={setIsClassView}
         viewSwitchCount={viewSwitchCount}
@@ -183,9 +144,9 @@ const ScatterPage = ({
 
         <AggregateCanvas
         filteredData={shownData}
-        xField={xField}
-        yField={yField}
-        colorField = {colorField}
+        xField={props.xField}
+        yField={props.yField}
+        colorField = {props.colorField}
         width={1000}
         height={700}    
         onPartClick={handlePartClick} 
@@ -196,13 +157,13 @@ const ScatterPage = ({
         :
         <ScatterCanvas
           shownData={shownData}
-          xField={xField}
-          yField={yField}
-          colorField = {colorField}
+          xField={props.xField}
+          yField={props.yField}
+          colorField = {props.colorField}
           width= {1000}
           height={800}
           setSelectedRecords={setSelectedRecords}
-          showLines={showLines} 
+          showLines={props.showLines} 
           viewSwitchCount={viewSwitchCount}
           
         />
@@ -213,16 +174,16 @@ const ScatterPage = ({
 
 
       <FilterCanvas 
-        data={data}
-        fields={fields.filter(field => field !== 'StudentID')} 
-        checkedSchools={checkedSchools}
-        setCheckedSchools={setCheckedSchools}
-        checkedClasses={checkedClasses}
-        setCheckedClasses={setCheckedClasses}
-        rangeOptions={rangeOptions}
-        setRangeOptions={setRangeOptions}
-        checkedOptions={checkedOptions}
-        setCheckedOptions={setCheckedOptions}
+        data={props.data}
+        fields={props.fields.filter(field => field !== 'StudentID')} 
+        checkedSchools={props.checkedSchools}
+        setCheckedSchools={props.setCheckedSchools}
+        checkedClasses={props.checkedClasses}
+        setCheckedClasses={props.setCheckedClasses}
+        rangeOptions={props.rangeOptions}
+        setRangeOptions={props.setRangeOptions}
+        checkedOptions={props.checkedOptions}
+        setCheckedOptions={props.setCheckedOptions}
         setFilterList=  {setFilterList}
         isClassView={isClassView}
         school_class={schoolClassesAndColorScale.schoolClasses}
@@ -231,13 +192,13 @@ const ScatterPage = ({
       />   
 
       <LogicCanvas  
-        fields={fields} 
-        data ={data}
-        setFilteredData={setFilteredData}
-        expression={expression}
-        setExpression={setExpression}
-        query={query}
-        setQuery={setQuery}
+        fields={props.fields} 
+        data ={props.data}
+        setFilteredData={props.setFilteredData}
+        expression={props.expression}
+        setExpression={props.setExpression}
+        query={props.query}
+        setQuery={props.setQuery}
       /> 
       
     </div>
