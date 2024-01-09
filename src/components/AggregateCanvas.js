@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import {  rescale } from './ScatterCanvas';
-import { interpolateSpectral } from 'd3-scale-chromatic';
+
 
 const singleViolinWidthRatio = 0.6; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 10;
@@ -13,12 +13,19 @@ const AggregateCanvas = (props) => {
     const filteredData = props.filteredData.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
 
     return(
+        
         <>
             {
-                props.showViolin?
-                <ViolinPlots filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} width={props.width} height={props.height} onPartClick={props.onPartClick} selectedRecord={props.selectedRecord} studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}/>
+                filteredData.length > 0 && (props.showViolin?
+                <ViolinPlots filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
+                    width={props.width} height={props.height} onViolinClick={props.onPartClick} selectedRecord={props.selectedRecord} 
+                    studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}/>
                 :
-                <BoxPlots    filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} width={props.width} height={props.height} onPartClick={props.onPartClick} selectedRecord={props.selectedRecord} studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}/>
+                <BoxPlots    filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
+                    width={props.width} height={props.height} onBoxClick={props.onPartClick} selectedRecord={props.selectedRecord} 
+                    studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}
+                    checkedClasses ={props.checkedClasses} />
+                )
             }
         </>
     )
@@ -199,7 +206,7 @@ const BoxPlots = (props) => {
     // In your useEffect: 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups }  = PreparePlotStructure(svgRef, props.filteredData, props.yField, props.width, props.height);
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, classCount }  = PreparePlotStructure(svgRef, props.filteredData, props.yField, props.width, props.height);
         
         // For the X axis label:
         g.append("text")
@@ -235,11 +242,13 @@ const BoxPlots = (props) => {
         .text(props.yField); 
 
         // Vertical lines
-        const subBandWidth = x0.bandwidth() *0.2;
+        console.log("checkedClasses.length ", props.checkedClasses.length, x0.bandwidth() / props.checkedClasses.length);
+        const subBandWidth = x0.bandwidth() / props.checkedClasses.length;
         function bandedX(d) {
             const season = d.value.season.toString();
-            const clazz = d.value.class.toString();
+            const clazz = d.value.lastingclass.toString();   //.class
             const x1 = getSubBandScale(season); // Get x1 scale for the current season
+            //console.log("bandedX clazz", clazz, "season ", season, "x0(season)", x0(season),  "clazz", clazz, "x1(clazz), ", x1(clazz));
             return x0(season) + x1(clazz) 
         }
 
@@ -365,7 +374,7 @@ const BoxPlots = (props) => {
         //ColorLegend(identityClasses, "classID", svg, 200, margin);          
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [props.filteredData, props.xField, props.yField, props.colorField, props.width, props.height,  props.selectedRecord, props.studentsChecked,formatDate, parseDate, props.onBoxClick, props.classColors]); 
+    }, [props.filteredData, props.xField, props.yField, props.colorField, props.width, props.height,  props.selectedRecord, props.studentsChecked,formatDate, parseDate, props.onBoxClick, props.classColors,props.checkedClasses]); 
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
     );
@@ -405,45 +414,6 @@ function Season(dateObject) {
     //return `${year}-${Math.ceil((month + 1) / 3)}`;
     return `${year}-${Math.floor(month / 3)*3 +1}`;
 }
-
-
-function identityClass(data)
-{
-    // Create identity classes
-    const identityClassesMap = new Map();
-
-    data.forEach(record => {
-        const year = parseInt(record.Läsår.split('/')[0]);
-        const skola = record.Skola;
-        const klassNum = parseInt(record.Klass[0]);
-        const klassSuffix = record.Klass.length >1?  record.Klass[1]: '';
-        const classId = `${skola.substring(0,4).replace(/\s+/g, '_')}:${year - klassNum + 1}-${1}${klassSuffix}`;
-
-        //const existingClass = identityClassesMap.get(classId)&identityClassesMap.get(classId)[0];
-        let existingClass;
-        const classArray = identityClassesMap.get(classId);
-        if (classArray && classArray.length > 0) {
-            existingClass = classArray[0];
-        }
-        if (existingClass) {
-            const existingRecord = existingClass.find(r => r.Läsår === record.Läsår && r.Klass === record.Klass);
-            if (existingRecord) {
-                existingRecord.ElevIDs.push(record.ElevID);
-            } else {
-                existingClass.push({ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] });
-            }
-        } else {
-            identityClassesMap.set(classId, [[{ Läsår: record.Läsår, Klass: record.Klass, ElevIDs: [record.ElevID] }], skola]);
-        }
-    });
-
-    const identityClasses = Array.from(identityClassesMap).map(([key, value]) => {
-        return { classID: key, classes: value[0], school: value[1] };
-    });
-
-    return identityClasses;
-
-}; 
 
 
 function getLastingClassID(school, seasonKey, classKey)
@@ -521,7 +491,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
                 const grouped = d3.group(filteredData,  function(d){ return Season(d.Testdatum)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
                 grouped.forEach((seasonGroup, seasonKey) => {
                     seasonGroup.forEach((schoolGroup, schoolKey) => {
-                        schoolGroup.forEach((values, klassKey) => {
+                        schoolGroup.forEach((values, classKey) => {
 
                             const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
                             
@@ -533,11 +503,11 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
                             const max = q3 + 1.5 * interQuantileRange;
 
                             sumstat.push({
-                                key: `${klassKey}-${seasonKey}`,
+                                key: `${classKey}-${seasonKey}`,
                                 value: {
-                                    lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),
+                                    lastingclass: getLastingClassID(schoolKey, seasonKey, classKey),
                                     school: schoolKey,
-                                    class: klassKey,
+                                    class: classKey,
                                     season: seasonKey,
                                     q1: q1, 
                                     median: median, 
@@ -555,6 +525,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
 
             // Sort the sumstat by key to ensure boxes layout horizontally within each season:
             // Here sumstat is in a flat structure.
+            //console.log("sumstat", sumstat)
             sumstat.sort((a, b) => {
                 const xComp = d3.ascending(a.season, b.season);
                 return xComp !== 0 ? xComp : d3.ascending(a.class, b.class);
@@ -572,7 +543,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
             seasons.forEach(season => {
                 let classesForSeason = sumstat
                     .filter(d => d.value.season === season)
-                    .map(d => d.value.class);
+                    .map(d => d.value.lastingclass);  // .class
                 classesForSeason.sort((a, b) => a.toString().localeCompare(b.toString()));
                 seasonToClasses[season] = classesForSeason;
                 //console.log("seasonToClasses", season, seasonToClasses[season]);
@@ -591,8 +562,8 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
             const x0 = d3.scaleBand()
             .domain(seasons)
             .range([0, innerWidth])
-            .paddingInner(0.5)
-            .paddingOuter(0.5);
+            .paddingInner(0.2)
+            .paddingOuter(0.2);
 
             // Generate the tick values (just the combined class-season strings now)
             let tickValues = seasons; 
@@ -611,7 +582,7 @@ function PreparePlotStructure(svgRef, filteredData, yField, width, height, isVio
 
 function createBoxZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked) {
     return d3.zoom()
-      .scaleExtent([0.5, 10])
+      .scaleExtent([0.5, 50])
       .on('zoom', (event) => {
         const zoomState = event.transform;
         boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked);
@@ -678,7 +649,7 @@ function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, 
 {
 
     return d3.zoom()
-      .scaleExtent([0.5, 10])
+      .scaleExtent([0.5, 50])
       .on('zoom', (event) => {
             const zoomState = event.transform;
             violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked);
@@ -744,7 +715,7 @@ function init_ZoomSetting(zoomState,xScale, yScale, xType, yType, g, xAxis, yAxi
 
     function zoomedX(d) {
         const season = d.value.season.toString();
-        const clazz = d.value.class.toString();
+        const clazz = d.value.lastingclass.toString();
         const x1 = getSubBandScale(season); // Get x1 scale for the current season
         const value = zoomXScale(season) + x1(clazz) * zoomState.k   //zoomXScale(season) + x1(clazz) 
         return isNaN(value) ? 0 : value;         

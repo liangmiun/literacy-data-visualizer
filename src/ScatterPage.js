@@ -153,6 +153,7 @@ const ScatterPage = (props ) => {
         studentsChecked={studentsChecked}
         showViolin={showViolin}
         classColors={schoolClassesAndColorScale.colorScale}
+        checkedClasses={props.checkedClasses}
         />
         :
         <ScatterCanvas
