@@ -5,6 +5,7 @@ import * as AggregateUtils from './AggregateUtils';
 const AggregateCanvas = (props) => {
 
     const filteredData = props.filteredData.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
+    const subBandCount = props.checkedClasses.length;
 
     return(
         
@@ -13,12 +14,13 @@ const AggregateCanvas = (props) => {
                 filteredData.length > 0 && (props.showViolin?
                 <ViolinPlots filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                     width={props.width} height={props.height} onViolinClick={props.onPartClick} selectedRecord={props.selectedRecord} 
-                    studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}/>
+                    studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}
+                    subBandCount = {subBandCount}  />
                 :
                 <BoxPlots    filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                     width={props.width} height={props.height} onBoxClick={props.onPartClick} selectedRecord={props.selectedRecord} 
                     studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}
-                    checkedClasses ={props.checkedClasses} />
+                    subBandCount ={subBandCount} />
                 )
             }
         </>
@@ -69,7 +71,7 @@ const ViolinPlots = (props ) => {
         .text(props.yField); 
 
         
-        const subBandWidth = x0.bandwidth() * 0.2;
+        const subBandWidth = x0.bandwidth() / props.subBandCount;
 
         var maxNum = 0;
         for (var i in sumstat) {
@@ -79,12 +81,12 @@ const ViolinPlots = (props ) => {
             if (longest > maxNum) { maxNum = longest }
         }
 
-        const xNum = d3.scaleLinear().range([0, subBandWidth]).domain([-maxNum, maxNum]);
-        //console.log("init xNum "+ xNum + typeof(xNum) + xNum.length)
+        const xNum = d3.scaleLinear().domain([-maxNum, maxNum]).range([0, subBandWidth]);
+        console.log("init maxNum ", maxNum,   xNum.length, xNum.domain());
 
         function bandedX(d) {
             const season = d.value.season.toString();
-            const clazz = d.value.class.toString();
+            const clazz = d.value.lastingclass.toString();
             const x1 = getSubBandScale(season); // Get x1 scale for the current season
             return x0(season) + x1(clazz) 
         }
@@ -123,8 +125,9 @@ const ViolinPlots = (props ) => {
                 )
         .style("stroke", "none")
         .attr("d", d3.area()
-                .x0(d => xNum(-d.length* subBandWidth * AggregateUtils.singleViolinWidthRatio))  
-                .x1(d => xNum(d.length* subBandWidth * AggregateUtils.singleViolinWidthRatio))  
+                .x0(d => { //console.log(-d.length, subBandWidth , AggregateUtils.singleViolinWidthRatio,  xNum(-d.length* subBandWidth * AggregateUtils.singleViolinWidthRatio));    
+                      return xNum(-d.length * AggregateUtils.singleViolinWidthRatio)})  //* subBandWidth
+                .x1(d => xNum(d.length * AggregateUtils.singleViolinWidthRatio))  //* subBandWidth
                 .y(d => y(d.x0))   //d.x0
                 .curve(d3.curveCatmullRom)
                 );  
@@ -138,13 +141,13 @@ const ViolinPlots = (props ) => {
                     .attr("class", "lastingClassLines")
                     .attr("x1", () => {
                         const season = startPoint.value.season.toString();
-                        const clazz = startPoint.value.class.toString();
+                        const clazz = startPoint.value.lastingclass.toString();
                         const x1 = getSubBandScale(season);
                         return x0(season) + x1(clazz) + subBandWidth / 2;
                     })
                     .attr("x2", () => {
                         const season = endPoint.value.season.toString();
-                        const clazz = endPoint.value.class.toString();
+                        const clazz = endPoint.value.lastingclass.toString();
                         const x1 = getSubBandScale(season);
                         return x0(season) + x1(clazz) + subBandWidth / 2;
                     })
@@ -155,7 +158,7 @@ const ViolinPlots = (props ) => {
                         return  props.classColors[startPoint.value.school][classID]; }) 
                     .attr('stroke-width', 1.5)
                     .attr("startSeason", startPoint.value.season.toString())
-                    .attr("startClass", startPoint.value.class.toString())
+                    .attr("startClassID", AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class))
                     .attr("endSeason", endPoint.value.season.toString())
                     .attr("endClass", endPoint.value.class.toString())                  
                     ; 
@@ -172,11 +175,11 @@ const ViolinPlots = (props ) => {
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
             const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-            AggregateUtils.violinZoomRender( zoomState, x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale,xNum, props.studentsChecked);
+            AggregateUtils.violinZoomRender( zoomState, x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale,xNum, props.studentsChecked, props.subBandCount);
         }
 
         // Setup zoom behavior
-        const zoomBehavior = AggregateUtils.createViolinZoomBehavior(x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, xNum, props.studentsChecked);
+        const zoomBehavior = AggregateUtils.createViolinZoomBehavior(x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, xNum, props.studentsChecked, props.subBandCount);
 
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
@@ -237,8 +240,8 @@ const BoxPlots = (props) => {
 
         // Vertical lines
         //console.log("checkedClasses.length ", props.checkedClasses.length, x0.bandwidth() / props.checkedClasses.length);
-        const subBandCount = props.checkedClasses.length;
-        const subBandWidth = x0.bandwidth() / subBandCount;
+        //const subBandCount = props.checkedClasses.length;
+        const subBandWidth = x0.bandwidth() / props.subBandCount;
         function bandedX(d) {
             const season = d.value.season.toString();
             const clazz = d.value.lastingclass.toString();   //.class
@@ -360,11 +363,11 @@ const BoxPlots = (props) => {
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
             const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-            AggregateUtils.boxZoomRender( zoomState, x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked, subBandCount);
+            AggregateUtils.boxZoomRender( zoomState, x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked, props.subBandCount);
         }
 
         // Setup zoom behavior
-        const zoomBehavior = AggregateUtils.createBoxZoomBehavior(x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked,subBandCount);
+        const zoomBehavior = AggregateUtils.createBoxZoomBehavior(x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked,props.subBandCount);
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
 

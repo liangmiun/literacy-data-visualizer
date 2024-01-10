@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import {  rescale } from '../Utils';
 
-export const singleViolinWidthRatio = 0.6; // The width of a single violin relative to the sub-band width
+export const singleViolinWidthRatio = 0.8; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 10;
 const indv_offset =0;
 
@@ -273,7 +273,7 @@ export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, y
       .scaleExtent([0.5, 50])
       .on('zoom', (event) => {
             const zoomState = event.transform;
-            violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked);
+            violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount);
 
       });
 
@@ -283,15 +283,16 @@ export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, y
 export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
 {
     const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
-            
+          
+    console.log("subBandCount: ", subBandCount);
     g.selectAll('.violins')
     .attr("transform",  d => {
         return `translate(${zoomedX(d)}, 0)`;  
         })
     .selectAll('.area')
     .attr("d", d3.area()
-        .x0(d => xNum(-d.length* subBandWidth*singleViolinWidthRatio))  //
-        .x1(d => xNum(d.length* subBandWidth*singleViolinWidthRatio) )  
+        .x0(d => xNum(-d.length *singleViolinWidthRatio)*zoomState.k)  //
+        .x1(d => xNum(d.length *singleViolinWidthRatio) *zoomState.k)  
         .y(d => yScale(d.x0))   //d.x0
         .curve(d3.curveCatmullRom)
                 );  
@@ -299,13 +300,14 @@ export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField,
     g.selectAll('.lastingClassLines')
     .attr("x1", function(){
         const startSeason = d3.select(this).attr('startSeason');
-        const startClass = d3.select(this).attr('startClass');
-        return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClass)* zoomState.k + subBandWidth / 2;
+        const startClassID = d3.select(this).attr('startClassID');
+        //console.log( zoomXScale(startSeason), subBandWidth / 2)
+        return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClassID)* zoomState.k + subBandWidth / 2;
     })
     .attr("x2", function(){
         const endSeason = d3.select(this).attr('endSeason');
-        const endClass = d3.select(this).attr('endClass');
-        return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClass)* zoomState.k + subBandWidth / 2;
+        const endClassID = d3.select(this).attr('startClassID');
+        return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClassID)* zoomState.k + subBandWidth / 2;
     })
 
 
@@ -332,7 +334,7 @@ export function init_ZoomSetting(zoomState,xScale, yScale, xType, yType, g, xAxi
     newXScaleRef.current = zoomXScale;
     newYScaleRef.current = zoomYScale;
     const subBandWidth = zoomXScale.bandwidth() / subBandCount;  
-    //console.log('subBandcount', subBandCount, "subBandWidth", subBandWidth)
+    //console.log('subBandCount', subBandCount, "subBandWidth", subBandWidth)
 
     function zoomedX(d) {
         const season = d.value.season.toString();
