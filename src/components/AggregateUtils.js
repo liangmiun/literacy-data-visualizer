@@ -14,8 +14,9 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
         .attr("cx", d => {                    
             const season = Season(d.Testdatum).toString(); // or whatever field you use for the season
             const clazz = d.Klass.toString();
+            const classID = getLastingClassID(d.Skola, season, clazz);
             const x1 = getSubBandScale(season); // get the x1 scale for the current season
-            return x0(season) + x1(clazz)  + subBandWidth/2 + indv_offset- indv_jitterWidth/2 + Math.random()*indv_jitterWidth;
+            return x0(season) + x1(classID)  + subBandWidth/2 + indv_offset- indv_jitterWidth/2 + Math.random()*indv_jitterWidth;
         })
         .attr("cy", d => { return y(d[yField])})
         .attr("r", 2)
@@ -24,7 +25,7 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
         .style("fill-opacity", 0.5)
         .style("stroke-opacity", 0.5)  
         .attr("indv_season", d => {return Season(d.Testdatum).toString()})
-        .attr("indv_class", d => { return d.Klass.toString()})
+        .attr("indv_classID", d => { return getLastingClassID(d.Skola, Season(d.Testdatum).toString(), d.Klass.toString())})
         .attr("jitterOffset", () => { return indv_offset- indv_jitterWidth/2 + Math.random()*indv_jitterWidth});
 }
 
@@ -370,9 +371,9 @@ export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, ge
     g.selectAll(".indvPoints")
     .attr("cx", function() {
         const season = d3.select(this).attr("indv_season");
-        const clazz = d3.select(this).attr("indv_class");
+        const classID = d3.select(this).attr("indv_classID");
         const jitterOffset = d3.select(this).attr("jitterOffset");
         //console.log(d +  " length: " + d.length )                    
-        return zoomXScale(season) + getSubBandScale(season)(clazz) * zoomState.k + subBandWidth/2 + jitterOffset*zoomState.k;
+        return zoomXScale(season) + getSubBandScale(season)(classID) * zoomState.k + subBandWidth/2 + jitterOffset*zoomState.k;
     })
 }
