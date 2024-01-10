@@ -1,4 +1,4 @@
-import { Box, Checkbox, FormControlLabel, Slider, FormGroup, FormControl, InputLabel, Select, MenuItem, ListItemText } from '@mui/material';
+import { Box, Checkbox, FormControlLabel, Slider, FormGroup  } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import * as d3 from 'd3';

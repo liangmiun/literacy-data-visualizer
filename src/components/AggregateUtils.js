@@ -52,171 +52,169 @@ export function getLastingClassID(school, seasonKey, classKey)
 
 
 export function PreparePlotStructure(svgRef, filteredData, yField, width, height, isViolin=false){
-            const svg = d3.select(svgRef.current);
-            svg.selectAll('*').remove();           
 
-            //set margin for svg
-            const margin = { top: 20, right: 20, bottom: 80, left: 80 };
-            const innerWidth = width - margin.left - margin.right;
-            const innerHeight = height - margin.top - margin.bottom;
-            const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove();           
 
-            // Create main linear scale for y-axis
-            const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
-            const y = d3.scaleLinear()
-                .domain([yMin, yMax])
-                .range([innerHeight, 0]);
+    //set margin for svg
+    const margin = { top: 20, right: 20, bottom: 80, left: 80 };
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
+    const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-            // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
-            const sumstat = [];
-            if(isViolin){
+    // Create main linear scale for y-axis
+    const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
+    const y = d3.scaleLinear()
+        .domain([yMin, yMax])
+        .range([innerHeight, 0]);
 
-                const histogram = d3.bin().domain(y.domain()).thresholds(y.ticks(30)).value(d => d);
-                const grouped = d3.group(filteredData, d => Season(d.Testdatum), d => d.Skola, d => d.Klass);   
+    // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
+    const sumstat = [];
+    if(isViolin){
+        const histogram = d3.bin().domain(y.domain()).thresholds(y.ticks(30)).value(d => d);
+        const grouped = d3.group(filteredData, d => Season(d.Testdatum), d => d.Skola, d => d.Klass);   
+        grouped.forEach((seasonGroup, seasonKey) => {
+            seasonGroup.forEach((schoolGroup, schoolKey) => {
+                schoolGroup.forEach((values, klassKey) => {
+                    const input = values.map(g => g[yField]);
+                    const bins = histogram(input);
+                    const bin_values = bins.flatMap(bin => bin.slice(0, bin.length));
+                    const sortedValues = bin_values.sort(d3.ascending);
+                    const q1 = d3.quantile(sortedValues, 0.25);
+                    const median = d3.quantile(sortedValues, 0.5);
+                    const q3 = d3.quantile(sortedValues, 0.75);
+                    const interQuantileRange = q3 - q1;
+                    const min = q1 - 1.5 * interQuantileRange;
+                    const max = q3 + 1.5 * interQuantileRange;
 
-                grouped.forEach((seasonGroup, seasonKey) => {
-                    seasonGroup.forEach((schoolGroup, schoolKey) => {
-                        schoolGroup.forEach((values, klassKey) => {
-                            const input = values.map(g => g[yField]);
-                            const bins = histogram(input);
-                            const bin_values = bins.flatMap(bin => bin.slice(0, bin.length));
-                            const sortedValues = bin_values.sort(d3.ascending);
-                            const q1 = d3.quantile(sortedValues, 0.25);
-                            const median = d3.quantile(sortedValues, 0.5);
-                            const q3 = d3.quantile(sortedValues, 0.75);
-                            const interQuantileRange = q3 - q1;
-                            const min = q1 - 1.5 * interQuantileRange;
-                            const max = q3 + 1.5 * interQuantileRange;
-
-                            sumstat.push({
-                                key: `${klassKey}-${seasonKey}`,
-                                value: {
-                                    lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),                                
-                                    season: seasonKey,
-                                    school: schoolKey,
-                                    class: klassKey,
-                                    bins: bins,
-                                    q1: q1, 
-                                    median: median, 
-                                    q3: q3, 
-                                    interQuantileRange: interQuantileRange, 
-                                    min: min, 
-                                    max: max,
-                                    count: sortedValues.length
-                                }
-                            });
-                        });
+                    sumstat.push({
+                        key: `${klassKey}-${seasonKey}`,
+                        value: {
+                            lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),                                
+                            season: seasonKey,
+                            school: schoolKey,
+                            class: klassKey,
+                            bins: bins,
+                            q1: q1, 
+                            median: median, 
+                            q3: q3, 
+                            interQuantileRange: interQuantileRange, 
+                            min: min, 
+                            max: max,
+                            count: sortedValues.length
+                        }
                     });
                 });
+            });
+        });
+    }
+    else {
+        const grouped = d3.group(filteredData,  function(d){ return Season(d.Testdatum)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
+        grouped.forEach((seasonGroup, seasonKey) => {
+            seasonGroup.forEach((schoolGroup, schoolKey) => {
+                schoolGroup.forEach((values, classKey) => {
 
-            }
-            else {
-                const grouped = d3.group(filteredData,  function(d){ return Season(d.Testdatum)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
-                grouped.forEach((seasonGroup, seasonKey) => {
-                    seasonGroup.forEach((schoolGroup, schoolKey) => {
-                        schoolGroup.forEach((values, classKey) => {
+                    const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
+                    
+                    const q1 = d3.quantile(sortedValues, 0.25);
+                    const median = d3.quantile(sortedValues, 0.5);
+                    const q3 = d3.quantile(sortedValues, 0.75);
+                    const interQuantileRange = q3 - q1;
+                    const min = q1 - 1.5 * interQuantileRange;
+                    const max = q3 + 1.5 * interQuantileRange;
 
-                            const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
-                            
-                            const q1 = d3.quantile(sortedValues, 0.25);
-                            const median = d3.quantile(sortedValues, 0.5);
-                            const q3 = d3.quantile(sortedValues, 0.75);
-                            const interQuantileRange = q3 - q1;
-                            const min = q1 - 1.5 * interQuantileRange;
-                            const max = q3 + 1.5 * interQuantileRange;
-
-                            sumstat.push({
-                                key: `${classKey}-${seasonKey}`,
-                                value: {
-                                    lastingclass: getLastingClassID(schoolKey, seasonKey, classKey),
-                                    school: schoolKey,
-                                    class: classKey,
-                                    season: seasonKey,
-                                    q1: q1, 
-                                    median: median, 
-                                    q3: q3, 
-                                    interQuantileRange: interQuantileRange, 
-                                    min: min, 
-                                    max: max,
-                                    count: sortedValues.length
-                                }
-                            });
-                        });
+                    sumstat.push({
+                        key: `${classKey}-${seasonKey}`,
+                        value: {
+                            lastingclass: getLastingClassID(schoolKey, seasonKey, classKey),
+                            school: schoolKey,
+                            class: classKey,
+                            season: seasonKey,
+                            q1: q1, 
+                            median: median, 
+                            q3: q3, 
+                            interQuantileRange: interQuantileRange, 
+                            min: min, 
+                            max: max,
+                            count: sortedValues.length
+                        }
                     });
                 });
-            }
-
-            // Sort the sumstat by key to ensure boxes layout horizontally within each season:
-            // Here sumstat is in a flat structure.
-            //console.log("sumstat", sumstat)
-            sumstat.sort((a, b) => {
-                const xComp = d3.ascending(a.season, b.season);
-                return xComp !== 0 ? xComp : d3.ascending(a.class, b.class);
             });
+        });
+    }
 
-            const lastingClassGroups = d3.group(sumstat, d => d.value.lastingclass);
+    // Sort the sumstat by key to ensure boxes layout horizontally within each season:
+    // Here sumstat is in a flat structure.
+    //console.log("sumstat", sumstat)
+    sumstat.sort((a, b) => {
+        const xComp = d3.ascending(a.season, b.season);
+        return xComp !== 0 ? xComp : d3.ascending(a.class, b.class);
+    });
 
-            // Create an array of unique seasons
-            const seasons = Array.from(new Set(sumstat.map(d => d.value.season.toString())));  // d => d.key.split('-')[1]  d => d.value.season.toString()
+    const lastingClassGroups = d3.group(sumstat, d => d.value.lastingclass);
 
-
-            // Create a mapping of each season to its classes
-            const seasonToClasses = {};
-
-            seasons.forEach(season => {
-                let classesForSeason = sumstat
-                    .filter(d => d.value.season === season)
-                    .map(d => d.value.lastingclass);  // .class
-                classesForSeason.sort((a, b) => a.toString().localeCompare(b.toString()));
-                seasonToClasses[season] = classesForSeason;
-                //console.log("seasonToClasses", season, seasonToClasses[season]);
-
-            });
-
-            // Create a function to get the sub-band scale for classes within a given season
-            function getSubBandScale(season) {
-                return d3.scaleBand()
-                    .padding(0.05)   //0.05
-                    .domain(seasonToClasses[season])
-                    .range([0, x0.bandwidth()]);
-            }
-
-            // Create main band scale for seasons
-            const x0 = d3.scaleBand()
-            .domain(seasons)
-            .range([0, innerWidth])
-            .paddingInner(0.2)
-            .paddingOuter(0.2);
-
-            // Generate the tick values (just the combined class-season strings now)
-            let tickValues = seasons; 
-
-            // Create the x-axis using the new band scale `x1`
-            const xAxis = d3.axisBottom(x0)
-                .tickValues(tickValues) // Use the combined class-season strings
-                .tickFormat(d => d);  // The tick format is just the string itself now
+    // Create an array of unique seasons
+    const seasons = Array.from(new Set(sumstat.map(d => d.value.season.toString())));  // d => d.key.split('-')[1]  d => d.value.season.toString()
 
 
-                
-            return {svg, g, margin, innerWidth, innerHeight, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups};
+    // Create a mapping of each season to its classes
+    const seasonToClasses = {};
+
+    seasons.forEach(season => {
+        let classesForSeason = sumstat
+            .filter(d => d.value.season === season)
+            .map(d => d.value.lastingclass);  // .class
+        classesForSeason.sort((a, b) => a.toString().localeCompare(b.toString()));
+        seasonToClasses[season] = classesForSeason;
+        //console.log("seasonToClasses", season, seasonToClasses[season]);
+
+    });
+
+    // Create a function to get the sub-band scale for classes within a given season
+    function getSubBandScale(season) {
+        return d3.scaleBand()
+            .padding(0.05)   //0.05
+            .domain(seasonToClasses[season])
+            .range([0, x0.bandwidth()]);
+    }
+
+    // Create main band scale for seasons
+    const x0 = d3.scaleBand()
+    .domain(seasons)
+    .range([0, innerWidth])
+    .paddingInner(0.2)
+    .paddingOuter(0.2);
+
+    // Generate the tick values (just the combined class-season strings now)
+    let tickValues = seasons; 
+
+    // Create the x-axis using the new band scale `x1`
+    const xAxis = d3.axisBottom(x0)
+        .tickValues(tickValues) // Use the combined class-season strings
+        .tickFormat(d => d);  // The tick format is just the string itself now
+
+
+        
+    return {svg, g, margin, innerWidth, innerHeight, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups};
 
 }
 
 
-export function createBoxZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked) {
+export function createBoxZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
     return d3.zoom()
       .scaleExtent([0.5, 50])
       .on('zoom', (event) => {
         const zoomState = event.transform;
-        boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked);
+        boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
 
         });
   }
 
 
-export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked)
+export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
 {
-    const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale);
+    const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
     // Apply zoom transformation to boxes
     g.selectAll('.boxes, .medianText')  //
     .attr("x", d => {  
@@ -246,13 +244,13 @@ export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yF
     g.selectAll('.lastingClassLines')
     .attr("x1", function(){
         const startSeason = d3.select(this).attr('startSeason');
-        const startClass = d3.select(this).attr('startClass');
-        return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClass)* zoomState.k + subBandWidth / 2;
+        const startClassID = d3.select(this).attr('startClassID');
+        return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClassID)* zoomState.k + subBandWidth / 2;
     })
     .attr("x2", function(){
         const endSeason = d3.select(this).attr('endSeason');
-        const endClass = d3.select(this).attr('endClass');
-        return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClass)* zoomState.k + subBandWidth / 2;
+        const endClassID = d3.select(this).attr('startClassID');
+        return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClassID)* zoomState.k + subBandWidth / 2;
     })
 
 
@@ -268,7 +266,7 @@ export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yF
 }
 
 
-export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked)
+export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
 {
 
     return d3.zoom()
@@ -282,9 +280,9 @@ export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, y
 }
 
 
-export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked)
+export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
 {
-    const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale);
+    const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
             
     g.selectAll('.violins')
     .attr("transform",  d => {
@@ -325,7 +323,7 @@ export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField,
 }
 
 
-export function init_ZoomSetting(zoomState,xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale)
+export function init_ZoomSetting(zoomState,xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount)
 {
     //const zoomState = event.transform;    
     const zoomXScale = rescale(xScale, zoomState, xType, 'x');         
@@ -333,8 +331,8 @@ export function init_ZoomSetting(zoomState,xScale, yScale, xType, yType, g, xAxi
 
     newXScaleRef.current = zoomXScale;
     newYScaleRef.current = zoomYScale;
-    const subBandWidth = zoomXScale.bandwidth() * 0.1;  //xScale.bandwidth() * 0.2
-    //console.log("subBandWidth", subBandWidth)
+    const subBandWidth = zoomXScale.bandwidth() / subBandCount;  
+    //console.log('subBandcount', subBandCount, "subBandWidth", subBandWidth)
 
     function zoomedX(d) {
         const season = d.value.season.toString();

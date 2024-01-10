@@ -237,31 +237,32 @@ const BoxPlots = (props) => {
 
         // Vertical lines
         //console.log("checkedClasses.length ", props.checkedClasses.length, x0.bandwidth() / props.checkedClasses.length);
-        const subBandWidth = x0.bandwidth() / props.checkedClasses.length;
+        const subBandCount = props.checkedClasses.length;
+        const subBandWidth = x0.bandwidth() / subBandCount;
         function bandedX(d) {
             const season = d.value.season.toString();
             const clazz = d.value.lastingclass.toString();   //.class
             const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            //console.log("bandedX clazz", clazz, "season ", season, "x0(season)", x0(season),  "clazz", clazz, "x1(clazz), ", x1(clazz));
             return x0(season) + x1(clazz) 
         }
-
-
+    
         g.selectAll(".vertLines")
-            .data(sumstat)
-            .enter().append("line")
-            .attr("class", "vertLines") 
-            .attr("x1", d => {
-                return bandedX(d) + subBandWidth / 2;
-            })
-            .attr("x2", d => {
-                return bandedX(d) + subBandWidth / 2;
-            })
-            .attr("y1", d => y(d.value.min))
-            .attr("y2", d => y(d.value.max))
-            .attr("stroke", "black")
-            .style("width", 40);     
+        .data(sumstat)
+        .enter().append("line")
+        .attr("class", "vertLines") 
+        .attr("x1", d => {
+            return bandedX(d) + subBandWidth / 2;
+        })
+        .attr("x2", d => {
+            return bandedX(d) + subBandWidth / 2;
+        })
+        .attr("y1", d => y(d.value.min))
+        .attr("y2", d => y(d.value.max))
+        .attr("stroke", "black")
+        .style("stroke-width", 0.5); 
 
+
+    
 
         // Boxes
         g.selectAll(".boxes")
@@ -274,8 +275,11 @@ const BoxPlots = (props) => {
             .attr("y", d => { const distance = y(d.value.q1) - y(d.value.q3); return distance > 0 ?  y(d.value.q3): y(d.value.q3) -2.5;})
             .attr("height", d => { const distance = y(d.value.q1) - y(d.value.q3); return distance > 0 ?  distance: 5;})
             .attr("width", d => {
+                console.log("d.value.class ",  subBandWidth);
                 return subBandWidth;
             })
+            .attr("stroke", "black")
+            .style("stroke-width", 0.5)
             .style("fill", d => {
                 const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
                 return  props.classColors[d.value.school][classID]   ;  // colorScale(classId)  "url(#mygrad)"  `url(#mygrad-${classID})`
@@ -295,19 +299,19 @@ const BoxPlots = (props) => {
 
         // Median lines
         g.selectAll(".medianLines")
-            .data(sumstat)
-            .enter().append("line")
-            .attr("class", "medianLines") 
-            .attr("x1", d => {
-                return bandedX(d);
-            })
-            .attr("x2", d => {
-                return bandedX(d) + subBandWidth;
-            })
-            .attr("y1", d => y(d.value.median))
-            .attr("y2", d => y(d.value.median))
-            .attr("stroke", "black")
-            .style("width", 40);
+        .data(sumstat)
+        .enter().append("line")
+        .attr("class", "medianLines") 
+        .attr("x1", d => {
+            return bandedX(d) ;
+        })
+        .attr("x2", d => {
+            return bandedX(d)+ subBandWidth ;   
+         })
+        .attr("y1", d => y(d.value.median))
+        .attr("y2", d => y(d.value.median))
+        .attr("stroke", "black")
+        .style("stroke-width", 0.5)
 
 
         // g.selectAll(".medianText")
@@ -339,9 +343,9 @@ const BoxPlots = (props) => {
                     .attr("stroke", d => {            
                         const classID = AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
                         return props.classColors[startPoint.value.school][classID];}) 
-                    .attr('stroke-width', 2)
+                    .attr('stroke-width', 1)
                     .attr("startSeason", startPoint.value.season.toString())
-                    .attr("startClass", startPoint.value.class.toString())
+                    .attr("startClassID", AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class)) //startPoint.value.class.toString()
                     .attr("endSeason", endPoint.value.season.toString())
                     .attr("endClass", endPoint.value.class.toString())
             }
@@ -356,11 +360,11 @@ const BoxPlots = (props) => {
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
             const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-            AggregateUtils.boxZoomRender( zoomState, x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked);
+            AggregateUtils.boxZoomRender( zoomState, x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked, subBandCount);
         }
 
         // Setup zoom behavior
-        const zoomBehavior = AggregateUtils.createBoxZoomBehavior(x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked);
+        const zoomBehavior = AggregateUtils.createBoxZoomBehavior(x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked,subBandCount);
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
 
