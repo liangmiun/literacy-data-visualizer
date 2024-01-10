@@ -15,11 +15,11 @@ const ScatterPage = (props ) => {
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [isDeclined, setIsDeclined] = useState(false);
   const [isClassView, setIsClassView] = useState(false);
-  const [viewSwitchCount, setViewSwitchCount] = useState(0);
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
   const [showViolin, setShowViolin] = useState(false);
   const [schoolClassesAndColorScale, setSchoolClassesAndColorScale ]= useState({schoolClasses:{}, colorScale: {}});
+  const [declineSlopeThreshold, setDeclineSlopeThreshold] = useState(0);
 
 
   useEffect(() => {
@@ -102,7 +102,13 @@ const ScatterPage = (props ) => {
     });
   }
 
-  const dataToShow = isDeclined ? DeclinedData(props.filteredData) : props.filteredData;
+  var dataToShow = props.filteredData;
+  var minDeclineSlope = -1;
+  if(isDeclined){
+    dataToShow = DeclinedData(props.filteredData, declineSlopeThreshold).data;
+    minDeclineSlope= DeclinedData(props.filteredData, declineSlopeThreshold).minSlope;
+  }
+
   const shownData = useMemo(() => {      
       return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(dataToShow,props.checkedClasses,props.checkedSchools)));
     }, [dataToShow, props.checkedOptions, props.rangeOptions, props.checkedSchools, props.checkedClasses]);  
@@ -136,8 +142,9 @@ const ScatterPage = (props ) => {
         setShowLines={props.setShowLines}
         isClassView={isClassView}
         setIsClassView={setIsClassView}
-        viewSwitchCount={viewSwitchCount}
-        setViewSwitchCount={setViewSwitchCount}
+        declineSlope={declineSlopeThreshold}
+        setDeclineSlope={setDeclineSlopeThreshold}
+        minDeclineSlope={minDeclineSlope}
       />
 
       {isClassView ?
@@ -165,8 +172,6 @@ const ScatterPage = (props ) => {
           height={800}
           setSelectedRecords={setSelectedRecords}
           showLines={props.showLines} 
-          viewSwitchCount={viewSwitchCount}
-          
         />
 
       }
@@ -226,10 +231,12 @@ export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
   } );    
 }
 
-function DeclinedData(data) {
+function DeclinedData(data, declineSlopeThreshold) {
   // 1. Parse Testdatum to a numeric format (e.g., timestamp) if it's not already numeric
+  const millisecondsPerDay = 86400000;
   data.forEach(d => {
-      d.numericTestdatum = +new Date(d.Testdatum);
+      d.numericTestdatum = +new Date(d.Testdatum)/ millisecondsPerDay;
+      //console.log('d.numericTestdatum',d.numericTestdatum, d.Testdatum);
   });
 
   data = data.filter(d => d.numericTestdatum !== null && d['Lexplore Score'] !== null)
@@ -239,21 +246,29 @@ function DeclinedData(data) {
 
   // 3. For each group, calculate the slope of the regression line
   const declinedGroups = [];
+  var minSlope = -0.1;
   groupedData.forEach((group, elevId) => {
       const x = group.map(d => d.numericTestdatum);
       const y = group.map(d => d['Lexplore Score']);
       const slope = calculateSlope(x, y);
 
+      if (slope < minSlope) {
+          minSlope = slope;
+          //console.log('new minSlope',minSlope);
+      }
+
       // If slope is negative, it indicates a decline
-      if (slope < 0) {
+      if (slope < declineSlopeThreshold) {
           declinedGroups.push(group);
       }
   });
 
   // 4. Flatten the array of declined groups to get a single array of declined data records
+  //console.log('minSlope',minSlope, minSlope.toFixed(10), parseFloat(minSlope.toFixed(2)));
+  minSlope = parseFloat(minSlope.toFixed(2)) ;
   const declinedData = [].concat(...declinedGroups);
 
-  return declinedData;
+  return { data: declinedData,  minSlope: minSlope };
 }
 
 function calculateSlope(x, y) {

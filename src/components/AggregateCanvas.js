@@ -271,8 +271,8 @@ const BoxPlots = (props) => {
             .attr("x", d => {
                 return bandedX(d);
             })
-            .attr("y", d => y(d.value.q3))
-            .attr("height", d => y(d.value.q1) - y(d.value.q3))
+            .attr("y", d => { const distance = y(d.value.q1) - y(d.value.q3); return distance > 0 ?  y(d.value.q3): y(d.value.q3) -2.5;})
+            .attr("height", d => { const distance = y(d.value.q1) - y(d.value.q3); return distance > 0 ?  distance: 5;})
             .attr("width", d => {
                 return subBandWidth;
             })
@@ -310,16 +310,16 @@ const BoxPlots = (props) => {
             .style("width", 40);
 
 
-        g.selectAll(".medianText")
-            .data(sumstat)
-            .enter().append("text")
-            .attr("class", "medianText") 
-            .attr("x", d => {
-                return bandedX(d) + subBandWidth/2;
-            })
-            .attr("y", d => y(d.value.median) - 5) 
-            .style("text-anchor", "middle")
-            .text(d => d.value.median);
+        // g.selectAll(".medianText")
+        //     .data(sumstat)
+        //     .enter().append("text")
+        //     .attr("class", "medianText") 
+        //     .attr("x", d => {
+        //         return bandedX(d) + subBandWidth/2;
+        //     })
+        //     .attr("y", d => y(d.value.median) - 5) 
+        //     .style("text-anchor", "middle")
+        //     .text(d => d.value.median);
 
 
         lastingClassGroups.forEach((values, lastingClassKey) => {

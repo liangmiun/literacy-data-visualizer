@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import {  rescale } from './ScatterCanvas';
+import {  rescale } from '../Utils';
 
 export const singleViolinWidthRatio = 0.6; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 10;

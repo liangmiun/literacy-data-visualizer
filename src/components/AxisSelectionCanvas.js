@@ -1,5 +1,6 @@
-import React   from 'react';
+import React , {useState}  from 'react';
 import Select from 'react-select';
+import { Slider } from '@mui/material';
 import './AxisSelectionCanvas.css';
 
 const AxisSelectionCanvas = (props) => {
@@ -76,16 +77,21 @@ const AxisSelectionCanvas = (props) => {
 
         </div>
 
-        <div className='check-boxes'  style={{ display: 'inline-flex', alignItems: 'center' }}>
-          <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
+        <div className='check-boxes'  style={{ display: 'inline-flex', alignItems: 'center', fontSize: '12px' }}>
+          <div  style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray'}}>
                   <input 
                       type="checkbox" 
                       checked = {props.isDeclined}
                       onChange={() => props.setIsDeclined(!props.isDeclined)} 
                   />
                   <label><br/>Only declining score </label>
+                  <RegressSlopeSlider 
+                    isDisabled = {!props.isDeclined}
+                    setSlope={props.setDeclineSlope}
+                    minDeclineSlope={props.minDeclineSlope}                    
+                  />
           </div>
-          <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
+          <div  style={{ display: 'inline-flex', marginLeft: '1%'}}>
                   <input 
                       type="checkbox" 
                       checked = {props.showLines}
@@ -93,38 +99,39 @@ const AxisSelectionCanvas = (props) => {
                   />
                   <label><br/>Show lines </label>
           </div>
-          <div  style={{ display: 'inline-block', marginLeft: '1%'}}>
+          <div  style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray'}}>
                   <input 
                       type="checkbox" 
                       checked = {props.isClassView}
-                      onChange={() => {props.setIsClassView(!props.isClassView); props.setViewSwitchCount(props.viewSwitchCount+1) }}   
+                      onChange={() => {props.setIsClassView(!props.isClassView); }}   
                   />
                   <label><br/>Class View </label>
+                  {props.isClassView &&
+                    <div className='aggregate-buttons-row' 
+                      style={{ display: 'inline-flex', alignItems: 'center',marginRight:'20px', padding:'10px' }}>
+
+                        <button className="btn"
+                        id="show-violin-btn"
+                        onClick={() => props.setShowViolin(!props.showViolin)} 
+                        >
+                          {props.showViolin ? "BoxPlot" : "ViolinPlot"}
+                        </button>
+
+                        <div  style={{ display: 'inline-block', marginLeft: '5%'}}>
+                            <input 
+                                type="checkbox" 
+                                checked={props.studentsChecked} 
+                                onChange={() => props.setStudentsChecked(!props.studentsChecked)}
+                            />
+                            <label>Show Individuals </label>
+                        </div>
+                    
+                    </div>
+                  }
           </div>
         </div>
 
-        {props.isClassView &&
-          <div className='aggregate-buttons-row' 
-            style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid lightgray',marginRight:'20px', padding:'10px' }}>
 
-              <button className="btn"
-              id="show-violin-btn"
-              onClick={() => props.setShowViolin(!props.showViolin)} 
-              >
-                {props.showViolin ? "BoxPlot" : "ViolinPlot"}
-              </button>
-
-              <div  style={{ display: 'inline-block', marginLeft: '5%'}}>
-                  <input 
-                      type="checkbox" 
-                      checked={props.studentsChecked} 
-                      onChange={() => props.setStudentsChecked(!props.studentsChecked)}
-                  />
-                  <label>Show Individuals </label>
-              </div>
-          
-          </div>
-        }
 
       </div>
 
@@ -134,5 +141,31 @@ const AxisSelectionCanvas = (props) => {
   
   );
 };
+
+
+function RegressSlopeSlider({ setSlope, isDisabled, minDeclineSlope }) {
+  const label = 'Slope';
+  const max = 0;
+  const min = minDeclineSlope;
+  const handleSlopeChange = (event, newValue) => {
+      setSlope(newValue);      
+  };
+
+  return (
+      <div style={{ margin: '5px 10px', width: '80%' }}>
+          {label}:
+          <Slider
+              disabled = {isDisabled}
+              size="small"
+              step={0.01}
+              defaultValue={max}
+              min={min}
+              max={max}
+              valueLabelDisplay="auto"
+              onChange={handleSlopeChange}
+          />
+      </div>
+  );
+}
 
 export default AxisSelectionCanvas;

@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { set } from 'd3-collection';
-import { ColorLegend } from '../Utils';
+import { ColorLegend, rescale } from '../Utils';
 
 const ScatterCanvas =
 React.memo(
-    ({ shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines, viewSwitchCount}) => { //
+    ({ shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines}) => { //
 
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
@@ -265,7 +265,7 @@ React.memo(
             
         } 
    
-    },[filteredXYData, xField, yField, colorField, width, height,  setSelectedRecords, brushing,  showLines, newXScaleRef, newYScaleRef, viewSwitchCount]);
+    },[filteredXYData, xField, yField, colorField, width, height,  setSelectedRecords, brushing,  showLines, newXScaleRef, newYScaleRef]);
 
     return (
         <div className="scatter-canvas" style={{ position: 'relative' }}>
@@ -330,43 +330,7 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 }
 
 
-export function rescale(scale, zoomState, scaleType, dimension) {
-    if (scaleType === 'point') {
-        const domain = scale.domain();
-        const range = scale.range();
-        const rangePoints = d3.range(domain.length).map(i => range[0] + i * (range[1] - range[0]) / (domain.length - 1));
-        const zoomedRangePoints = rangePoints.map(r => zoomState.applyX(r));
-        const newDomain = zoomedRangePoints.map(r => {
-        const index = d3.bisect(rangePoints, r);
-        const a = domain[Math.max(0, index - 1)];
-        const b = domain[Math.min(domain.length - 1, index)];
-        return a && b ? d3.interpolate(a, b)(r - rangePoints[index - 1] / (rangePoints[index] - rangePoints[index - 1])) : a || b;
-        });
-        return scale.copy().domain(newDomain);
-    } else if (scaleType === 'band') {
-        // Handle band scale
-        const domain = scale.domain();
-        const range = scale.range();
-        const bandWidth = scale.bandwidth();
-        const newRange = dimension === 'x' 
-        ? [zoomState.applyX(range[0]), zoomState.applyX(range[1])]
-        : [zoomState.applyY(range[0]), zoomState.applyY(range[1])];
-        
-        const newScale = scale.copy().range(newRange);
-        
-        // Find the part of the domain that fits in the new range
-        const start = newScale.domain().find(d => newScale(d) + bandWidth > newRange[0]);
-        const end = newScale.domain().reverse().find(d => newScale(d) < newRange[1]);
 
-        const startIndex = domain.indexOf(start);
-        const endIndex = domain.indexOf(end);
-        const newDomain = domain.slice(startIndex, endIndex + 1);
-
-        return scale.copy().domain(newDomain).range([newScale(start), newScale(end) + bandWidth]);
-    } else {
-        return dimension === 'x' ? zoomState.rescaleX(scale) : zoomState.rescaleY(scale);
-    }
-}
 
 
 function createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, showLines, xAxis, yAxis, newXScaleRef, newYScaleRef) {
