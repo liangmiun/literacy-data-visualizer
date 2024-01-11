@@ -15,12 +15,12 @@ const AggregateCanvas = (props) => {
                 <ViolinPlots filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                     width={props.width} height={props.height} onViolinClick={props.onPartClick} selectedRecord={props.selectedRecord} 
                     studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}
-                    subBandCount = {subBandCount}  />
+                    subBandCount = {subBandCount} setSelectedRecords={props.setSelectedRecords}  />
                 :
                 <BoxPlots    filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                     width={props.width} height={props.height} onBoxClick={props.onPartClick} selectedRecord={props.selectedRecord} 
                     studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}
-                    subBandCount ={subBandCount} />
+                    subBandCount ={subBandCount} setSelectedRecords={props.setSelectedRecords}/>
                 )
             }
         </>
@@ -169,7 +169,7 @@ const ViolinPlots = (props ) => {
             // Add individual points with jitter
 
         if(props.studentsChecked) {       
-            AggregateUtils.PresentIndividuals(props.filteredData, props.yField, g, x0, getSubBandScale, y, subBandWidth)       
+            AggregateUtils.PresentIndividuals(props.filteredData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)       
             
         }
 
@@ -357,7 +357,7 @@ const BoxPlots = (props) => {
 
         // Add individual points with jitter
         if(props.studentsChecked) {
-            AggregateUtils.PresentIndividuals(props.filteredData, props.yField, g, x0, getSubBandScale, y, subBandWidth)  //getSubBandScale,
+            AggregateUtils.PresentIndividuals(props.filteredData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)  //getSubBandScale,
         }
 
 

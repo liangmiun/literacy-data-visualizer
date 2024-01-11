@@ -1,6 +1,11 @@
 import React from 'react';
 import Select from 'react-select';
 import { Slider } from '@mui/material';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 import './AxisSelectionCanvas.css';
 
 const AxisSelectionCanvas = (props) => {
@@ -115,20 +120,34 @@ const AxisSelectionCanvas = (props) => {
                     type="checkbox" 
                     checked = {props.isClassView}
                     onChange={() => {props.setIsClassView(!props.isClassView); }}   
+                    style={{  marginLeft: '5%'}}
                 />
                 <label><br/>Class View </label>
                 {props.isClassView &&
                   <div className='aggregate-buttons-row' 
-                    style={{ display: 'inline-flex', alignItems: 'center',marginRight:'20px', padding:'10px' }}>
+                    style={{ display: 'inline-flex', alignItems: 'center',marginRight:'20px', padding:'2px' }}>
 
-                      <button className="btn"
+                      {/* <button className="btn"
                       id="show-violin-btn"
                       onClick={() => props.setShowViolin(!props.showViolin)} 
                       >
                         {props.showViolin ? "BoxPlot" : "ViolinPlot"}
-                      </button>
+                      </button> */}
 
-                      <div  style={{ display: 'inline-block', marginLeft: '5%'}}>
+                      <FormControl  style={{fontSize:'12px'}}>
+                        <RadioGroup                          
+                          aria-labelledby="demo-controlled-radio-buttons-group"
+                          name="controlled-radio-buttons-group"
+                          //value={value}
+                          //onChange={handleChange}
+                        >
+                          <FormControlLabel value="female" control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 12}}}/>}  label={<div style={{fontSize:12}}> Box </div>} />
+                          <FormControlLabel value="male" control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 12}}}/>} label={<div style={{fontSize:12}}> Violin </div>}  />
+                          <FormControlLabel value="box" control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 12}}}/>} label={<div style={{fontSize:12}}> Circle </div>} />
+                        </RadioGroup>
+                      </FormControl>
+
+                      <div  style={{ display: 'inline-block', marginLeft: '10%'}}>
                           <input 
                               type="checkbox" 
                               checked={props.studentsChecked} 

@@ -5,7 +5,7 @@ export const singleViolinWidthRatio = 0.8; // The width of a single violin relat
 const indv_jitterWidth = 10;
 const indv_offset =0;
 
-export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWidth)
+export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWidth )
 {
     g.selectAll(".indvPoints")
         .data(data)
@@ -27,6 +27,7 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
         .attr("indv_season", d => {return Season(d.Testdatum).toString()})
         .attr("indv_classID", d => { return getLastingClassID(d.Skola, Season(d.Testdatum).toString(), d.Klass.toString())})
         .attr("jitterOffset", () => { return indv_offset- indv_jitterWidth/2 + Math.random()*indv_jitterWidth});
+
 }
 
 
