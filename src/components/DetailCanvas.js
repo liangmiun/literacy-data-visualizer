@@ -3,7 +3,8 @@ import * as d3 from 'd3';
 import '../App.css';
 
 const DetailCanvas = ({ data, keyList}) => {
-  //console.log("data type: "+ typeof(data) + " content:" + data );
+  
+  console.log("data type: ", typeof(data) , " content: ",  data, data.length, 'data[0]', data[0] );
 
   const formatDate = d3.timeFormat('%Y.%m.%d');
 

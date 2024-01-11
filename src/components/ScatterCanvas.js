@@ -38,7 +38,7 @@ React.memo(
 
         function plot() { 
 
-            let combinedIDSelection = [];
+            let combinedCircleSelection = [];
             let selectedCircles = [];
             axes_and_captions_plot();
             dots_plot();
@@ -148,7 +148,7 @@ React.memo(
                             }
                             else
                             {
-                                combinedIDSelection = [];
+                                combinedCircleSelection = [];
                                 if (selectedCircles.length > 0) {
                                     for (let i = 0; i < selectedCircles.length; i++) {
                                         selectedCircles[i].style('stroke-width', 0);
@@ -166,21 +166,19 @@ React.memo(
 
             function ContinuousSelection(currentCircle)
             {
-                selectedCircles = [...selectedCircles, currentCircle];
+                selectedCircles.push(currentCircle);
                 for (let i = 0; i < selectedCircles.length; i++) {
                     selectedCircles[i].style('stroke', "black");
                     selectedCircles[i].style('stroke-width', 2);
                 }
-
-
+                
                 const newlySelectedIDs = getElevIDSelected(currentCircle.data());
-                combinedIDSelection = [...new Set([...combinedIDSelection, ...newlySelectedIDs])];
+                combinedCircleSelection = [...new Set([...combinedCircleSelection, ...newlySelectedIDs])];
                 g.selectAll('.line-path')
-                .attr('stroke-width',  d => combinedIDSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
-                .attr('stroke', d => combinedIDSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)');
+                .attr('stroke-width',  d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
+                .attr('stroke', d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)');
 
-                setSelectedRecords(combinedIDSelection);
-
+                setSelectedRecords(selectedCircles.map(d => d.data()[0])); 
             }   
 
             
