@@ -1,4 +1,4 @@
-import React , {useState}  from 'react';
+import React from 'react';
 import Select from 'react-select';
 import { Slider } from '@mui/material';
 import './AxisSelectionCanvas.css';
@@ -8,6 +8,9 @@ const AxisSelectionCanvas = (props) => {
   const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));  
   const onSavePreset = () => {  props.save()};
   const onLoadPreset= () => { props.load(props.setConfig)};
+
+  //console.log("props.trendSet", props.trendSet, Object.entries(props.trendSet));
+  const trendOptions = Object.entries(props.trendSet).map(([key, value]) => ({ value: value, label: value }));
 
 
   const ImportDataButton = ({handleFileUpload}) => (
@@ -55,7 +58,7 @@ const AxisSelectionCanvas = (props) => {
         </div>
 
         <div className="preset-buttons-row" 
-         style={{display: 'inline-flex',border: '1px solid lightgray', marginRight:'20px', padding:'10px' }}>
+         style={{display: 'inline-flex',border: '1px solid lightgray', padding:'5px' }}>
 
               <button className="btn"
                   
@@ -77,87 +80,88 @@ const AxisSelectionCanvas = (props) => {
 
         </div>
 
-        <div className='check-boxes'  style={{ display: 'inline-flex', alignItems: 'center', fontSize: '12px' }}>
-          <div  style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray'}}>
-                  <input 
-                      type="checkbox" 
-                      checked = {props.isDeclined}
-                      onChange={() => props.setIsDeclined(!props.isDeclined)} 
+        <div className="trend-bar" style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray', padding:"5px"}}>
+                  <div  style={{ width: '180px' }}>
+                    <label htmlFor="trend">Trend:</label>
+                    <Select
+                      id="trend"
+                      defaultInputValue= {props.trend}
+                      options={trendOptions}
+                      onChange={option => props.setTrend(option.value)}
+                    />
+                  </div>
+                 
+                 <div style={{ width: '120px' }}>
+                  <DeclineThresholdSlider 
+                    isDisabled = {props.trend === props.trendSet.all}
+                    setThreshold={props.trend === props.trendSet.overall_decline?  props.setDeclineSlope : props.setDiffThreshold}
+                    minThreshold={props.minDeclineThreshold}
+                    label={props.trend === props.trendSet.all? '' :  props.trend === props.trendSet.overall_decline? 'with slope' : 'with value'}                    
                   />
-                  <label><br/>Only declining score </label>
-                  <RegressSlopeSlider 
-                    isDisabled = {!props.isDeclined}
-                    setSlope={props.setDeclineSlope}
-                    minDeclineSlope={props.minDeclineSlope}                    
-                  />
+                </div>
           </div>
-          <div  style={{ display: 'inline-flex', marginLeft: '1%'}}>
-                  <input 
-                      type="checkbox" 
-                      checked = {props.showLines}
-                      onChange={() => props.setShowLines(!props.showLines)} 
-                  />
-                  <label><br/>Show lines </label>
-          </div>
-          <div  style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray'}}>
-                  <input 
-                      type="checkbox" 
-                      checked = {props.isClassView}
-                      onChange={() => {props.setIsClassView(!props.isClassView); }}   
-                  />
-                  <label><br/>Class View </label>
-                  {props.isClassView &&
-                    <div className='aggregate-buttons-row' 
-                      style={{ display: 'inline-flex', alignItems: 'center',marginRight:'20px', padding:'10px' }}>
 
-                        <button className="btn"
-                        id="show-violin-btn"
-                        onClick={() => props.setShowViolin(!props.showViolin)} 
-                        >
-                          {props.showViolin ? "BoxPlot" : "ViolinPlot"}
-                        </button>
-
-                        <div  style={{ display: 'inline-block', marginLeft: '5%'}}>
-                            <input 
-                                type="checkbox" 
-                                checked={props.studentsChecked} 
-                                onChange={() => props.setStudentsChecked(!props.studentsChecked)}
-                            />
-                            <label>Show Individuals </label>
-                        </div>
-                    
-                    </div>
-                  }
-          </div>
+        <div className ="show-lines"  style={{ display: 'inline-flex', marginLeft: '1%'}}>
+                <input 
+                    type="checkbox" 
+                    checked = {props.showLines}
+                    onChange={() => props.setShowLines(!props.showLines)} 
+                />
+                <label><br/>Show lines </label>
         </div>
 
+        <div className = "show-class-view" style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray'}}>
+                <input 
+                    type="checkbox" 
+                    checked = {props.isClassView}
+                    onChange={() => {props.setIsClassView(!props.isClassView); }}   
+                />
+                <label><br/>Class View </label>
+                {props.isClassView &&
+                  <div className='aggregate-buttons-row' 
+                    style={{ display: 'inline-flex', alignItems: 'center',marginRight:'20px', padding:'10px' }}>
 
+                      <button className="btn"
+                      id="show-violin-btn"
+                      onClick={() => props.setShowViolin(!props.showViolin)} 
+                      >
+                        {props.showViolin ? "BoxPlot" : "ViolinPlot"}
+                      </button>
 
+                      <div  style={{ display: 'inline-block', marginLeft: '5%'}}>
+                          <input 
+                              type="checkbox" 
+                              checked={props.studentsChecked} 
+                              onChange={() => props.setStudentsChecked(!props.studentsChecked)}
+                          />
+                          <label>Show Individuals </label>
+                      </div>
+                  
+                  </div>
+                }
+        </div>
       </div>
-
     </div>
 
-    
-  
   );
 };
 
 
-function RegressSlopeSlider({ setSlope, isDisabled, minDeclineSlope }) {
-  const label = 'Slope';
+function DeclineThresholdSlider({ setThreshold, isDisabled, minThreshold, label }) {
   const max = 0;
-  const min = minDeclineSlope;
+  const min = minThreshold;
+  console.log('max ', max, 'min ', min);
   const handleSlopeChange = (event, newValue) => {
-      setSlope(newValue);      
+      setThreshold(newValue);      
   };
 
   return (
       <div style={{ margin: '5px 10px', width: '80%' }}>
-          {label}:
+          {label}
           <Slider
               disabled = {isDisabled}
               size="small"
-              step={0.01}
+              step={(max-min) / 10}
               defaultValue={max}
               min={min}
               max={max}

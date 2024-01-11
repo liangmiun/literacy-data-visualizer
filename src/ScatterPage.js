@@ -12,14 +12,16 @@ import './App.css';
 
 const ScatterPage = (props ) => {  
 
+  const [trends, setAllTrends] = useState({ all: 'all', overall_decline: 'overall decline', last_time_decline: 'last time decline'});
   const [selectedRecords, setSelectedRecords] = useState([]);
-  const [isDeclined, setIsDeclined] = useState(false);
+  const [trend, setTrend] = useState(trends.all);
   const [isClassView, setIsClassView] = useState(false);
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
   const [showViolin, setShowViolin] = useState(false);
   const [schoolClassesAndColorScale, setSchoolClassesAndColorScale ]= useState({schoolClasses:{}, colorScale: {}});
   const [declineSlopeThreshold, setDeclineSlopeThreshold] = useState(0);
+  const [diffThreshold, setDiffThreshold] = useState(0);
 
 
   useEffect(() => {
@@ -75,6 +77,8 @@ const ScatterPage = (props ) => {
     'count'
   ];
 
+
+
   const [filterList, setFilterList] = useState([]);
 
 
@@ -103,11 +107,16 @@ const ScatterPage = (props ) => {
   }
 
   var dataToShow = props.filteredData;
-  var minDeclineSlope = -1;
-  if(isDeclined){
-    dataToShow = DeclinedData(props.filteredData, declineSlopeThreshold).data;
-    minDeclineSlope= DeclinedData(props.filteredData, declineSlopeThreshold).minSlope;
+  var minDeclineThreshold = -1;
+  if(trend === trends.overall_decline){
+    dataToShow = LinearDeclinedData(props.filteredData, declineSlopeThreshold).data;
+    minDeclineThreshold= LinearDeclinedData(props.filteredData, declineSlopeThreshold).minSlope;
   }
+  else if(trend === trends.last_time_decline){
+    dataToShow = lastTimeDeclinedData(props.filteredData, diffThreshold).data;
+    minDeclineThreshold = lastTimeDeclinedData(props.filteredData, diffThreshold).minDiff;
+  }
+
 
   const shownData = useMemo(() => {      
       return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(dataToShow,props.checkedClasses,props.checkedSchools)));
@@ -135,8 +144,9 @@ const ScatterPage = (props ) => {
         setStudentsChecked = {setStudentsChecked}
         showViolin = {showViolin}
         setShowViolin = {setShowViolin}
-        isDeclined={isDeclined}
-        setIsDeclined={setIsDeclined}
+        trendSet={trends}
+        trend={trend}
+        setTrend={setTrend}
         handleFileUpload={props.handleFileUpload}
         showLines={props.showLines}
         setShowLines={props.setShowLines}
@@ -144,7 +154,9 @@ const ScatterPage = (props ) => {
         setIsClassView={setIsClassView}
         declineSlope={declineSlopeThreshold}
         setDeclineSlope={setDeclineSlopeThreshold}
-        minDeclineSlope={minDeclineSlope}
+        minDeclineThreshold={minDeclineThreshold}
+        diffThreshold={diffThreshold}
+        setDiffThreshold={setDiffThreshold}
       />
 
       {isClassView ?
@@ -231,12 +243,11 @@ export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
   } );    
 }
 
-function DeclinedData(data, declineSlopeThreshold) {
+function LinearDeclinedData(data, declineSlopeThreshold) {
   // 1. Parse Testdatum to a numeric format (e.g., timestamp) if it's not already numeric
   const millisecondsPerDay = 86400000;
   data.forEach(d => {
       d.numericTestdatum = +new Date(d.Testdatum)/ millisecondsPerDay;
-      //console.log('d.numericTestdatum',d.numericTestdatum, d.Testdatum);
   });
 
   data = data.filter(d => d.numericTestdatum !== null && d['Lexplore Score'] !== null)
@@ -254,7 +265,6 @@ function DeclinedData(data, declineSlopeThreshold) {
 
       if (slope < minSlope) {
           minSlope = slope;
-          //console.log('new minSlope',minSlope);
       }
 
       // If slope is negative, it indicates a decline
@@ -269,6 +279,38 @@ function DeclinedData(data, declineSlopeThreshold) {
   const declinedData = [].concat(...declinedGroups);
 
   return { data: declinedData,  minSlope: minSlope };
+}
+
+function lastTimeDeclinedData(data, diffThreshold) {
+  data.forEach(d => {
+      d.numericTestdatum = +new Date(d.Testdatum);
+    });
+  data = data.filter(d => d.numericTestdatum !== null && d['Lexplore Score'] !== null)
+
+  const groupedData = d3.group(data, d => d.ElevID);
+
+  const declinedGroups = [];
+  var minDiff = 0;
+  groupedData.forEach((group, elevId) => {
+    const descendDatedGroup = group.sort((a, b) => b.numericTestdatum - a.numericTestdatum);
+    if (descendDatedGroup.length >= 2 ) {
+      const diff = descendDatedGroup[0]['Lexplore Score'] - descendDatedGroup[1]['Lexplore Score']
+      if(diff < 0) 
+      {
+        if(diff < minDiff){ 
+          minDiff = diff;
+        }  
+        if(diff < diffThreshold){
+          declinedGroups.push(group)
+        };
+      } 
+    }
+  });
+
+  const declinedData = [].concat(...declinedGroups);
+
+  return { data: declinedData, minDiff: minDiff};
+
 }
 
 function calculateSlope(x, y) {
