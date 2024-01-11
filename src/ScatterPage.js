@@ -188,7 +188,9 @@ const ScatterPage = (props ) => {
 
       }
       
-      <DetailCanvas data={isClassView? selectedClassDetail :selectedRecords} keyList={isClassView? classKeyList : studentKeyList} />
+      <DetailCanvas 
+        data={isClassView? selectedClassDetail :selectedRecords} 
+        keyList={isClassView? classKeyList : studentKeyList} />
 
 
       <FilterCanvas 

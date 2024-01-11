@@ -96,7 +96,7 @@ const AxisSelectionCanvas = (props) => {
                     isDisabled = {props.trend === props.trendSet.all}
                     setThreshold={props.trend === props.trendSet.overall_decline?  props.setDeclineSlope : props.setDiffThreshold}
                     minThreshold={props.minDeclineThreshold}
-                    label={props.trend === props.trendSet.all? '' :  props.trend === props.trendSet.overall_decline? 'with slope' : 'with value'}                    
+                    label={props.trend === props.trendSet.all? "  " :  props.trend === props.trendSet.overall_decline? 'with slope' : 'with value'}                    
                   />
                 </div>
           </div>
@@ -157,7 +157,7 @@ function DeclineThresholdSlider({ setThreshold, isDisabled, minThreshold, label 
 
   return (
       <div style={{ margin: '5px 10px', width: '80%' }}>
-          {label}
+          <div style={{ whiteSpace: 'pre' }}>{label}</div>
           <Slider
               disabled = {isDisabled}
               size="small"

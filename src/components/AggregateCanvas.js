@@ -45,7 +45,7 @@ const ViolinPlots = (props ) => {
         .attr("x", innerWidth / 2)  
         .attr("dy", "1em")    
         .style("text-anchor", "middle")  
-        .text("Seasons of Testdatum"); 
+        .text("Months of Testdatum"); 
 
         // Add the x-axis to the group element
         g.append("g")
@@ -211,7 +211,7 @@ const BoxPlots = (props) => {
             .attr("x", innerWidth / 2)  
             .attr("dy", "1em")    
             .style("text-anchor", "middle")  
-            .text("Seasons of Testdatum"); 
+            .text("Months of Testdatum"); 
 
         // Add the x-axis to the group element
         g.append("g")
