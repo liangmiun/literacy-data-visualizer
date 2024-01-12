@@ -144,48 +144,10 @@ const ViolinPlots = (props ) => {
                 .curve(d3.curveCatmullRom)
                 );  
 
-        console.log("violin show lines ", props.showLines);   
-        if(props.showLines) {
-            
-            lastingClassGroups.forEach((values, lastingClassKey) => {
-                for(let i = 0; i < values.length - 1; i++) {
-                    const startPoint = values[i];
-                    const endPoint = values[i + 1]; 
-                    g.append("line")
-                        .attr("class", "lastingClassLines")
-                        .attr("x1", () => {
-                            const season = startPoint.value.season.toString();
-                            const clazz = startPoint.value.lastingclass.toString();
-                            const x1 = getSubBandScale(season);
-                            return x0(season) + x1(clazz) + subBandWidth / 2;
-                        })
-                        .attr("x2", () => {
-                            const season = endPoint.value.season.toString();
-                            const clazz = endPoint.value.lastingclass.toString();
-                            const x1 = getSubBandScale(season);
-                            return x0(season) + x1(clazz) + subBandWidth / 2;
-                        })
-                        .attr("y1", y(startPoint.value.median))
-                        .attr("y2", y(endPoint.value.median))
-                        .attr("stroke", d => {            
-                            const classID = AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
-                            return  props.classColors[startPoint.value.school][classID]; }) 
-                        .attr('stroke-width', 1)
-                        .attr("startSeason", startPoint.value.season.toString())
-                        .attr("startClassID", AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class))
-                        .attr("endSeason", endPoint.value.season.toString())
-                        .attr("endClass", endPoint.value.class.toString())                  
-                        ; 
-                }
-            }); 
-        }
-
-
-            // Add individual points with jitter
+        AggregateUtils.presentLines(props.showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, props.classColors);
 
         if(props.studentsChecked) {       
-            AggregateUtils.PresentIndividuals(props.filteredData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)       
-            
+            AggregateUtils.PresentIndividuals(props.filteredData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)   
         }
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
@@ -326,45 +288,7 @@ const BoxPlots = (props) => {
         .attr("stroke", "black")
         .style("stroke-width", 0.5)
 
-
-        // g.selectAll(".medianText")
-        //     .data(sumstat)
-        //     .enter().append("text")
-        //     .attr("class", "medianText") 
-        //     .attr("x", d => {
-        //         return bandedX(d) + subBandWidth/2;
-        //     })
-        //     .attr("y", d => y(d.value.median) - 5) 
-        //     .style("text-anchor", "middle")
-        //     .text(d => d.value.median);
-
-        if(props.showLines) {
-            lastingClassGroups.forEach((values, lastingClassKey) => {
-                for(let i = 0; i < values.length - 1; i++) {
-                    const startPoint = values[i];
-                    const endPoint = values[i + 1];        
-                    g.append("line")
-                        .attr("class", "lastingClassLines")
-                        .attr("x1", () => {
-                            return bandedX(startPoint) + subBandWidth / 2;
-                        })
-                        .attr("x2", () => {
-                            return bandedX(endPoint) + subBandWidth / 2;
-                        })
-                        .attr("y1", y(startPoint.value.median))
-                        .attr("y2", y(endPoint.value.median))
-                        .attr("stroke", d => {            
-                            const classID = AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
-                            return props.classColors[startPoint.value.school][classID];}) 
-                        .attr('stroke-width', 1)
-                        .attr("startSeason", startPoint.value.season.toString())
-                        .attr("startClassID", AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class)) //startPoint.value.class.toString()
-                        .attr("endSeason", endPoint.value.season.toString())
-                        .attr("endClass", endPoint.value.class.toString())
-                }
-            });
-        }
-       
+        AggregateUtils.presentLines(props.showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, props.classColors);       
 
         // Add individual points with jitter
         if(props.studentsChecked) {
@@ -471,32 +395,8 @@ const CirclePlots = (props) => {
                 count: parseInt(d.value.count,10)
             }])}); 
    
-            if(props.showLines) {
-            lastingClassGroups.forEach((values, lastingClassKey) => {
-                for(let i = 0; i < values.length - 1; i++) {
-                    const startPoint = values[i];
-                    const endPoint = values[i + 1];        
-                    g.append("line")
-                        .attr("class", "lastingClassLines")
-                        .attr("x1", () => {
-                            return bandedX(startPoint) + subBandWidth / 2;
-                        })
-                        .attr("x2", () => {
-                            return bandedX(endPoint) + subBandWidth / 2;
-                        })
-                        .attr("y1", y(startPoint.value.median))
-                        .attr("y2", y(endPoint.value.median))
-                        .attr("stroke", d => {            
-                            const classID = AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
-                            return props.classColors[startPoint.value.school][classID];}) 
-                        .attr('stroke-width', 1)
-                        .attr("startSeason", startPoint.value.season.toString())
-                        .attr("startClassID", AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class)) //startPoint.value.class.toString()
-                        .attr("endSeason", endPoint.value.season.toString())
-                        .attr("endClass", endPoint.value.class.toString())
-                }
-            });
-        }
+
+            AggregateUtils.presentLines(props.showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, props.classColors);
            
     
             // Add individual points with jitter

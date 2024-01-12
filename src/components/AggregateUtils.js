@@ -434,3 +434,45 @@ export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, ge
         return zoomXScale(season) + getSubBandScale(season)(classID) * zoomState.k + subBandWidth/2 + jitterOffset*zoomState.k;
     })
 }
+
+
+export function presentLines(showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, classColors)
+{
+    if(showLines) {
+            
+        lastingClassGroups.forEach((values, lastingClassKey) => {
+            for(let i = 0; i < values.length - 1; i++) {
+                const startPoint = values[i];
+                const endPoint = values[i + 1]; 
+                g.append("line")
+                    .attr("class", "lastingClassLines")
+                    .attr("x1", () => {
+                        const season = startPoint.value.season.toString();
+                        const clazz = startPoint.value.lastingclass.toString();
+                        const x1 = getSubBandScale(season);
+                        return x0(season) + x1(clazz) + subBandWidth / 2;
+                    })
+                    .attr("x2", () => {
+                        const season = endPoint.value.season.toString();
+                        const clazz = endPoint.value.lastingclass.toString();
+                        const x1 = getSubBandScale(season);
+                        return x0(season) + x1(clazz) + subBandWidth / 2;
+                    })
+                    .attr("y1", y(startPoint.value.median))
+                    .attr("y2", y(endPoint.value.median))
+                    .attr("stroke", () => {            
+                        const classID = getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
+                        return  classColors[startPoint.value.school][classID]; }) 
+                    .attr('stroke-width', 1)
+                    .attr("startSeason", startPoint.value.season.toString())
+                    .attr("startClassID", getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class))
+                    .attr("endSeason", endPoint.value.season.toString())
+                    .attr("endClass", endPoint.value.class.toString())                  
+                    ; 
+            }
+        }); 
+    }
+
+
+
+}
