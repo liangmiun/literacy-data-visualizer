@@ -11,26 +11,26 @@ const AggregateCanvas = (props) => {
         
         <>
             {
-                filteredData.length > 0 && 
+                // filteredData.length > 0 && 
                 (
                     <>
                    
                         { props.aggregateType ==='violin' && < ViolinPlots filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                             width={props.width} height={props.height} onViolinClick={props.onPartClick} selectedRecord={props.selectedRecord} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
-                            subBandCount = {subBandCount}  />
+                            subBandCount = {subBandCount}  showLines={props.showLines}/>
                         }
                         
                         {props.aggregateType ==='box' && <BoxPlots    filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                             width={props.width} height={props.height} onBoxClick={props.onPartClick} selectedRecord={props.selectedRecord} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
-                            subBandCount ={subBandCount} />
+                            subBandCount ={subBandCount}  showLines={props.showLines}/>
                         }
 
                         {props.aggregateType ==='circle' && <CirclePlots    filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                             width={props.width} height={props.height} onBoxClick={props.onPartClick} selectedRecord={props.selectedRecord} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
-                            subBandCount ={subBandCount} />
+                            subBandCount ={subBandCount}  showLines={props.showLines}/>
                         }
 
                     </>
@@ -136,7 +136,6 @@ const ViolinPlots = (props ) => {
                         return d.value.bins;
                     }
                 )
-        .style("stroke", "none")
         .attr("d", d3.area()
                 .x0(d => { //console.log(-d.length, subBandWidth , AggregateUtils.singleViolinWidthRatio,  xNum(-d.length* subBandWidth * AggregateUtils.singleViolinWidthRatio));    
                       return xNum(-d.length * AggregateUtils.singleViolinWidthRatio)})  //* subBandWidth
@@ -145,38 +144,41 @@ const ViolinPlots = (props ) => {
                 .curve(d3.curveCatmullRom)
                 );  
 
-
-        lastingClassGroups.forEach((values, lastingClassKey) => {
-            for(let i = 0; i < values.length - 1; i++) {
-                const startPoint = values[i];
-                const endPoint = values[i + 1]; 
-                g.append("line")
-                    .attr("class", "lastingClassLines")
-                    .attr("x1", () => {
-                        const season = startPoint.value.season.toString();
-                        const clazz = startPoint.value.lastingclass.toString();
-                        const x1 = getSubBandScale(season);
-                        return x0(season) + x1(clazz) + subBandWidth / 2;
-                    })
-                    .attr("x2", () => {
-                        const season = endPoint.value.season.toString();
-                        const clazz = endPoint.value.lastingclass.toString();
-                        const x1 = getSubBandScale(season);
-                        return x0(season) + x1(clazz) + subBandWidth / 2;
-                    })
-                    .attr("y1", y(startPoint.value.median))
-                    .attr("y2", y(endPoint.value.median))
-                    .attr("stroke", d => {            
-                        const classID = AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
-                        return  props.classColors[startPoint.value.school][classID]; }) 
-                    .attr('stroke-width', 1.5)
-                    .attr("startSeason", startPoint.value.season.toString())
-                    .attr("startClassID", AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class))
-                    .attr("endSeason", endPoint.value.season.toString())
-                    .attr("endClass", endPoint.value.class.toString())                  
-                    ; 
-            }
-        }); 
+        console.log("violin show lines ", props.showLines);   
+        if(props.showLines) {
+            
+            lastingClassGroups.forEach((values, lastingClassKey) => {
+                for(let i = 0; i < values.length - 1; i++) {
+                    const startPoint = values[i];
+                    const endPoint = values[i + 1]; 
+                    g.append("line")
+                        .attr("class", "lastingClassLines")
+                        .attr("x1", () => {
+                            const season = startPoint.value.season.toString();
+                            const clazz = startPoint.value.lastingclass.toString();
+                            const x1 = getSubBandScale(season);
+                            return x0(season) + x1(clazz) + subBandWidth / 2;
+                        })
+                        .attr("x2", () => {
+                            const season = endPoint.value.season.toString();
+                            const clazz = endPoint.value.lastingclass.toString();
+                            const x1 = getSubBandScale(season);
+                            return x0(season) + x1(clazz) + subBandWidth / 2;
+                        })
+                        .attr("y1", y(startPoint.value.median))
+                        .attr("y2", y(endPoint.value.median))
+                        .attr("stroke", d => {            
+                            const classID = AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
+                            return  props.classColors[startPoint.value.school][classID]; }) 
+                        .attr('stroke-width', 1)
+                        .attr("startSeason", startPoint.value.season.toString())
+                        .attr("startClassID", AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class))
+                        .attr("endSeason", endPoint.value.season.toString())
+                        .attr("endClass", endPoint.value.class.toString())                  
+                        ; 
+                }
+            }); 
+        }
 
 
             // Add individual points with jitter
@@ -198,7 +200,7 @@ const ViolinPlots = (props ) => {
         svg.call(zoomBehavior)
   
 
-    }, [props.filteredData,props.xField, props.yField, props.colorField, props.width, props.height, props.selectedRecord, props.studentsChecked, formatDate, parseDate, props.onViolinClick]);
+    }, [props.filteredData,props.xField, props.yField, props.colorField, props.width, props.height, props.selectedRecord, props.studentsChecked, formatDate, parseDate, props.onViolinClick, props.showLines]);
     
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
@@ -273,10 +275,7 @@ const BoxPlots = (props) => {
         .attr("y1", d => y(d.value.min))
         .attr("y2", d => y(d.value.max))
         .attr("stroke", "black")
-        .style("stroke-width", 0.5); 
-
-
-    
+        .style("stroke-width", 0.2); 
 
         // Boxes
         g.selectAll(".boxes")
@@ -339,31 +338,32 @@ const BoxPlots = (props) => {
         //     .style("text-anchor", "middle")
         //     .text(d => d.value.median);
 
-
-        lastingClassGroups.forEach((values, lastingClassKey) => {
-            for(let i = 0; i < values.length - 1; i++) {
-                const startPoint = values[i];
-                const endPoint = values[i + 1];        
-                g.append("line")
-                    .attr("class", "lastingClassLines")
-                    .attr("x1", () => {
-                        return bandedX(startPoint) + subBandWidth / 2;
-                    })
-                    .attr("x2", () => {
-                        return bandedX(endPoint) + subBandWidth / 2;
-                    })
-                    .attr("y1", y(startPoint.value.median))
-                    .attr("y2", y(endPoint.value.median))
-                    .attr("stroke", d => {            
-                        const classID = AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
-                        return props.classColors[startPoint.value.school][classID];}) 
-                    .attr('stroke-width', 1)
-                    .attr("startSeason", startPoint.value.season.toString())
-                    .attr("startClassID", AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class)) //startPoint.value.class.toString()
-                    .attr("endSeason", endPoint.value.season.toString())
-                    .attr("endClass", endPoint.value.class.toString())
-            }
-        });
+        if(props.showLines) {
+            lastingClassGroups.forEach((values, lastingClassKey) => {
+                for(let i = 0; i < values.length - 1; i++) {
+                    const startPoint = values[i];
+                    const endPoint = values[i + 1];        
+                    g.append("line")
+                        .attr("class", "lastingClassLines")
+                        .attr("x1", () => {
+                            return bandedX(startPoint) + subBandWidth / 2;
+                        })
+                        .attr("x2", () => {
+                            return bandedX(endPoint) + subBandWidth / 2;
+                        })
+                        .attr("y1", y(startPoint.value.median))
+                        .attr("y2", y(endPoint.value.median))
+                        .attr("stroke", d => {            
+                            const classID = AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
+                            return props.classColors[startPoint.value.school][classID];}) 
+                        .attr('stroke-width', 1)
+                        .attr("startSeason", startPoint.value.season.toString())
+                        .attr("startClassID", AggregateUtils.getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class)) //startPoint.value.class.toString()
+                        .attr("endSeason", endPoint.value.season.toString())
+                        .attr("endClass", endPoint.value.class.toString())
+                }
+            });
+        }
        
 
         // Add individual points with jitter
@@ -392,6 +392,7 @@ const BoxPlots = (props) => {
     );
 
 }
+
 
 const CirclePlots = (props) => {
         const svgRef = useRef();
@@ -470,7 +471,7 @@ const CirclePlots = (props) => {
                 count: parseInt(d.value.count,10)
             }])}); 
    
-    
+            if(props.showLines) {
             lastingClassGroups.forEach((values, lastingClassKey) => {
                 for(let i = 0; i < values.length - 1; i++) {
                     const startPoint = values[i];
@@ -495,6 +496,7 @@ const CirclePlots = (props) => {
                         .attr("endClass", endPoint.value.class.toString())
                 }
             });
+        }
            
     
             // Add individual points with jitter

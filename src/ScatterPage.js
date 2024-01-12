@@ -12,7 +12,7 @@ import './App.css';
 
 const ScatterPage = (props ) => {  
 
-  const [trends, setAllTrends] = useState({ all: 'all', overall_decline: 'overall decline', last_time_decline: 'last time decline'});
+  const [trends, ] = useState({ all: 'all', overall_decline: 'overall decline', last_time_decline: 'last time decline'});
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
   const [isClassView, setIsClassView] = useState(false);
@@ -162,17 +162,18 @@ const ScatterPage = (props ) => {
       {isClassView ?
 
         <AggregateCanvas
-        filteredData={shownData}
-        xField={props.xField}
-        yField={props.yField}
-        colorField = {props.colorField}
-        width={1000}
-        height={700}    
-        onPartClick={handlePartClick} 
-        studentsChecked={studentsChecked}
-        aggregateType = {aggregateType}
-        classColors={schoolClassesAndColorScale.colorScale}
-        checkedClasses={props.checkedClasses}
+          filteredData={shownData}
+          xField={props.xField}
+          yField={props.yField}
+          colorField = {props.colorField}
+          width={1000}
+          height={700}    
+          onPartClick={handlePartClick} 
+          studentsChecked={studentsChecked}
+          aggregateType = {aggregateType}
+          classColors={schoolClassesAndColorScale.colorScale}
+          checkedClasses={props.checkedClasses}
+          showLines={props.showLines} 
         />
         :
         <ScatterCanvas

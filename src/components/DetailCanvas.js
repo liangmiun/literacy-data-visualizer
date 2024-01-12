@@ -49,13 +49,18 @@ const DetailCanvas = ({ data, keyList}) => {
             return '';
     }
   };
+
+  const detailKey = (key) => { 
+    if(key === 'season') return 'test period';
+    if(key === 'lastingclass') return 'initial class'; 
+    else return key;};
   
   
   return (
     <div className="detail-canvas" style={{ fontSize: '1.0em' }}>
       {data && data.length>0 && keyList.map(key => (
             <div key={key} className="detail-item">
-                <strong>{key}:</strong> {aggregateData(key)}
+                <strong>{detailKey(key)}:</strong> {aggregateData(key)}
             </div>
         ))}
     </div>
