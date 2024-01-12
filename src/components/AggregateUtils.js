@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import {  rescale } from '../Utils';
 
-export const singleViolinWidthRatio = 0.8; // The width of a single violin relative to the sub-band width
+export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 10;
 const indv_offset =0;
 
@@ -172,14 +172,13 @@ function setSumStat(filteredData, y, yField, aggregateType)
             });
         });
     }
-    else if(aggregateType === 'box') {
+    else  {
         const grouped = d3.group(filteredData,  function(d){ return Season(d.Testdatum)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
         grouped.forEach((seasonGroup, seasonKey) => {
             seasonGroup.forEach((schoolGroup, schoolKey) => {
                 schoolGroup.forEach((values, classKey) => {
 
-                    const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
-                    
+                    const sortedValues = values.map(g => g[yField]).sort(d3.ascending);                    
                     const q1 = d3.quantile(sortedValues, 0.25);
                     const median = d3.quantile(sortedValues, 0.5);
                     const q3 = d3.quantile(sortedValues, 0.75);
@@ -206,8 +205,6 @@ function setSumStat(filteredData, y, yField, aggregateType)
                 });
             });
         });
-    }
-    else if(aggregateType === 'circle') {
     }
 
     return sumstat;
@@ -251,6 +248,54 @@ export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yF
     })
     .attr("x2", d => {
         return zoomedX(d) + subBandWidth / 2;
+    })
+
+
+    g.selectAll('.lastingClassLines')
+    .attr("x1", function(){
+        const startSeason = d3.select(this).attr('startSeason');
+        const startClassID = d3.select(this).attr('startClassID');
+        return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClassID)* zoomState.k + subBandWidth / 2;
+    })
+    .attr("x2", function(){
+        const endSeason = d3.select(this).attr('endSeason');
+        const endClassID = d3.select(this).attr('startClassID');
+        return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClassID)* zoomState.k + subBandWidth / 2;
+    })
+
+
+    // Apply zoom transformation to lines
+    if (showLines) {
+        g.selectAll('.line-path')
+        .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+    }
+
+    if( studentsChecked) {
+        zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale);
+    }
+}
+
+
+export function createCircleZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
+    return d3.zoom()
+      .scaleExtent([0.5, 50])
+      .on('zoom', (event) => {
+        const zoomState = event.transform;
+        circleZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
+
+        });
+  }
+
+
+export function circleZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
+{
+    const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
+    // Apply zoom transformation to circles
+    console.log('running circleZoomRender')
+    g.selectAll('.circles')  //
+    .attr("cx", d => {  
+        //console.log("cx d", d, zoomedX(d) + subBandWidth / 2)
+        return zoomedX(d)+ subBandWidth / 2;      
     })
 
 

@@ -328,9 +328,6 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 }
 
 
-
-
-
 function createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, showLines, xAxis, yAxis, newXScaleRef, newYScaleRef) {
 
     return d3.zoom()

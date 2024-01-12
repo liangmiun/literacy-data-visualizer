@@ -5,7 +5,6 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
 import './AxisSelectionCanvas.css';
 
 const AxisSelectionCanvas = (props) => {
@@ -130,7 +129,7 @@ const AxisSelectionCanvas = (props) => {
                         <RadioGroup                          
                           aria-labelledby="demo-controlled-radio-buttons-group"
                           name="controlled-radio-buttons-group"
-                          //value={value}
+                          value= {props.aggregateType}
                           onChange={(event)=> props.setAggregateType(event.target.value)}
                         >
                           <FormControlLabel value="box" control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 12}}}/>}  label={<div style={{fontSize:12}}> Box </div>} />
