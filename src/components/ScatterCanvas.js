@@ -5,7 +5,7 @@ import { ColorLegend, rescale } from '../Utils';
 
 const ScatterCanvas =
 React.memo(
-    ({ shownData, xField, yField, colorField, width, height,  setSelectedRecords, showLines}) => { //
+    ({ shownData, xField, yField, colorField, width, height, setSelectedRecords, showLines}) => { //
 
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
@@ -148,28 +148,32 @@ React.memo(
                             }
                             else
                             {
+                                //console.log("single click");
                                 combinedCircleSelection = [];
                                 if (selectedCircles.length > 0) {
                                     for (let i = 0; i < selectedCircles.length; i++) {
-                                        selectedCircles[i].style('stroke-width', 0);
+                                        selectedCircles[i].attr('stroke-width', 0);
                                     }
                                 }
                                 selectedCircles = [];
                                 ContinuousSelection(currentCircle);
                             }
-
+                            // console.log("selectedCircles strokewidth",currentCircle.attr('stroke-width'), 
+                            //     currentCircle.attr('fill'), currentCircle.attr('cx'));
                         }
+
                     }); 
 
             }
             
 
             function ContinuousSelection(currentCircle)
-            {
+            {              
                 selectedCircles.push(currentCircle);
+                setSelectedRecords(selectedCircles.map(d => d.data()[0]));   
                 for (let i = 0; i < selectedCircles.length; i++) {
-                    selectedCircles[i].style('stroke', "black");
-                    selectedCircles[i].style('stroke-width', 2);
+                    selectedCircles[i].attr('stroke', "black");
+                    selectedCircles[i].attr('stroke-width', 2);
                 }
                 
                 const newlySelectedIDs = getElevIDSelected(currentCircle.data());
@@ -178,7 +182,6 @@ React.memo(
                 .attr('stroke-width',  d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
                 .attr('stroke', d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)');
 
-                setSelectedRecords(selectedCircles.map(d => d.data()[0])); 
             }   
 
             
@@ -263,7 +266,7 @@ React.memo(
             
         } 
    
-    },[filteredXYData, xField, yField, colorField, width, height,  setSelectedRecords, brushing,  showLines, newXScaleRef, newYScaleRef]);
+    },[filteredXYData, xField, yField, colorField, width, height,  brushing,  showLines, newXScaleRef, newYScaleRef, setSelectedRecords]); //
 
     return (
         <div className="scatter-canvas" style={{ position: 'relative' }}>

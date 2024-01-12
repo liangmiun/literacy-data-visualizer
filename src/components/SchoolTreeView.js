@@ -18,7 +18,6 @@ function SchoolTreeView(props) {
   );
   const [paletteID, setPaletteID] = useState('');
   const [expandedSchools, ] = useState(['root']);
-  console.log("classColors", props.classColors);
 
   useEffect(() => {
       //console.log("SCView allSchools", allSchools, "allClasses", allClasses);

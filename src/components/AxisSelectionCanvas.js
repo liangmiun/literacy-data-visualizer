@@ -160,7 +160,6 @@ const AxisSelectionCanvas = (props) => {
 function DeclineThresholdSlider({ setThreshold, isDisabled, minThreshold, label }) {
   const max = 0;
   const min = minThreshold;
-  console.log('max ', max, 'min ', min);
   const handleSlopeChange = (event, newValue) => {
       setThreshold(newValue);      
   };
