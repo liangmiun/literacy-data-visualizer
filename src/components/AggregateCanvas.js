@@ -11,16 +11,16 @@ const AggregateCanvas = (props) => {
         
         <>
             {
-                filteredData.length > 0 && (props.showViolin?
+                filteredData.length > 0 && (props.aggregateType==='violin'?
                 <ViolinPlots filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                     width={props.width} height={props.height} onViolinClick={props.onPartClick} selectedRecord={props.selectedRecord} 
-                    studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}
-                    subBandCount = {subBandCount} setSelectedRecords={props.setSelectedRecords}  />
+                    studentsChecked={props.studentsChecked}  classColors={props.classColors}
+                    subBandCount = {subBandCount}  />
                 :
                 <BoxPlots    filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                     width={props.width} height={props.height} onBoxClick={props.onPartClick} selectedRecord={props.selectedRecord} 
-                    studentsChecked={props.studentsChecked} showViolin={props.showViolin} classColors={props.classColors}
-                    subBandCount ={subBandCount} setSelectedRecords={props.setSelectedRecords}/>
+                    studentsChecked={props.studentsChecked}  classColors={props.classColors}
+                    subBandCount ={subBandCount} />
                 )
             }
         </>
@@ -37,7 +37,7 @@ const ViolinPlots = (props ) => {
 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, props.filteredData, props.yField, props.width, props.height, true);
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, props.filteredData, props.yField, props.width, props.height, 'violin');
 
         // For the X axis label:
         g.append("text")
@@ -203,7 +203,7 @@ const BoxPlots = (props) => {
     // In your useEffect: 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, classCount }  = AggregateUtils.PreparePlotStructure(svgRef, props.filteredData, props.yField, props.width, props.height);
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, classCount }  = AggregateUtils.PreparePlotStructure(svgRef, props.filteredData, props.yField, props.width, props.height, 'box');
         
         // For the X axis label:
         g.append("text")

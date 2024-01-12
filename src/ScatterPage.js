@@ -18,7 +18,7 @@ const ScatterPage = (props ) => {
   const [isClassView, setIsClassView] = useState(false);
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
-  const [showViolin, setShowViolin] = useState(false);
+  const [aggregateType, setAggregateType] = useState('box'); 
   const [schoolClassesAndColorScale, setSchoolClassesAndColorScale ]= useState({schoolClasses:{}, colorScale: {}});
   const [declineSlopeThreshold, setDeclineSlopeThreshold] = useState(0);
   const [diffThreshold, setDiffThreshold] = useState(0);
@@ -142,8 +142,8 @@ const ScatterPage = (props ) => {
         setConfig = {props.setConfigFromPreset}
         studentsChecked = {studentsChecked}
         setStudentsChecked = {setStudentsChecked}
-        showViolin = {showViolin}
-        setShowViolin = {setShowViolin}
+        aggregateType = {aggregateType}
+        setAggregateType = {setAggregateType}
         trendSet={trends}
         trend={trend}
         setTrend={setTrend}
@@ -170,7 +170,7 @@ const ScatterPage = (props ) => {
         height={700}    
         onPartClick={handlePartClick} 
         studentsChecked={studentsChecked}
-        showViolin={showViolin}
+        aggregateType = {aggregateType}
         classColors={schoolClassesAndColorScale.colorScale}
         checkedClasses={props.checkedClasses}
         />

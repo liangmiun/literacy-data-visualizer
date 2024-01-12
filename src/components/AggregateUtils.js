@@ -54,7 +54,7 @@ export function getLastingClassID(school, seasonKey, classKey)
 }
 
 
-export function PreparePlotStructure(svgRef, filteredData, yField, width, height, isViolin=false){
+export function PreparePlotStructure(svgRef, filteredData, yField, width, height, aggregateType)  {
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();           
@@ -72,80 +72,7 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
         .range([innerHeight, 0]);
 
     // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
-    const sumstat = [];
-    if(isViolin){
-        const histogram = d3.bin().domain(y.domain()).thresholds(y.ticks(30)).value(d => d);
-        const grouped = d3.group(filteredData, d => Season(d.Testdatum), d => d.Skola, d => d.Klass);   
-        grouped.forEach((seasonGroup, seasonKey) => {
-            seasonGroup.forEach((schoolGroup, schoolKey) => {
-                schoolGroup.forEach((values, klassKey) => {
-                    const input = values.map(g => g[yField]);
-                    const bins = histogram(input);
-                    const bin_values = bins.flatMap(bin => bin.slice(0, bin.length));
-                    const sortedValues = bin_values.sort(d3.ascending);
-                    const q1 = d3.quantile(sortedValues, 0.25);
-                    const median = d3.quantile(sortedValues, 0.5);
-                    const q3 = d3.quantile(sortedValues, 0.75);
-                    const interQuantileRange = q3 - q1;
-                    const min = q1 - 1.5 * interQuantileRange;
-                    const max = q3 + 1.5 * interQuantileRange;
-
-                    sumstat.push({
-                        key: `${klassKey}-${seasonKey}`,
-                        value: {
-                            lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),                                
-                            season: seasonKey,
-                            school: schoolKey,
-                            class: klassKey,
-                            bins: bins,
-                            q1: q1, 
-                            median: median, 
-                            q3: q3, 
-                            interQuantileRange: interQuantileRange, 
-                            min: min, 
-                            max: max,
-                            count: sortedValues.length
-                        }
-                    });
-                });
-            });
-        });
-    }
-    else {
-        const grouped = d3.group(filteredData,  function(d){ return Season(d.Testdatum)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
-        grouped.forEach((seasonGroup, seasonKey) => {
-            seasonGroup.forEach((schoolGroup, schoolKey) => {
-                schoolGroup.forEach((values, classKey) => {
-
-                    const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
-                    
-                    const q1 = d3.quantile(sortedValues, 0.25);
-                    const median = d3.quantile(sortedValues, 0.5);
-                    const q3 = d3.quantile(sortedValues, 0.75);
-                    const interQuantileRange = q3 - q1;
-                    const min = q1 - 1.5 * interQuantileRange;
-                    const max = q3 + 1.5 * interQuantileRange;
-
-                    sumstat.push({
-                        key: `${classKey}-${seasonKey}`,
-                        value: {
-                            lastingclass: getLastingClassID(schoolKey, seasonKey, classKey),
-                            school: schoolKey,
-                            class: classKey,
-                            season: seasonKey,
-                            q1: q1, 
-                            median: median, 
-                            q3: q3, 
-                            interQuantileRange: interQuantileRange, 
-                            min: min, 
-                            max: max,
-                            count: sortedValues.length
-                        }
-                    });
-                });
-            });
-        });
-    }
+    const sumstat = setSumStat(filteredData, y, yField, aggregateType);
 
     // Sort the sumstat by key to ensure boxes layout horizontally within each season:
     // Here sumstat is in a flat structure.
@@ -201,6 +128,89 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
         
     return {svg, g, margin, innerWidth, innerHeight, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups};
 
+}
+
+
+function setSumStat(filteredData, y, yField, aggregateType)
+{
+    const sumstat = [];
+    if(aggregateType === 'violin'){
+        const histogram = d3.bin().domain(y.domain()).thresholds(y.ticks(30)).value(d => d);
+        const grouped = d3.group(filteredData, d => Season(d.Testdatum), d => d.Skola, d => d.Klass);   
+        grouped.forEach((seasonGroup, seasonKey) => {
+            seasonGroup.forEach((schoolGroup, schoolKey) => {
+                schoolGroup.forEach((values, klassKey) => {
+                    const input = values.map(g => g[yField]);
+                    const bins = histogram(input);
+                    const bin_values = bins.flatMap(bin => bin.slice(0, bin.length));
+                    const sortedValues = bin_values.sort(d3.ascending);
+                    const q1 = d3.quantile(sortedValues, 0.25);
+                    const median = d3.quantile(sortedValues, 0.5);
+                    const q3 = d3.quantile(sortedValues, 0.75);
+                    const interQuantileRange = q3 - q1;
+                    const min = q1 - 1.5 * interQuantileRange;
+                    const max = q3 + 1.5 * interQuantileRange;
+
+                    sumstat.push({
+                        key: `${klassKey}-${seasonKey}`,
+                        value: {
+                            lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),                                
+                            season: seasonKey,
+                            school: schoolKey,
+                            class: klassKey,
+                            bins: bins,
+                            q1: q1, 
+                            median: median, 
+                            q3: q3, 
+                            interQuantileRange: interQuantileRange, 
+                            min: min, 
+                            max: max,
+                            count: sortedValues.length
+                        }
+                    });
+                });
+            });
+        });
+    }
+    else if(aggregateType === 'box') {
+        const grouped = d3.group(filteredData,  function(d){ return Season(d.Testdatum)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
+        grouped.forEach((seasonGroup, seasonKey) => {
+            seasonGroup.forEach((schoolGroup, schoolKey) => {
+                schoolGroup.forEach((values, classKey) => {
+
+                    const sortedValues = values.map(g => g[yField]).sort(d3.ascending);
+                    
+                    const q1 = d3.quantile(sortedValues, 0.25);
+                    const median = d3.quantile(sortedValues, 0.5);
+                    const q3 = d3.quantile(sortedValues, 0.75);
+                    const interQuantileRange = q3 - q1;
+                    const min = q1 - 1.5 * interQuantileRange;
+                    const max = q3 + 1.5 * interQuantileRange;
+
+                    sumstat.push({
+                        key: `${classKey}-${seasonKey}`,
+                        value: {
+                            lastingclass: getLastingClassID(schoolKey, seasonKey, classKey),
+                            school: schoolKey,
+                            class: classKey,
+                            season: seasonKey,
+                            q1: q1, 
+                            median: median, 
+                            q3: q3, 
+                            interQuantileRange: interQuantileRange, 
+                            min: min, 
+                            max: max,
+                            count: sortedValues.length
+                        }
+                    });
+                });
+            });
+        });
+    }
+    else if(aggregateType === 'circle') {
+    }
+
+    return sumstat;
 }
 
 

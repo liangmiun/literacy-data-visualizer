@@ -37,7 +37,8 @@
   }
 
   .btn {
-    margin: 1% 1% 1% 1%;    
+    margin: 1% 1% 1% 1%;
+    height: 60px;    
   }
 
   .show-class-view {

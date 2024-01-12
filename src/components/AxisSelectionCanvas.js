@@ -19,7 +19,7 @@ const AxisSelectionCanvas = (props) => {
 
 
   const ImportDataButton = ({handleFileUpload}) => (
-    <button>
+    <button className="btn">
       <input type="file" accept=".csv" onChange={handleFileUpload} style={{ display: 'none' }} id="fileUpload" />
       <label htmlFor="fileUpload" className="import-button">Import Data</label>
     </button>
@@ -65,8 +65,7 @@ const AxisSelectionCanvas = (props) => {
         <div className="preset-buttons-row" 
          style={{display: 'inline-flex',border: '1px solid lightgray', padding:'5px' }}>
 
-              <button className="btn"
-                  
+              <button className="btn"                  
                   id="save-preset-btn"
                   //style={{ color: 'gray' }} 
                   onClick={() => onSavePreset()} // function to save current state as a preset
@@ -101,7 +100,7 @@ const AxisSelectionCanvas = (props) => {
                     isDisabled = {props.trend === props.trendSet.all}
                     setThreshold={props.trend === props.trendSet.overall_decline?  props.setDeclineSlope : props.setDiffThreshold}
                     minThreshold={props.minDeclineThreshold}
-                    label={props.trend === props.trendSet.all? "  " :  props.trend === props.trendSet.overall_decline? 'with slope' : 'with value'}                    
+                    label={props.trend === props.trendSet.all? "  " :  props.trend === props.trendSet.overall_decline? 'with slope <' : 'with value <'}                    
                   />
                 </div>
           </div>
@@ -127,23 +126,16 @@ const AxisSelectionCanvas = (props) => {
                   <div className='aggregate-buttons-row' 
                     style={{ display: 'inline-flex', alignItems: 'center',marginRight:'20px', padding:'2px' }}>
 
-                      {/* <button className="btn"
-                      id="show-violin-btn"
-                      onClick={() => props.setShowViolin(!props.showViolin)} 
-                      >
-                        {props.showViolin ? "BoxPlot" : "ViolinPlot"}
-                      </button> */}
-
                       <FormControl  style={{fontSize:'12px'}}>
                         <RadioGroup                          
                           aria-labelledby="demo-controlled-radio-buttons-group"
                           name="controlled-radio-buttons-group"
                           //value={value}
-                          //onChange={handleChange}
+                          onChange={(event)=> props.setAggregateType(event.target.value)}
                         >
-                          <FormControlLabel value="female" control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 12}}}/>}  label={<div style={{fontSize:12}}> Box </div>} />
-                          <FormControlLabel value="male" control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 12}}}/>} label={<div style={{fontSize:12}}> Violin </div>}  />
-                          <FormControlLabel value="box" control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 12}}}/>} label={<div style={{fontSize:12}}> Circle </div>} />
+                          <FormControlLabel value="box" control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 12}}}/>}  label={<div style={{fontSize:12}}> Box </div>} />
+                          <FormControlLabel value="violin" control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 12}}}/>} label={<div style={{fontSize:12}}> Violin </div>}  />
+                          <FormControlLabel value="circle" control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 12}}}/>} label={<div style={{fontSize:12}}> Circle </div>} />
                         </RadioGroup>
                       </FormControl>
 
