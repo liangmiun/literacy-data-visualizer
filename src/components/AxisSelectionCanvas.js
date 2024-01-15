@@ -90,7 +90,7 @@ const AxisSelectionCanvas = (props) => {
                       id="trend"
                       defaultInputValue= {props.trend}
                       options={trendOptions}
-                      onChange={option => props.setTrend(option.value)}
+                      onChange={option => props.onTrendChange(option.value)}
                     />
                   </div>
                  

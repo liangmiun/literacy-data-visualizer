@@ -1,9 +1,10 @@
 import ReactFilterBox ,{ SimpleResultProcessing }from 'react-filter-box';
 import 'react-filter-box/lib/react-filter-box.css';
 import * as React from 'react';
+import { set } from 'd3-collection';
 //import * as _ from "lodash";
 
-const LogicCanvas = ({fields, data, setFilteredData, expression, setExpression, query,setQuery }) => {
+const LogicCanvas = ({fields, data, setLogicFilteredData, expression, setExpression, query,setQuery }) => {
 
   if (!fields || fields.length === 0) return null;
 
@@ -12,11 +13,10 @@ const LogicCanvas = ({fields, data, setFilteredData, expression, setExpression, 
     type: 'text',
   }));
 
-
   return (
     <div className='logic-canvas'>
       <h4>Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt; 500"</h4>
-      <FilterDemo data={data} options={field_options}  setFilteredData={setFilteredData} 
+      <FilterDemo data={data} options={field_options}  setFilteredData={setLogicFilteredData} 
         expression={expression}  setExpression={setExpression}  query={query}  setQuery={setQuery}  />
     </div>
     
@@ -34,7 +34,7 @@ export class FilterDemo extends React.Component {
       }
       this.options = props.options;
       this.setData = props.setFilteredData;
-      this.setPresetExpression = props.setExpression      
+      this.setPresetExpression = props.setExpression     
 
   }
 

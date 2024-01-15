@@ -4,7 +4,7 @@ import * as AggregateUtils from './AggregateUtils';
 
 const AggregateCanvas = (props) => {
 
-    const filteredData = props.filteredData.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
+    const filteredData = props.shownData.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
     const subBandCount = props.checkedClasses.length;
 
     return(
@@ -15,19 +15,19 @@ const AggregateCanvas = (props) => {
                 (
                     <>
                    
-                        { props.aggregateType ==='violin' && < ViolinPlots filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
+                        { props.aggregateType ==='violin' && < ViolinPlots shownData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                             width={props.width} height={props.height} onViolinClick={props.onPartClick} selectedRecord={props.selectedRecord} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
                             subBandCount = {subBandCount}  showLines={props.showLines}/>
                         }
                         
-                        {props.aggregateType ==='box' && <BoxPlots    filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
+                        {props.aggregateType ==='box' && <BoxPlots    shownData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                             width={props.width} height={props.height} onBoxClick={props.onPartClick} selectedRecord={props.selectedRecord} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
                             subBandCount ={subBandCount}  showLines={props.showLines}/>
                         }
 
-                        {props.aggregateType ==='circle' && <CirclePlots    filteredData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
+                        {props.aggregateType ==='circle' && <CirclePlots  shownData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                             width={props.width} height={props.height} onBoxClick={props.onPartClick} selectedRecord={props.selectedRecord} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
                             subBandCount ={subBandCount}  showLines={props.showLines}/>
@@ -50,7 +50,7 @@ const ViolinPlots = (props ) => {
 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, props.filteredData, props.yField, props.width, props.height, 'violin');
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, props.shownData, props.yField, props.width, props.height, 'violin');
 
         // For the X axis label:
         g.append("text")
@@ -147,7 +147,7 @@ const ViolinPlots = (props ) => {
         AggregateUtils.presentLines(props.showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, props.classColors);
 
         if(props.studentsChecked) {       
-            AggregateUtils.PresentIndividuals(props.filteredData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)   
+            AggregateUtils.PresentIndividuals(props.shownData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)   
         }
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
@@ -162,7 +162,7 @@ const ViolinPlots = (props ) => {
         svg.call(zoomBehavior)
   
 
-    }, [props.filteredData,props.xField, props.yField, props.colorField, props.width, props.height, props.selectedRecord, props.studentsChecked, formatDate, parseDate, props.onViolinClick, props.showLines]);
+    }, [props.shownData,props.xField, props.yField, props.colorField, props.width, props.height, props.selectedRecord, props.studentsChecked, formatDate, parseDate, props.onViolinClick, props.showLines]);
     
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
@@ -180,7 +180,7 @@ const BoxPlots = (props) => {
     // In your useEffect: 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, classCount }  = AggregateUtils.PreparePlotStructure(svgRef, props.filteredData, props.yField, props.width, props.height, 'box');
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, classCount }  = AggregateUtils.PreparePlotStructure(svgRef, props.shownData, props.yField, props.width, props.height, 'box');
         
         // For the X axis label:
         g.append("text")
@@ -292,7 +292,7 @@ const BoxPlots = (props) => {
 
         // Add individual points with jitter
         if(props.studentsChecked) {
-            AggregateUtils.PresentIndividuals(props.filteredData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)  //getSubBandScale,
+            AggregateUtils.PresentIndividuals(props.shownData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)  //getSubBandScale,
         }
 
 
@@ -310,7 +310,7 @@ const BoxPlots = (props) => {
         //ColorLegend(identityClasses, "classID", svg, 200, margin);          
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [props.filteredData, props.xField, props.yField, props.colorField, props.width, props.height,  props.selectedRecord, props.studentsChecked,formatDate, parseDate, props.onBoxClick, props.classColors,props.checkedClasses]); 
+    }, [props.shownData, props.xField, props.yField, props.colorField, props.width, props.height,  props.selectedRecord, props.studentsChecked,formatDate, parseDate, props.onBoxClick, props.classColors,props.checkedClasses]); 
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
     );
@@ -328,7 +328,7 @@ const CirclePlots = (props) => {
         // In your useEffect: 
         useEffect(() => {
     
-            const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, classCount }  = AggregateUtils.PreparePlotStructure(svgRef, props.filteredData, props.yField, props.width, props.height, 'box');
+            const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, classCount }  = AggregateUtils.PreparePlotStructure(svgRef, props.shownData, props.yField, props.width, props.height, 'box');
             
             // For the X axis label:
             g.append("text")
@@ -401,7 +401,7 @@ const CirclePlots = (props) => {
     
             // Add individual points with jitter
             if(props.studentsChecked) {
-                AggregateUtils.PresentIndividuals(props.filteredData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)  //getSubBandScale,
+                AggregateUtils.PresentIndividuals(props.shownData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)  //getSubBandScale,
             }    
     
             if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
@@ -418,7 +418,7 @@ const CirclePlots = (props) => {
             //ColorLegend(identityClasses, "classID", svg, 200, margin);          
     
             // ... rest of the zoom and event logic remains unchanged ...
-        }, [props.filteredData, props.xField, props.yField, props.colorField, props.width, props.height,  props.selectedRecord, props.studentsChecked,formatDate, parseDate, props.onBoxClick, props.classColors,props.checkedClasses]); 
+        }, [props.shownData, props.xField, props.yField, props.colorField, props.width, props.height,  props.selectedRecord, props.studentsChecked,formatDate, parseDate, props.onBoxClick, props.classColors,props.checkedClasses]); 
         return (
             <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
         );

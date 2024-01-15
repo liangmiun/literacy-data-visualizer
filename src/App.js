@@ -15,9 +15,9 @@ import Logout from './authentications/Logout';
 
 const App = () => { 
 
-  const { currentUser } = useAuth();
+  const {currentUser } = useAuth();
   const [data, setData] = useState([]);
-  const [filteredData, setFilteredtData] = useState(data);
+  const [logicFilteredData, setLogicFilteredtData] = useState(data);
   const [encryptKey,setEncryptKey] = useState(""); 
   const [isLogin, setIsLogin] = useState(false);   //  set as true for test purpose without login;
   const [showLines, setShowLines] = useState(false);
@@ -91,7 +91,7 @@ const App = () => {
         const csvData = e.target.result;
         const parsedData = await csvParse(csvData, rowParser);
         setData(parsedData);
-        setFilteredtData(parsedData);
+        setLogicFilteredtData(parsedData);
       };
       reader.readAsText(file);     
     }
@@ -109,6 +109,7 @@ const App = () => {
       const originalData = bytes.toString(CryptoJS.enc.Utf8);
       const parsedData = csvParse(originalData, rowParser);     
       setData(parsedData);
+      setLogicFilteredtData(parsedData);
     })
     .catch((error) => {
       console.error('Error fetching or parsing data:', error);
@@ -178,8 +179,8 @@ const App = () => {
                           <ScatterPage 
                             data={data} 
                             setData={setData}
-                            filteredData={filteredData}
-                            setFilteredData={setFilteredtData}
+                            logicFilteredData={logicFilteredData}
+                            setLogicFilteredData={setLogicFilteredtData}
                             xField={xField}
                             setXField={setXField}
                             yField={yField}

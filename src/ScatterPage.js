@@ -12,7 +12,7 @@ import './App.css';
 
 const ScatterPage = (props ) => {  
 
-  const [trends, ] = useState({ all: 'all', overall_decline: 'overall decline', last_time_decline: 'last time decline'});
+  const [trends, setTrends ] = useState({ all: 'all', overall_decline: 'overall decline', last_time_decline: 'last time decline'});
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
   const [isClassView, setIsClassView] = useState(false);
@@ -22,6 +22,8 @@ const ScatterPage = (props ) => {
   const [schoolClassesAndColorScale, setSchoolClassesAndColorScale ]= useState({schoolClasses:{}, colorScale: {}});
   const [declineSlopeThreshold, setDeclineSlopeThreshold] = useState(0);
   const [diffThreshold, setDiffThreshold] = useState(0);
+  const [dataToShow, setDataToShow] = useState([]);
+  const [minDeclineThreshold, setMinDeclineThreshold] = useState(-1);
 
 
   useEffect(() => {
@@ -29,9 +31,10 @@ const ScatterPage = (props ) => {
     {
       const newSchoolClasses = generateSchoolLastingClassMap(props.data);
       const newClassColorScale = generateSchoolClassColorScale(newSchoolClasses).classColor;
+      setDataToShow(props.logicFilteredData);
       setSchoolClassesAndColorScale({ schoolClasses: newSchoolClasses, colorScale: newClassColorScale});
     }
-  }, [props.data]);  
+  }, [props.data]); 
   
 
   const handlePartClick = (details) => {
@@ -51,6 +54,24 @@ const ScatterPage = (props ) => {
       };
     });
   };
+
+  const handleTrendChange = (value) => {
+    setTrend(value);
+    if(value === trends.overall_decline){
+      console.log('logic data length', props.logicFilteredData.length);
+      const linearDeclined = linearDeclinedData(props.logicFilteredData, declineSlopeThreshold);
+      setDataToShow(linearDeclined.data);
+      setMinDeclineThreshold(linearDeclined.minSlope);
+    }
+    else if(value === trends.last_time_decline){
+      const lastTimeDeclined = lastTimeDeclinedData(props.logicFilteredData, diffThreshold);
+      setDataToShow(lastTimeDeclined.data);
+      setMinDeclineThreshold(lastTimeDeclined.minDiff);
+    }
+    else{
+      setDataToShow(props.logicFilteredData);
+    }
+  }
 
   const studentKeyList = 
     ['Skola',
@@ -106,19 +127,8 @@ const ScatterPage = (props ) => {
     });
   }
 
-  var dataToShow = props.filteredData;
-  var minDeclineThreshold = -1;
-  if(trend === trends.overall_decline){
-    dataToShow = LinearDeclinedData(props.filteredData, declineSlopeThreshold).data;
-    minDeclineThreshold= LinearDeclinedData(props.filteredData, declineSlopeThreshold).minSlope;
-  }
-  else if(trend === trends.last_time_decline){
-    dataToShow = lastTimeDeclinedData(props.filteredData, diffThreshold).data;
-    minDeclineThreshold = lastTimeDeclinedData(props.filteredData, diffThreshold).minDiff;
-  }
 
-
-  const shownData = useMemo(() => {      
+  const shownData = useMemo(() => {
       return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(dataToShow,props.checkedClasses,props.checkedSchools)));
     }, [dataToShow, props.checkedOptions, props.rangeOptions, props.checkedSchools, props.checkedClasses]);  
  
@@ -146,7 +156,7 @@ const ScatterPage = (props ) => {
         setAggregateType = {setAggregateType}
         trendSet={trends}
         trend={trend}
-        setTrend={setTrend}
+        onTrendChange={handleTrendChange}
         handleFileUpload={props.handleFileUpload}
         showLines={props.showLines}
         setShowLines={props.setShowLines}
@@ -162,7 +172,7 @@ const ScatterPage = (props ) => {
       {isClassView ?
 
         <AggregateCanvas
-          filteredData={shownData}
+          shownData={shownData}
           xField={props.xField}
           yField={props.yField}
           colorField = {props.colorField}
@@ -215,7 +225,7 @@ const ScatterPage = (props ) => {
       <LogicCanvas  
         fields={props.fields} 
         data ={props.data}
-        setFilteredData={props.setFilteredData}
+        setLogicFilteredData={props.setLogicFilteredData}
         expression={props.expression}
         setExpression={props.setExpression}
         query={props.query}
@@ -246,7 +256,7 @@ export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
   } );    
 }
 
-function LinearDeclinedData(data, declineSlopeThreshold) {
+function linearDeclinedData(data, declineSlopeThreshold) {
   // 1. Parse Testdatum to a numeric format (e.g., timestamp) if it's not already numeric
   const millisecondsPerDay = 86400000;
   data.forEach(d => {
