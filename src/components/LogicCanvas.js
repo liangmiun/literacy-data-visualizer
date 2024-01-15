@@ -48,7 +48,6 @@ export class FilterDemo extends React.Component {
       this.setState({ query: this.props.query },
         () => {
           var newData = new SimpleResultProcessing(this.options).process(this.state.data, this.props.expression);
-          console.log("Value of newData:", newData);
           this.setData(newData);
         }
       );
@@ -63,11 +62,9 @@ export class FilterDemo extends React.Component {
 
       var newData = new SimpleResultProcessing(this.options).process(this.state.data, expressions);
       this.setData(newData);
-      console.log("Value of expressions:", expressions);
 
       this.props.setQuery(this.state.query);
       this.props.setExpression(expressions);
-      // set string, set expression
   }
 
   render() {
