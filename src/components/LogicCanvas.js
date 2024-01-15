@@ -1,7 +1,6 @@
 import ReactFilterBox ,{ SimpleResultProcessing }from 'react-filter-box';
 import 'react-filter-box/lib/react-filter-box.css';
 import * as React from 'react';
-import { set } from 'd3-collection';
 //import * as _ from "lodash";
 
 const LogicCanvas = ({fields, data, setLogicFilteredData, expression, setExpression, query,setQuery }) => {
@@ -16,7 +15,7 @@ const LogicCanvas = ({fields, data, setLogicFilteredData, expression, setExpress
   return (
     <div className='logic-canvas'>
       <h4>Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt; 500"</h4>
-      <FilterDemo data={data} options={field_options}  setFilteredData={setLogicFilteredData} 
+      <FilterDemo data={data} options={field_options}  setLogicFilteredData={setLogicFilteredData} 
         expression={expression}  setExpression={setExpression}  query={query}  setQuery={setQuery}  />
     </div>
     
@@ -33,7 +32,7 @@ export class FilterDemo extends React.Component {
           data: props.data
       }
       this.options = props.options;
-      this.setData = props.setFilteredData;
+      this.setData = props.setLogicFilteredData;
       this.setPresetExpression = props.setExpression     
 
   }
@@ -49,6 +48,7 @@ export class FilterDemo extends React.Component {
       this.setState({ query: this.props.query },
         () => {
           var newData = new SimpleResultProcessing(this.options).process(this.state.data, this.props.expression);
+          console.log("Value of newData:", newData);
           this.setData(newData);
         }
       );
@@ -63,9 +63,7 @@ export class FilterDemo extends React.Component {
 
       var newData = new SimpleResultProcessing(this.options).process(this.state.data, expressions);
       this.setData(newData);
-      console.log("Type of this.props.setQuery:", typeof this.props.setQuery);
-      console.log("Value of this.props.setQuery:", this.props.setQuery);
-      console.log("Value of this.props:", this.props);
+      console.log("Value of expressions:", expressions);
 
       this.props.setQuery(this.state.query);
       this.props.setExpression(expressions);

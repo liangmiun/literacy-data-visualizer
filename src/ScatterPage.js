@@ -31,10 +31,16 @@ const ScatterPage = (props ) => {
     {
       const newSchoolClasses = generateSchoolLastingClassMap(props.data);
       const newClassColorScale = generateSchoolClassColorScale(newSchoolClasses).classColor;
-      setDataToShow(props.logicFilteredData);
       setSchoolClassesAndColorScale({ schoolClasses: newSchoolClasses, colorScale: newClassColorScale});
     }
-  }, [props.data]); 
+  }, [ props.data]);   
+
+  useEffect(() => {
+    if (Object.keys(props.logicFilteredData).length > 0)
+    {
+      setDataToShow(props.logicFilteredData);
+    }
+  }, [ props.logicFilteredData]);   
   
 
   const handlePartClick = (details) => {
