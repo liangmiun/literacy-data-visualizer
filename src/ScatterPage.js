@@ -55,22 +55,28 @@ const ScatterPage = (props ) => {
     });
   };
 
-  const handleTrendChange = (value) => {
-    setTrend(value);
-    if(value === trends.overall_decline){
-      console.log('logic data length', props.logicFilteredData.length);
-      const linearDeclined = linearDeclinedData(props.logicFilteredData, declineSlopeThreshold);
-      setDataToShow(linearDeclined.data);
+  const handleTrendOptionChange = (optionValue) => {
+    setTrend(optionValue);
+    const threshold = optionValue === trends.overall_decline? declineSlopeThreshold : diffThreshold;
+    filterWithTrendThreshold(optionValue,  threshold);
+  }
+
+  const filterWithTrendThreshold = (optionValue, threshold) => {
+
+    console.log('optionValue', optionValue, 'slope: ', declineSlopeThreshold, 'diff: ', diffThreshold );
+    if(optionValue === trends.overall_decline){
+      const linearDeclined = linearDeclinedData(props.logicFilteredData, threshold);
       setMinDeclineThreshold(linearDeclined.minSlope);
+      setDataToShow(linearDeclined.data);
     }
-    else if(value === trends.last_time_decline){
-      const lastTimeDeclined = lastTimeDeclinedData(props.logicFilteredData, diffThreshold);
-      setDataToShow(lastTimeDeclined.data);
+    else if(optionValue === trends.last_time_decline){
+      const lastTimeDeclined = lastTimeDeclinedData(props.logicFilteredData, threshold);
       setMinDeclineThreshold(lastTimeDeclined.minDiff);
+      setDataToShow(lastTimeDeclined.data);
     }
     else{
       setDataToShow(props.logicFilteredData);
-    }
+    }   
   }
 
   const studentKeyList = 
@@ -127,13 +133,9 @@ const ScatterPage = (props ) => {
     });
   }
 
-
   const shownData = useMemo(() => {
       return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(dataToShow,props.checkedClasses,props.checkedSchools)));
     }, [dataToShow, props.checkedOptions, props.rangeOptions, props.checkedSchools, props.checkedClasses]);  
- 
-
-  //const handlePointClick = (event,record) => setSelectedRecords([record]);   
 
 
   return (   
@@ -156,7 +158,7 @@ const ScatterPage = (props ) => {
         setAggregateType = {setAggregateType}
         trendSet={trends}
         trend={trend}
-        onTrendChange={handleTrendChange}
+        onTrendChange={handleTrendOptionChange}
         handleFileUpload={props.handleFileUpload}
         showLines={props.showLines}
         setShowLines={props.setShowLines}
@@ -167,6 +169,7 @@ const ScatterPage = (props ) => {
         minDeclineThreshold={minDeclineThreshold}
         diffThreshold={diffThreshold}
         setDiffThreshold={setDiffThreshold}
+        filterWithTrendThreshold={filterWithTrendThreshold}
       />
 
       {isClassView ?
@@ -270,7 +273,7 @@ function linearDeclinedData(data, declineSlopeThreshold) {
 
   // 3. For each group, calculate the slope of the regression line
   const declinedGroups = [];
-  var minSlope = -0.1;
+  var minSlope = 0;  //-0.1
   groupedData.forEach((group, elevId) => {
       const x = group.map(d => d.numericTestdatum);
       const y = group.map(d => d['Lexplore Score']);

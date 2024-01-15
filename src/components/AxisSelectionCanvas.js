@@ -12,10 +12,7 @@ const AxisSelectionCanvas = (props) => {
   const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));  
   const onSavePreset = () => {  props.save()};
   const onLoadPreset= () => { props.load(props.setConfig)};
-
-  //console.log("props.trendSet", props.trendSet, Object.entries(props.trendSet));
   const trendOptions = Object.entries(props.trendSet).map(([key, value]) => ({ value: value, label: value }));
-
 
   const ImportDataButton = ({handleFileUpload}) => (
     <button className="btn">
@@ -26,9 +23,7 @@ const AxisSelectionCanvas = (props) => {
   
   return (
     <div className="axis-selection-canvas" >
-
       <div className="axis-selects-row"  style={{ display: 'flex' }} >
-
         <div className="field-pair"  >
           <label htmlFor="x-field">X-field:</label>
           <Select 
@@ -96,10 +91,12 @@ const AxisSelectionCanvas = (props) => {
                  
                  <div style={{ width: '120px' }}>
                   <DeclineThresholdSlider 
+                    trend = {props.trend}
                     isDisabled = {props.trend === props.trendSet.all}
-                    setThreshold={props.trend === props.trendSet.overall_decline?  props.setDeclineSlope : props.setDiffThreshold}
+                    setThreshold={props.trend === props.trendSet.overall_decline? props.setDeclineSlope : props.setDiffThreshold}
                     minThreshold={props.minDeclineThreshold}
-                    label={props.trend === props.trendSet.all? "  " :  props.trend === props.trendSet.overall_decline? 'with slope <' : 'with value <'}                    
+                    label={props.trend === props.trendSet.all? "  " :  props.trend === props.trendSet.overall_decline? 'with slope <' : 'with value <'} 
+                    filterWithTrendThreshold = {props.filterWithTrendThreshold}                    
                   />
                 </div>
           </div>
@@ -157,11 +154,13 @@ const AxisSelectionCanvas = (props) => {
 };
 
 
-function DeclineThresholdSlider({ setThreshold, isDisabled, minThreshold, label }) {
+function DeclineThresholdSlider({ trend, setThreshold, isDisabled, minThreshold, label, filterWithTrendThreshold }) {
   const max = 0;
   const min = minThreshold;
   const handleSlopeChange = (event, newValue) => {
-      setThreshold(newValue);      
+      console.log("set threshold: ", newValue);
+      setThreshold(newValue); 
+      filterWithTrendThreshold(trend, newValue);     
   };
 
   return (
