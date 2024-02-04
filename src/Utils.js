@@ -229,6 +229,8 @@ export function rescale(scale, zoomState, scaleType, dimension) {
       const endIndex = domain.indexOf(end);
       const newDomain = domain.slice(startIndex, endIndex + 1);
 
+      //console.log("new scale ", newScale(start), newScale(end));
+
       return scale.copy().domain(newDomain).range([newScale(start), newScale(end) + bandWidth]);
   } else {
       return dimension === 'x' ? zoomState.rescaleX(scale) : zoomState.rescaleY(scale);

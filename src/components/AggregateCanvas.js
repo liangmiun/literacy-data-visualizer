@@ -52,6 +52,25 @@ const ViolinPlots = (props ) => {
 
         const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, props.shownData, props.yField, props.width, props.height, 'violin');
 
+        var clip = svg.append("defs").append("svg:clipPath")
+        .attr("id", "clip")
+        .append("svg:rect")
+        .attr("width", innerWidth )
+        .attr("height", innerHeight)
+        .attr("x", 0)
+        .attr("y", 0);
+
+        g.append("line")
+        .style("stroke", "black")  // Line color
+        .style("stroke-width", 0.5)  // Line width
+        .attr("x1", 0)  // Start of the line on the x-axis
+        .attr("x2", innerWidth)  // End of the line on the x-axis (width of your plot)
+        .attr("y1", innerHeight)  // Y-coordinate for the line
+        .attr("y2", innerHeight); 
+
+        const aggregate = g.append('g')
+        .attr('id', 'g').attr("clip-path", "url(#clip)");
+
         // For the X axis label:
         g.append("text")
         .attr("y", innerHeight + margin.bottom / 2)
@@ -64,7 +83,7 @@ const ViolinPlots = (props ) => {
         g.append("g")
             .attr("transform", `translate(0, ${innerHeight})`)
             .call(xAxis)
-            .attr('class', 'x-axis') ;        
+            .attr('class', 'x-axis').attr("clip-path", "url(#clip)") ;        
 
 
         g.append('g').call(d3.axisLeft(y).tickFormat(d => {
@@ -105,7 +124,7 @@ const ViolinPlots = (props ) => {
         }
 
         
-        g.selectAll(".violins")
+        aggregate.selectAll(".violins")
         .data(sumstat)
         .enter().append("g")
         .attr("class", "violins")   
@@ -181,20 +200,39 @@ const BoxPlots = (props) => {
     useEffect(() => {
 
         const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, classCount }  = AggregateUtils.PreparePlotStructure(svgRef, props.shownData, props.yField, props.width, props.height, 'box');
-        
+
+        var clip = svg.append("defs").append("svg:clipPath")
+        .attr("id", "clip")
+        .append("svg:rect")
+        .attr("width", innerWidth )
+        .attr("height", innerHeight)
+        .attr("x", 0)
+        .attr("y", 0);
+
+        g.append("line")
+        .style("stroke", "black")  // Line color
+        .style("stroke-width", 0.5)  // Line width
+        .attr("x1", 0)  // Start of the line on the x-axis
+        .attr("x2", innerWidth)  // End of the line on the x-axis (width of your plot)
+        .attr("y1", innerHeight)  // Y-coordinate for the line
+        .attr("y2", innerHeight); 
+
+        const aggregate = g.append('g')
+        .attr('id', 'g').attr("clip-path", "url(#clip)");
+
         // For the X axis label:
         g.append("text")
-            .attr("y", innerHeight + margin.bottom / 2)
-            .attr("x", innerWidth / 2)  
-            .attr("dy", "1em")    
-            .style("text-anchor", "middle")  
-            .text("Months of Testdatum"); 
+        .attr("y", innerHeight + margin.bottom / 2)
+        .attr("x", innerWidth / 2)  
+        .attr("dy", "1em")    
+        .style("text-anchor", "middle")  
+        .text("Months of Testdatum"); 
 
         // Add the x-axis to the group element
         g.append("g")
             .attr("transform", `translate(0, ${innerHeight})`)
             .call(xAxis)
-            .attr('class', 'x-axis') ;
+            .attr('class', 'x-axis').attr("clip-path", "url(#clip)") ;
             
             
         const yAxis =d3.axisLeft(y).tickFormat(d => {
@@ -224,7 +262,7 @@ const BoxPlots = (props) => {
             return x0(season) + x1(clazz) 
         }
     
-        g.selectAll(".vertLines")
+        aggregate.selectAll(".vertLines")
         .data(sumstat)
         .enter().append("line")
         .attr("class", "vertLines") 
@@ -240,7 +278,7 @@ const BoxPlots = (props) => {
         .style("stroke-width", 0.2); 
 
         // Boxes
-        g.selectAll(".boxes")
+        aggregate.selectAll(".boxes")
             .data(sumstat)
             .enter().append("rect")
             .attr("class", "boxes") 
@@ -250,7 +288,6 @@ const BoxPlots = (props) => {
             .attr("y", d => { const distance = y(d.value.q1) - y(d.value.q3); return distance > 0 ?  y(d.value.q3): y(d.value.q3) -2.5;})
             .attr("height", d => { const distance = y(d.value.q1) - y(d.value.q3); return distance > 0 ?  distance: 5;})
             .attr("width", d => {
-                console.log("d.value.class ",  subBandWidth);
                 return subBandWidth;
             })
             .attr("stroke", "black")
@@ -273,7 +310,7 @@ const BoxPlots = (props) => {
             }])});
 
         // Median lines
-        g.selectAll(".medianLines")
+        aggregate.selectAll(".medianLines")
         .data(sumstat)
         .enter().append("line")
         .attr("class", "medianLines") 
@@ -330,6 +367,25 @@ const CirclePlots = (props) => {
     
             const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, classCount }  = AggregateUtils.PreparePlotStructure(svgRef, props.shownData, props.yField, props.width, props.height, 'box');
             
+            var clip = svg.append("defs").append("svg:clipPath")
+            .attr("id", "clip")
+            .append("svg:rect")
+            .attr("width", innerWidth )
+            .attr("height", innerHeight)
+            .attr("x", 0)
+            .attr("y", 0);
+    
+            g.append("line")
+            .style("stroke", "black")  // Line color
+            .style("stroke-width", 0.5)  // Line width
+            .attr("x1", 0)  // Start of the line on the x-axis
+            .attr("x2", innerWidth)  // End of the line on the x-axis (width of your plot)
+            .attr("y1", innerHeight)  // Y-coordinate for the line
+            .attr("y2", innerHeight); 
+    
+            const aggregate = g.append('g')
+            .attr('id', 'g').attr("clip-path", "url(#clip)");
+
             // For the X axis label:
             g.append("text")
                 .attr("y", innerHeight + margin.bottom / 2)
@@ -342,7 +398,7 @@ const CirclePlots = (props) => {
             g.append("g")
                 .attr("transform", `translate(0, ${innerHeight})`)
                 .call(xAxis)
-                .attr('class', 'x-axis') ;
+                .attr('class', 'x-axis').attr("clip-path", "url(#clip)") ;
                 
                 
             const yAxis =d3.axisLeft(y).tickFormat(d => {
@@ -372,7 +428,7 @@ const CirclePlots = (props) => {
             }        
     
 
-            g.selectAll('.circles')
+            aggregate.selectAll('.circles')
             .data(sumstat)  //filteredData
             .enter().append('circle')
             .attr('class', 'circles') 

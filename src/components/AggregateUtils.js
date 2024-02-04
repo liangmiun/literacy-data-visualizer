@@ -37,10 +37,10 @@ export function Season(dateObject) {
     const month = dateObject.getMonth(); // 0 = January, 1 = February, ..., 11 = December
     const day = dateObject.getDate();
 
-    console.log("year, month, day", year, month, day)
+    //console.log("year, month, day", year, month, day)
 
     //return `${year}-${Math.floor(month / 3)*3 +1}`;
-    return `${year}-${month + 1}-${day}`;
+    return `${year}-${month + 1}`;  //-${day}
 
 }
 
@@ -119,13 +119,22 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
     .paddingInner(0.2)
     .paddingOuter(0.2);
 
+    // g.selectAll(".padding-rect")
+    // .data(seasons)
+    // .enter().append("rect")
+    // .attr("class", "padding-rect")
+    // .attr("x", d => x0(d) - x0.step() * x0.paddingInner() / 2)
+    // .attr("width", x0.step())
+    // .attr("height", innerHeight)  // Set to the height of your chart area
+    // .attr("fill", "white");  // Color for the padding areas
+
     // Generate the tick values (just the combined class-season strings now)
     let tickValues = seasons; 
 
     // Create the x-axis using the new band scale `x1`
     const xAxis = d3.axisBottom(x0)
         .tickValues(tickValues) // Use the combined class-season strings
-        .tickFormat(d => d);  // The tick format is just the string itself now
+        .tickFormat(d => d);  
 
 
         

@@ -58,9 +58,10 @@ React.memo(
             axes_and_captions_plot();
             dots_plot();
 
-            if(showLines){
-                connecting_lines_plot();
-            }
+            connecting_lines_plot();
+            // if(showLines){
+            //     connecting_lines_plot();
+            // }
             
             if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {          //svg.node() && svg.node().__zoom && svg.node().__zoom != d3.zoomIdentity        
                 const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
@@ -142,7 +143,8 @@ React.memo(
                     .attr('d', d => line(d))
                     .attr('fill', 'none')
                     .attr('stroke','rgba(128, 128, 128, 0.2)' )  //d => colorScale(d[0][colorField])
-                    .attr('stroke-width', 0.5);
+                    .attr('stroke-width', 0.5)
+                    .style("visibility", showLines ? "visible" : "hidden");
 
             }
 
@@ -173,8 +175,6 @@ React.memo(
                                 selectedCircles = [];
                                 ContinuousSelection(currentCircle);
                             }
-                            // console.log("selectedCircles strokewidth",currentCircle.attr('stroke-width'), 
-                            //     currentCircle.attr('fill'), currentCircle.attr('cx'));
                         }
 
                     }); 
@@ -188,15 +188,21 @@ React.memo(
                 setSelectedRecords(selectedCircles.map(d => d.data()[0]));   
                 for (let i = 0; i < selectedCircles.length; i++) {
                     selectedCircles[i].attr('stroke', "black");
-                    selectedCircles[i].attr('stroke-width', 2);
+                    selectedCircles[i].attr('stroke-width', 3);
                 }
                 
                 const newlySelectedIDs = getElevIDSelected(currentCircle.data());
                 combinedCircleSelection = [...new Set([...combinedCircleSelection, ...newlySelectedIDs])];
+
+                
+                var newGroup = d3.group(combinedCircleSelection, d => d.ElevID); 
+
+                console.log("combinedCircleSelection " + combinedCircleSelection + combinedCircleSelection[0]);
+
                 g.selectAll('.line-path')
                 .attr('stroke-width',  d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
-                .attr('stroke', d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)');
-
+                .attr('stroke', d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)')
+                .style("visibility",  d => showLines ||combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? "visible" : "hidden");
             }   
 
             
