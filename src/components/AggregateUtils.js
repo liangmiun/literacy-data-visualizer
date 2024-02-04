@@ -35,9 +35,12 @@ export function Season(dateObject) {
     //console.log("dataObject for data:", dateObject)
     const year = dateObject.getFullYear();
     const month = dateObject.getMonth(); // 0 = January, 1 = February, ..., 11 = December
+    const day = dateObject.getDate();
+
+    console.log("year, month, day", year, month, day)
 
     //return `${year}-${Math.floor(month / 3)*3 +1}`;
-    return `${year}-${month}`;
+    return `${year}-${month + 1}-${day}`;
 
 }
 

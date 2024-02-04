@@ -18,10 +18,25 @@ React.memo(
 
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
-        const margin = { top: 20, right: 20, bottom: 80, left: 80 };
+        const margin = { top: 20, right: 120, bottom: 80, left: 80 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
-        const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`).attr('id', 'g-Id');
+
+        var clip = svg.append("defs").append("svg:clipPath")
+        .attr("id", "clip")
+        .append("svg:rect")
+        .attr("width", innerWidth )
+        .attr("height", innerHeight)
+        .attr("x", 0)
+        .attr("y", 0);
+
+        const g = svg
+        .append('g').attr('transform', `translate(${margin.left}, ${margin.top})`)
+        .attr('id', 'g-Id');  //clip-path="url(#clip)";
+
+        const scatter = g.append('g')
+        .attr('id', 'scatter').attr("clip-path", "url(#clip)");
+
         const formatDate = d3.timeFormat('%y-%m-%d');    
         const {scale: xScale, type: xType}  = GetScale(xField, filteredXYData, innerWidth);
         const {scale: yScale, type: yType}= GetScale(yField, filteredXYData, innerHeight, true);              
@@ -64,7 +79,7 @@ React.memo(
             brush_part();
     
             // Add color legend
-            ColorLegend(filteredXYData, colorField, svg, width, margin);  
+            ColorLegend(filteredXYData, colorField, svg, width - margin.right , margin); //width  
 
     
             function axes_and_captions_plot() {
@@ -120,7 +135,7 @@ React.memo(
                 elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
         
                 //Draw lines
-                g.selectAll('.line-path')
+                scatter.selectAll('.line-path')
                     .data(Array.from(elevIDGroups.values()))
                     .enter().append('path')
                     .attr('class', 'line-path')
@@ -133,7 +148,7 @@ React.memo(
 
             function dots_plot(){
                 // Draw circles 
-                g.selectAll('circle')
+                scatter.selectAll('circle')
                     .data(filteredXYData)  //filteredData
                     .enter().append('circle')
                     .attr('cx',  function(d) { return xScale(d[xField]);})

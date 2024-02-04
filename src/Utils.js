@@ -169,7 +169,7 @@ export function ColorLegend(data, colorField, svg, width, margin) {
 
     // Add a group for the legend
     const legend = svg.append("g")
-        .attr("transform", `translate(${width - legendWidth}, ${margin.top})`);  // Adjust position as required
+        .attr("transform", `translate(${width + 30}, ${margin.top})`);  // Adjust position as required  //width - legendWidth
 
     legend.append("text")
     .attr("x", 0)

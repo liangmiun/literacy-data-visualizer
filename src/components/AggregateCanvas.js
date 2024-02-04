@@ -286,7 +286,7 @@ const BoxPlots = (props) => {
         .attr("y1", d => y(d.value.median))
         .attr("y2", d => y(d.value.median))
         .attr("stroke", "black")
-        .style("stroke-width", 0.5)
+        .style("stroke-width", 2)
 
         AggregateUtils.presentLines(props.showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, props.classColors);       
 
