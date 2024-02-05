@@ -8,12 +8,11 @@ import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
 import { generateClassId, generateSchoolLastingClassMap, generateSchoolClassColorScale} from './Utils.js';
 import './App.css';
-import { set } from 'd3-collection';
 
 
 const ScatterPage = (props ) => {  
 
-  const [trends, setTrends ] = useState({ all: 'all', overall_decline: 'overall decline',  logarithmic_decline: "logarithmicly decline", last_time_decline: 'last time decline'});
+  const trends = { all: 'all', overall_decline: 'overall decline',  logarithmic_decline: "logarithmicly decline", last_time_decline: 'last time decline'};
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
   const [isClassView, setIsClassView] = useState(false);
@@ -63,6 +62,7 @@ const ScatterPage = (props ) => {
   };
 
   const handleTrendOptionChange = (optionValue) => {
+    console.log('optionValue', optionValue);
     setTrend(optionValue);
     const threshold = optionValue === trends.overall_decline? declineSlopeThreshold : diffThreshold;
     filterWithTrendThreshold(optionValue,  threshold);

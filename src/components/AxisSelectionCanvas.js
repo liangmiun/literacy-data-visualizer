@@ -1,4 +1,5 @@
 import React from 'react';
+import {InputLabel, Select as MuiSelect, MenuItem } from '@mui/material';
 import Select from 'react-select';
 import { Slider } from '@mui/material';
 import Radio from '@mui/material/Radio';
@@ -20,6 +21,13 @@ const AxisSelectionCanvas = (props) => {
       <label htmlFor="fileUpload" className="import-button">Import Data</label>
     </button>
   );
+
+  const handleTrendChange = (event) => {
+    props.onTrendChange(event.target.value);
+  };
+
+
+  console.log("trendSet: ", props.trendSet, "trendOptions: ", trendOptions);
 
   // Define the trend-to-string mapping dictionary
   const trendToLabel = {
@@ -90,20 +98,38 @@ const AxisSelectionCanvas = (props) => {
         </div>
 
         <div className="trend-bar" style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray', padding:"5px"}}>
-                  <div  style={{ width: '180px' }}>
-                    <label htmlFor="trend">Trend:</label>
-                    <Select
+                  <div  style={{ width: '180px' }}  >
+                    {/* <Select
                       id="trend"
                       defaultInputValue= {props.trend}
-                      options={trendOptions}
+                      options={ trendOptions}
                       onChange={option => props.onTrendChange(option.value)}
-                    />
+                    /> */}
+                    
+                    <FormControl fullWidth>
+                      <InputLabel id="trend-label">Trend</InputLabel>
+                      <MuiSelect
+                        disabled = {props.isClassView} 
+                        labelId="trend-label"
+                        id="trend"
+                        value={props.trend}
+                        onChange={handleTrendChange}
+                        label="Trend"
+                      >
+                        {trendOptions.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </MuiSelect>
+                    </FormControl>
+
                   </div>
                  
                  <div style={{ width: '120px' }}>
                   <DeclineThresholdSlider 
                     trend = {props.trend}
-                    isDisabled = {props.trend === props.trendSet.all}
+                    isDisabled = {props.trend === props.trendSet.all || props.isClassView}
                     setThreshold={props.trend === props.trendSet.overall_decline? props.setDeclineSlope : props.setDiffThreshold}
                     minThreshold={props.minDeclineThreshold}
                     label = {trendToLabel[props.trend]|| "  "}
