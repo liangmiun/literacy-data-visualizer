@@ -8,11 +8,12 @@ import FilterCanvas from './components/FilterCanvas';
 import LogicCanvas from './components/LogicCanvas';
 import { generateClassId, generateSchoolLastingClassMap, generateSchoolClassColorScale} from './Utils.js';
 import './App.css';
+import { set } from 'd3-collection';
 
 
 const ScatterPage = (props ) => {  
 
-  const [trends, setTrends ] = useState({ all: 'all', overall_decline: 'overall decline', last_time_decline: 'last time decline'});
+  const [trends, setTrends ] = useState({ all: 'all', overall_decline: 'overall decline',  logarithmic_decline: "logarithmicly decline", last_time_decline: 'last time decline'});
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
   const [isClassView, setIsClassView] = useState(false);
@@ -74,6 +75,11 @@ const ScatterPage = (props ) => {
       const linearDeclined = linearDeclinedData(props.logicFilteredData, threshold);
       setMinDeclineThreshold(linearDeclined.minSlope);
       setDataToShow(linearDeclined.data);
+    }
+    else if(optionValue === trends.logarithmic_decline){
+      const logarithmicDeclined = logarithmicDeclinedData(props.logicFilteredData, threshold);
+      setMinDeclineThreshold(logarithmicDeclined.minCoeff);
+      setDataToShow(logarithmicDeclined.data);
     }
     else if(optionValue === trends.last_time_decline){
       const lastTimeDeclined = lastTimeDeclinedData(props.logicFilteredData, threshold);
@@ -265,6 +271,7 @@ export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
   } );    
 }
 
+
 function linearDeclinedData(data, declineSlopeThreshold) {
   // 1. Parse Testdatum to a numeric format (e.g., timestamp) if it's not already numeric
   const millisecondsPerDay = 86400000;
@@ -302,6 +309,68 @@ function linearDeclinedData(data, declineSlopeThreshold) {
 
   return { data: declinedData,  minSlope: minSlope };
 }
+
+
+function logarithmicDeclinedData(data, declineCoeffThreshold) {
+  // 1. Parse Testdatum to a numeric format if it's not already numeric
+  const millisecondsPerDay = 86400000;
+  data.forEach(d => {
+    d.numericTestdatum = +new Date(d.Testdatum) / millisecondsPerDay;
+  });
+
+  data = data.filter(d => d.numericTestdatum !== null && d['Lexplore Score'] !== null)
+
+  // 2. Group data by ElevID
+  const groupedData = d3.group(data, d => d.ElevID);
+
+  // 3. For each group, fit a logarithmic model and calculate its coefficient
+  const declinedGroups = [];
+  var minCoeff = 0;
+  groupedData.forEach((group, elevId) => {
+    const x = group.map(d => Math.log(d.numericTestdatum));
+    const y = group.map(d => d['Lexplore Score']);
+    const { coeffA, coeffB } = fitLogarithmicModel(x, y);
+
+    if (coeffA < minCoeff) {
+      minCoeff = coeffA;
+    }
+
+    // If coeffA is negative and below the threshold, it indicates a decline
+    if (coeffA < declineCoeffThreshold) {
+      declinedGroups.push(group);
+    }
+  });
+
+  // 4. Flatten the array of declined groups to get a single array of declined data records
+  minCoeff = parseFloat(minCoeff.toFixed(2));
+  const declinedData = [].concat(...declinedGroups);
+
+  return { data: declinedData, minCoeff: minCoeff };
+}
+
+
+function fitLogarithmicModel(x, y) {
+  // Transform x values
+  const lnX = x.map(value => Math.log(value));
+
+  // Calculate means
+  const meanX = lnX.reduce((acc, val) => acc + val, 0) / lnX.length;
+  const meanY = y.reduce((acc, val) => acc + val, 0) / y.length;
+
+  // Calculate coefficients a and b for the model y = a * log(x) + b
+  let num = 0;
+  let den = 0;
+  for (let i = 0; i < lnX.length; i++) {
+    num += (lnX[i] - meanX) * (y[i] - meanY);
+    den += (lnX[i] - meanX) ** 2;
+  }
+
+  const coeffA = num / den;
+  const coeffB = meanY - coeffA * meanX;
+
+  return { coeffA, coeffB };
+}
+
 
 function lastTimeDeclinedData(data, diffThreshold) {
   data.forEach(d => {

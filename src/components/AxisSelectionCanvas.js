@@ -20,6 +20,17 @@ const AxisSelectionCanvas = (props) => {
       <label htmlFor="fileUpload" className="import-button">Import Data</label>
     </button>
   );
+
+  // Define the trend-to-string mapping dictionary
+  const trendToLabel = {
+    [props.trendSet.all]: "  ", // Assuming props.trendSet.all is a constant value
+    [props.trendSet.overall_decline]: "with slope <", // Assuming props.trendSet.overall_decline is a constant value
+    [props.trendSet.logarithmic_decline]: "with coeff <", // Assuming props.trendSet.individual_decline is a constant value
+    [props.trendSet.last_time_decline]: "with value <", // Assuming props.trendSet.individual_decline is a constant value
+    // Add other mappings as necessary
+  };
+
+
   
   return (
     <div className="axis-selection-canvas" >
@@ -95,7 +106,7 @@ const AxisSelectionCanvas = (props) => {
                     isDisabled = {props.trend === props.trendSet.all}
                     setThreshold={props.trend === props.trendSet.overall_decline? props.setDeclineSlope : props.setDiffThreshold}
                     minThreshold={props.minDeclineThreshold}
-                    label={props.trend === props.trendSet.all? "  " :  props.trend === props.trendSet.overall_decline? 'with slope <' : 'with value <'} 
+                    label = {trendToLabel[props.trend]|| "  "}
                     filterWithTrendThreshold = {props.filterWithTrendThreshold}                    
                   />
                 </div>
@@ -158,7 +169,7 @@ function DeclineThresholdSlider({ trend, setThreshold, isDisabled, minThreshold,
   const max = 0;
   const min = minThreshold;
   const handleSlopeChange = (event, newValue) => {
-      console.log("set threshold: ", newValue);
+      //console.log("set threshold: ", newValue);
       setThreshold(newValue); 
       filterWithTrendThreshold(trend, newValue);     
   };
@@ -169,11 +180,12 @@ function DeclineThresholdSlider({ trend, setThreshold, isDisabled, minThreshold,
           <Slider
               disabled = {isDisabled}
               size="small"
-              step={(max-min) / 10}
+              step={(max-min) / 50}
               defaultValue={max}
               min={min}
               max={max}
               valueLabelDisplay="auto"
+              valueLabelFormat={value => <div>{value.toFixed(4)}</div>}
               onChange={handleSlopeChange}
           />
       </div>
