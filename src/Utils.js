@@ -198,6 +198,8 @@ export function ColorLegend(data, colorField, svg, width, margin) {
 
 
 export function rescale(scale, zoomState, scaleType, dimension) {
+  //console.log("scaleType: ", scaleType);
+
   if (scaleType === 'point') {
       const domain = scale.domain();
       const range = scale.range();
