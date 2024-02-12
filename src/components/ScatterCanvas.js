@@ -38,7 +38,6 @@ React.memo(
         const scatter = g.append('g')
         .attr('id', 'scatter').attr("clip-path", "url(#clip)");
 
-        const formatDate = d3.timeFormat('%y-%m-%d');    
         const {scale: xScale, type: xType}  = GetScale(xField, filteredXYData, innerWidth);
         console.log("GetScale xScale domain(): ", xScale.domain(), "xType ", xType );
         const {scale: yScale, type: yType}= GetScale(yField, filteredXYData, innerHeight, true);              
@@ -98,26 +97,13 @@ React.memo(
 
                 g.append('g').attr('transform', `translate(0, ${innerHeight})`)
                 .attr('class', 'x-axis') 
-                .call(d3.axisBottom(xScale).tickFormat(d => {
-                    if(xField==='Födelsedatum'||xField==='Testdatum')
-                    {   const dateObject = d; 
-                        return formatDate(dateObject);
-                    }
-                    return d;
-                }));
-        
+                .call(d3.axisBottom(xScale)
+                .tickFormat( getTickFormat(xField)));        
         
                 g.append('g')
                 .attr('class', 'y-axis') 
                 .call(d3.axisLeft(yScale)
-                .tickFormat(d => {
-                    if(yField==='Födelsedatum'||yField==='Testdatum')
-                    {
-                        const dateObject = d; //=parseDate(d)
-                        return formatDate(dateObject);
-                    }
-                    return d;
-                })); 
+                .tickFormat(getTickFormat(yField))); 
 
             }
 
@@ -309,6 +295,8 @@ React.memo(
 function GetScale(vField, filteredData, innerWidth, yFlag=false)
 {
     let vScale, type;
+    const categoricals = ["Skola","Klass","Läsår"];
+
     if (vField==='Födelsedatum'|| vField==='Testdatum') { 
         const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
         const vPadding = (vMax - vMin) / (vMax - vMin) * 86400000;  // 1 day in milliseconds for padding
@@ -317,7 +305,7 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
         .range([0, innerWidth]);
         type = 'time';
     }
-    else if(vField==='Skola' || vField==='Klass'){
+    else if(categoricals.includes(vField)){
 
         const uniqueValues = set(filteredData.map(d => d[vField])).values();
         vScale = d3.scalePoint()
@@ -376,28 +364,60 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
         return isNaN(value) ? 0 : value;
       });
 
-
+    
     g.selectAll('.line-path')
-    .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+    .attr('d', line.x(d => { 
+       return zoomXScale(d[xField]);})
+       .y(d => zoomYScale(d[yField])));
 
     // Update the axes with the new scales
     const xAxisGroup = g.select('.x-axis');
     const yAxisGroup = g.select('.y-axis');
 
     if (xType === 'point') {  
-        // console.log("xScale.domain()", xScale.domain());
-        // console.log("xAxis.scale(zoomXScale).tickValues(xScale.domain())", xAxis.scale(zoomXScale).tickValues(xScale.domain()));
         xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));
     } else {
-      xAxisGroup.call(xAxis.scale(zoomXScale));
+      xAxisGroup.call(xAxis.scale(zoomXScale)
+      .tickFormat(getTickFormat(xField))
+      .tickValues(getLinearTickValues(zoomXScale, xField))      
+      );
     }
 
     if (yType === 'point') {  
       yAxisGroup.call(yAxis.scale(zoomYScale).tickValues(yScale.domain()));
     } else {
-      yAxisGroup.call(yAxis.scale(zoomYScale));
+      yAxisGroup.call(yAxis.scale(zoomYScale)
+      .tickFormat(getTickFormat(yField))
+      .tickValues(getLinearTickValues(zoomYScale, yField))
+      );
     }
 
+}
+
+function getLinearTickValues(zoomScale, field)
+{
+    // Generate integer tick values within the domain   
+    if (field === 'Årskurs' ) {
+        let tickValues = d3.range(Math.ceil(zoomScale.domain()[0]), Math.floor(zoomScale.domain()[1]) + 1);
+        return tickValues
+    }
+    return zoomScale.domain();
+}
+
+
+function getTickFormat( field)
+{
+
+    if (field === 'Årskurs' ) {
+        const formatInt = d3.format("d");
+        return formatInt;
+    }
+    else if(field==='Födelsedatum'||field==='Testdatum')
+    {    
+        const formatDate = d3.timeFormat('%y-%m-%d');  
+        return formatDate;
+    }
+    return d3.format(".1f");
 }
 
 

@@ -5,6 +5,27 @@ import { interpolateSpectral } from 'd3-scale-chromatic';
 const parseDate = d3.timeParse('%y%m%d');
 
 
+export const data_fields = [
+"Testdatum",
+"Lexplore Score",
+"Skola",
+"Årskurs",
+"Klass",
+"Födelsedatum",
+"Läsår",
+"Percentil",
+"Läsnivå (5 = hög)",
+"Stanine",
+"Standardpoäng",
+"Antal korrekta svar",
+"Antal fel svar",
+"Antal frågor",
+"Läshastighet medelvärde",
+"Läshastighet högläsning",
+"Läshastighet tystläsning"
+]
+
+
 export function rowParser(d) {
 
 
@@ -200,19 +221,7 @@ export function ColorLegend(data, colorField, svg, width, margin) {
 export function rescale(scale, zoomState, scaleType, dimension) {
   //console.log("scaleType: ", scaleType);
 
-  if (scaleType === 'point') {
-      const domain = scale.domain();
-      const range = scale.range();
-      const rangePoints = d3.range(domain.length).map(i => range[0] + i * (range[1] - range[0]) / (domain.length - 1));
-      const zoomedRangePoints = rangePoints.map(r => zoomState.applyX(r));
-      const newDomain = zoomedRangePoints.map(r => {
-      const index = d3.bisect(rangePoints, r);
-      const a = domain[Math.max(0, index - 1)];
-      const b = domain[Math.min(domain.length - 1, index)];
-      return a && b ? d3.interpolate(a, b)(r - rangePoints[index - 1] / (rangePoints[index] - rangePoints[index - 1])) : a || b;
-      });
-      return scale.copy().domain(newDomain);
-  } else if (scaleType === 'band') {
+if (scaleType === 'band' || scaleType === 'point') {
       // Handle band scale
       const domain = scale.domain();
       const range = scale.range();
