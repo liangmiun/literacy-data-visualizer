@@ -62,7 +62,6 @@ const ScatterPage = (props ) => {
   };
 
   const handleTrendOptionChange = (optionValue) => {
-    console.log('optionValue', optionValue);
     setTrend(optionValue);
     const threshold = optionValue === trends.overall_decline? declineSlopeThreshold : diffThreshold;
     filterWithTrendThreshold(optionValue,  threshold);
@@ -70,7 +69,6 @@ const ScatterPage = (props ) => {
 
   const filterWithTrendThreshold = (optionValue, threshold) => {
 
-    console.log('optionValue', optionValue, 'slope: ', declineSlopeThreshold, 'diff: ', diffThreshold );
     if(optionValue === trends.overall_decline){
       const linearDeclined = linearDeclinedData(props.logicFilteredData, threshold);
       setMinDeclineThreshold(linearDeclined.minSlope);
@@ -303,7 +301,6 @@ function linearDeclinedData(data, declineSlopeThreshold) {
   });
 
   // 4. Flatten the array of declined groups to get a single array of declined data records
-  //console.log('minSlope',minSlope, minSlope.toFixed(10), parseFloat(minSlope.toFixed(2)));
   minSlope = parseFloat(minSlope.toFixed(2)) ;
   const declinedData = [].concat(...declinedGroups);
 

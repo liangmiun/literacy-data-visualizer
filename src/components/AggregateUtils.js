@@ -32,14 +32,9 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
 
 
 export function Season(dateObject) {
-    //console.log("dataObject for data:", dateObject)
     const year = dateObject.getFullYear();
     const month = dateObject.getMonth(); // 0 = January, 1 = February, ..., 11 = December
-    const day = dateObject.getDate();
-
-    //console.log("year, month, day", year, month, day)
-
-    //return `${year}-${Math.floor(month / 3)*3 +1}`;
+    //const day = dateObject.getDate();
     return `${year}-${month + 1}`;  //-${day}
 
 }
@@ -79,7 +74,6 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
 
     // Sort the sumstat by key to ensure boxes layout horizontally within each season:
     // Here sumstat is in a flat structure.
-    //console.log("sumstat", sumstat)
     sumstat.sort((a, b) => {
         const xComp = d3.ascending(a.season, b.season);
         return xComp !== 0 ? xComp : d3.ascending(a.class, b.class);
@@ -100,7 +94,6 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
             .map(d => d.value.lastingclass);  // .class
         classesForSeason.sort((a, b) => a.toString().localeCompare(b.toString()));
         seasonToClasses[season] = classesForSeason;
-        //console.log("seasonToClasses", season, seasonToClasses[season]);
 
     });
 
@@ -303,10 +296,8 @@ export function circleZoomRender(zoomState,xScale, yScale, xType, yType, xField,
 {
     const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
     // Apply zoom transformation to circles
-    console.log('running circleZoomRender')
     g.selectAll('.circles')  //
     .attr("cx", d => {  
-        //console.log("cx d", d, zoomedX(d) + subBandWidth / 2)
         return zoomedX(d)+ subBandWidth / 2;      
     })
 
@@ -354,7 +345,6 @@ export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField,
 {
     const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
           
-    console.log("subBandCount: ", subBandCount);
     g.selectAll('.violins')
     .attr("transform",  d => {
         return `translate(${zoomedX(d)}, 0)`;  
@@ -371,7 +361,6 @@ export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField,
     .attr("x1", function(){
         const startSeason = d3.select(this).attr('startSeason');
         const startClassID = d3.select(this).attr('startClassID');
-        //console.log( zoomXScale(startSeason), subBandWidth / 2)
         return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClassID)* zoomState.k + subBandWidth / 2;
     })
     .attr("x2", function(){
@@ -404,7 +393,6 @@ export function init_ZoomSetting(zoomState,xScale, yScale, xType, yType, g, xAxi
     newXScaleRef.current = zoomXScale;
     newYScaleRef.current = zoomYScale;
     const subBandWidth = zoomXScale.bandwidth() / subBandCount;  
-    //console.log('subBandCount', subBandCount, "subBandWidth", subBandWidth)
 
     function zoomedX(d) {
         const season = d.value.season.toString();
@@ -442,7 +430,6 @@ export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, ge
         const season = d3.select(this).attr("indv_season");
         const classID = d3.select(this).attr("indv_classID");
         const jitterOffset = d3.select(this).attr("jitterOffset");
-        //console.log(d +  " length: " + d.length )                    
         return zoomXScale(season) + getSubBandScale(season)(classID) * zoomState.k + subBandWidth/2 + jitterOffset*zoomState.k;
     })
 }

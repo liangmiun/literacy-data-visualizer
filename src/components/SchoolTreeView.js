@@ -20,7 +20,6 @@ function SchoolTreeView(props) {
   const [expandedSchools, ] = useState(['root']);
 
   useEffect(() => {
-      //console.log("SCView allSchools", allSchools, "allClasses", allClasses);
       props.setCheckedSchools(allSchools);
       props.setCheckedClasses(allClasses);
       setCheckedAllSchools(true);
@@ -61,7 +60,7 @@ function SchoolTreeView(props) {
 
 
   return (
-        <div  className='school-tree-view' style={{ margin: '0px 3px'}}>
+      <div  className='school-tree-view' style={{ margin: '0px 3px'}}>
         <h4 style={{ textAlign: 'center' }} >Filter by School and Class</h4>  
         <TreeView  style={{margin: '5px 5px',width: '100%' ,border: '1px solid gray',
             overflowX: 'auto', maxWidth: '20vw',
@@ -72,7 +71,7 @@ function SchoolTreeView(props) {
 
         >
 
-        <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+        <div  style={{ display: 'flex', alignItems: 'flex-start' }}>
           <Checkbox  style={{ padding: '1px' }}
               checked={checkedAllSchools}
               onChange={(event) => {handleAllSchoolsCheckChange(event.target.checked)}}
@@ -115,7 +114,7 @@ function SchoolTreeView(props) {
                   key={school}
                 >
                   {Object.entries(classesMap).map(([classId, classes], cIdx) => (
-                    <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
+                    <div key={classId} style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
                     <TreeItem
                       nodeId={`class-${idx}-${cIdx}`}
                       label={

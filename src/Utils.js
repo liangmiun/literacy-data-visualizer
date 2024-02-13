@@ -90,7 +90,6 @@ export const load = (callback) => {
 
 export function generateClassId(record) {
   const year = parseInt(record.Läsår.split('/')[0]);
-  //console.log(year);
   const skola = record.Skola;
   const klassNum = parseInt(record.Klass[0]);
   const klassSuffix = record.Klass.length > 1 ? record.Klass[1] : '';
@@ -156,14 +155,8 @@ export function generateSchoolClassColorScale(schoolClasses) {
         acc[classID] = Colors20[index % 20];
         return acc;
       }, {});
-      // const classColorScale = d3.scaleOrdinal()
-      // .domain(classsIDs)
-      // .range(classsIDs.map(d => Colors20[classsIDs.indexOf(d) % 20]));  
-      //console.log(classColorScale);
       classColorScaleMap[school] = classColorScale;
     }
-
-    //console.log(classColorScaleMap);
 
     const schools = Object.keys(schoolClasses);
     const schoolColorScale = d3.scaleOrdinal()
@@ -175,15 +168,11 @@ export function generateSchoolClassColorScale(schoolClasses) {
 
 
 export function ColorLegend(data, colorField, svg, width, margin) {
-    // Assuming colorField is categorical
-    const colorDomain = Array.from(new Set(data.map(d => d[colorField])));
-    const numColors = 20;
-    const quantizedScale = d3.scaleQuantize()
-        .domain([0, colorDomain.length - 1])
-        .range(d3.range(numColors).map(d => interpolateSpectral(d / (numColors - 1))));    
-    const colorScale = d3.scaleOrdinal()
-        .domain(colorDomain)
-        .range(colorDomain.map((_, i) => quantizedScale(i)));
+
+  const colorDomain = Array.from(new Set(data.map(d => d[colorField])));
+  colorDomain.sort();
+  const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
+
 
     // Define legend space
     const legendWidth = 60;
@@ -219,13 +208,34 @@ export function ColorLegend(data, colorField, svg, width, margin) {
 
 
 export function rescale(scale, zoomState, scaleType, dimension) {
-  //console.log("scaleType: ", scaleType);
 
-if (scaleType === 'band' || scaleType === 'point') {
+if (scaleType === 'point') {
+  const domain = scale.domain();
+  const range = scale.range();
+  const bandWidth = scale.bandwidth();
+
+  const newRange = dimension === 'x' 
+  ? [zoomState.applyX(range[0]), zoomState.applyX(range[1])]
+  : [zoomState.applyY(range[0]), zoomState.applyY(range[1])];
+  
+  const newScale = scale.copy().range(newRange);
+  
+  // Find the part of the domain that fits in the new range
+  const start = newScale.domain().find(d => newScale(d) + bandWidth > newRange[0]);
+  const end = newScale.domain().reverse().find(d => newScale(d) < newRange[1]);
+
+  const startIndex = domain.indexOf(start);
+  const endIndex = domain.indexOf(end);
+  const newDomain = domain.slice(startIndex, endIndex + 1);
+
+  return scale.copy().domain(newDomain).range(range);//bandWidth
+}
+if (scaleType === 'band' ) {  //|| scaleType === 'point'
       // Handle band scale
       const domain = scale.domain();
       const range = scale.range();
       const bandWidth = scale.bandwidth();
+
       const newRange = dimension === 'x' 
       ? [zoomState.applyX(range[0]), zoomState.applyX(range[1])]
       : [zoomState.applyY(range[0]), zoomState.applyY(range[1])];
@@ -240,13 +250,25 @@ if (scaleType === 'band' || scaleType === 'point') {
       const endIndex = domain.indexOf(end);
       const newDomain = domain.slice(startIndex, endIndex + 1);
 
-      //console.log("new scale ", newScale(start), newScale(end));
-
-      return scale.copy().domain(newDomain).range([newScale(start), newScale(end) + bandWidth]);
+      return scale.copy().domain(newDomain).range([newScale(start), newScale(end) + bandWidth]);//bandWidth
   } else {
       return dimension === 'x' ? zoomState.rescaleX(scale) : zoomState.rescaleY(scale);
   }
 }
+
+export const categoricals = [
+  "Skola",
+  "Klass",
+  "Läsår",
+  "Årskurs",
+  "Läsnivå (5 = hög)",
+  "Stanine",
+  "Antal korrekta svar"	,
+  "Antal fel svar",
+  "Antal frågor"  ,
+  "ElevID"
+
+];
 
 
 

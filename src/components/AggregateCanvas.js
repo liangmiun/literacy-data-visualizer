@@ -114,7 +114,6 @@ const ViolinPlots = (props ) => {
         }
 
         const xNum = d3.scaleLinear().domain([-maxNum, maxNum]).range([0, subBandWidth]);
-        console.log("init maxNum ", maxNum,   xNum.length, xNum.domain());
 
         function bandedX(d) {
             const season = d.value.season.toString();
@@ -156,8 +155,7 @@ const ViolinPlots = (props ) => {
                     }
                 )
         .attr("d", d3.area()
-                .x0(d => { //console.log(-d.length, subBandWidth , AggregateUtils.singleViolinWidthRatio,  xNum(-d.length* subBandWidth * AggregateUtils.singleViolinWidthRatio));    
-                      return xNum(-d.length * AggregateUtils.singleViolinWidthRatio)})  //* subBandWidth
+                .x0(d => {  return xNum(-d.length * AggregateUtils.singleViolinWidthRatio)})  //* subBandWidth
                 .x1(d => xNum(d.length * AggregateUtils.singleViolinWidthRatio))  //* subBandWidth
                 .y(d => y(d.x0))   //d.x0
                 .curve(d3.curveCatmullRom)

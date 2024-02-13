@@ -27,8 +27,6 @@ const AxisSelectionCanvas = (props) => {
   };
 
 
-  console.log("trendSet: ", props.trendSet, "trendOptions: ", trendOptions);
-
   // Define the trend-to-string mapping dictionary
   const trendToLabel = {
     [props.trendSet.all]: "  ", // Assuming props.trendSet.all is a constant value
@@ -195,7 +193,6 @@ function DeclineThresholdSlider({ trend, setThreshold, isDisabled, minThreshold,
   const max = 0;
   const min = minThreshold;
   const handleSlopeChange = (event, newValue) => {
-      //console.log("set threshold: ", newValue);
       setThreshold(newValue); 
       filterWithTrendThreshold(trend, newValue);     
   };

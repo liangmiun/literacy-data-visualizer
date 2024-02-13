@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { set } from 'd3-collection';
-import { ColorLegend, rescale } from '../Utils';
+import { ColorLegend, rescale, categoricals } from '../Utils';
 
 const ScatterCanvas =
 React.memo(
@@ -39,15 +39,17 @@ React.memo(
         .attr('id', 'scatter').attr("clip-path", "url(#clip)");
 
         const {scale: xScale, type: xType}  = GetScale(xField, filteredXYData, innerWidth);
-        console.log("GetScale xScale domain(): ", xScale.domain(), "xType ", xType );
         const {scale: yScale, type: yType}= GetScale(yField, filteredXYData, innerHeight, true);              
         const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
+        colorDomain.sort();
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
         const xAxis = d3.axisBottom(xScale);
         const yAxis = d3.axisLeft(yScale);
         const line = d3.line()
-        .x(d => xScale(d[xField]))
-        .y(d => yScale(d[yField]));       
+        .x(d => xScale(getValue(d[xField],xType)))
+        .y(d => yScale(getValue(d[yField], yType)));   
+        //.x(d => { xScale(getValue(d[xField],xType))})
+        //.y(d => yScale(getValue(d[yField], yType)));       
 
         plot();  
         function plot() { 
@@ -90,15 +92,21 @@ React.memo(
                 g.append("text")
                     .attr("y", innerHeight + margin.bottom / 2)
                     .attr("x", innerWidth / 2)  
-                    .attr("dy", "1em")  
+                    .attr("dy", "2em")  
                     .style("text-anchor", "middle")
                     .text(xField);
 
 
+                const leftmostValue = xScale.domain()[0];
+                const rotationText =   leftmostValue && leftmostValue.length > 4 ? "rotate(45)" : "";
                 g.append('g').attr('transform', `translate(0, ${innerHeight})`)
                 .attr('class', 'x-axis') 
-                .call(d3.axisBottom(xScale)
-                );        
+                .call(d3.axisBottom(xScale))
+                .selectAll(".tick text")  // Selects all tick labels
+                .style("text-anchor", "start") 
+                .attr("transform", rotationText); // Rotates the labels by -45 degrees
+                
+                ;        
         
                 g.append('g')
                 .attr('class', 'y-axis') 
@@ -120,7 +128,7 @@ React.memo(
                     .data(Array.from(elevIDGroups.values()))
                     .enter().append('path')
                     .attr('class', 'line-path')
-                    .attr('d', d => line(d))
+                    .attr('d', d => { return line(d)})
                     .attr('fill', 'none')
                     .attr('stroke','rgba(128, 128, 128, 0.2)' )  
                     .attr('stroke-width', 0.5)
@@ -134,9 +142,9 @@ React.memo(
                     .data(filteredXYData)  //filteredData
                     .enter().append('circle')
                     .attr('cx',  function(d) {   return  xScale(getValue(d[xField], xType))}) 
-                    .attr('cy', d => yScale(d[yField]))
+                    .attr('cy', d => yScale(getValue(d[yField], yType)))
                     .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
-                    .attr('fill', d => colorScale(d[colorField]))
+                    .attr('fill', d => {  return colorScale(d[colorField])})
                     .on('click', function (event, d) {
                         if (!brushing) {
                             const currentCircle = d3.select(this);
@@ -145,7 +153,6 @@ React.memo(
                             }
                             else
                             {
-                                //console.log("single click");
                                 combinedCircleSelection = [];
                                 if (selectedCircles.length > 0) {
                                     for (let i = 0; i < selectedCircles.length; i++) {
@@ -174,11 +181,6 @@ React.memo(
                 const newlySelectedIDs = getElevIDSelected(currentCircle.data());
                 combinedCircleSelection = [...new Set([...combinedCircleSelection, ...newlySelectedIDs])];
 
-                
-                var newGroup = d3.group(combinedCircleSelection, d => d.ElevID); 
-
-                console.log("combinedCircleSelection " + combinedCircleSelection + combinedCircleSelection[0]);
-
                 g.selectAll('.line-path')
                 .attr('stroke-width',  d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
                 .attr('stroke', d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)')
@@ -204,10 +206,10 @@ React.memo(
                     const currentYScale = newYScaleRef.current || yScale;
                     
                     let newlySelected = filteredXYData.filter(d => 
-                        currentXScale(d[xField]) >= x0 && 
-                        currentXScale(d[xField]) <= x1 && 
-                        currentYScale(d[yField]) >= y0 && 
-                        currentYScale(d[yField]) <= y1
+                        currentXScale(getValue(d[xField])) >= x0 && 
+                        currentXScale(getValue(d[xField])) <= x1 && 
+                        currentYScale(getValue(d[yField]))>= y0 && 
+                        currentYScale(getValue(d[yField])) <= y1
                     );
                     
                     if(showLines){
@@ -295,7 +297,6 @@ React.memo(
 function GetScale(vField, filteredData, innerWidth, yFlag=false)
 {
     let vScale, type;
-    const categoricals = ["Skola","Klass","Läsår","Årskurs"];
 
     if (vField==='Födelsedatum'|| vField==='Testdatum') { 
         const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
@@ -308,12 +309,11 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
     else if(categoricals.includes(vField)){
 
         const uniqueValues = set(filteredData.map(d => d[vField])).values();
+        uniqueValues.sort();
         vScale = d3.scalePoint()
         .domain(uniqueValues)
         .range([0, innerWidth])
         .padding(0.5);  // Adjust padding to suit your needs
-
-        console.log("uniqueValues ", uniqueValues);
         type = 'point';
 
     }
@@ -339,7 +339,7 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 function createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, xAxis, yAxis, newXScaleRef, newYScaleRef) {
 
     return d3.zoom()
-      .scaleExtent([0.5, 10])
+      .scaleExtent([1, 10])
       .on('zoom', (event) => {
         zoomRender(event.transform, svg, xScale, yScale, xType, yType, xField, yField, line,  xAxis, yAxis, newXScaleRef, newYScaleRef);
       });
@@ -349,7 +349,6 @@ function createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, l
 function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField, line, xAxis, yAxis, newXScaleRef, newYScaleRef){
     const currentZoomState = zoomState;
     const zoomXScale = rescale(xScale, currentZoomState, xType, 'x');
-    console.log( "zoomRenderer xType"  , xType);         
     const zoomYScale = rescale(yScale, currentZoomState, yType, 'y' ); 
     newXScaleRef.current = zoomXScale;
     newYScaleRef.current = zoomYScale;
@@ -363,7 +362,7 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
         return isNaN(value) ? 0 : value;
       })
       .attr('cy', d => {
-        const value = zoomYScale(d[yField]);
+        const value = zoomYScale( getValue(d[yField], yType));
         return isNaN(value) ? 0 : value;
       });
 
@@ -378,7 +377,7 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
     const yAxisGroup = g.select('.y-axis');
 
     if (xType === 'point') {  
-        xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));
+        xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));  //
     } else {
       xAxisGroup.call(xAxis.scale(zoomXScale)
       );
@@ -400,33 +399,6 @@ function getValue(value, type)
         return value + "";
     }
     return value;
-}
-
-
-function getLinearTickValues(zoomScale, field)
-{
-    // Generate integer tick values within the domain   
-    if (field === 'Årskurs' ) {
-        let tickValues = d3.range(Math.ceil(zoomScale.domain()[0]), Math.floor(zoomScale.domain()[1]) + 1);
-        return tickValues
-    }
-    return zoomScale.domain();
-}
-
-
-function getTickFormat( field)
-{
-
-    if (field === 'Årskurs' ) {
-        const formatInt = d3.format("d");
-        return formatInt;
-    }
-    else if(field==='Födelsedatum'||field==='Testdatum')
-    {    
-        const formatDate = d3.timeFormat('%y-%m-%d');  
-        return formatDate;
-    }
-    return d3.format(".1f");
 }
 
 
