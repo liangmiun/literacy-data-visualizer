@@ -98,12 +98,12 @@ React.memo(
                 g.append('g').attr('transform', `translate(0, ${innerHeight})`)
                 .attr('class', 'x-axis') 
                 .call(d3.axisBottom(xScale)
-                .tickFormat( getTickFormat(xField)));        
+                );        
         
                 g.append('g')
                 .attr('class', 'y-axis') 
                 .call(d3.axisLeft(yScale)
-                .tickFormat(getTickFormat(yField))); 
+                ); 
 
             }
 
@@ -133,7 +133,7 @@ React.memo(
                 scatter.selectAll('circle')
                     .data(filteredXYData)  //filteredData
                     .enter().append('circle')
-                    .attr('cx',  function(d) { return xScale(d[xField]);})
+                    .attr('cx',  function(d) {   return  xScale(getValue(d[xField], xType))}) 
                     .attr('cy', d => yScale(d[yField]))
                     .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
                     .attr('fill', d => colorScale(d[colorField]))
@@ -295,7 +295,7 @@ React.memo(
 function GetScale(vField, filteredData, innerWidth, yFlag=false)
 {
     let vScale, type;
-    const categoricals = ["Skola","Klass","Läsår"];
+    const categoricals = ["Skola","Klass","Läsår","Årskurs"];
 
     if (vField==='Födelsedatum'|| vField==='Testdatum') { 
         const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
@@ -312,6 +312,8 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
         .domain(uniqueValues)
         .range([0, innerWidth])
         .padding(0.5);  // Adjust padding to suit your needs
+
+        console.log("uniqueValues ", uniqueValues);
         type = 'point';
 
     }
@@ -353,10 +355,11 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
     newYScaleRef.current = zoomYScale;
     const g = svg.select('#g-Id');
 
+
     // Apply zoom transformation to circles
     g.selectAll('circle')
       .attr('cx', d => {
-        const value = zoomXScale(d[xField]);
+        const value = zoomXScale( getValue(d[xField], xType));
         return isNaN(value) ? 0 : value;
       })
       .attr('cy', d => {
@@ -367,8 +370,8 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
     
     g.selectAll('.line-path')
     .attr('d', line.x(d => { 
-       return zoomXScale(d[xField]);})
-       .y(d => zoomYScale(d[yField])));
+       return zoomXScale(getValue(d[xField], xType));})
+       .y(d => zoomYScale(getValue(d[yField], yType))));
 
     // Update the axes with the new scales
     const xAxisGroup = g.select('.x-axis');
@@ -378,8 +381,6 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
         xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));
     } else {
       xAxisGroup.call(xAxis.scale(zoomXScale)
-      .tickFormat(getTickFormat(xField))
-      .tickValues(getLinearTickValues(zoomXScale, xField))      
       );
     }
 
@@ -387,12 +388,20 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
       yAxisGroup.call(yAxis.scale(zoomYScale).tickValues(yScale.domain()));
     } else {
       yAxisGroup.call(yAxis.scale(zoomYScale)
-      .tickFormat(getTickFormat(yField))
-      .tickValues(getLinearTickValues(zoomYScale, yField))
       );
     }
 
 }
+
+
+function getValue(value, type)
+{
+    if (type === 'point') {
+        return value + "";
+    }
+    return value;
+}
+
 
 function getLinearTickValues(zoomScale, field)
 {
