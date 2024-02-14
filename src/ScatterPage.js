@@ -25,9 +25,6 @@ const ScatterPage = (props ) => {
   const [dataToShow, setDataToShow] = useState([]);
   const [minDeclineThreshold, setMinDeclineThreshold] = useState(-1);
 
-  console.log("checked schools:", props.checkedSchools);
-
-
   useEffect(() => {
     if (Object.keys(props.data).length > 0)
     {

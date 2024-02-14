@@ -17,13 +17,31 @@ function SchoolTreeView(props) {
       Object.keys(props.school_class[school]).map(classId => `${school}.${classId}`)
   );
   const [paletteID, setPaletteID] = useState('');
-  const [expandedSchools, ] = useState(['root']);
+  const [expandedSchools, ] = useState(['root']); 
+  const [indeterminateAllSchools, setIndeterminateAllSchools] = useState(false);
+  const {setCheckedSchools,setCheckedClasses} = props;
+  
 
   useEffect(() => {
-      props.setCheckedSchools(allSchools);
-      props.setCheckedClasses(allClasses);
+      setCheckedSchools(allSchools);
+      setCheckedClasses(allClasses);
       setCheckedAllSchools(true);
-  }, [props.school_class]);  
+  }, [ props.school_class]);  
+
+
+  useEffect(() => {
+    // Logic to determine if some schools are fully checked, partially checked, or not checked
+    const checkedSchools = props.checkedSchools;
+    const someChecked = allSchools.some(school => 
+      checkedSchools.includes(school));
+
+    const someUnchecked = allSchools.some(school => 
+      !checkedSchools.includes(school) 
+      );
+
+    setIndeterminateAllSchools(someChecked && someUnchecked);
+    setCheckedAllSchools(allSchools.length === checkedSchools.length && someUnchecked === false); //???
+  }, [props.checkedSchools, allSchools]);
 
 
   const handleAllSchoolsCheckChange = (isChecked) => {
@@ -32,10 +50,14 @@ function SchoolTreeView(props) {
           props.setCheckedClasses(allClasses);
           setCheckedAllSchools(true);
       }
+      else{
+        props.setCheckedSchools([]);
+        props.setCheckedClasses([]);
+        setCheckedAllSchools(false);
+      }
   }
 
   const handleSchoolCheckChange = (school, isChecked) => {
-    console.log('school check  ', school, isChecked);
 
     if (isChecked) {
           props.setCheckedSchools(prev => [...prev, school]);
@@ -77,19 +99,9 @@ function SchoolTreeView(props) {
         <div  style={{ display: 'flex', alignItems: 'flex-start' }}>
           <Checkbox  style={{ padding: '1px' }}
               checked={checkedAllSchools}
+              indeterminate={indeterminateAllSchools}
               onChange={(event) => {handleAllSchoolsCheckChange(event.target.checked)}}
           /> 
-
-          <Button variant="text" size="small"
-              onClick={() => {
-                  props.setCheckedSchools([]);
-                  props.setCheckedClasses([]);
-                  setCheckedAllSchools(false);
-              }}
-              style={{marginLeft: '1px', minWidth: 0  }}
-            >
-                X
-          </Button>
 
           <TreeItem nodeId="root" 
               label={
@@ -148,14 +160,14 @@ function SchoolComponent({ props }) {
   const someChecked = classCheckStates.some(checked => checked);
   const someUnchecked = classCheckStates.some(checked => !checked);
   const allChecked = classCheckStates.every(checked => checked);
+  const schoolInChecked = props.checkedSchools.includes(school);
 
   useEffect(() => {
-    // Trigger the handler when allChecked changes from false to true
-    if (allChecked && !props.checkedSchools.includes(school)) {
-      console.log('all checked');
+    // Trigger the handler when allChecked changes from false to true and the school is not in the checkedSchools array
+    if (allChecked && !schoolInChecked) {
       onSchoolCheckChange(school, true);
     }
-  }, [allChecked, school, onSchoolCheckChange]);
+  }, [allChecked, school, onSchoolCheckChange ]);  //schoolInChecked
 
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start' }}>
