@@ -75,7 +75,10 @@ export const load = (callback) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target.result;
-      const loadedConfig = JSON.parse(content);
+      const loadedConfig = JSON.parse(content, (key, value) => {
+        if (key === "Födelsedatum" || key == "Testdatum") return value.map(v => new Date(v));
+        return value;
+      });
       callback(loadedConfig);
     };
 
@@ -188,6 +191,8 @@ export function ColorLegend(data, colorField, svg, width, margin) {
     .text(colorField);
 
     colorDomain.forEach((value, index) => {
+
+        const strippedValue = value.toString().split(" ")[0];
         // Draw colored rectangle
         legend.append("rect")
             .attr("x", 0)
@@ -200,7 +205,7 @@ export function ColorLegend(data, colorField, svg, width, margin) {
         legend.append("text")
             .attr("x", 25)  // Adjust for padding beside rectangle
             .attr("y", index * 20 + 12)  // Adjust to vertically center text
-            .text(value);
+            .text(strippedValue);
     });
 
 

@@ -25,6 +25,7 @@ const ScatterPage = (props ) => {
   const [dataToShow, setDataToShow] = useState([]);
   const [minDeclineThreshold, setMinDeclineThreshold] = useState(-1);
 
+
   useEffect(() => {
     if (Object.keys(props.data).length > 0)
     {
@@ -131,10 +132,24 @@ const ScatterPage = (props ) => {
 
 
   function rangeFilteredData(data) {
+
+    for (let key in props.rangeOptions) {
+      const [min, max] = props.rangeOptions[key];
+      console.log(key, min instanceof Date? min.toISOString() : min, max);
+    }
+    var count = 0;
+
     return data.filter(record => {
         for (let key in props.rangeOptions) {
           const [min, max] = props.rangeOptions[key];
           if ( filterList.includes(key)  && !(record[key] >= min && record[key] <= max)) {
+
+              if( count % 1000 ==0) 
+              {
+                console.log("filtered out: ",key, record[key], min, max, 
+                  record[key] >= min,  record[key] < min, "date?", typeof record[key], typeof min);
+              }
+              count++;
               return false;
           }
         }
@@ -145,7 +160,6 @@ const ScatterPage = (props ) => {
   const shownData = useMemo(() => {
       return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(dataToShow,props.checkedClasses,props.checkedSchools)));
     }, [dataToShow, props.checkedOptions, props.rangeOptions, props.checkedSchools, props.checkedClasses]);  
-
 
   return (   
     <div className="app" >  
@@ -179,6 +193,7 @@ const ScatterPage = (props ) => {
         diffThreshold={diffThreshold}
         setDiffThreshold={setDiffThreshold}
         filterWithTrendThreshold={filterWithTrendThreshold}
+        handleResetToOnboarding={props.handleResetToOnboarding}
       />
 
       {isClassView ?
@@ -203,7 +218,7 @@ const ScatterPage = (props ) => {
           xField={props.xField}
           yField={props.yField}
           colorField = {props.colorField}
-          width= {1000}
+          width= {1100}
           height={800}
           setSelectedRecords={setSelectedRecords}
           showLines={props.showLines} 

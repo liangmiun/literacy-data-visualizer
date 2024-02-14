@@ -2,7 +2,7 @@
   display: grid;
   max-width: 1920px; 
   max-height: 1080px;
-  grid-template-columns: 3fr 1fr 1.5fr;
+  grid-template-columns: 4fr 1fr 1.5fr;
   grid-template-rows: 12vh 15vh 55vh 10vh;
 }
 
@@ -20,7 +20,7 @@
 
 .app {
   display: grid;
-  grid-template-columns: 3fr 1fr 1.5fr;
+  grid-template-columns: 4fr 1fr 1.5fr;
   grid-template-rows: 12vh 15vh 55vh 10vh;
 }
 

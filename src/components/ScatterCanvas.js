@@ -13,13 +13,15 @@ React.memo(
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
     const filteredXYData = shownData.filter(d => d[xField] !== null && d[yField] !== null);
+
+    console.log('ScatterCanvas: filteredXYData.length:', filteredXYData.length, shownData.length);
     
     
     useEffect(() => {
 
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
-        const margin = { top: 20, right: 120, bottom: 80, left: 80 };
+        const margin = { top: 20, right: 160, bottom: 80, left: 80 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
 
@@ -47,9 +49,7 @@ React.memo(
         const yAxis = d3.axisLeft(yScale);
         const line = d3.line()
         .x(d => xScale(getValue(d[xField],xType)))
-        .y(d => yScale(getValue(d[yField], yType)));   
-        //.x(d => { xScale(getValue(d[xField],xType))})
-        //.y(d => yScale(getValue(d[yField], yType)));       
+        .y(d => yScale(getValue(d[yField], yType)));  
 
         plot();  
         function plot() { 
@@ -276,8 +276,8 @@ React.memo(
             <button onClick={() => setBrushing(!brushing)}
                 style={{
                     position: 'absolute',
-                    bottom: '0px',
-                    right: '0px',
+                    bottom: '30px',
+                    right: '60px',
                     // Optional: Add some spacing from the edges if needed
                     margin: '10px'
                 }}         

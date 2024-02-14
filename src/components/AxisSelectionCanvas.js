@@ -93,6 +93,13 @@ const AxisSelectionCanvas = (props) => {
 
               <ImportDataButton  handleFileUpload={props.handleFileUpload} />  
 
+              <button className="btn"
+                id="reset-btn"
+                onClick={() => props.handleResetToOnboarding()} // function to reset the state to the initial state
+              >
+                Reset
+              </button>
+
         </div>
 
         <div className="trend-bar" style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray', padding:"5px"}}>

@@ -11,7 +11,7 @@ import { useAuth } from './authentications/AuthContext';
 import ProtectedWrapper from './authentications/ProtectedWrapper';
 import Login from './authentications/Login';
 import Logout from './authentications/Logout';
-
+import initial_preset  from './InitialPreset.js';
 
 const App = () => { 
 
@@ -52,6 +52,7 @@ const App = () => {
     preset_dict.query = query;
     preset_dict.expression = expression;
   }
+  
 
   const setConfigFromPreset = (preset) => {
     setXField( preset.xField);
@@ -64,6 +65,7 @@ const App = () => {
     setQuery( preset.query);
     setExpression( preset.expression);
   }
+
 
   const save = () => {
     updatePreset();
@@ -83,6 +85,7 @@ const App = () => {
     }
   };
 
+
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -98,7 +101,14 @@ const App = () => {
   };
 
 
-  //D3.v4 version:
+  const handleResetToOnboarding = () => {
+    let parsed = JSON.parse(initial_preset, (key, value) => {
+      if (key === "Födelsedatum" || key == "Testdatum") return value.map(v => new Date(v));
+      return value;
+    });
+    setConfigFromPreset(parsed);
+  }
+
   useEffect(() => {
     if(!isLogin) return;
     fetch(process.env.PUBLIC_URL +'/LiteracySampleEncrypt.csv')
@@ -114,8 +124,7 @@ const App = () => {
     .catch((error) => {
       console.error('Error fetching or parsing data:', error);
     });
-
-    console.log("data parsed");
+    console.log("data parsed");    
 
   },  [isLogin, encryptKey]);  
 
@@ -165,7 +174,6 @@ const App = () => {
                         element={
                           <About
                             data = {data}
-                     
                           />
                         } 
 
@@ -206,6 +214,7 @@ const App = () => {
                             setConfigFromPreset={setConfigFromPreset}
                             showLines={showLines}
                             setShowLines={setShowLines}
+                            handleResetToOnboarding={handleResetToOnboarding}
                           />
                         } 
                       />
@@ -217,6 +226,7 @@ const App = () => {
       </Router> 
   );
 };
+
 
 export function generateSchoolClassColorScale(schoolClasses) {
 
@@ -242,5 +252,6 @@ export function generateSchoolClassColorScale(schoolClasses) {
 
   return { schoolColor: schoolColorScale, classColor: classColorScaleMap };
 }
+
 
 export default App;
