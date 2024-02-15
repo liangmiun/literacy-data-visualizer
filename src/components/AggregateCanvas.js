@@ -446,7 +446,7 @@ const CirclePlots = (props) => {
             .attr('fill', d => {
                 const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
                 return  props.classColors[d.value.school][classID]   ;})
-            .on("click", (event,d) =>{             
+            .on("click", function(event,d) {             
                 props.onBoxClick([{
                 lastingclass: d.value.lastingclass,
                 class: d.value.class,
@@ -457,7 +457,18 @@ const CirclePlots = (props) => {
                 q1: parseInt(d.value.q1,10),
                 q3: parseInt(d.value.q3,10),
                 count: parseInt(d.value.count,10)
-            }])}); 
+                }])
+
+                d3.selectAll("circle").attr("stroke-width", 0)
+
+                d3.select(this)
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 3)
+
+
+                console.log("circle clicked", event.currentTarget);            
+
+            }); 
    
 
             AggregateUtils.presentLines(props.showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, props.classColors);
