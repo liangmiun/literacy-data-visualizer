@@ -58,7 +58,10 @@ export const preset_dict = {
   checkedOptions: {},
   rangeOptions: {},
   query: '',
-  expression: []
+  expression: [],
+  isClassView: false,
+  showLines: false,
+  aggregateType: ''
 };
 
 
@@ -96,7 +99,9 @@ export function generateClassId(record) {
   const klassNum = parseInt(record.Klass[0]);
   const klassSuffix = record.Klass.length > 1 ? record.Klass[1] : '';
   const skolaShort = skola.substring(0, 4).replace(/\s+/g, '_');
-  return `${skolaShort}:${year - klassNum + 1}-${1}${klassSuffix}`;
+
+  const newKlassNum = 3* ( Math.ceil(klassNum / 3) - 1) + 1;
+  return `${skolaShort}:${year - klassNum +  newKlassNum}-${newKlassNum}${klassSuffix}`;
 }
 
 
@@ -123,7 +128,7 @@ export function generateSchoolLastingClassMap(litData) {
   });
 
       // Convert the schoolMap to a sorted array of schools
-      const sortedSchools = Object.keys(schoolMap).sort().map(school => {
+  const sortedSchools = Object.keys(schoolMap).sort().map(school => {
         // Sort class IDs for each school
         const sortedClasses = Object.keys(schoolMap[school]).sort().reduce((acc, classId) => {
             acc[classId] = schoolMap[school][classId];
@@ -134,12 +139,12 @@ export function generateSchoolLastingClassMap(litData) {
     });
 
     // Convert back to object if needed, or you can keep it as an array
-    const sortedSchoolMap = {};
+  const sortedSchoolMap = {};
     sortedSchools.forEach(schoolItem => {
         sortedSchoolMap[schoolItem.school] = schoolItem.classes;
     });
 
-    return sortedSchoolMap;
+  return sortedSchoolMap;
 
 }
 

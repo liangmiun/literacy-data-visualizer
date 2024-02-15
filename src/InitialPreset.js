@@ -1,15 +1,28 @@
- const initial_preset = JSON.stringify( {
-    "xField":"Testdatum",
+ export const initial_preset = JSON.stringify( 
+    {"xField":"Testdatum",
     "yField":"Lexplore Score",
     "colorField":"Årskurs",
-    "checkedSchools":["Bo skola","Bodals skola","Högsätra skola","Klockargårdens skola","Källängens skola","Käppala skola","Ledvik särskild undervisningsgrupp","Ljungbackens skola","Rudboda skola","Skärsätra skola","Sticklinge skola","Torsviks skola"],
-    "checkedClasses":["Bo skola.Bo_s:16-1A","Bo skola.Bo_s:17-1A","Bo skola.Bo_s:17-1B","Bodals skola.Boda:14-1","Bodals skola.Boda:14-1A","Bodals skola.Boda:14-1B","Bodals skola.Boda:15-1","Bodals skola.Boda:15-1A","Bodals skola.Boda:15-1B","Bodals skola.Boda:16-1A","Bodals skola.Boda:16-1L","Bodals skola.Boda:17-1A","Bodals skola.Boda:17-1B","Bodals skola.Boda:17-1L","Högsätra skola.Högs:14-1A","Högsätra skola.Högs:14-1B","Högsätra skola.Högs:14-1C","Högsätra skola.Högs:14-1L","Högsätra skola.Högs:15-1A","Högsätra skola.Högs:15-1B","Högsätra skola.Högs:15-1C","Högsätra skola.Högs:15-1L","Högsätra skola.Högs:16-1","Högsätra skola.Högs:16-1A","Högsätra skola.Högs:16-1B","Högsätra skola.Högs:16-1C","Högsätra skola.Högs:16-1L","Högsätra skola.Högs:17-1","Högsätra skola.Högs:17-1A","Högsätra skola.Högs:17-1B","Högsätra skola.Högs:17-1L","Högsätra skola.Högs:18-1","Klockargårdens skola.Kloc:16-1A","Klockargårdens skola.Kloc:16-1B","Klockargårdens skola.Kloc:17-1A","Klockargårdens skola.Kloc:17-1B","Källängens skola.Käll:13-1F","Källängens skola.Käll:14-1A","Källängens skola.Käll:14-1B","Källängens skola.Käll:14-1C","Källängens skola.Käll:14-1D","Källängens skola.Käll:14-1E","Källängens skola.Käll:14-1F","Källängens skola.Käll:14-1L","Källängens skola.Käll:15-1A","Källängens skola.Käll:15-1B","Källängens skola.Käll:15-1C","Källängens skola.Käll:15-1D","Källängens skola.Käll:15-1E","Källängens skola.Käll:15-1L","Källängens skola.Käll:16-1-","Källängens skola.Käll:16-1A","Källängens skola.Käll:16-1B","Källängens skola.Käll:16-1C","Källängens skola.Käll:16-1D","Källängens skola.Käll:16-1E","Källängens skola.Käll:16-1F","Källängens skola.Käll:17-1A","Källängens skola.Käll:17-1B","Källängens skola.Käll:17-1C","Källängens skola.Käll:17-1D","Källängens skola.Käll:17-1L","Käppala skola.Käpp:14-1A","Käppala skola.Käpp:14-1B","Käppala skola.Käpp:14-1C","Käppala skola.Käpp:14-1L","Käppala skola.Käpp:15-1A","Käppala skola.Käpp:15-1B","Käppala skola.Käpp:15-1C","Käppala skola.Käpp:16-1A","Käppala skola.Käpp:16-1B","Käppala skola.Käpp:16-1C","Käppala skola.Käpp:16-1L","Käppala skola.Käpp:17-1A","Käppala skola.Käpp:17-1B","Käppala skola.Käpp:17-1C","Käppala skola.Käpp:17-1L","Ledvik särskild undervisningsgrupp.Ledv:14-1L","Ledvik särskild undervisningsgrupp.Ledv:15-1L","Ledvik särskild undervisningsgrupp.Ledv:16-1L","Ledvik särskild undervisningsgrupp.Ledv:17-1L","Ljungbackens skola.Ljun:15-1D","Ljungbackens skola.Ljun:15-1E","Ljungbackens skola.Ljun:16-1D","Ljungbackens skola.Ljun:16-1E","Ljungbackens skola.Ljun:17-1D","Ljungbackens skola.Ljun:17-1E","Rudboda skola.Rudb:14-1A","Rudboda skola.Rudb:14-1B","Rudboda skola.Rudb:15-1A","Rudboda skola.Rudb:15-1B","Rudboda skola.Rudb:16-1A","Rudboda skola.Rudb:16-1B","Rudboda skola.Rudb:16-1C","Rudboda skola.Rudb:17-1A","Rudboda skola.Rudb:17-1B","Rudboda skola.Rudb:17-1L","Skärsätra skola.Skär:14-1C","Skärsätra skola.Skär:14-1D","Skärsätra skola.Skär:15-1C","Skärsätra skola.Skär:15-1D","Skärsätra skola.Skär:16-1C","Skärsätra skola.Skär:16-1D","Skärsätra skola.Skär:17-1C","Skärsätra skola.Skär:17-1D","Sticklinge skola.Stic:14-1A","Sticklinge skola.Stic:14-1B","Sticklinge skola.Stic:14-1C","Sticklinge skola.Stic:15-1A","Sticklinge skola.Stic:15-1B","Sticklinge skola.Stic:15-1C","Sticklinge skola.Stic:16-1A","Sticklinge skola.Stic:16-1B","Sticklinge skola.Stic:16-1C","Sticklinge skola.Stic:17-1A","Sticklinge skola.Stic:17-1B","Sticklinge skola.Stic:17-1C","Torsviks skola.Tors:14-1A","Torsviks skola.Tors:14-1B","Torsviks skola.Tors:14-1C","Torsviks skola.Tors:14-1D","Torsviks skola.Tors:14-1E","Torsviks skola.Tors:15-1A","Torsviks skola.Tors:15-1B","Torsviks skola.Tors:15-1C","Torsviks skola.Tors:15-1D","Torsviks skola.Tors:16-1A","Torsviks skola.Tors:16-1B","Torsviks skola.Tors:16-1C","Torsviks skola.Tors:16-1D","Torsviks skola.Tors:16-1E","Torsviks skola.Tors:16-1I","Torsviks skola.Tors:17-1A","Torsviks skola.Tors:17-1B","Torsviks skola.Tors:17-1C","Torsviks skola.Tors:17-1I"],
-    "checkedOptions":{"Årskurs":[2,3,4,1,5,6,7,9,8],
-    "Läsår":["18/19","19/20","20/21","21/22","22/23"],
-    "Stanine":[null,7,5,8,4,9,3,6,2,1]},
+    "checkedSchools":[],
+    "checkedClasses":["Bodals skola.Boda:15-1A","Bodals skola.Boda:15-1B"],
+    "checkedOptions":{"Årskurs":[2,3,4,1,5,6,7,9,8],"Läsår":["18/19","19/20","20/21","21/22","22/23"],"Stanine":[null,7,5,8,4,9,3,6,2,1]},
     "rangeOptions":{"Födelsedatum":["2006-01-03T23:00:00.000Z","2011-04-24T22:00:00.000Z"],
     "Testdatum":["2019-03-06T23:00:00.000Z","2023-02-02T23:00:00.000Z"],
-    "Lexplore Score":[128,855]},"query":"","expression":""});
+    "Lexplore Score":[128,855]},
+    "query":"",
+    "expression":"",
+    "isClassView":true,
+    "showLines":true,
+    "aggregateType":"circle"
+    }
+
+ );
 
 
-export default initial_preset;
+export var latest_preset = initial_preset;
+
+
+export function updateLatestPreset(newPreset) {
+
+    latest_preset = newPreset;
+  }
+

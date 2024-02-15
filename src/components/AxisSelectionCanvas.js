@@ -73,34 +73,7 @@ const AxisSelectionCanvas = (props) => {
           />
         </div>
 
-        <div className="preset-buttons-row" 
-         style={{display: 'inline-flex',border: '1px solid lightgray', padding:'5px' }}>
 
-              <button className="btn"                  
-                  id="save-preset-btn"
-                  //style={{ color: 'gray' }} 
-                  onClick={() => onSavePreset()} // function to save current state as a preset
-                >
-                  Save Preset
-                </button>
-
-              <button className="btn"
-                id="load-preset-btn"
-                onClick={() => onLoadPreset()} // function to load a saved preset
-              >
-                Load Preset
-              </button>
-
-              <ImportDataButton  handleFileUpload={props.handleFileUpload} />  
-
-              <button className="btn"
-                id="reset-btn"
-                onClick={() => props.handleResetToOnboarding()} // function to reset the state to the initial state
-              >
-                Reset
-              </button>
-
-        </div>
 
         <div className="trend-bar" style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray', padding:"5px"}}>
                   <div  style={{ width: '180px' }}  >
@@ -188,6 +161,43 @@ const AxisSelectionCanvas = (props) => {
                   
                   </div>
                 }
+        </div>
+
+        <div className="preset-buttons-row" 
+         style={{display: 'inline-flex',border: '1px solid lightgray', padding:'5px', marginLeft: '1%' }}>
+
+              <button className="btn"
+                id="reset-btn"
+                onClick={() => props.handleResetToOnboarding()} // function to reset the state to the initial state
+              >
+                Reset
+              </button>
+
+              <button className="btn"
+                id="reset-latest-btn"
+                onClick={() => props.handleResetToLatest()} // function to reset the state to the initial state
+              >
+                Reset to latest saved
+              </button>
+
+              <button className="btn"                  
+                  id="save-preset-btn"
+                  //style={{ color: 'gray' }} 
+                  onClick={() => onSavePreset()} // function to save current state as a preset
+                >
+                  Save Preset
+                </button>
+
+              <button className="btn"
+                id="load-preset-btn"
+                onClick={() => onLoadPreset()} // function to load a saved preset
+              >
+                Load Preset
+              </button>
+
+              <ImportDataButton  handleFileUpload={props.handleFileUpload} />  
+
+
         </div>
       </div>
     </div>

@@ -11,7 +11,8 @@ import { useAuth } from './authentications/AuthContext';
 import ProtectedWrapper from './authentications/ProtectedWrapper';
 import Login from './authentications/Login';
 import Logout from './authentications/Logout';
-import initial_preset  from './InitialPreset.js';
+import {initial_preset, updateLatestPreset, latest_preset}  from './InitialPreset.js';
+import { set } from 'd3-collection';
 
 const App = () => { 
 
@@ -39,6 +40,10 @@ const App = () => {
     'Testdatum':[],
     'Lexplore Score':[]}
     );
+  const [isClassView, setIsClassView] = useState(true);
+  const [aggregateType, setAggregateType] = useState('circle'); 
+
+  
 
 
   const updatePreset = () => {
@@ -51,6 +56,9 @@ const App = () => {
     preset_dict.rangeOptions = rangeOptions;
     preset_dict.query = query;
     preset_dict.expression = expression;
+    preset_dict.isClassView = isClassView;
+    preset_dict.showLines = showLines;
+    preset_dict.aggregateType = aggregateType;
   }
   
 
@@ -64,12 +72,18 @@ const App = () => {
     setRangeOptions( preset.rangeOptions);
     setQuery( preset.query);
     setExpression( preset.expression);
+    setIsClassView( preset.isClassView);
+    setShowLines( preset.showLines);
+    setAggregateType( preset.aggregateType);
   }
 
 
   const save = () => {
     updatePreset();
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(preset_dict));
+    const stringified = JSON.stringify(preset_dict);
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(stringified);
+    updateLatestPreset(stringified);
+
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
   
@@ -102,12 +116,24 @@ const App = () => {
 
 
   const handleResetToOnboarding = () => {
-    let parsed = JSON.parse(initial_preset, (key, value) => {
+    handleResetToTarget(initial_preset);
+  }
+
+
+  const handleResetToLatest = () => { 
+    handleResetToTarget(latest_preset);
+  }
+
+
+  const handleResetToTarget = (preset) => { 
+    let parsed = JSON.parse(preset, (key, value) => { 
       if (key === "Födelsedatum" || key === "Testdatum") return value.map(v => new Date(v));
+      console.log("reset to target key", key, "value", value);
       return value;
     });
     setConfigFromPreset(parsed);
   }
+
 
   useEffect(() => {
     if(!isLogin) return;
@@ -215,6 +241,11 @@ const App = () => {
                             showLines={showLines}
                             setShowLines={setShowLines}
                             handleResetToOnboarding={handleResetToOnboarding}
+                            handleResetToLatest={handleResetToLatest}
+                            isClassView={isClassView}
+                            setIsClassView={setIsClassView}
+                            aggregateType={aggregateType}
+                            setAggregateType={setAggregateType}
                           />
                         } 
                       />

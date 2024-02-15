@@ -188,43 +188,25 @@ function SchoolComponent({ props }) {
           key={school}
         >
           {Object.entries(classesMap).map(([classId, classes], cIdx) => (
-            <div key={classId} style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
-            <TreeItem
-              nodeId={`class-${idx}-${cIdx}`}
-              label={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <Checkbox 
-                    checked={props.checkedClasses.includes(`${school}.${classId}`)}
-                    onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
-                  />
-                  {classId }
-                </div>
-              }
+            <ClassComponent
               key={classId}
+              props={{
+                school,
+                classId,
+                idx,
+                cIdx,
+                checkedClasses,
+                handleClassCheckChange,
+                setPaletteID,
+                paletteID,
+                handleColorChange,
+                isClassView: props.isClassView,
+                classColors: props.classColors
+              }}
+            
+            
             />
-            {/* <div style={{ width: '10px', height: '10px', backgroundColor: classColors[school](classId), marginLeft: '5px' }} /> */}
-            <div>
-              <div 
-                style={{ width: '10px', height: '10px', backgroundColor: props.isClassView? props.classColors[school][classId]: 'white', marginLeft: '5px' }}
-                onClick={() => setPaletteID(classId)}
-              />
-              {paletteID===classId && props.isClassView && (
-                <div style={{ marginTop: '5px' }}>
-                  {[0, 1].map(row => (
-                    <div key={row} style={{ display: 'flex' }}>
-                      {d3.schemeCategory10.slice(row * 5, (row + 1) * 5).map((paletteColor, index) => (
-                        <div 
-                          key={index}
-                          style={{ width: '10px', height: '10px', backgroundColor:  paletteColor, marginLeft: '2px' }}
-                          onClick={() => handleColorChange(school, classId, paletteColor)}
-                        />
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+
           ))}
       </TreeItem>  
 
@@ -233,7 +215,53 @@ function SchoolComponent({ props }) {
   );
 }
 
-  
+
+function ClassComponent({ props }) {
+  const { school, classId, idx, cIdx, handleClassCheckChange, setPaletteID, paletteID, handleColorChange } = props;
+
+  return (
+    <div key={classId} style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
+      <TreeItem
+        nodeId={`class-${idx}-${cIdx}`}
+        label={
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Checkbox 
+              checked={props.checkedClasses.includes(`${school}.${classId}`)}
+              onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
+            />
+            {classId }
+          </div>
+        }
+        key={classId}
+      />
+
+      <div>
+        <div 
+          style={{ width: '10px', height: '10px', backgroundColor: props.isClassView? props.classColors[school][classId]: 'white', marginLeft: '5px' }}
+          onClick={() => setPaletteID(classId)}
+        />
+        {paletteID===classId && props.isClassView && (
+          <div style={{ marginTop: '5px' }}>
+            {[0, 1].map(row => (
+              <div key={row} style={{ display: 'flex' }}>
+                {d3.schemeCategory10.slice(row * 5, (row + 1) * 5).map((paletteColor, index) => (
+                  <div 
+                    key={index}
+                    style={{ width: '10px', height: '10px', backgroundColor:  paletteColor, marginLeft: '2px' }}
+                    onClick={() => handleColorChange(school, classId, paletteColor)}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
 export default SchoolTreeView;
 
 

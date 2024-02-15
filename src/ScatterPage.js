@@ -12,13 +12,12 @@ import './App.css';
 
 const ScatterPage = (props ) => {  
 
+  const { isClassView,setIsClassView, aggregateType, setAggregateType} = props;
   const trends = { all: 'all', overall_decline: 'overall decline',  logarithmic_decline: "logarithmicly decline", last_time_decline: 'last time decline'};
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
-  const [isClassView, setIsClassView] = useState(false);
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
-  const [aggregateType, setAggregateType] = useState('box'); 
   const [schoolClassesAndColorScale, setSchoolClassesAndColorScale ]= useState({schoolClasses:{}, colorScale: {}});
   const [declineSlopeThreshold, setDeclineSlopeThreshold] = useState(0);
   const [diffThreshold, setDiffThreshold] = useState(0);
@@ -144,7 +143,7 @@ const ScatterPage = (props ) => {
           const [min, max] = props.rangeOptions[key];
           if ( filterList.includes(key)  && !(record[key] >= min && record[key] <= max)) {
 
-              if( count % 1000 ==0) 
+              if( count % 1000 ===0) 
               {
                 console.log("filtered out: ",key, record[key], min, max, 
                   record[key] >= min,  record[key] < min, "date?", typeof record[key], typeof min);
@@ -194,6 +193,7 @@ const ScatterPage = (props ) => {
         setDiffThreshold={setDiffThreshold}
         filterWithTrendThreshold={filterWithTrendThreshold}
         handleResetToOnboarding={props.handleResetToOnboarding}
+        handleResetToLatest={props.handleResetToLatest}
       />
 
       {isClassView ?
@@ -265,6 +265,7 @@ const ScatterPage = (props ) => {
 
 
 export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
+  console.log("schoolClassFilteredData checkedSchools",  checkedSchools);
   return data.filter(record => {
       // Check if the school of the record is in checkedSchools
       if (checkedSchools.includes(record.Skola)) {

@@ -25,6 +25,7 @@ React.memo(
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
 
+        // eslint-disable-next-line
         var clip = svg.append("defs").append("svg:clipPath")
         .attr("id", "clip")
         .append("svg:rect")
@@ -105,7 +106,7 @@ React.memo(
                 .selectAll(".tick text")  // Selects all tick labels
                 .style("text-anchor", "start") 
                 .attr("transform", rotationText); // Rotates the labels by -45 degrees
-                               
+
         
                 g.append('g')
                 .attr('class', 'y-axis') 
