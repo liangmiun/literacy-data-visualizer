@@ -83,7 +83,11 @@ const ViolinPlots = (props ) => {
         g.append("g")
             .attr("transform", `translate(0, ${innerHeight})`)
             .call(xAxis)
-            .attr('class', 'x-axis').attr("clip-path", "url(#clip)") ;        
+            .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
+            .selectAll(".tick text")         
+            .style("text-anchor", "start") 
+            .attr("transform",  "rotate(45)"); 
+
 
 
         g.append('g').call(d3.axisLeft(y).tickFormat(d => {
@@ -230,7 +234,10 @@ const BoxPlots = (props) => {
         g.append("g")
             .attr("transform", `translate(0, ${innerHeight})`)
             .call(xAxis)
-            .attr('class', 'x-axis').attr("clip-path", "url(#clip)") ;
+            .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
+            .selectAll(".tick text")         
+            .style("text-anchor", "start") 
+            .attr("transform",  "rotate(45)") ;
             
             
         const yAxis =d3.axisLeft(y).tickFormat(d => {
@@ -396,7 +403,10 @@ const CirclePlots = (props) => {
             g.append("g")
                 .attr("transform", `translate(0, ${innerHeight})`)
                 .call(xAxis)
-                .attr('class', 'x-axis').attr("clip-path", "url(#clip)") ;
+                .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
+                .selectAll(".tick text")         
+                .style("text-anchor", "start") 
+                .attr("transform",  "rotate(45)") ;
                 
                 
             const yAxis =d3.axisLeft(y).tickFormat(d => {
@@ -432,7 +442,7 @@ const CirclePlots = (props) => {
             .attr('class', 'circles') 
             .attr('cx',  function(d) { return bandedX(d)+ subBandWidth / 2;})
             .attr('cy', d => y(d.value.median))
-            .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
+            .attr('r', 6)  
             .attr('fill', d => {
                 const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
                 return  props.classColors[d.value.school][classID]   ;})

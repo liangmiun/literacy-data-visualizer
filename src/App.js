@@ -103,7 +103,7 @@ const App = () => {
 
   const handleResetToOnboarding = () => {
     let parsed = JSON.parse(initial_preset, (key, value) => {
-      if (key === "Födelsedatum" || key == "Testdatum") return value.map(v => new Date(v));
+      if (key === "Födelsedatum" || key === "Testdatum") return value.map(v => new Date(v));
       return value;
     });
     setConfigFromPreset(parsed);

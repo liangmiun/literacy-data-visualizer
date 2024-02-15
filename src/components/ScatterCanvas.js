@@ -105,8 +105,7 @@ React.memo(
                 .selectAll(".tick text")  // Selects all tick labels
                 .style("text-anchor", "start") 
                 .attr("transform", rotationText); // Rotates the labels by -45 degrees
-                
-                ;        
+                               
         
                 g.append('g')
                 .attr('class', 'y-axis') 

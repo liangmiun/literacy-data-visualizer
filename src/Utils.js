@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import { interpolateSpectral } from 'd3-scale-chromatic';
 
 
 const parseDate = d3.timeParse('%y%m%d');
@@ -76,7 +75,7 @@ export const load = (callback) => {
     reader.onload = (e) => {
       const content = e.target.result;
       const loadedConfig = JSON.parse(content, (key, value) => {
-        if (key === "Födelsedatum" || key == "Testdatum") return value.map(v => new Date(v));
+        if (key === "Födelsedatum" || key === "Testdatum") return value.map(v => new Date(v));
         return value;
       });
       callback(loadedConfig);
@@ -172,41 +171,42 @@ export function generateSchoolClassColorScale(schoolClasses) {
 
 export function ColorLegend(data, colorField, svg, width, margin) {
 
-  const colorDomain = Array.from(new Set(data.map(d => d[colorField])));
+  const colorDomain = Array.from(
+    new Set(data.map(d => d[colorField]).filter(value => value != null))
+  );
+  
   colorDomain.sort();
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
 
+// Add a group for the legend
+  const legend = svg.append("g")
+      .attr("transform", `translate(${width + 30}, ${margin.top})`);  // Adjust position as required  //width - legendWidth
 
-    // Define legend space
-    const legendWidth = 60;
+  legend.append("text")
+  .attr("x", 0)
+  .attr("y", -5)  // Position the title a bit above the colored rectangles
+  .style("font-weight", "bold")  // Make the title bold (optional)
+  .text(colorField);
 
-    // Add a group for the legend
-    const legend = svg.append("g")
-        .attr("transform", `translate(${width + 30}, ${margin.top})`);  // Adjust position as required  //width - legendWidth
+  colorDomain.forEach((value, index) => {
 
-    legend.append("text")
-    .attr("x", 0)
-    .attr("y", -5)  // Position the title a bit above the colored rectangles
-    .style("font-weight", "bold")  // Make the title bold (optional)
-    .text(colorField);
+      console.log("legend ", colorField, value);
 
-    colorDomain.forEach((value, index) => {
+      const strippedValue = value.toString().split(" ")[0];
+      // Draw colored rectangle
+      legend.append("rect")
+          .attr("x", 0)
+          .attr("y", index * 20)
+          .attr("width", 15)
+          .attr("height", 15)
+          .style("fill", colorScale(value));
 
-        const strippedValue = value.toString().split(" ")[0];
-        // Draw colored rectangle
-        legend.append("rect")
-            .attr("x", 0)
-            .attr("y", index * 20)
-            .attr("width", 15)
-            .attr("height", 15)
-            .style("fill", colorScale(value));
-
-        // Draw text beside rectangle
-        legend.append("text")
-            .attr("x", 25)  // Adjust for padding beside rectangle
-            .attr("y", index * 20 + 12)  // Adjust to vertically center text
-            .text(strippedValue);
-    });
+      // Draw text beside rectangle
+      legend.append("text")
+          .attr("x", 25)  // Adjust for padding beside rectangle
+          .attr("y", index * 20 + 12)  // Adjust to vertically center text
+          .text(strippedValue);
+  });
 
 
 }
