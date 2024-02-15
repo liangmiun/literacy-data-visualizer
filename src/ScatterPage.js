@@ -114,7 +114,6 @@ const ScatterPage = (props ) => {
   ];
 
 
-
   const [filterList, setFilterList] = useState([]);
 
 
