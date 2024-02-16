@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import {  rescale } from '../Utils';
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
-const indv_jitterWidth = 10;
+const indv_jitterWidth = 5;
 const indv_offset =0;
 
 export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWidth )

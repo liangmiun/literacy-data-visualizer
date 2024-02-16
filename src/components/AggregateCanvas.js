@@ -140,7 +140,15 @@ const ViolinPlots = (props ) => {
             const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
             return  classColors[d.value.school][classID]   ; 
         })
-        .on("click", (event, d) => {
+        .on("click", function(event, d) {
+
+            d3.selectAll(".violins").attr("stroke-width", 0)
+            d3.select(this)
+                .attr("stroke", "black")
+                .attr("stroke-width", 1)
+
+            console.log('violin click', event.currentTarget);
+
             onViolinClick([{
                 lastingclass: d.value.lastingclass,
                 class: d.value.class,
@@ -157,7 +165,11 @@ const ViolinPlots = (props ) => {
         .attr("class", "area")
         .datum(
                     function(d){ 
-                        return d.value.bins;
+                        //return d.value.bins;
+                        const filteredBins = d.value.bins.filter(bin => {
+                            return bin.x0 >= d.value.min && bin.x0 <= d.value.max;
+                        });
+                        return filteredBins;
                     }
                 )
         .attr("d", d3.area()
@@ -166,6 +178,8 @@ const ViolinPlots = (props ) => {
                 .y(d => y(d.x0))   //d.x0
                 .curve(d3.curveCatmullRom)
                 );  
+
+
 
         AggregateUtils.presentLines(showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, classColors);
 
@@ -185,7 +199,7 @@ const ViolinPlots = (props ) => {
         svg.call(zoomBehavior)
   
 
-    }, [shownData,xField, yField, colorField, width, height,  studentsChecked, formatDate, parseDate, onViolinClick, showLines, subBandCount, classColors]);
+    }, [shownData,xField, yField, colorField, width, height,  studentsChecked,  onViolinClick, showLines, subBandCount, classColors]);
     
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
