@@ -13,8 +13,6 @@ React.memo(
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
     const filteredXYData = shownData.filter(d => d[xField] !== null && d[yField] !== null);
-
-    console.log('ScatterCanvas: filteredXYData.length:', filteredXYData.length, shownData.length);
     
     
     useEffect(() => {

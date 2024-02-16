@@ -12,7 +12,7 @@ import ProtectedWrapper from './authentications/ProtectedWrapper';
 import Login from './authentications/Login';
 import Logout from './authentications/Logout';
 import {initial_preset, updateLatestPreset, latest_preset}  from './InitialPreset.js';
-import { set } from 'd3-collection';
+
 
 const App = () => { 
 

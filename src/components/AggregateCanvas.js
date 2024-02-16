@@ -4,7 +4,7 @@ import * as AggregateUtils from './AggregateUtils';
 
 const AggregateCanvas = (props) => {
 
-    const filteredData = props.shownData.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
+    //const filteredData = props.shownData.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
     const subBandCount = props.checkedClasses.length;
 
     return(
@@ -15,20 +15,20 @@ const AggregateCanvas = (props) => {
                 (
                     <>
                    
-                        { props.aggregateType ==='violin' && < ViolinPlots shownData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
-                            width={props.width} height={props.height} onViolinClick={props.onPartClick} selectedRecord={props.selectedRecord} 
+                        { props.aggregateType ==='violin' && < ViolinPlots shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
+                            width={props.width} height={props.height} onViolinClick={props.onPartClick}  
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
                             subBandCount = {subBandCount}  showLines={props.showLines}/>
                         }
                         
-                        {props.aggregateType ==='box' && <BoxPlots    shownData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
-                            width={props.width} height={props.height} onBoxClick={props.onPartClick} selectedRecord={props.selectedRecord} 
+                        {props.aggregateType ==='box' && <BoxPlots    shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
+                            width={props.width} height={props.height} onBoxClick={props.onPartClick} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
                             subBandCount ={subBandCount}  showLines={props.showLines}/>
                         }
 
-                        {props.aggregateType ==='circle' && <CirclePlots  shownData={filteredData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
-                            width={props.width} height={props.height} onBoxClick={props.onPartClick} selectedRecord={props.selectedRecord} 
+                        {props.aggregateType ==='circle' && <CirclePlots  shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
+                            width={props.width} height={props.height} onBoxClick={props.onPartClick} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
                             subBandCount ={subBandCount}  showLines={props.showLines}/>
                         }
@@ -168,7 +168,7 @@ const ViolinPlots = (props ) => {
         AggregateUtils.presentLines(props.showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, props.classColors);
 
         if(props.studentsChecked) {       
-            AggregateUtils.PresentIndividuals(props.shownData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)   
+            AggregateUtils.PresentIndividuals(props.shownData, props.yField, g, x0, getSubBandScale, y, subBandWidth)   
         }
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
@@ -183,7 +183,7 @@ const ViolinPlots = (props ) => {
         svg.call(zoomBehavior)
   
 
-    }, [props.shownData,props.xField, props.yField, props.colorField, props.width, props.height, props.selectedRecord, props.studentsChecked, formatDate, parseDate, props.onViolinClick, props.showLines]);
+    }, [props.shownData,props.xField, props.yField, props.colorField, props.width, props.height,  props.studentsChecked, formatDate, parseDate, props.onViolinClick, props.showLines]);
     
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
@@ -201,7 +201,7 @@ const BoxPlots = (props) => {
     // In your useEffect: 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, classCount }  = AggregateUtils.PreparePlotStructure(svgRef, props.shownData, props.yField, props.width, props.height, 'box');
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, props.shownData, props.yField, props.width, props.height, 'box');
 
         var clip = svg.append("defs").append("svg:clipPath")
         .attr("id", "clip")
@@ -334,7 +334,7 @@ const BoxPlots = (props) => {
 
         // Add individual points with jitter
         if(props.studentsChecked) {
-            AggregateUtils.PresentIndividuals(props.shownData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)  //getSubBandScale,
+            AggregateUtils.PresentIndividuals(props.shownData, props.yField, g, x0, getSubBandScale, y, subBandWidth)  //getSubBandScale,
         }
 
 
@@ -352,7 +352,7 @@ const BoxPlots = (props) => {
         //ColorLegend(identityClasses, "classID", svg, 200, margin);          
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [props.shownData, props.xField, props.yField, props.colorField, props.width, props.height,  props.selectedRecord, props.studentsChecked,formatDate, parseDate, props.onBoxClick, props.classColors,props.checkedClasses]); 
+    }, [props.shownData, props.xField, props.yField, props.colorField, props.width, props.height,   props.studentsChecked,formatDate, parseDate, props.onBoxClick, props.classColors,props.checkedClasses]); 
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
     );
@@ -362,15 +362,16 @@ const BoxPlots = (props) => {
 
 const CirclePlots = (props) => {
         const svgRef = useRef();
-        const parseDate = d3.timeParse('%y%m%d');
-        const formatDate = d3.timeFormat('%y-%m-%d');
+        // const parseDate = d3.timeParse('%y%m%d');
+        // const formatDate = d3.timeFormat('%y-%m-%d');
         const newXScaleRef = useRef(null);
         const newYScaleRef = useRef(null);
+        const {shownData, xField, yField, colorField, width, height, 
+                onBoxClick, studentsChecked, classColors, subBandCount, showLines } = props;
         
-        // In your useEffect: 
         useEffect(() => {
     
-            const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups, classCount }  = AggregateUtils.PreparePlotStructure(svgRef, props.shownData, props.yField, props.width, props.height, 'box');
+            const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'box');
             
             var clip = svg.append("defs").append("svg:clipPath")
             .attr("id", "clip")
@@ -410,9 +411,9 @@ const CirclePlots = (props) => {
                 
                 
             const yAxis =d3.axisLeft(y).tickFormat(d => {
-                if(props.yField==='Födelsedatum'||props.yField==='Testdatum')
-                {const dateObject = parseDate(d);
-                return formatDate(dateObject);
+                if(yField==='Födelsedatum'||yField==='Testdatum')
+                {const dateObject = AggregateUtils.parseDate(d);
+                return AggregateCanvas.formatDate(dateObject);
                 }
                 return d;
             })
@@ -425,9 +426,9 @@ const CirclePlots = (props) => {
             .attr("x", -innerHeight / 2) 
             .attr("dy", "1em")  
             .style("text-anchor", "middle")
-            .text(props.yField); 
+            .text(yField); 
     
-            const subBandWidth = x0.bandwidth() / props.subBandCount;
+            const subBandWidth = x0.bandwidth() / subBandCount;
             function bandedX(d) {
                 const season = d.value.season.toString();
                 const clazz = d.value.lastingclass.toString();   //.class
@@ -436,7 +437,7 @@ const CirclePlots = (props) => {
             }        
     
 
-            aggregate.selectAll('.circles')
+            aggregate.selectAll('.circles')  //'.circles'
             .data(sumstat)  //filteredData
             .enter().append('circle')
             .attr('class', 'circles') 
@@ -445,9 +446,16 @@ const CirclePlots = (props) => {
             .attr('r', 6)  
             .attr('fill', d => {
                 const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
-                return  props.classColors[d.value.school][classID]   ;})
-            .on("click", function(event,d) {             
-                props.onBoxClick([{
+                return  classColors[d.value.school][classID]   ;})
+            .on("click", function(event,d) {   
+
+                d3.selectAll("circle").attr("stroke-width", 0)
+                d3.select(this)
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 3)
+                console.log("circle clicked", event.currentTarget);  
+
+                onBoxClick([{
                 lastingclass: d.value.lastingclass,
                 class: d.value.class,
                 season: d.value.season,
@@ -459,41 +467,34 @@ const CirclePlots = (props) => {
                 count: parseInt(d.value.count,10)
                 }])
 
-                d3.selectAll("circle").attr("stroke-width", 0)
-
-                d3.select(this)
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 3)
-
-
-                console.log("circle clicked", event.currentTarget);            
+          
 
             }); 
    
 
-            AggregateUtils.presentLines(props.showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, props.classColors);
+            AggregateUtils.presentLines(showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, classColors);
            
     
             // Add individual points with jitter
-            if(props.studentsChecked) {
-                AggregateUtils.PresentIndividuals(props.shownData, props.yField, g, x0, getSubBandScale, y, subBandWidth, props.setSelectedRecords)  //getSubBandScale,
+            if(studentsChecked) {
+                AggregateUtils.PresentIndividuals(shownData, yField, g, x0, getSubBandScale, y, subBandWidth)  //getSubBandScale,
             }    
     
             if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
                 const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-                AggregateUtils.circleZoomRender( zoomState, x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked, props.subBandCount);
+                AggregateUtils.circleZoomRender( zoomState, x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
             }
     
             // Setup zoom behavior
-            const zoomBehavior = AggregateUtils.createCircleZoomBehavior(x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked,props.subBandCount);
+            const zoomBehavior = AggregateUtils.createCircleZoomBehavior(x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
             // Apply the zoom behavior to the SVG
             svg.call(zoomBehavior)
+
+            // d3.selection.prototype.attr = originalAttr;
     
-            // Add color legend
-            //ColorLegend(identityClasses, "classID", svg, 200, margin);          
-    
-            // ... rest of the zoom and event logic remains unchanged ...
-        }, [props.shownData, props.xField, props.yField, props.colorField, props.width, props.height,  props.selectedRecord, props.studentsChecked,formatDate, parseDate, props.onBoxClick, props.classColors,props.checkedClasses]); 
+
+        }, [shownData, xField, yField, colorField, width, height,  studentsChecked,  classColors,  onBoxClick, showLines,subBandCount]);  //onBoxClick,
+
         return (
             <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
         );

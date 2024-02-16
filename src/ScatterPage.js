@@ -40,11 +40,8 @@ const ScatterPage = (props ) => {
       setDataToShow(props.logicFilteredData);
     }
   }, [ props.logicFilteredData]);   
-  
+ 
 
-  const handlePartClick = (details) => {
-    setSelectedClassDetail(details);
-  };
 
   const handleClassColorPaletteClick= (school, classID, newColor) => {
     setSchoolClassesAndColorScale(prevState => {
@@ -156,7 +153,8 @@ const ScatterPage = (props ) => {
   }
 
   const shownData = useMemo(() => {
-      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(dataToShow,props.checkedClasses,props.checkedSchools)));
+      const nonNullData = dataToShow.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
+      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData,props.checkedClasses,props.checkedSchools)));
     }, [dataToShow, props.checkedOptions, props.rangeOptions, props.checkedSchools, props.checkedClasses]);  
 
   return (   
@@ -204,7 +202,7 @@ const ScatterPage = (props ) => {
           colorField = {props.colorField}
           width={1000}
           height={700}    
-          onPartClick={handlePartClick} 
+          onPartClick={setSelectedClassDetail} //  handlePartClick
           studentsChecked={studentsChecked}
           aggregateType = {aggregateType}
           classColors={schoolClassesAndColorScale.colorScale}
@@ -340,7 +338,7 @@ function logarithmicDeclinedData(data, declineCoeffThreshold) {
   groupedData.forEach((group, elevId) => {
     const x = group.map(d => Math.log(d.numericTestdatum));
     const y = group.map(d => d['Lexplore Score']);
-    const { coeffA, coeffB } = fitLogarithmicModel(x, y);
+    const { coeffA,  } = fitLogarithmicModel(x, y);
 
     if (coeffA < minCoeff) {
       minCoeff = coeffA;

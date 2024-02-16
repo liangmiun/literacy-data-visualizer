@@ -45,8 +45,6 @@ export function getLastingClassID(school, seasonKey, classKey)
     const klassNum = parseInt(classKey[0]);
     const testYear = parseInt(seasonKey.split('-')[0]) - 2000;
     const testSeason = parseInt(seasonKey.split('-')[1]);
-    const initYear = testSeason <7? testYear - klassNum : testYear - klassNum + 1  ;
-
     const schoolYear = testSeason <7? testYear - 1 : testYear;
 
     const klassSuffix = classKey.length>1? classKey[1]: '';
@@ -477,3 +475,7 @@ export function presentLines(showLines, lastingClassGroups,  g, x0, getSubBandSc
 
 
 }
+
+
+export const parseDate = d3.timeParse('%y%m%d');
+export const formatDate = d3.timeFormat('%y-%m-%d');
