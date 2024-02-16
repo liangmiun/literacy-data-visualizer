@@ -47,11 +47,13 @@ const ViolinPlots = (props ) => {
     const formatDate = d3.timeFormat('%y-%m-%d');
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
+    const { shownData, xField, yField, colorField, width, height, onViolinClick, studentsChecked,  showLines, subBandCount, classColors } = props;
 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, props.shownData, props.yField, props.width, props.height, 'violin');
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'violin');
 
+        // eslint-disable-next-line no-unused-vars
         var clip = svg.append("defs").append("svg:clipPath")
         .attr("id", "clip")
         .append("svg:rect")
@@ -91,7 +93,7 @@ const ViolinPlots = (props ) => {
 
 
         g.append('g').call(d3.axisLeft(y).tickFormat(d => {
-            if(props.yField==='Födelsedatum'||props.yField==='Testdatum')
+            if(yField==='Födelsedatum'||yField==='Testdatum')
             {const dateObject = parseDate(d);
             return formatDate(dateObject);
             }
@@ -104,10 +106,10 @@ const ViolinPlots = (props ) => {
         .attr("x", -innerHeight / 2) 
         .attr("dy", "1em")  
         .style("text-anchor", "middle")
-        .text(props.yField); 
+        .text(yField); 
 
         
-        const subBandWidth = x0.bandwidth() / props.subBandCount;
+        const subBandWidth = x0.bandwidth() / subBandCount;
 
         var maxNum = 0;
         for (var i in sumstat) {
@@ -136,10 +138,10 @@ const ViolinPlots = (props ) => {
             })
         .style("fill", d => {
             const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
-            return  props.classColors[d.value.school][classID]   ; 
+            return  classColors[d.value.school][classID]   ; 
         })
         .on("click", (event, d) => {
-            props.onViolinClick([{
+            onViolinClick([{
                 lastingclass: d.value.lastingclass,
                 class: d.value.class,
                 season: d.value.season,
@@ -165,25 +167,25 @@ const ViolinPlots = (props ) => {
                 .curve(d3.curveCatmullRom)
                 );  
 
-        AggregateUtils.presentLines(props.showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, props.classColors);
+        AggregateUtils.presentLines(showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, classColors);
 
-        if(props.studentsChecked) {       
-            AggregateUtils.PresentIndividuals(props.shownData, props.yField, g, x0, getSubBandScale, y, subBandWidth)   
+        if(studentsChecked) {       
+            AggregateUtils.PresentIndividuals(shownData, yField, g, x0, getSubBandScale, y, subBandWidth)   
         }
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
             const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-            AggregateUtils.violinZoomRender( zoomState, x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale,xNum, props.studentsChecked, props.subBandCount);
+            AggregateUtils.violinZoomRender( zoomState, x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale,xNum, studentsChecked, subBandCount);
         }
 
         // Setup zoom behavior
-        const zoomBehavior = AggregateUtils.createViolinZoomBehavior(x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, xNum, props.studentsChecked, props.subBandCount);
+        const zoomBehavior = AggregateUtils.createViolinZoomBehavior(x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount);
 
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
   
 
-    }, [props.shownData,props.xField, props.yField, props.colorField, props.width, props.height,  props.studentsChecked, formatDate, parseDate, props.onViolinClick, props.showLines]);
+    }, [shownData,xField, yField, colorField, width, height,  studentsChecked, formatDate, parseDate, onViolinClick, showLines, subBandCount, classColors]);
     
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
@@ -193,16 +195,18 @@ const ViolinPlots = (props ) => {
 
 const BoxPlots = (props) => {
     const svgRef = useRef();
-    const parseDate = d3.timeParse('%y%m%d');
-    const formatDate = d3.timeFormat('%y-%m-%d');
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
+    const {shownData, xField, yField, colorField, width, height, onBoxClick, studentsChecked, classColors, subBandCount, showLines, checkedClasses } = props;
     
     // In your useEffect: 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, props.shownData, props.yField, props.width, props.height, 'box');
+        console.log('BoxPlots useEffect');
 
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'box');
+
+        // eslint-disable-next-line no-unused-vars
         var clip = svg.append("defs").append("svg:clipPath")
         .attr("id", "clip")
         .append("svg:rect")
@@ -241,9 +245,9 @@ const BoxPlots = (props) => {
             
             
         const yAxis =d3.axisLeft(y).tickFormat(d => {
-            if(props.yField==='Födelsedatum'||props.yField==='Testdatum')
-            {const dateObject = parseDate(d);
-            return formatDate(dateObject);
+            if(yField==='Födelsedatum'||yField==='Testdatum')
+            {const dateObject = AggregateUtils.parseDate(d);
+            return AggregateUtils.formatDate(dateObject);
             }
             return d;
         })
@@ -256,10 +260,10 @@ const BoxPlots = (props) => {
         .attr("x", -innerHeight / 2) 
         .attr("dy", "1em")  
         .style("text-anchor", "middle")
-        .text(props.yField); 
+        .text(yField); 
 
         // Vertical lines
-        const subBandWidth = x0.bandwidth() / props.subBandCount;
+        const subBandWidth = x0.bandwidth() / subBandCount;
         function bandedX(d) {
             const season = d.value.season.toString();
             const clazz = d.value.lastingclass.toString();   //.class
@@ -296,13 +300,22 @@ const BoxPlots = (props) => {
                 return subBandWidth;
             })
             .attr("stroke", "black")
-            .style("stroke-width", 0.5)
+            .attr("stroke-width", 0.5)
             .style("fill", d => {
                 const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
-                return  props.classColors[d.value.school][classID]   ;  // colorScale(classId)  "url(#mygrad)"  `url(#mygrad-${classID})`
+                return  classColors[d.value.school][classID]   ;  // colorScale(classId)  "url(#mygrad)"  `url(#mygrad-${classID})`
             })
-            .on("click", (event,d) =>{             
-                props.onBoxClick([{
+            .on("click", function(event,d) {
+                
+                d3.selectAll(".boxes").attr("stroke-width", 0.5)
+                d3.select(this)
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 3)
+
+                console.log('box click', event.currentTarget);
+
+
+                onBoxClick([{
                 lastingclass: d.value.lastingclass,
                 class: d.value.class,
                 season: d.value.season,
@@ -330,21 +343,21 @@ const BoxPlots = (props) => {
         .attr("stroke", "black")
         .style("stroke-width", 2)
 
-        AggregateUtils.presentLines(props.showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, props.classColors);       
+        AggregateUtils.presentLines(showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, classColors);       
 
         // Add individual points with jitter
-        if(props.studentsChecked) {
-            AggregateUtils.PresentIndividuals(props.shownData, props.yField, g, x0, getSubBandScale, y, subBandWidth)  //getSubBandScale,
+        if(studentsChecked) {
+            AggregateUtils.PresentIndividuals(shownData, yField, g, x0, getSubBandScale, y, subBandWidth)  //getSubBandScale,
         }
 
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
             const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-            AggregateUtils.boxZoomRender( zoomState, x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked, props.subBandCount);
+            AggregateUtils.boxZoomRender( zoomState, x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
         }
 
         // Setup zoom behavior
-        const zoomBehavior = AggregateUtils.createBoxZoomBehavior(x0, y, 'band', 'linear', 'season', props.yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, props.studentsChecked,props.subBandCount);
+        const zoomBehavior = AggregateUtils.createBoxZoomBehavior(x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
 
@@ -352,9 +365,9 @@ const BoxPlots = (props) => {
         //ColorLegend(identityClasses, "classID", svg, 200, margin);          
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [props.shownData, props.xField, props.yField, props.colorField, props.width, props.height,   props.studentsChecked,formatDate, parseDate, props.onBoxClick, props.classColors,props.checkedClasses]); 
+    }, [shownData, xField, yField, colorField, width, height, studentsChecked, onBoxClick, classColors, checkedClasses, showLines, subBandCount]); 
     return (
-        <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
+        <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
     );
 
 }
@@ -362,8 +375,6 @@ const BoxPlots = (props) => {
 
 const CirclePlots = (props) => {
         const svgRef = useRef();
-        // const parseDate = d3.timeParse('%y%m%d');
-        // const formatDate = d3.timeFormat('%y-%m-%d');
         const newXScaleRef = useRef(null);
         const newYScaleRef = useRef(null);
         const {shownData, xField, yField, colorField, width, height, 
@@ -373,6 +384,7 @@ const CirclePlots = (props) => {
     
             const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'box');
             
+            // eslint-disable-next-line no-unused-vars
             var clip = svg.append("defs").append("svg:clipPath")
             .attr("id", "clip")
             .append("svg:rect")
@@ -453,7 +465,6 @@ const CirclePlots = (props) => {
                 d3.select(this)
                     .attr("stroke", "black")
                     .attr("stroke-width", 3)
-                console.log("circle clicked", event.currentTarget);  
 
                 onBoxClick([{
                 lastingclass: d.value.lastingclass,
@@ -465,9 +476,7 @@ const CirclePlots = (props) => {
                 q1: parseInt(d.value.q1,10),
                 q3: parseInt(d.value.q3,10),
                 count: parseInt(d.value.count,10)
-                }])
-
-          
+                }])          
 
             }); 
    
