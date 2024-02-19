@@ -6,6 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import '../App.css';
 import * as d3 from 'd3';
+import Tooltip from '@mui/material/Tooltip';
 
 
 function SchoolTreeView(props) {
@@ -85,7 +86,12 @@ function SchoolTreeView(props) {
 
   return (
       <div  className='school-tree-view' style={{ margin: '0px 3px'}}>
-        <h4 style={{ textAlign: 'center' }} >Filter by School and Class</h4>  
+        <h4 style={{ textAlign: 'center' }} >
+        <Tooltip title="Select schools and classes: ☑ for all, ☐ for none and ▣ for some." followCursor>        
+          Filter by School and Class
+        </Tooltip>
+          
+        </h4>  
         <TreeView  style={{margin: '5px 5px',width: '100%' ,border: '1px solid gray',
             overflowX: 'auto', maxWidth: '20vw',
             overflowY: 'auto', maxHeight:'45vh' }}
@@ -229,7 +235,9 @@ function ClassComponent({ props }) {
               checked={props.checkedClasses.includes(`${school}.${classId}`)}
               onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
             />
-            {classId }
+            <Tooltip title={transformString(classId)} followCursor>       
+              {classId }
+            </Tooltip>
           </div>
         }
         key={classId}
@@ -260,6 +268,25 @@ function ClassComponent({ props }) {
   );
 }
 
+
+function transformString(input) {
+  // Split the string by ":" to separate the prefix and the numbers
+  const parts = input.split(':');
+  const baseParts = parts[1].split('-');
+
+  // Further split the second part of the number to separate digits and letters
+  const numPart = baseParts[1].match(/\d+/g); // Matches all the digit(s)
+  const letterPart = baseParts[1].match(/[a-zA-Z]+/g); // Matches all the letter(s)
+
+  // Parse the first part of the number to use it as a base for incrementing
+  let baseNumber = parseInt(baseParts[0]) + 2000;
+
+  const newString = "Class " +`${baseNumber}-${numPart ? numPart : ''}${letterPart ? letterPart[0] : ''}, ` +
+                    `${baseNumber+1}-${numPart ? parseInt(numPart)+1 : ''}${letterPart ? letterPart[0] : ''}, ` +
+                    `${baseNumber+2}-${numPart ? parseInt(numPart)+2 : ''}${letterPart ? letterPart[0] : ''} from ${parts[0]} school`;
+
+  return newString;
+}
 
 
 export default SchoolTreeView;

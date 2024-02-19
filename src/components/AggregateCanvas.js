@@ -150,7 +150,8 @@ const ViolinPlots = (props ) => {
             console.log('violin click', event.currentTarget);
 
             onViolinClick([{
-                lastingclass: d.value.lastingclass,
+                // lastingclass: d.value.lastingclass,
+                school: d.value.school,
                 class: d.value.class,
                 season: d.value.season,
                 min: parseInt(d.value.min)  , 
@@ -330,7 +331,8 @@ const BoxPlots = (props) => {
 
 
                 onBoxClick([{
-                lastingclass: d.value.lastingclass,
+                // lastingclass: d.value.lastingclass,
+                school: d.value.school,
                 class: d.value.class,
                 season: d.value.season,
                 min: parseInt(d.value.min,10),
@@ -481,7 +483,8 @@ const CirclePlots = (props) => {
                     .attr("stroke-width", 3)
 
                 onBoxClick([{
-                lastingclass: d.value.lastingclass,
+                // lastingclass: d.value.lastingclass,
+                school: d.value.school,
                 class: d.value.class,
                 season: d.value.season,
                 min: parseInt(d.value.min,10),

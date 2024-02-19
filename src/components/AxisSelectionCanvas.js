@@ -6,6 +6,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
+import Tooltip from '@mui/material/Tooltip';
 import './AxisSelectionCanvas.css';
 
 const AxisSelectionCanvas = (props) => {
@@ -18,7 +19,12 @@ const AxisSelectionCanvas = (props) => {
   const ImportDataButton = ({handleFileUpload}) => (
     <button className="btn">
       <input type="file" accept=".csv" onChange={handleFileUpload} style={{ display: 'none' }} id="fileUpload" />
-      <label htmlFor="fileUpload" className="import-button">Import Data</label>
+      <label htmlFor="fileUpload" className="import-button">
+      <Tooltip title="Import csv-format source data" followCursor>
+        Import Data
+      </Tooltip>
+        
+      </label>
     </button>
   );
 
@@ -42,7 +48,9 @@ const AxisSelectionCanvas = (props) => {
     <div className="axis-selection-canvas" >
       <div className="axis-selects-row"  style={{ display: 'flex' }} >
         <div className="field-pair"  >
-          <label htmlFor="x-field">X-field:</label>
+          <Tooltip title="Select variable on horizontal axis" followCursor>
+            <label htmlFor="x-field">X-field:</label>
+          </Tooltip>
           <Select 
             isDisabled = {props.isClassView} 
             id="x-field"
@@ -53,7 +61,9 @@ const AxisSelectionCanvas = (props) => {
         </div>       
 
         <div className="field-pair" >
-          <label htmlFor="y-field">Y-field:</label>
+          <Tooltip title="Select variable on vertical axis" followCursor>
+            <label htmlFor="y-field">Y-field:</label>
+          </Tooltip>
           <Select
             id="y-field"
             value={{ value: props.yField, label: props.yField }}
@@ -63,7 +73,9 @@ const AxisSelectionCanvas = (props) => {
         </div>
 
         <div className="field-pair">
-          <label htmlFor="color-field">Color:</label>      
+        <Tooltip title="Select variable for color coded data" followCursor>
+          <label htmlFor="color-field">Color:</label>   
+        </Tooltip>   
           <Select
             isDisabled = {props.isClassView}
             id="color-field"
@@ -76,16 +88,11 @@ const AxisSelectionCanvas = (props) => {
 
 
         <div className="trend-bar" style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray', padding:"5px"}}>
-                  <div  style={{ width: '180px' }}  >
-                    {/* <Select
-                      id="trend"
-                      defaultInputValue= {props.trend}
-                      options={ trendOptions}
-                      onChange={option => props.onTrendChange(option.value)}
-                    /> */}
-                    
+                  <div  style={{ width: '180px' }}  >                    
                     <FormControl fullWidth>
-                      <InputLabel id="trend-label">Trend</InputLabel>
+                      <Tooltip title="show all records or only declining records" followCursor>
+                        <InputLabel id="trend-label">Trend</InputLabel>
+                      </Tooltip>
                       <MuiSelect
                         disabled = {props.isClassView} 
                         labelId="trend-label"
@@ -122,7 +129,10 @@ const AxisSelectionCanvas = (props) => {
                     checked = {props.showLines}
                     onChange={() => props.setShowLines(!props.showLines)} 
                 />
+
+                <Tooltip title="Line-connect records from identical individuals" followCursor>                
                 <label><br/>Show lines </label>
+                </Tooltip>
         </div>
 
         <div className = "show-class-view" style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray'}}>
@@ -132,7 +142,9 @@ const AxisSelectionCanvas = (props) => {
                     onChange={() => {props.setIsClassView(!props.isClassView); }}   
                     style={{  marginLeft: '5%'}}
                 />
+                <Tooltip title="Switch between class-aggregation view and individual view" followCursor>
                 <label><br/>Class View </label>
+                </Tooltip>
                 {props.isClassView &&
                   <div className='aggregate-buttons-row' 
                     style={{ display: 'inline-flex', alignItems: 'center',marginRight:'20px', padding:'2px' }}>
@@ -156,7 +168,9 @@ const AxisSelectionCanvas = (props) => {
                               checked={props.studentsChecked} 
                               onChange={() => props.setStudentsChecked(!props.studentsChecked)}
                           />
+                        <Tooltip title="Whether to show individual dots on the class view" followCursor>
                           <label>Show Individuals </label>
+                        </Tooltip>
                       </div>
                   
                   </div>
@@ -170,14 +184,18 @@ const AxisSelectionCanvas = (props) => {
                 id="reset-btn"
                 onClick={() => props.handleResetToOnboarding()} // function to reset the state to the initial state
               >
+               <Tooltip title="Reset to on-boarding view" followCursor>
                 Reset
+                </Tooltip>
               </button>
 
               <button className="btn"
                 id="reset-latest-btn"
                 onClick={() => props.handleResetToLatest()} // function to reset the state to the initial state
               >
+                <Tooltip title="Reset to view of the last saved preset" followCursor>
                 Reset to latest saved
+                </Tooltip>
               </button>
 
               <button className="btn"                  
@@ -185,14 +203,18 @@ const AxisSelectionCanvas = (props) => {
                   //style={{ color: 'gray' }} 
                   onClick={() => onSavePreset()} // function to save current state as a preset
                 >
+                  <Tooltip title="Save current filters, axis fields and view mode settings to a preset file" followCursor>
                   Save Preset
+                  </Tooltip>
                 </button>
 
               <button className="btn"
                 id="load-preset-btn"
                 onClick={() => onLoadPreset()} // function to load a saved preset
               >
+                <Tooltip title="Load filters, axis fields and view mode settings from a preset" followCursor>
                 Load Preset
+                </Tooltip>
               </button>
 
               <ImportDataButton  handleFileUpload={props.handleFileUpload} />  
@@ -216,7 +238,12 @@ function DeclineThresholdSlider({ trend, setThreshold, isDisabled, minThreshold,
 
   return (
       <div style={{ margin: '5px 10px', width: '80%' }}>
-          <div style={{ whiteSpace: 'pre' }}>{label}</div>
+          <div style={{ whiteSpace: 'pre' }}>
+          <Tooltip title="Set a threshold so the filtered data are declining under the thresthold." followCursor>            
+            {label }
+          </Tooltip>            
+          </div>
+
           <Slider
               disabled = {isDisabled}
               size="small"

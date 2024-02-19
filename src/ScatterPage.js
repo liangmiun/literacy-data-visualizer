@@ -99,7 +99,8 @@ const ScatterPage = (props ) => {
 
   const classKeyList =
   [
-    'lastingclass',
+    // 'lastingclass',
+    'school',
     'class',
     'season',
     'min',

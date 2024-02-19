@@ -1,7 +1,7 @@
 import ReactFilterBox ,{ SimpleResultProcessing }from 'react-filter-box';
 import 'react-filter-box/lib/react-filter-box.css';
 import * as React from 'react';
-//import * as _ from "lodash";
+import Tooltip from '@mui/material/Tooltip';
 
 const LogicCanvas = ({fields, data, setLogicFilteredData, expression, setExpression, query,setQuery }) => {
 
@@ -14,7 +14,11 @@ const LogicCanvas = ({fields, data, setLogicFilteredData, expression, setExpress
 
   return (
     <div className='logic-canvas'>
-      <h4>Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt; 500"</h4>
+      <h4>
+      <Tooltip title='Filter data using logical expressions  with "( , ) , == , != , contains , !contains , > , <" operators.' followCursor>  
+        Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt; 500"
+      </Tooltip>
+      </h4>
       <FilterDemo data={data} options={field_options}  setLogicFilteredData={setLogicFilteredData} 
         expression={expression}  setExpression={setExpression}  query={query}  setQuery={setQuery}  />
     </div>
