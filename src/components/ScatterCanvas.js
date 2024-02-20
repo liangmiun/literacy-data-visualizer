@@ -22,6 +22,8 @@ React.memo(
         const margin = { top: 20, right: 160, bottom: 80, left: 80 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
+        
+        console.log("scatter canvas innerWidth ",  innerWidth);
 
         // eslint-disable-next-line
         var clip = svg.append("defs").append("svg:clipPath")
@@ -63,13 +65,16 @@ React.memo(
             if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity)
             {        
                 // if it is in an existing zooming state, then adopt that state.
+                console.log("existing zoom transform ", d3.zoomTransform(svg.node()));
                 const zoomState = d3.zoomTransform(svg.node()); 
                 zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField, line, xAxis, yAxis, newXScaleRef, newYScaleRef);
             }
 
             const zoomBehavior = createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, xAxis, yAxis, newXScaleRef, newYScaleRef); 
-            svg.call(zoomBehavior);   
+            scatter.call(zoomBehavior);   //svg
 
+            const initialZoomTransform = d3.zoomTransform(svg.node());
+            console.log("initial zoom transform ", initialZoomTransform); 
 
             brush_part();
     
@@ -110,6 +115,8 @@ React.memo(
                 .attr('class', 'y-axis') 
                 .call(d3.axisLeft(yScale)
                 ); 
+
+
 
             }
 
@@ -239,7 +246,6 @@ React.memo(
                     } else {
                         brush.attr('display', 'none');
                         setSelectedRecords([]);
-                        //svg.call(zoomBehavior);
                     }
                     if (newXScaleRef.current && newYScaleRef.current) {
                         g.selectAll('circle')
@@ -262,7 +268,6 @@ React.memo(
        
     
             }
-            
 
             
         } 
@@ -298,7 +303,7 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 
     if (vField==='Födelsedatum'|| vField==='Testdatum') { 
         const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
-        const vPadding = (vMax - vMin) / (vMax - vMin) * 86400000;  // 1 day in milliseconds for padding
+        const vPadding = (vMax - vMin)* 0.05;             //30 * 86400000;  // 30 day in milliseconds for padding
         vScale = d3.scaleTime()
         .domain([new Date(vMin - vPadding), new Date(vMax + vPadding)])
         .range([0, innerWidth]);
@@ -336,11 +341,19 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 
 function createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, xAxis, yAxis, newXScaleRef, newYScaleRef) {
 
+    const translateMultiplier = 1.5;
+    console.log("scale range " + xScale.range() + " " + yScale.range() +  "  " + xAxis.scale().range() );
+    console.log(xScale.range()[1]*translateMultiplier, yScale.range()[0]*translateMultiplier );
+
     return d3.zoom()
       .scaleExtent([1, 10])
+    //   .translateExtent([[0, 0], [xScale.range()[1]*translateMultiplier, yScale.range()[0]*translateMultiplier]])  
       .on('zoom', (event) => {
+        //console.log("event transform", event.transform.toString() );
+        
         zoomRender(event.transform, svg, xScale, yScale, xType, yType, xField, yField, line,  xAxis, yAxis, newXScaleRef, newYScaleRef);
-      });
+
+    });
 }
 
 
@@ -380,13 +393,15 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
       xAxisGroup.call(xAxis.scale(zoomXScale)
       );
     }
+    
 
     if (yType === 'point') {  
       yAxisGroup.call(yAxis.scale(zoomYScale).tickValues(yScale.domain()));
     } else {
       yAxisGroup.call(yAxis.scale(zoomYScale)
       );
-    }
+    }        
+
 
 }
 
@@ -398,6 +413,10 @@ function getValue(value, type)
     }
     return value;
 }
+
+
+
+
 
 
 export default ScatterCanvas;

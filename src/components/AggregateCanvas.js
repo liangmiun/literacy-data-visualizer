@@ -182,7 +182,7 @@ const ViolinPlots = (props ) => {
 
 
 
-        AggregateUtils.presentLines(showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, classColors);
+        AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, x0, getSubBandScale, y, subBandWidth, classColors);
 
         if(studentsChecked) {       
             AggregateUtils.PresentIndividuals(shownData, yField, g, x0, getSubBandScale, y, subBandWidth)   
@@ -359,7 +359,7 @@ const BoxPlots = (props) => {
         .attr("stroke", "black")
         .style("stroke-width", 2)
 
-        AggregateUtils.presentLines(showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, classColors);       
+        AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, x0, getSubBandScale, y, subBandWidth, classColors);       
 
         // Add individual points with jitter
         if(studentsChecked) {
@@ -498,7 +498,7 @@ const CirclePlots = (props) => {
             }); 
    
 
-            AggregateUtils.presentLines(showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, classColors);
+            AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, x0, getSubBandScale, y, subBandWidth, classColors);
            
     
             // Add individual points with jitter
