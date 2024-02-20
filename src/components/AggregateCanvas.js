@@ -51,7 +51,7 @@ const ViolinPlots = (props ) => {
 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'violin');
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'violin');
 
         // eslint-disable-next-line no-unused-vars
         var clip = svg.append("defs").append("svg:clipPath")
@@ -92,7 +92,7 @@ const ViolinPlots = (props ) => {
 
 
 
-        g.append('g').call(d3.axisLeft(y).tickFormat(d => {
+        g.append('g').call(d3.axisLeft(yScale).tickFormat(d => {
             if(yField==='Födelsedatum'||yField==='Testdatum')
             {const dateObject = parseDate(d);
             return formatDate(dateObject);
@@ -176,25 +176,25 @@ const ViolinPlots = (props ) => {
         .attr("d", d3.area()
                 .x0(d => {  return xNum(-d.length * AggregateUtils.singleViolinWidthRatio)})  //* subBandWidth
                 .x1(d => xNum(d.length * AggregateUtils.singleViolinWidthRatio))  //* subBandWidth
-                .y(d => y(d.x0))   //d.x0
+                .y(d => yScale(d.x0))   //d.x0
                 .curve(d3.curveCatmullRom)
                 );  
 
 
 
-        AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, x0, getSubBandScale, y, subBandWidth, classColors);
+        AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, x0, getSubBandScale, yScale, subBandWidth, classColors);
 
         if(studentsChecked) {       
-            AggregateUtils.PresentIndividuals(shownData, yField, g, x0, getSubBandScale, y, subBandWidth)   
+            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth)   
         }
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
             const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-            AggregateUtils.violinZoomRender( zoomState, x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale,xNum, studentsChecked, subBandCount);
+            AggregateUtils.violinZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale,xNum, studentsChecked, subBandCount);
         }
 
         // Setup zoom behavior
-        const zoomBehavior = AggregateUtils.createViolinZoomBehavior(x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount);
+        const zoomBehavior = AggregateUtils.createViolinZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, false, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount);
 
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
@@ -219,7 +219,7 @@ const BoxPlots = (props) => {
 
         console.log('BoxPlots useEffect');
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'box');
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'box');
 
         // eslint-disable-next-line no-unused-vars
         var clip = svg.append("defs").append("svg:clipPath")
@@ -259,7 +259,7 @@ const BoxPlots = (props) => {
             .attr("transform",  "rotate(45)") ;
             
             
-        const yAxis =d3.axisLeft(y).tickFormat(d => {
+        const yAxis =d3.axisLeft(yScale).tickFormat(d => {
             if(yField==='Födelsedatum'||yField==='Testdatum')
             {const dateObject = AggregateUtils.parseDate(d);
             return AggregateUtils.formatDate(dateObject);
@@ -296,8 +296,8 @@ const BoxPlots = (props) => {
         .attr("x2", d => {
             return bandedX(d) + subBandWidth / 2;
         })
-        .attr("y1", d => y(d.value.min))
-        .attr("y2", d => y(d.value.max))
+        .attr("y1", d => yScale(d.value.min))
+        .attr("y2", d => yScale(d.value.max))
         .attr("stroke", "black")
         .style("stroke-width", 0.2); 
 
@@ -309,20 +309,18 @@ const BoxPlots = (props) => {
             .attr("x", d => {
                 return bandedX(d);
             })
-            .attr("y", d => { const distance = y(d.value.q1) - y(d.value.q3); return distance > 0 ?  y(d.value.q3): y(d.value.q3) -2.5;})
-            .attr("height", d => { const distance = y(d.value.q1) - y(d.value.q3); return distance > 0 ?  distance: 5;})
+            .attr("y", d => { const distance = yScale(d.value.q1) - yScale(d.value.q3); return distance > 0 ?  yScale(d.value.q3): yScale(d.value.q3) -2.5;})
+            .attr("height", d => { const distance = yScale(d.value.q1) - yScale(d.value.q3); return distance > 0 ?  distance: 5;})
             .attr("width", d => {
                 return subBandWidth;
             })
-            .attr("stroke", "black")
-            .attr("stroke-width", 0.5)
             .style("fill", d => {
                 const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
                 return  classColors[d.value.school][classID]   ;  // colorScale(classId)  "url(#mygrad)"  `url(#mygrad-${classID})`
             })
             .on("click", function(event,d) {
                 
-                d3.selectAll(".boxes").attr("stroke-width", 0.5)
+                d3.selectAll(".boxes").attr("stroke-width", 0)
                 d3.select(this)
                     .attr("stroke", "black")
                     .attr("stroke-width", 3)
@@ -354,26 +352,26 @@ const BoxPlots = (props) => {
         .attr("x2", d => {
             return bandedX(d)+ subBandWidth ;   
          })
-        .attr("y1", d => y(d.value.median))
-        .attr("y2", d => y(d.value.median))
+        .attr("y1", d => yScale(d.value.median))
+        .attr("y2", d => yScale(d.value.median))
         .attr("stroke", "black")
         .style("stroke-width", 2)
 
-        AggregateUtils.presentLines(showLines, lastingClassGroups, aggregate, x0, getSubBandScale, y, subBandWidth, classColors);       
+        AggregateUtils.presentLines(showLines, lastingClassGroups, aggregate, x0, getSubBandScale, yScale, subBandWidth, classColors);       
 
         // Add individual points with jitter
         if(studentsChecked) {
-            AggregateUtils.PresentIndividuals(shownData, yField, g, x0, getSubBandScale, y, subBandWidth)  //getSubBandScale,
+            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth)  //getSubBandScale,
         }
 
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
             const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-            AggregateUtils.boxZoomRender( zoomState, x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
+            AggregateUtils.boxZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
         }
 
         // Setup zoom behavior
-        const zoomBehavior = AggregateUtils.createBoxZoomBehavior(x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
+        const zoomBehavior = AggregateUtils.createBoxZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, false, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
 
@@ -398,7 +396,7 @@ const CirclePlots = (props) => {
         
         useEffect(() => {
     
-            const {svg, g, margin, innerWidth, innerHeight, sumstat, y, x0, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'box');
+            const {svg, g, margin, innerWidth, innerHeight, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'box');
             
             // eslint-disable-next-line no-unused-vars
             var clip = svg.append("defs").append("svg:clipPath")
@@ -438,7 +436,7 @@ const CirclePlots = (props) => {
                 .attr("transform",  "rotate(45)") ;
                 
                 
-            const yAxis =d3.axisLeft(y).tickFormat(d => {
+            const yAxis =d3.axisLeft(yScale).tickFormat(d => {
                 if(yField==='Födelsedatum'||yField==='Testdatum')
                 {const dateObject = AggregateUtils.parseDate(d);
                 return AggregateCanvas.formatDate(dateObject);
@@ -470,7 +468,7 @@ const CirclePlots = (props) => {
             .enter().append('circle')
             .attr('class', 'circles') 
             .attr('cx',  function(d) { return bandedX(d)+ subBandWidth / 2;})
-            .attr('cy', d => y(d.value.median))
+            .attr('cy', d => yScale(d.value.median))
             .attr('r', 6)  
             .attr('fill', d => {
                 const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
@@ -498,21 +496,21 @@ const CirclePlots = (props) => {
             }); 
    
 
-            AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, x0, getSubBandScale, y, subBandWidth, classColors);
+            AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, x0, getSubBandScale, yScale, subBandWidth, classColors);
            
     
             // Add individual points with jitter
             if(studentsChecked) {
-                AggregateUtils.PresentIndividuals(shownData, yField, g, x0, getSubBandScale, y, subBandWidth)  //getSubBandScale,
+                AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth)  //getSubBandScale,
             }    
     
             if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
                 const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-                AggregateUtils.circleZoomRender( zoomState, x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
+                AggregateUtils.circleZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
             }
     
             // Setup zoom behavior
-            const zoomBehavior = AggregateUtils.createCircleZoomBehavior(x0, y, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(y), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
+            const zoomBehavior = AggregateUtils.createCircleZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, false, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
             // Apply the zoom behavior to the SVG
             svg.call(zoomBehavior)
 

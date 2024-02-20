@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { set } from 'd3-collection';
-import { ColorLegend, rescale, categoricals } from '../Utils';
+import { ColorLegend, rescale, categoricals, translateExtentStartEnd } from '../Utils';
 
 const ScatterCanvas =
 React.memo(
@@ -337,20 +337,9 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 
 function createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, xAxis, yAxis, newXScaleRef, newYScaleRef) {
 
-    const translateMultiplier = 1.1;
-    var svgNode = svg.node();
-    var svgWidth = svgNode.getBoundingClientRect().width;
-    var svgHeight = svgNode.getBoundingClientRect().height;
-    console.log("SVG Width:", svgWidth, "Height:", svgHeight);
-    const x0 = svgWidth / 2 * (1 - translateMultiplier);
-    const y0 = svgHeight / 2 * (1 - translateMultiplier);
-    const x1 = svgWidth / 2 * (1 + translateMultiplier);
-    const y1 = svgHeight / 2 * (1 + translateMultiplier);
-
-
     return d3.zoom()
       .scaleExtent([1, 10])
-      .translateExtent([[x0,y0  ], [x1, y1] ]) 
+      .translateExtent( translateExtentStartEnd(1.1, 1.1, svg)) 
       .on('zoom', (event) => {
 
             console.log("event transform", event.transform.toString(), "type: ", event.type, "source: ", event.sourceEvent,

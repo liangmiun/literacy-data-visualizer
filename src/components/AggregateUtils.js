@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import {  rescale } from '../Utils';
+import {  rescale, translateExtentStartEnd } from '../Utils';
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 5;
@@ -68,12 +68,14 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
 
     // Create main linear scale for y-axis
     const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
-    const y = d3.scaleLinear()
-        .domain([yMin, yMax])
+    console.log("yMin and yMax: ", yMin, yMax);
+    const yPadding = (yMax - yMin) * 0.1;
+    const yScale = d3.scaleLinear()
+        .domain([yMin - yPadding, yMax + yPadding])
         .range([innerHeight, 0]);
 
     // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
-    const sumstat = setSumStat(filteredData, y, yField, aggregateType);
+    const sumstat = setSumStat(filteredData, yScale, yField, aggregateType);
 
     // Sort the sumstat by key to ensure boxes layout horizontally within each season:
     // Here sumstat is in a flat structure.
@@ -131,7 +133,7 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
     const xAxis = d3.axisBottom(x0)
         .tickValues(tickValues) ;// Use the combined class-season strings,  .tickFormat(d => d)
         
-    return {svg, g, margin, innerWidth, innerHeight, sumstat, seasons, y, x0, xAxis, getSubBandScale, lastingClassGroups};
+    return {svg, g, margin, innerWidth, innerHeight, sumstat, seasons, yScale, x0, xAxis, getSubBandScale, lastingClassGroups};
 
 }
 
@@ -216,9 +218,10 @@ function setSumStat(filteredData, y, yField, aggregateType)
 }
 
 
-export function createBoxZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
+export function createBoxZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
     return d3.zoom()
       .scaleExtent([1, 20])
+      .translateExtent( translateExtentStartEnd(1.1, 1, svg)) 
       .on('zoom', (event) => {
         const zoomState = event.transform;
         boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
@@ -281,9 +284,10 @@ export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yF
 }
 
 
-export function createCircleZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
+export function createCircleZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
     return d3.zoom()
       .scaleExtent([1, 20])
+      .translateExtent( translateExtentStartEnd(1.1, 1, svg)) 
       .on('zoom', (event) => {
         const zoomState = event.transform;
         circleZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
@@ -327,11 +331,12 @@ export function circleZoomRender(zoomState,xScale, yScale, xType, yType, xField,
 }
 
 
-export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
+export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
 {
 
     return d3.zoom()
       .scaleExtent([1, 20])
+      .translateExtent( translateExtentStartEnd(1.1, 1, svg)) 
       .on('zoom', (event) => {
             const zoomState = event.transform;
             violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount);

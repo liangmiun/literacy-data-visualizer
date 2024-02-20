@@ -281,5 +281,20 @@ export const categoricals = [
 ];
 
 
+export function translateExtentStartEnd(coeffX, coeffY, svg) 
+{  
+  var svgNode = svg.node();
+  var svgWidth = svgNode.getBoundingClientRect().width;
+  var svgHeight = svgNode.getBoundingClientRect().height;
+  console.log("SVG Width:", svgWidth, "Height:", svgHeight);
+  const x0 = svgWidth / 2 * (1 - coeffX);
+  const y0 = svgHeight / 2 * (1 - coeffY);
+  const x1 = svgWidth / 2 * (1 + coeffX);
+  const y1 = svgHeight / 2 * (1 + coeffY);
+
+  return [[x0, y0], [x1, y1]];
+}
+
+
 
 
