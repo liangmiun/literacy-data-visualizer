@@ -16,7 +16,12 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
             const clazz = d.Klass.toString();
             const classID = getLastingClassID(d.Skola, season, clazz);
             const x1 = getSubBandScale(season); // get the x1 scale for the current season
-            return x0(season) + x1(classID)  + subBandWidth/2 + indv_offset- indv_jitterWidth/2 + Math.random()*indv_jitterWidth;
+
+            // Unique string for hashing, combining properties that uniquely identify this data point
+            const uniqueIdentifier = `${d.ElevID}`; //`${d.Skola}-${season}-${clazz}`
+            const hashValue = simpleHash(uniqueIdentifier);
+            const jitterOffset = consistentRandom(hashValue, -indv_jitterWidth / 2, indv_jitterWidth / 2);
+            return x0(season) + x1(classID)  + subBandWidth/2 + indv_offset + jitterOffset;   //- indv_jitterWidth/2 + Math.random()*indv_jitterWidth
         })
         .attr("cy", d => { return y(d[yField])})
         .attr("r", 2)
@@ -26,7 +31,13 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
         .style("stroke-opacity", 0.5)  
         .attr("indv_season", d => {return Season(d.Testdatum).toString()})
         .attr("indv_classID", d => { return getLastingClassID(d.Skola, Season(d.Testdatum).toString(), d.Klass.toString())})
-        .attr("jitterOffset", () => { return indv_offset- indv_jitterWidth/2 + Math.random()*indv_jitterWidth});
+        .attr("jitterOffset", (d) => { 
+            const uniqueIdentifier = `${d.ElevID}`;
+            const hashValue = simpleHash(uniqueIdentifier);
+            // return consistentRandom(hashValue, -indv_jitterWidth / 2, indv_jitterWidth / 2);
+            //return             indv_offset- indv_jitterWidth/2 + Math.random()*indv_jitterWidth
+            return  consistentRandom(hashValue, -indv_jitterWidth / 2, indv_jitterWidth / 2);        
+        });
 
 }
 
@@ -481,6 +492,20 @@ export function presentLines(showLines, lastingClassGroups,  g, x0, getSubBandSc
 
 
 }
+
+
+function simpleHash(s) {
+    // A very basic hash function for demonstration purposes
+    return s.split('').reduce((acc, char) => Math.imul(31, acc) + char.charCodeAt(0) | 0, 0);
+}
+
+function consistentRandom(hashValue, min, max) {
+    // Pseudo-random function based on a hash value
+    const rand = Math.abs(hashValue % 1000) / 1000; // Normalize hash value to [0, 1)
+    console.log("rand: ", rand, min , max,  min + rand * (max - min));
+    return min + rand * (max - min); // Scale to [min, max)
+}
+
 
 
 export const parseDate = d3.timeParse('%y%m%d');
