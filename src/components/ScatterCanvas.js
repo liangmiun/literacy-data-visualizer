@@ -70,7 +70,6 @@ React.memo(
             const zoomBehavior = createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, xAxis, yAxis, newXScaleRef, newYScaleRef); 
             svg.call(zoomBehavior);   
 
-
             brush_part();
     
             // Add color legend
@@ -144,6 +143,7 @@ React.memo(
                     .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
                     .attr('fill', d => {  return colorScale(d[colorField])})
                     .on('click', function (event, d) {
+                        console.log("click transform", d3.zoomTransform(svg.node()).toString());
                         if (!brushing) {
                             const currentCircle = d3.select(this);
                             if (event.ctrlKey) {
@@ -298,7 +298,8 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 
     if (vField==='Födelsedatum'|| vField==='Testdatum') { 
         const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
-        const vPadding = (vMax - vMin) / (vMax - vMin) * 86400000;  // 1 day in milliseconds for padding
+        const vPadding = (vMax - vMin)* 0.05;
+        //const vPadding = (vMax - vMin) / (vMax - vMin) * 86400000;  // 1 day in milliseconds for padding
         vScale = d3.scaleTime()
         .domain([new Date(vMin - vPadding), new Date(vMax + vPadding)])
         .range([0, innerWidth]);
@@ -336,11 +337,28 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 
 function createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, xAxis, yAxis, newXScaleRef, newYScaleRef) {
 
+    const translateMultiplier = 1.1;
+    var svgNode = svg.node();
+    var svgWidth = svgNode.getBoundingClientRect().width;
+    var svgHeight = svgNode.getBoundingClientRect().height;
+    console.log("SVG Width:", svgWidth, "Height:", svgHeight);
+    const x0 = svgWidth / 2 * (1 - translateMultiplier);
+    const y0 = svgHeight / 2 * (1 - translateMultiplier);
+    const x1 = svgWidth / 2 * (1 + translateMultiplier);
+    const y1 = svgHeight / 2 * (1 + translateMultiplier);
+
+
     return d3.zoom()
       .scaleExtent([1, 10])
+      .translateExtent([[x0,y0  ], [x1, y1] ]) 
       .on('zoom', (event) => {
-        zoomRender(event.transform, svg, xScale, yScale, xType, yType, xField, yField, line,  xAxis, yAxis, newXScaleRef, newYScaleRef);
-      });
+
+            console.log("event transform", event.transform.toString(), "type: ", event.type, "source: ", event.sourceEvent,
+                "svg transform", d3.zoomTransform(svg.node()).toString());
+            zoomRender(event.transform, svg, xScale, yScale, xType, yType, xField, yField, line,  xAxis, yAxis, newXScaleRef, newYScaleRef);
+            
+        });
+
 }
 
 
