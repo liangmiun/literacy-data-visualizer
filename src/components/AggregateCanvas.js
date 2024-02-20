@@ -119,14 +119,13 @@ const ViolinPlots = (props ) => {
             if (longest > maxNum) { maxNum = longest }
         }
 
-        const xNum = d3.scaleLinear().domain([-maxNum, maxNum]).range([0, subBandWidth]);
+        const xNum = d3.scaleLinear().domain([-maxNum, maxNum]).range([-subBandWidth/2, subBandWidth/2]);
 
         function bandedX(d) {
             const season = d.value.season.toString();
             const clazz = d.value.lastingclass.toString();
             const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            return x0(season) + x1(clazz) 
-        }
+            return x0(season) + x1(clazz)         }
 
         
         aggregate.selectAll(".violins")

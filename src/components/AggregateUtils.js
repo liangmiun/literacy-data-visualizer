@@ -339,6 +339,7 @@ export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, y
       .translateExtent( translateExtentStartEnd(1.1, 1, svg)) 
       .on('zoom', (event) => {
             const zoomState = event.transform;
+            console.log("on event violin zoomState: ", zoomState);
             violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount);
 
       });
@@ -352,12 +353,12 @@ export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField,
           
     g.selectAll('.violins')
     .attr("transform",  d => {
-        return `translate(${zoomedX(d)}, 0)`;  
+        return `translate(${zoomedX(d)+ subBandWidth/2  }, 0)`;   //
         })
     .selectAll('.area')
     .attr("d", d3.area()
-        .x0(d => xNum(-d.length *singleViolinWidthRatio)*zoomState.k)  //
-        .x1(d => xNum(d.length *singleViolinWidthRatio) *zoomState.k)  
+        .x0(d => xNum(-d.length *singleViolinWidthRatio)*zoomState.k )  //
+        .x1(d => xNum(d.length *singleViolinWidthRatio) *zoomState.k)    // 
         .y(d => yScale(d.x0))   //d.x0
         .curve(d3.curveCatmullRom)
                 );  
