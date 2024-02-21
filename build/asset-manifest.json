@@ -1,15 +1,13 @@
 {
   "files": {
-    "main.css": "/literacy-data-visualizer/static/css/main.041ab865.css",
-    "main.js": "/literacy-data-visualizer/static/js/main.dc37476a.js",
-    "static/js/787.c1639c73.chunk.js": "/literacy-data-visualizer/static/js/787.c1639c73.chunk.js",
+    "main.css": "/literacy-data-visualizer/static/css/main.a91f8af6.css",
+    "main.js": "/literacy-data-visualizer/static/js/main.fb50809b.js",
     "index.html": "/literacy-data-visualizer/index.html",
-    "main.041ab865.css.map": "/literacy-data-visualizer/static/css/main.041ab865.css.map",
-    "main.dc37476a.js.map": "/literacy-data-visualizer/static/js/main.dc37476a.js.map",
-    "787.c1639c73.chunk.js.map": "/literacy-data-visualizer/static/js/787.c1639c73.chunk.js.map"
+    "main.a91f8af6.css.map": "/literacy-data-visualizer/static/css/main.a91f8af6.css.map",
+    "main.fb50809b.js.map": "/literacy-data-visualizer/static/js/main.fb50809b.js.map"
   },
   "entrypoints": [
-    "static/css/main.041ab865.css",
-    "static/js/main.dc37476a.js"
+    "static/css/main.a91f8af6.css",
+    "static/js/main.fb50809b.js"
   ]
 }
