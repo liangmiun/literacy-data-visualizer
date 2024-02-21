@@ -19,14 +19,6 @@ function SchoolTreeView(props) {
   const [paletteID, setPaletteID] = useState('');
   const [expandedSchools, ] = useState(['root']); 
   const [indeterminateAllSchools, setIndeterminateAllSchools] = useState(false);
-  const {setCheckedSchools,setCheckedClasses} = props;
-  
-
-  useEffect(() => {
-      setCheckedSchools(allSchools);
-      setCheckedClasses(allClasses);
-      setCheckedAllSchools(true);
-  }, [ props.school_class]);  
 
 
   useEffect(() => {

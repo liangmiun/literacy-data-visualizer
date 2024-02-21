@@ -29,7 +29,8 @@ const ScatterPage = (props ) => {
   useEffect(() => {
     if (Object.keys(props.data).length > 0)
     {
-      const newSchoolClasses = generateSchoolLastingClassMap(props.data);
+      const nonNullLexploreData = props.data.filter(d => d['Lexplore Score'] !== null);
+      const newSchoolClasses = generateSchoolLastingClassMap(nonNullLexploreData);  //
       const newClassColorScale = generateSchoolClassColorScale(newSchoolClasses).classColor;
       setSchoolClassesAndColorScale({ schoolClasses: newSchoolClasses, colorScale: newClassColorScale});
     }

@@ -43,9 +43,7 @@ const App = () => {
     'Lexplore Score':[]}
     );
   const [isClassView, setIsClassView] = useState(true);
-  const [aggregateType, setAggregateType] = useState('circle'); 
-
-  
+  const [aggregateType, setAggregateType] = useState('circle');   
 
 
   const updatePreset = () => {
@@ -145,9 +143,11 @@ const App = () => {
       // Decrypt data
       const bytes = CryptoJS.AES.decrypt(encryptedData, encryptKey);  // Replace with encryptKey
       const originalData = bytes.toString(CryptoJS.enc.Utf8);
-      const parsedData = csvParse(originalData, rowParser);     
+      const parsedData = csvParse(originalData, rowParser);  
       setData(parsedData);
-      setLogicFilteredtData(parsedData);
+      setLogicFilteredtData(parsedData); 
+      handleResetToOnboarding();     
+
     })
     .catch((error) => {
       console.error('Error fetching or parsing data:', error);
@@ -155,6 +155,9 @@ const App = () => {
     console.log("data parsed");    
 
   },  [isLogin, encryptKey]);  
+
+
+
 
 
   const liStyle = {
