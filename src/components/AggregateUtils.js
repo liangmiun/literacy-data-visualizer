@@ -5,8 +5,13 @@ export const singleViolinWidthRatio = 1; // The width of a single violin relativ
 const indv_jitterWidth = 5;
 const indv_offset =0;
 
-export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWidth )
+export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWidth, connectIndividual )
 {
+    // Step 1: Group data by ElevID
+    //const groupedData = d3.group(data, d => d.ElevID);
+
+    // Calculate positions and draw circles
+    const positions = []; // To store the positions of circles
     g.selectAll(".indvPoints")
         .data(data)
         .enter().append("circle")
@@ -21,23 +26,47 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
             const uniqueIdentifier = `${d.ElevID}`; //`${d.Skola}-${season}-${clazz}`
             const hashValue = simpleHash(uniqueIdentifier);
             const jitterOffset = consistentRandom(hashValue, -indv_jitterWidth / 2, indv_jitterWidth / 2);
-            return x0(season) + x1(classID)  + subBandWidth/2 + indv_offset + jitterOffset;   //- indv_jitterWidth/2 + Math.random()*indv_jitterWidth
+            const cx = x0(season) + x1(classID)  + subBandWidth/2 + indv_offset + jitterOffset;   //- indv_jitterWidth/2 + Math.random()*indv_jitterWidth
+
+            const record_id = d.ElevID +"-" + formatDate(d.Testdatum);
+
+            positions.push({ ElevID: d.ElevID, cx, cy: y(d[yField]), record_id: record_id});
+            return cx;
         })
         .attr("cy", d => { return y(d[yField])})
         .attr("r", 2)
         .style("fill", "white")
         .attr("stroke", "black")
         .style("fill-opacity", 0.5)
-        .style("stroke-opacity", 0.5)  
+        .style("stroke-opacity", 0.5) 
+        .attr("record_id", d => { return d.ElevID +"-" + formatDate(d.Testdatum)}) 
         .attr("indv_season", d => {return Season(d.Testdatum).toString()})
         .attr("indv_classID", d => { return getLastingClassID(d.Skola, Season(d.Testdatum).toString(), d.Klass.toString())})
         .attr("jitterOffset", (d) => { 
             const uniqueIdentifier = `${d.ElevID}`;
             const hashValue = simpleHash(uniqueIdentifier);
-            // return consistentRandom(hashValue, -indv_jitterWidth / 2, indv_jitterWidth / 2);
-            //return             indv_offset- indv_jitterWidth/2 + Math.random()*indv_jitterWidth
             return  consistentRandom(hashValue, -indv_jitterWidth / 2, indv_jitterWidth / 2);        
         });
+
+    const groupedPositions = d3.group(positions, d => d.ElevID);
+    groupedPositions.forEach((value, key) => {
+        const points = value;
+
+        for (let i = 0; i < points.length - 1; i++) {
+            g.append("line")
+                .attr("class", "indvLines")
+                .attr("x1", points[i].cx)
+                .attr("y1", points[i].cy)
+                .attr("x2", points[i + 1].cx)
+                .attr("y2", points[i + 1].cy)
+                .attr("stroke", "black")
+                .attr("stroke-width", 0.5)
+                .attr("stroke-opacity", 0.5)
+                .attr("start_record_id", points[i].record_id)
+                .attr("end_record_id", points[i + 1].record_id)
+                .style("visibility", connectIndividual ? "visible" : "hidden");;
+        }
+    });
 
 }
 
@@ -229,19 +258,19 @@ function setSumStat(filteredData, y, yField, aggregateType)
 }
 
 
-export function createBoxZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
+export function createBoxZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, connnectIndividual, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
     return d3.zoom()
       .scaleExtent([1, 20])
       .translateExtent( translateExtentStartEnd(1.1, 1, svg)) 
       .on('zoom', (event) => {
         const zoomState = event.transform;
-        boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
+        boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connnectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
 
         });
   }
 
 
-export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
+export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
 {
     const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
     // Apply zoom transformation to boxes
@@ -283,31 +312,37 @@ export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yF
     })
 
 
-    // Apply zoom transformation to lines
-    if (showLines) {
-        g.selectAll('.line-path')
-        .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+    // Apply zoom transformation to lines  if (showLines)
+    var filteredSelection = g.selectAll('.line-path')
+                          .filter(function() {
+                              return d3.select(this).style('visibility') === 'visible';
+                          });
+
+    if (filteredSelection.size() > 0) {
+        filteredSelection.attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
     }
 
+    
+
     if( studentsChecked) {
-        zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale);
+        zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale, connectIndividual);
     }
 }
 
 
-export function createCircleZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
+export function createCircleZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, connectIndividual, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
     return d3.zoom()
       .scaleExtent([1, 20])
       .translateExtent( translateExtentStartEnd(1.1, 1, svg)) 
       .on('zoom', (event) => {
         const zoomState = event.transform;
-        circleZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
+        circleZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
 
         });
   }
 
 
-export function circleZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
+export function circleZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
 {
     const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
     // Apply zoom transformation to circles
@@ -330,19 +365,31 @@ export function circleZoomRender(zoomState,xScale, yScale, xType, yType, xField,
     })
 
 
-    // Apply zoom transformation to lines
-    if (showLines) {
-        g.selectAll('.line-path')
-        .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+    // // Apply zoom transformation to lines
+    // g.selectAll('.line-path')
+    // .filter(function() {
+    //     return d3.select(this).style('visibility') === 'visible';
+    //     })
+    // .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+
+    var filteredSelection = g.selectAll('.line-path')
+                          .filter(function() {
+                              return d3.select(this).style('visibility') === 'visible';
+                          });
+
+    if (filteredSelection.size() > 0) {
+        filteredSelection.attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
     }
 
+
+
     if( studentsChecked) {
-        zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale);
+        zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale, connectIndividual);
     }
 }
 
 
-export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, showLines, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
+export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, connectIndividual, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
 {
 
     return d3.zoom()
@@ -350,15 +397,14 @@ export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, y
       .translateExtent( translateExtentStartEnd(1.1, 1, svg)) 
       .on('zoom', (event) => {
             const zoomState = event.transform;
-            console.log("on event violin zoomState: ", zoomState);
-            violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount);
+            violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount);
 
       });
 
 }
 
 
-export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, showLines, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
+export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
 {
     const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
           
@@ -388,14 +434,19 @@ export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField,
 
 
     // Apply zoom transformation to lines
-    if (showLines) {
-        g.selectAll('.line-path')
-        .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+    var filteredSelection = g.selectAll('.line-path')
+    .filter(function() {
+        return d3.select(this).style('visibility') === 'visible';
+    });
+
+    if (filteredSelection.size() > 0) {
+    filteredSelection.attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
     }
+
 
     
     if( studentsChecked) {
-        zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale);
+        zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale, connectIndividual);
     }
     
 }
@@ -440,7 +491,7 @@ export function init_ZoomSetting(zoomState,xScale, yScale, xType, yType, g, xAxi
 }
 
 
-export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale)
+export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale,connectIndividual)
 {
     g.selectAll(".indvPoints")
     .attr("cx", function() {
@@ -449,6 +500,33 @@ export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, ge
         const jitterOffset = d3.select(this).attr("jitterOffset");
         return zoomXScale(season) + getSubBandScale(season)(classID) * zoomState.k + subBandWidth/2 + jitterOffset*zoomState.k;
     })
+
+   
+
+    
+    g.selectAll(".indvLines")
+    .each(function() {
+    // Current line element
+    var line = d3.select(this);
+
+    // Read the start_record_id and end_record_id from the line
+    var startRecordId = line.attr("start_record_id");
+    var endRecordId = line.attr("end_record_id");
+
+    // Find the start and end circle elements based on record_id
+    var dStart = g.select(`.indvPoints[record_id="${startRecordId}"]`);
+    var dEnd = g.select(`.indvPoints[record_id="${endRecordId}"]`);
+
+    // Ensure elements were found before attempting to read attributes
+    if (!dStart.empty() && !dEnd.empty()) {
+        // Set the line's x1 and x2 attributes based on the found circles' cx attributes
+        line.attr("x1", dStart.attr("cx"))
+            .attr("x2", dEnd.attr("cx"))
+            .style("visibility", connectIndividual ? "visible" : "hidden");
+    }
+    }); 
+    
+
 }
 
 
@@ -502,7 +580,6 @@ function simpleHash(s) {
 function consistentRandom(hashValue, min, max) {
     // Pseudo-random function based on a hash value
     const rand = Math.abs(hashValue % 1000) / 1000; // Normalize hash value to [0, 1)
-    console.log("rand: ", rand, min , max,  min + rand * (max - min));
     return min + rand * (max - min); // Scale to [min, max)
 }
 

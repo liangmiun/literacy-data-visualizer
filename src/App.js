@@ -4,7 +4,7 @@ import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
 import './App.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
-import { rowParser, preset_dict, load, data_fields} from './Utils.js';
+import { rowParser, preset_dict, load, data_fields, y_data_fields} from './Utils.js';
 import About from './About';
 import ScatterPage from './ScatterPage';
 import { useAuth } from './authentications/AuthContext';
@@ -25,7 +25,9 @@ const App = () => {
   const [xField, setXField] = useState('Testdatum');
   const [yField, setYField] = useState('Lexplore Score');
   const [colorField, setColorField] = useState('Årskurs');
-  const fields = data_fields;         // Object.keys(data[0] || {});
+  const fields = data_fields;
+  const fields_x = data_fields.filter(element => !y_data_fields.includes(element));
+  const fields_y = y_data_fields;
   const [checkedSchools, setCheckedSchools] = useState([]);
   const [checkedClasses, setCheckedClasses] = useState([]);
   const [query, setQuery] = useState('');
@@ -222,6 +224,8 @@ const App = () => {
                             colorField={colorField}
                             setColorField={setColorField}
                             fields={fields}
+                            fields_x={fields_x}
+                            fields_y={fields_y}
                             save={save}
                             load={load}
                             query={query}

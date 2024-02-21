@@ -10,7 +10,8 @@ import Tooltip from '@mui/material/Tooltip';
 import './AxisSelectionCanvas.css';
 
 const AxisSelectionCanvas = (props) => {
-  const options = props.fields.map(field => ({ value: field, label: field }));
+  const x_options = props.fields_x.map(field => ({ value: field, label: field }));
+  const y_options = props.fields_y.map(field => ({ value: field, label: field }));
   const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));  
   const onSavePreset = () => {  props.save()};
   const onLoadPreset= () => { props.load(props.setConfig)};
@@ -41,8 +42,6 @@ const AxisSelectionCanvas = (props) => {
     [props.trendSet.last_time_decline]: "with value <", // Assuming props.trendSet.individual_decline is a constant value
     // Add other mappings as necessary
   };
-
-
   
   return (
     <div className="axis-selection-canvas" >
@@ -55,7 +54,7 @@ const AxisSelectionCanvas = (props) => {
             isDisabled = {props.isClassView} 
             id="x-field"
             value={{ value: props.xField, label: props.xField }}
-            options={options}
+            options={x_options}
             onChange={option => props.onXFieldChange(option.value)}
           />
         </div>       
@@ -67,7 +66,7 @@ const AxisSelectionCanvas = (props) => {
           <Select
             id="y-field"
             value={{ value: props.yField, label: props.yField }}
-            options={options}
+            options={y_options}
             onChange={option => props.onYFieldChange(option.value)}
           />
         </div>
@@ -145,6 +144,7 @@ const AxisSelectionCanvas = (props) => {
                 <Tooltip title="Switch between class-aggregation view and individual view" followCursor>
                 <label><br/>Class View </label>
                 </Tooltip>
+
                 {props.isClassView &&
                   <div className='aggregate-buttons-row' 
                     style={{ display: 'inline-flex', alignItems: 'center',marginRight:'20px', padding:'2px' }}>
@@ -169,7 +169,18 @@ const AxisSelectionCanvas = (props) => {
                               onChange={() => props.setStudentsChecked(!props.studentsChecked)}
                           />
                         <Tooltip title="Whether to show individual dots on the class view" followCursor>
-                          <label>Show Individuals </label>
+                          <label> <br />Present Individuals </label>
+                        </Tooltip>
+                      </div>
+
+                      <div  style={{ display: 'inline-block', marginLeft: '10%'}}>
+                          <input 
+                              type="checkbox" 
+                              checked={props.connectIndividual} 
+                              onChange={() => props.setConnectIndividual(!props.connectIndividual)}
+                          />
+                        <Tooltip title="Whether to show lines connecting individual dots on the class view" followCursor>
+                          <label>Connect individuals </label>
                         </Tooltip>
                       </div>
                   

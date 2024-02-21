@@ -18,6 +18,7 @@ const ScatterPage = (props ) => {
   const [trend, setTrend] = useState(trends.all);
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
+  const [connectIndividual, setConnectIndividual] = useState(false);
   const [schoolClassesAndColorScale, setSchoolClassesAndColorScale ]= useState({schoolClasses:{}, colorScale: {}});
   const [declineSlopeThreshold, setDeclineSlopeThreshold] = useState(0);
   const [diffThreshold, setDiffThreshold] = useState(0);
@@ -162,7 +163,8 @@ const ScatterPage = (props ) => {
     <div className="app" >  
       <AxisSelectionCanvas
         data={props.data}
-        fields={props.fields}
+        fields_x={props.fields_x}
+        fields_y={props.fields_y}
         xField={props.xField}
         yField={props.yField}
         colorField = {props.colorField}
@@ -174,6 +176,8 @@ const ScatterPage = (props ) => {
         setConfig = {props.setConfigFromPreset}
         studentsChecked = {studentsChecked}
         setStudentsChecked = {setStudentsChecked}
+        connectIndividual = {connectIndividual}
+        setConnectIndividual = {setConnectIndividual}
         aggregateType = {aggregateType}
         setAggregateType = {setAggregateType}
         trendSet={trends}
@@ -192,6 +196,7 @@ const ScatterPage = (props ) => {
         filterWithTrendThreshold={filterWithTrendThreshold}
         handleResetToOnboarding={props.handleResetToOnboarding}
         handleResetToLatest={props.handleResetToLatest}
+        
       />
 
       {isClassView ?
@@ -205,6 +210,7 @@ const ScatterPage = (props ) => {
           height={700}    
           onPartClick={setSelectedClassDetail} //  handlePartClick
           studentsChecked={studentsChecked}
+          connectIndividual={connectIndividual}
           aggregateType = {aggregateType}
           classColors={schoolClassesAndColorScale.colorScale}
           checkedClasses={props.checkedClasses}
@@ -231,7 +237,7 @@ const ScatterPage = (props ) => {
 
       <FilterCanvas 
         data={props.data}
-        fields={props.fields.filter(field => field !== 'StudentID')} 
+        fields={props.fields} 
         checkedSchools={props.checkedSchools}
         setCheckedSchools={props.setCheckedSchools}
         checkedClasses={props.checkedClasses}

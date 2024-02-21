@@ -24,6 +24,20 @@ export const data_fields = [
 "Läshastighet tystläsning"
 ]
 
+export const y_data_fields = [
+  "Lexplore Score",
+  "Percentil",
+  "Läsnivå (5 = hög)",
+  "Stanine",
+  "Standardpoäng",
+  "Antal korrekta svar",
+  "Antal fel svar",
+  "Antal frågor",
+  "Läshastighet medelvärde",
+  "Läshastighet högläsning",
+  "Läshastighet tystläsning"
+  ]
+
 
 export function rowParser(d) {
 

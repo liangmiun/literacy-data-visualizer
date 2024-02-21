@@ -18,19 +18,19 @@ const AggregateCanvas = (props) => {
                         { props.aggregateType ==='violin' && < ViolinPlots shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                             width={props.width} height={props.height} onViolinClick={props.onPartClick}  
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
-                            subBandCount = {subBandCount}  showLines={props.showLines}/>
+                            subBandCount = {subBandCount}  showLines={props.showLines}  connectIndividual = {props.connectIndividual}  />
                         }
                         
                         {props.aggregateType ==='box' && <BoxPlots    shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                             width={props.width} height={props.height} onBoxClick={props.onPartClick} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
-                            subBandCount ={subBandCount}  showLines={props.showLines}/>
+                            subBandCount ={subBandCount}  showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
                         }
 
                         {props.aggregateType ==='circle' && <CirclePlots  shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
                             width={props.width} height={props.height} onBoxClick={props.onPartClick} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
-                            subBandCount ={subBandCount}  showLines={props.showLines}/>
+                            subBandCount ={subBandCount}  showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
                         }
 
                     </>
@@ -47,7 +47,7 @@ const ViolinPlots = (props ) => {
     const formatDate = d3.timeFormat('%y-%m-%d');
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const { shownData, xField, yField, colorField, width, height, onViolinClick, studentsChecked,  showLines, subBandCount, classColors } = props;
+    const { shownData, xField, yField, colorField, width, height, onViolinClick, studentsChecked,  showLines, subBandCount, classColors, connectIndividual } = props;
 
     useEffect(() => {
 
@@ -184,22 +184,22 @@ const ViolinPlots = (props ) => {
         AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, x0, getSubBandScale, yScale, subBandWidth, classColors);
 
         if(studentsChecked) {       
-            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth)   
+            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth,connectIndividual)   
         }
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
             const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-            AggregateUtils.violinZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale,xNum, studentsChecked, subBandCount);
+            AggregateUtils.violinZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale,xNum, studentsChecked, subBandCount);
         }
 
         // Setup zoom behavior
-        const zoomBehavior = AggregateUtils.createViolinZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, false, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount);
+        const zoomBehavior = AggregateUtils.createViolinZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount);
 
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
   
 
-    }, [shownData,xField, yField, colorField, width, height,  studentsChecked,  onViolinClick, showLines, subBandCount, classColors]);
+    }, [shownData,xField, yField, colorField, width, height,  studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual]);
     
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
@@ -211,7 +211,7 @@ const BoxPlots = (props) => {
     const svgRef = useRef();
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const {shownData, xField, yField, colorField, width, height, onBoxClick, studentsChecked, classColors, subBandCount, showLines, checkedClasses } = props;
+    const {shownData, xField, yField, colorField, width, height, onBoxClick, studentsChecked, classColors, subBandCount, showLines, checkedClasses, connectIndividual } = props;
     
     // In your useEffect: 
     useEffect(() => {
@@ -360,17 +360,17 @@ const BoxPlots = (props) => {
 
         // Add individual points with jitter
         if(studentsChecked) {
-            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth)  //getSubBandScale,
+            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth, connectIndividual)  //getSubBandScale,
         }
 
 
         if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
             const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-            AggregateUtils.boxZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
+            AggregateUtils.boxZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
         }
 
         // Setup zoom behavior
-        const zoomBehavior = AggregateUtils.createBoxZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, false, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
+        const zoomBehavior = AggregateUtils.createBoxZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
         // Apply the zoom behavior to the SVG
         svg.call(zoomBehavior)
 
@@ -378,7 +378,7 @@ const BoxPlots = (props) => {
         //ColorLegend(identityClasses, "classID", svg, 200, margin);          
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [shownData, xField, yField, colorField, width, height, studentsChecked, onBoxClick, classColors, checkedClasses, showLines, subBandCount]); 
+    }, [shownData, xField, yField, colorField, width, height, studentsChecked, onBoxClick, classColors, checkedClasses, showLines, subBandCount, connectIndividual]); 
     return (
         <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
     );
@@ -391,7 +391,9 @@ const CirclePlots = (props) => {
         const newXScaleRef = useRef(null);
         const newYScaleRef = useRef(null);
         const {shownData, xField, yField, colorField, width, height, 
-                onBoxClick, studentsChecked, classColors, subBandCount, showLines } = props;
+                onBoxClick, studentsChecked, classColors, subBandCount, showLines, connectIndividual } = props;
+
+        console.log('CirclePlots connect individual', connectIndividual);
         
         useEffect(() => {
     
@@ -500,23 +502,24 @@ const CirclePlots = (props) => {
     
             // Add individual points with jitter
             if(studentsChecked) {
-                AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth)  //getSubBandScale,
+                console.log('to re-present individuals');
+                AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth, connectIndividual)  //getSubBandScale,
             }    
     
             if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
                 const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-                AggregateUtils.circleZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, false, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
+                AggregateUtils.circleZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
             }
     
             // Setup zoom behavior
-            const zoomBehavior = AggregateUtils.createCircleZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, false, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
+            const zoomBehavior = AggregateUtils.createCircleZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
             // Apply the zoom behavior to the SVG
             svg.call(zoomBehavior)
 
             // d3.selection.prototype.attr = originalAttr;
     
 
-        }, [shownData, xField, yField, colorField, width, height,  studentsChecked,  classColors,  onBoxClick, showLines,subBandCount]);  //onBoxClick,
+        }, [shownData, xField, yField, colorField, width, height,  studentsChecked,  classColors,  onBoxClick, showLines,subBandCount, connectIndividual]);  //onBoxClick,
 
         return (
             <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>

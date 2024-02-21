@@ -292,6 +292,7 @@ React.memo(
 
 );
 
+
 function GetScale(vField, filteredData, innerWidth, yFlag=false)
 {
     let vScale, type;
