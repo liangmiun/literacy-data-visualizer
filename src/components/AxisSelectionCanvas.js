@@ -12,7 +12,7 @@ import './AxisSelectionCanvas.css';
 const AxisSelectionCanvas = (props) => {
   const x_options = props.fields_x.map(field => ({ value: field, label: field }));
   const y_options = props.fields_y.map(field => ({ value: field, label: field }));
-  const colorOptions = ['Skola','Årskurs', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));  
+  const colorOptions = ['Skola','Årskurs', 'Klass', 'Läsår','Stanine'].map(field => ({ value: field, label: field }));  
   const onSavePreset = () => {  props.save()};
   const onLoadPreset= () => { props.load(props.setConfig)};
   const trendOptions = Object.entries(props.trendSet).map(([key, value]) => ({ value: value, label: value }));
