@@ -4,14 +4,14 @@ import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
 import './App.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
-import { rowParser, preset_dict, load, data_fields, y_data_fields} from './Utils.js';
+import { rowParser,  load, data_fields, y_data_fields} from './Utils.js';
 import About from './About';
 import ScatterPage from './ScatterPage';
 import { useAuth } from './authentications/AuthContext';
 import ProtectedWrapper from './authentications/ProtectedWrapper';
 import Login from './authentications/Login';
 import Logout from './authentications/Logout';
-import {initial_preset, updateLatestPreset, latest_preset}  from './InitialPreset.js';
+import * as settingsIO from './settingsIO.js';
 
 
 const App = () => { 
@@ -46,97 +46,44 @@ const App = () => {
   const fields_x = data_fields.filter(element => !y_data_fields.includes(element));
   const fields_y = y_data_fields;
 
+  // const preset_setters = {
+  //   xField, yField, colorField, checkedSchools, checkedClasses,
+  //   checkedOptions, rangeOptions, query, expression, isClassView,
+  //   showLines, aggregateType,
 
-
-  const updatePreset = () => {
-    preset_dict.xField = xField;
-    preset_dict.yField = yField;
-    preset_dict.colorField = colorField;
-    preset_dict.checkedSchools = checkedSchools;
-    preset_dict.checkedClasses = checkedClasses;
-    preset_dict.checkedOptions = checkedOptions;
-    preset_dict.rangeOptions = rangeOptions;
-    preset_dict.query = query;
-    preset_dict.expression = expression;
-    preset_dict.isClassView = isClassView;
-    preset_dict.showLines = showLines;
-    preset_dict.aggregateType = aggregateType;
-  }
-  
-
-  const setConfigFromPreset = (preset) => {
-    setXField( preset.xField);
-    setYField( preset.yField);
-    setColorField( preset.colorField);
-    setCheckedSchools( preset.checkedSchools);
-    setCheckedClasses( preset.checkedClasses);
-    setCheckedOptions( preset.checkedOptions);
-    setRangeOptions( preset.rangeOptions);
-    setQuery( preset.query);
-    setExpression( preset.expression);
-    setIsClassView( preset.isClassView);
-    setShowLines( preset.showLines);
-    setAggregateType( preset.aggregateType);
-  }
-
-
-  const save = () => {
-    updatePreset();
-    const stringified = JSON.stringify(preset_dict);
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(stringified);
-    updateLatestPreset(stringified);
-
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-  
-    // Ask the user for the filename
-    const fileName = prompt("Please enter the desired filename", "preset_config.json");
+  //   setXField, setYField, setColorField, setCheckedSchools,
+  //   setCheckedClasses, setCheckedOptions, setRangeOptions,
+  //   setQuery, setExpression, setIsClassView, setShowLines, setAggregateType,  
     
-    // If user clicks "Cancel" on the prompt, fileName will be null. In that case, don't proceed with the download.
-    if (fileName) {
-        downloadAnchorNode.setAttribute("download", fileName);
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-    }
-  };
+  //   setData, setLogicFilteredtData
+  // }
 
+  const savePresetSetters = {
+    xField, yField, colorField, checkedSchools, checkedClasses,
+    checkedOptions, rangeOptions, query, expression, isClassView,
+    showLines, aggregateType
+  } ;
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const csvData = e.target.result;
-        const parsedData = await csvParse(csvData, rowParser);
-        setData(parsedData);
-        setLogicFilteredtData(parsedData);
-      };
-      reader.readAsText(file);     
-    }
-  };
+  const configFromPresetSetters =  {
+    setXField, setYField, setColorField, setCheckedSchools,
+    setCheckedClasses, setCheckedOptions, setRangeOptions,
+    setQuery, setExpression, setIsClassView, setShowLines, setAggregateType
+    };
 
+  const fileUploadSetters = {
+    setData, setLogicFilteredtData
+  } ;
 
-  const handleResetToOnboarding = () => {
-    handleResetToTarget(initial_preset);
+  const onResetToOnboarding = settingsIO.handleResetToOnboarding(configFromPresetSetters);
+  const onResetToLatest = settingsIO.handleResetToLatest(configFromPresetSetters);
+  const onSavePreset = settingsIO.saveConfig(savePresetSetters);
+  const onSetConfigFromPreset = settingsIO.setConfigFromPreset(configFromPresetSetters);
+  const onFileUpload = (event) =>{
+    settingsIO.handleFileUpload(event, fileUploadSetters);
   }
 
 
-  const handleResetToLatest = () => { 
-    handleResetToTarget(latest_preset);
-  }
-
-
-  const handleResetToTarget = (preset) => { 
-    let parsed = JSON.parse(preset, (key, value) => { 
-      if (key === "Födelsedatum" || key === "Testdatum") return value.map(v => new Date(v));
-      console.log("reset to target key", key, "value", value);
-      return value;
-    });
-    setConfigFromPreset(parsed);
-  }
-
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if(!isLogin) return;
     fetch(process.env.PUBLIC_URL +'/LiteracySampleEncrypt.csv')
@@ -148,7 +95,7 @@ const App = () => {
       const parsedData = csvParse(originalData, rowParser);  
       setData(parsedData);
       setLogicFilteredtData(parsedData); 
-      handleResetToOnboarding();     
+      onResetToOnboarding();     
 
     })
     .catch((error) => {
@@ -223,7 +170,7 @@ const App = () => {
                             fields={fields}
                             fields_x={fields_x}
                             fields_y={fields_y}
-                            save={save}
+                            save={ onSavePreset}  //savePresetSetters
                             load={load}
                             query={query}
                             setQuery={setQuery}
@@ -237,12 +184,12 @@ const App = () => {
                             setCheckedOptions={setCheckedOptions}
                             rangeOptions={rangeOptions}
                             setRangeOptions={setRangeOptions}
-                            handleFileUpload={handleFileUpload}
-                            setConfigFromPreset={setConfigFromPreset}
+                            handleFileUpload={onFileUpload}
+                            setConfigFromPreset={onSetConfigFromPreset}
                             showLines={showLines}
                             setShowLines={setShowLines}
-                            handleResetToOnboarding={handleResetToOnboarding}
-                            handleResetToLatest={handleResetToLatest}
+                            handleResetToOnboarding={onResetToOnboarding}
+                            handleResetToLatest={onResetToLatest}
                             isClassView={isClassView}
                             setIsClassView={setIsClassView}
                             aggregateType={aggregateType}
