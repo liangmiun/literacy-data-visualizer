@@ -1,5 +1,5 @@
 import { Box, Checkbox, FormControlLabel, Slider, FormGroup  } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Button from '@mui/material/Button';
 import * as d3 from 'd3';
 import '../App.css';
@@ -7,11 +7,14 @@ import '../App.css';
 export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeOptions, setCheckedOptions, setRangeOptions }) {
     const allOptions = Object.keys(checkedOptions).concat(Object.keys(rangeOptions));
     const [selectedOptions, setSelectedOptions] = useState([]);  
+
+    const setGetRef = useRef({allOptions, checkedOptions, rangeOptions, setCheckedOptions, setFilterList, setRangeOptions});
     
     useEffect(() => {
         // Automatically select all options when the component mounts
         if(data.length > 0) 
         {
+            const {allOptions, checkedOptions, rangeOptions, setCheckedOptions, setFilterList, setRangeOptions} = setGetRef.current;
             setSelectedOptions(allOptions);
             setFilterList(allOptions);
             allOptions.forEach(option => {

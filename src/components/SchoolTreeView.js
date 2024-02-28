@@ -1,6 +1,6 @@
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { TreeView } from '@mui/x-tree-view/TreeView';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -157,11 +157,11 @@ function SchoolComponent({ props }) {
   const someChecked = classCheckStates.some(checked => checked);
   const someUnchecked = classCheckStates.some(checked => !checked);
   const allChecked = classCheckStates.every(checked => checked);
-  const schoolInChecked = props.checkedSchools.includes(school);
+  const schoolInCheckedRef = useRef(props.checkedSchools.includes(school));
 
   useEffect(() => {
     // Trigger the handler when allChecked changes from false to true and the school is not in the checkedSchools array
-    if (allChecked && !schoolInChecked) {
+    if (allChecked && !schoolInCheckedRef.current) {
       onSchoolCheckChange(school, true);
     }
   }, [allChecked, school, onSchoolCheckChange ]);  //schoolInChecked
@@ -273,9 +273,12 @@ function transformString(input) {
   // Parse the first part of the number to use it as a base for incrementing
   let baseNumber = parseInt(baseParts[0]) + 2000;
 
-  const newString = "Class " +`${baseNumber}-${numPart ? numPart : ''}${letterPart ? letterPart[0] : ''}, ` +
-                    `${baseNumber+1}-${numPart ? parseInt(numPart)+1 : ''}${letterPart ? letterPart[0] : ''}, ` +
-                    `${baseNumber+2}-${numPart ? parseInt(numPart)+2 : ''}${letterPart ? letterPart[0] : ''} from ${parts[0]} school`;
+
+  // Use template literals to create the new string.
+  const newString = `Class ${baseNumber}-${numPart ? numPart : ''}${letterPart ? letterPart[0] : ''}, 
+                    ${baseNumber + 1}-${numPart ? parseInt(numPart) + 1 : ''}${letterPart ? letterPart[0] : ''},
+                    ${baseNumber + 2}-${numPart ? parseInt(numPart) + 2 : ''}${letterPart ? letterPart[0] : ''} from ${parts[0]} school`;
+
 
   return newString;
 }

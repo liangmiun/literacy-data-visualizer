@@ -198,7 +198,7 @@ const ViolinPlots = (props ) => {
         svg.call(zoomBehavior)
   
 
-    }, [shownData,xField, yField, colorField, width, height,  studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual]);
+    }, [shownData,xField, yField, colorField, width, height,  studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual, formatDate, parseDate]);
     
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
