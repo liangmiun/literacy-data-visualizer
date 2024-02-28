@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import * as d3 from 'd3';
 import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
@@ -64,7 +64,7 @@ const App = () => {
     showLines, aggregateType
   } ;
 
-  const configFromPresetSetters =  {
+  const configSetters = {
     setXField, setYField, setColorField, setCheckedSchools,
     setCheckedClasses, setCheckedOptions, setRangeOptions,
     setQuery, setExpression, setIsClassView, setShowLines, setAggregateType
@@ -74,10 +74,10 @@ const App = () => {
     setData, setLogicFilteredtData
   } ;
 
-  const onResetToOnboarding = settingsIO.handleResetToOnboarding(configFromPresetSetters);
-  const onResetToLatest = settingsIO.handleResetToLatest(configFromPresetSetters);
+  const onResetToOnboardingRef = useRef(settingsIO.handleResetToOnboarding(configSetters));
+  const onResetToLatest = settingsIO.handleResetToLatest(configSetters);
   const onSavePreset = settingsIO.saveConfig(savePresetSetters);
-  const onSetConfigFromPreset = settingsIO.setConfigFromPreset(configFromPresetSetters);
+  const onSetConfigFromPreset = settingsIO.setConfigFromPreset(configSetters);
   const onFileUpload = (event) =>{
     settingsIO.handleFileUpload(event, fileUploadSetters);
   }
@@ -95,7 +95,7 @@ const App = () => {
       const parsedData = csvParse(originalData, rowParser);  
       setData(parsedData);
       setLogicFilteredtData(parsedData); 
-      onResetToOnboarding();     
+      onResetToOnboardingRef.current();     
 
     })
     .catch((error) => {
@@ -188,7 +188,7 @@ const App = () => {
                             setConfigFromPreset={onSetConfigFromPreset}
                             showLines={showLines}
                             setShowLines={setShowLines}
-                            handleResetToOnboarding={onResetToOnboarding}
+                            handleResetToOnboarding={onResetToOnboardingRef.current}
                             handleResetToLatest={onResetToLatest}
                             isClassView={isClassView}
                             setIsClassView={setIsClassView}
