@@ -12,6 +12,12 @@
   z-index: 1;
 }
 
+.header-li-style {
+  display: inline-block; /* Display the list items in a horizontal line */
+  margin-right: 10px; 
+}
+
+
 .content {
     grid-column: 1 / -1;
     grid-row: 1 / -1;

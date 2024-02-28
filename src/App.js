@@ -25,9 +25,6 @@ const App = () => {
   const [xField, setXField] = useState('Testdatum');
   const [yField, setYField] = useState('Lexplore Score');
   const [colorField, setColorField] = useState('Årskurs');
-  const fields = data_fields;
-  const fields_x = data_fields.filter(element => !y_data_fields.includes(element));
-  const fields_y = y_data_fields;
   const [checkedSchools, setCheckedSchools] = useState([]);
   const [checkedClasses, setCheckedClasses] = useState([]);
   const [query, setQuery] = useState('');
@@ -44,6 +41,11 @@ const App = () => {
     );
   const [isClassView, setIsClassView] = useState(true);
   const [aggregateType, setAggregateType] = useState('circle');   
+
+  const fields = data_fields;
+  const fields_x = data_fields.filter(element => !y_data_fields.includes(element));
+  const fields_y = y_data_fields;
+
 
 
   const updatePreset = () => {
@@ -157,14 +159,6 @@ const App = () => {
   },  [isLogin, encryptKey]);  
 
 
-
-
-
-  const liStyle = {
-    display: "inline-block",/* Display the list items in a horizontal line */
-    marginRight: "10px" 
-  };
-
   return ( 
       <Router  basename="literacy-data-visualizer"  >
           <div className = "grid-container">
@@ -173,18 +167,18 @@ const App = () => {
               <ul className ="headers">
                 {currentUser? 
                   <>
-                  <li   style={liStyle}>
+                  <li  className="header-li-style">
                     <Link to="/">Plot</Link>
                   </li>
-                  <li  style={liStyle}>
+                  <li  className="header-li-style">
                     <Link to="/about">About</Link>
                   </li>
-                  <li   style={liStyle}>
+                  <li  className="header-li-style">
                     <Link to="/logout">Logout</Link>
                   </li>
                   </>                  
                   :
-                  <li  style={liStyle}>
+                  <li  className="header-li-style">
                   <Link to="/login">Login</Link>
                 </li>
                 }
