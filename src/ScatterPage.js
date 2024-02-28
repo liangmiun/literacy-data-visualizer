@@ -117,48 +117,51 @@ const ScatterPage = (props ) => {
   const [filterList, setFilterList] = useState([]);
 
 
-  function checkedFilteredData(data) {
-    return data.filter(record => {
-        for (let key in props.checkedOptions) {
-            if ( filterList.includes(key) && ! props.checkedOptions[key].includes(record[key])) {
-                return false;
-            }
-        }
-        return true;
-    });
-  }
-
-
-  function rangeFilteredData(data) {
-
-    for (let key in props.rangeOptions) {
-      const [min, max] = props.rangeOptions[key];
-      console.log(key, min instanceof Date? min.toISOString() : min, max);
-    }
-    var count = 0;
-
-    return data.filter(record => {
-        for (let key in props.rangeOptions) {
-          const [min, max] = props.rangeOptions[key];
-          if ( filterList.includes(key)  && !(record[key] >= min && record[key] <= max)) {
-
-              if( count % 1000 ===0) 
-              {
-                console.log("filtered out: ",key, record[key], min, max, 
-                  record[key] >= min,  record[key] < min, "date?", typeof record[key], typeof min);
-              }
-              count++;
-              return false;
-          }
-        }
-        return true;
-    });
-  }
 
   const shownData = useMemo(() => {
-      const nonNullData = dataToShow.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
-      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData,props.checkedClasses,props.checkedSchools)));
-    }, [dataToShow, props.checkedOptions, props.rangeOptions, props.checkedSchools, props.checkedClasses]);  
+
+    
+    function checkedFilteredData(data) {
+      return data.filter(record => {
+          for (let key in props.checkedOptions) {
+              if ( filterList.includes(key) && ! props.checkedOptions[key].includes(record[key])) {
+                  return false;
+              }
+          }
+          return true;
+      });
+    }
+
+    function rangeFilteredData(data) {
+
+      for (let key in props.rangeOptions) {
+        const [min, max] = props.rangeOptions[key];
+        console.log(key, min instanceof Date? min.toISOString() : min, max);
+      }
+      var count = 0;
+
+      return data.filter(record => {
+          for (let key in props.rangeOptions) {
+            const [min, max] = props.rangeOptions[key];
+            if ( filterList.includes(key)  && !(record[key] >= min && record[key] <= max)) {
+
+                if( count % 1000 ===0) 
+                {
+                  console.log("filtered out: ",key, record[key], min, max, 
+                    record[key] >= min,  record[key] < min, "date?", typeof record[key], typeof min);
+                }
+                count++;
+                return false;
+            }
+          }
+          return true;
+      });
+    }
+
+    const nonNullData = dataToShow.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
+    return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData,props.checkedClasses,props.checkedSchools)));
+      
+  }, [dataToShow, props.checkedSchools, props.checkedClasses, props.xField, props.yField,  filterList, props.checkedOptions, props.rangeOptions]);  
 
   return (   
     <div className="app" >  

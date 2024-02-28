@@ -11,9 +11,7 @@ React.memo(
     const [brushing, setBrushing] = useState(false);
     const prevBrushingRef = useRef();
     const newXScaleRef = useRef(null);
-    const newYScaleRef = useRef(null);
-    const filteredXYData = shownData.filter(d => d[xField] !== null && d[yField] !== null);
-    
+    const newYScaleRef = useRef(null);    
     
     useEffect(() => {
 
@@ -39,9 +37,9 @@ React.memo(
         const scatter = g.append('g')
         .attr('id', 'scatter').attr("clip-path", "url(#clip)");
 
-        const {scale: xScale, type: xType}  = GetScale(xField, filteredXYData, innerWidth);
-        const {scale: yScale, type: yType}= GetScale(yField, filteredXYData, innerHeight, true);              
-        const colorDomain = Array.from(new Set(filteredXYData.map(d => d[colorField])));
+        const {scale: xScale, type: xType}  = GetScale(xField, shownData, innerWidth);
+        const {scale: yScale, type: yType}= GetScale(yField, shownData, innerHeight, true);              
+        const colorDomain = Array.from(new Set(shownData.map(d => d[colorField])));
         colorDomain.sort();
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
         const xAxis = d3.axisBottom(xScale);
@@ -73,7 +71,7 @@ React.memo(
             brush_part();
     
             // Add color legend
-            ColorLegend(filteredXYData, colorField, svg, width - margin.right , margin); //width  
+            ColorLegend(shownData, colorField, svg, width - margin.right , margin); //width  
 
     
             function axes_and_captions_plot() {
@@ -115,7 +113,7 @@ React.memo(
 
             function connecting_lines_plot() {
                 //  Group data by ElevID; filteredXYData
-                const elevIDGroups = d3.group(filteredXYData, d => d.ElevID);
+                const elevIDGroups = d3.group(shownData, d => d.ElevID);
 
                 //  Sort data in each group by xField
                 elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
@@ -136,7 +134,7 @@ React.memo(
             function dots_plot(){
                 // Draw circles 
                 scatter.selectAll('circle')
-                    .data(filteredXYData)  //filteredData
+                    .data(shownData)  //filteredData
                     .enter().append('circle')
                     .attr('cx',  function(d) {   return  xScale(getValue(d[xField], xType))}) 
                     .attr('cy', d => yScale(getValue(d[yField], yType)))
@@ -188,7 +186,7 @@ React.memo(
             
             function getElevIDSelected(dataSelection) {
                 let selectedElevIDs = new Set(dataSelection.map(d => d.ElevID));
-                return filteredXYData.filter(d => selectedElevIDs.has(d.ElevID));
+                return shownData.filter(d => selectedElevIDs.has(d.ElevID));
             }
             
 
@@ -203,7 +201,7 @@ React.memo(
                     const currentXScale = newXScaleRef.current || xScale;
                     const currentYScale = newYScaleRef.current || yScale;
                     
-                    let newlySelected = filteredXYData.filter(d => 
+                    let newlySelected = shownData.filter(d => 
                         currentXScale(getValue(d[xField])) >= x0 && 
                         currentXScale(getValue(d[xField])) <= x1 && 
                         currentYScale(getValue(d[yField]))>= y0 && 
@@ -267,7 +265,7 @@ React.memo(
             
         } 
    
-    },[filteredXYData, xField, yField, colorField, width, height,  brushing,  showLines, newXScaleRef, newYScaleRef, setSelectedRecords]); //
+    },[shownData, xField, yField, colorField, width, height,  brushing,  showLines, newXScaleRef, newYScaleRef, setSelectedRecords]); //
 
     return (
         <div className="scatter-canvas" style={{ position: 'relative' }}>

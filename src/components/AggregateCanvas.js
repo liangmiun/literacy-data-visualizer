@@ -4,7 +4,6 @@ import * as AggregateUtils from './AggregateUtils';
 
 const AggregateCanvas = (props) => {
 
-    //const filteredData = props.shownData.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
     const subBandCount = props.checkedClasses.length;
 
     return(
