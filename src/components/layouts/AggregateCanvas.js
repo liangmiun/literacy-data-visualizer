@@ -159,12 +159,8 @@ const BoxPlots = (props) => {
         .attr('id', 'g').attr("clip-path", "url(#clip)");
 
         const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
-        function bandedX(d) {
-            const season = d.value.season.toString();
-            const clazz = d.value.lastingclass.toString();   //.class
-            const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            return xMainBandScale(season) + x1(clazz) 
-        }
+
+        const bandedX = (d) => getBandedX(d, xMainBandScale, getSubBandScale);    
     
         aggregate.selectAll(".vertLines")
         .data(sumstat)
@@ -272,13 +268,9 @@ const CirclePlots = (props) => {
             .attr('id', 'g').attr("clip-path", "url(#clip)");
     
             const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
-            function bandedX(d) {
-                const season = d.value.season.toString();
-                const clazz = d.value.lastingclass.toString();   //.class
-                const x1 = getSubBandScale(season); // Get x1 scale for the current season
-                return xMainBandScale(season) + x1(clazz) 
-            }        
-    
+
+            const bandedX = (d) => getBandedX(d, xMainBandScale, getSubBandScale);    
+        
             aggregate.selectAll('.circles')  //'.circles'
             .data(sumstat)  //filteredData
             .enter().append('circle')
