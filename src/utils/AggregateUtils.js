@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import {  rescale, translateExtentStartEnd, formatDate } from 'utils/Utils';
+import { innerAggrWidth, innerAggrHeight } from './constants';
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 5;
@@ -95,15 +96,12 @@ export function getLastingClassID(school, seasonKey, classKey)
 }
 
 
-export function PreparePlotStructure(svgRef, filteredData, yField, width, height, aggregateType)  {
+export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType, margin)  {
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();           
 
     //set margin for svg
-    const margin = { top: 20, right: 20, bottom: 80, left: 80 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
     const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     // Create main linear scale for y-axis
@@ -112,7 +110,7 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
     const yPadding = (yMax - yMin) * 0.1;
     const yScale = d3.scaleLinear()
         .domain([yMin - yPadding, yMax + yPadding])
-        .range([innerHeight, 0]);
+        .range([innerAggrHeight, 0]);
 
     // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
     const sumstat = setSumStat(filteredData, yScale, yField, aggregateType);
@@ -153,7 +151,7 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
     // Create main band scale for seasons
     const x0 = d3.scaleBand()
     .domain(seasons)
-    .range([0, innerWidth])
+    .range([0, innerAggrWidth])
     .paddingInner(0.2)
     .paddingOuter(0.2);
 
@@ -173,7 +171,7 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
     const xAxis = d3.axisBottom(x0)
         .tickValues(tickValues) ;// Use the combined class-season strings,  .tickFormat(d => d)
         
-    return {svg, g, margin, innerWidth, innerHeight, sumstat, seasons, yScale, x0, xAxis, getSubBandScale, lastingClassGroups};
+    return {svg, g, sumstat, seasons, yScale, x0, xAxis, getSubBandScale, lastingClassGroups};
 
 }
 
