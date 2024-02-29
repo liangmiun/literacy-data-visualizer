@@ -1,0 +1,51 @@
+Vioin version:
+
+        // eslint-disable-next-line no-unused-vars
+        var clip = svg.append("defs").append("svg:clipPath")
+        .attr("id", "clip")
+        .append("svg:rect")
+        .attr("width", innerAggrWidth )
+        .attr("height", innerAggrHeight)
+        .attr("x", 0)
+        .attr("y", 0);
+
+        g.append("line")  // generate shadow line for the x-axis
+        .style("stroke", "black")  
+        .style("stroke-width", 0.5)  // Line width
+        .attr("x1", 0)  // Start of the line on the x-axis
+        .attr("x2", innerAggrWidth)  // End of the line on the x-axis (width of your plot)
+        .attr("y1", innerAggrHeight)  // Y-coordinate for the line
+        .attr("y2", innerAggrHeight); 
+
+        const aggregate = g.append('g')
+        .attr('id', 'g').attr("clip-path", "url(#clip)");
+
+        // For the X axis label:
+        g.append("text")
+        .attr("y", innerAggrHeight + plotMargin.bottom / 2)
+        .attr("x", innerAggrWidth / 2)  
+        .attr("dy", "1em")    
+        .style("text-anchor", "middle")  
+        .text("Months of Testdatum"); 
+
+        // Add the x-axis to the group element
+        g.append("g")
+            .attr("transform", `translate(0, ${innerAggrHeight})`)
+            .call(xAxis)
+            .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
+            .selectAll(".tick text")         
+            .style("text-anchor", "start") 
+            .attr("transform",  "rotate(45)"); 
+
+        g.append('g').call(d3.axisLeft(yScale).tickFormat(d => formatTickValue(d, yField)));
+
+        g.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -plotMargin.left)
+        .attr("x", -innerAggrHeight / 2) 
+        .attr("dy", "1em")  
+        .style("text-anchor", "middle")
+        .text(yField); 
+
+        
+        const subBandWidth = x0.bandwidth() / subBandCount;
