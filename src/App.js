@@ -156,7 +156,6 @@ const App = () => {
                         element={
                           <ScatterPage 
                             data={data} 
-                            setData={setData}
                             logicFilteredData={logicFilteredData}
                             setLogicFilteredData={setLogicFilteredtData}
                             xField={xField}

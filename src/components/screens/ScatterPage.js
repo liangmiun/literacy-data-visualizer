@@ -12,7 +12,7 @@ import 'assets/App.css';
 
 const ScatterPage = (props ) => {  
 
-  const { isClassView,setIsClassView, aggregateType, setAggregateType} = props;
+  const { data, isClassView,setIsClassView, aggregateType, setAggregateType} = props;
   const trends = { all: 'all', overall_decline: 'overall decline',  logarithmic_decline: "logarithmicly decline", last_time_decline: 'last time decline'};
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
@@ -27,14 +27,14 @@ const ScatterPage = (props ) => {
   const [filterList, setFilterList] = useState([]);
 
   useEffect(() => {
-    if (Object.keys(props.data).length > 0)
+    if (Object.keys(data).length > 0)
     {
-      const nonNullLexploreData = props.data.filter(d => d['Lexplore Score'] !== null);
+      const nonNullLexploreData = data.filter(d => d['Lexplore Score'] !== null);
       const newSchoolClasses = generateSchoolLastingClassMap(nonNullLexploreData);  //
       const newClassColorScale = generateSchoolClassColorScale(newSchoolClasses).classColor;
       setSchoolClassesAndColorScale({ schoolClasses: newSchoolClasses, colorScale: newClassColorScale});
     }
-  }, [ props.data]);   
+  }, [ data]);   
 
   useEffect(() => {
     if (Object.keys(props.logicFilteredData).length > 0)
@@ -134,7 +134,7 @@ const ScatterPage = (props ) => {
   return (   
     <div className="app" >  
       <AxisSelectionCanvas
-        data={props.data}
+        data={data}
         fields_x={props.fields_x}
         fields_y={props.fields_y}
         xField={props.xField}
@@ -208,7 +208,7 @@ const ScatterPage = (props ) => {
 
 
       <FilterCanvas 
-        data={props.data}
+        data={data}
         fields={props.fields} 
         checkedSchools={props.checkedSchools}
         setCheckedSchools={props.setCheckedSchools}
@@ -227,7 +227,7 @@ const ScatterPage = (props ) => {
 
       <LogicCanvas  
         fields={props.fields} 
-        data ={props.data}
+        data ={data}
         setLogicFilteredData={props.setLogicFilteredData}
         expression={props.expression}
         setExpression={props.setExpression}

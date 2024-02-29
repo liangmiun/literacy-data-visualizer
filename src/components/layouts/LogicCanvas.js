@@ -36,14 +36,14 @@ export class FilterDemo extends React.Component {
           data: props.data
       }
       this.options = props.options;
-      this.setData = props.setLogicFilteredData;
+      this.setLogicData = props.setLogicFilteredData;  
       this.setPresetExpression = props.setExpression     
 
   }
 
   componentDidMount() {
     // Set initial data when the component mounts
-    this.setData(this.state.data);
+    this.setLogicData(this.state.data);
 }
 
   componentDidUpdate(prevProps) {
@@ -52,7 +52,7 @@ export class FilterDemo extends React.Component {
       this.setState({ query: this.props.query },
         () => {
           var newData = new SimpleResultProcessing(this.options).process(this.state.data, this.props.expression);
-          this.setData(newData);
+          this.setLogicData(newData);
         }
       );
     }
@@ -65,7 +65,7 @@ export class FilterDemo extends React.Component {
   onParseOk(expressions) {
 
       var newData = new SimpleResultProcessing(this.options).process(this.state.data, expressions);
-      this.setData(newData);
+      this.setLogicData(newData);
 
       this.props.setQuery(this.state.query);
       this.props.setExpression(expressions);
