@@ -1,5 +1,5 @@
-Vioin version:
-
+box version:
+  
         // eslint-disable-next-line no-unused-vars
         var clip = svg.append("defs").append("svg:clipPath")
         .attr("id", "clip")
@@ -9,8 +9,8 @@ Vioin version:
         .attr("x", 0)
         .attr("y", 0);
 
-        g.append("line")  // generate shadow line for the x-axis
-        .style("stroke", "black")  
+        g.append("line")
+        .style("stroke", "black")  // Line color
         .style("stroke-width", 0.5)  // Line width
         .attr("x1", 0)  // Start of the line on the x-axis
         .attr("x2", innerAggrWidth)  // End of the line on the x-axis (width of your plot)
@@ -35,9 +35,12 @@ Vioin version:
             .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
             .selectAll(".tick text")         
             .style("text-anchor", "start") 
-            .attr("transform",  "rotate(45)"); 
+            .attr("transform",  "rotate(45)") ;
+            
+            
+        const yAxis =d3.axisLeft(yScale).tickFormat(d => formatTickValue(d, yField))
 
-        g.append('g').call(d3.axisLeft(yScale).tickFormat(d => formatTickValue(d, yField)));
+        g.append('g').call(yAxis);
 
         g.append("text")
         .attr("transform", "rotate(-90)")
@@ -47,5 +50,11 @@ Vioin version:
         .style("text-anchor", "middle")
         .text(yField); 
 
-        
+        // Vertical lines
         const subBandWidth = x0.bandwidth() / subBandCount;
+        function bandedX(d) {
+            const season = d.value.season.toString();
+            const clazz = d.value.lastingclass.toString();   //.class
+            const x1 = getSubBandScale(season); // Get x1 scale for the current season
+            return x0(season) + x1(clazz) 
+        }
