@@ -1,8 +1,9 @@
 import * as d3 from 'd3';
 
 
-const parseDate = d3.timeParse('%y%m%d');
+export const parseDate = d3.timeParse('%y%m%d');
 
+export const formatDate = d3.timeFormat('%y-%m-%d');
 
 export const data_fields = [
 "Testdatum",

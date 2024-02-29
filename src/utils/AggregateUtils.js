@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import {  rescale, translateExtentStartEnd } from 'utils/Utils';
+import {  rescale, translateExtentStartEnd, formatDate } from 'utils/Utils';
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 5;
@@ -585,5 +585,4 @@ function consistentRandom(hashValue, min, max) {
 }
 
 
-export const parseDate = d3.timeParse('%y%m%d');
-export const formatDate = d3.timeFormat('%y-%m-%d');
+

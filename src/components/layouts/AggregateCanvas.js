@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
+import { formatDate, parseDate } from 'utils/Utils';
 import * as AggregateUtils from 'utils/AggregateUtils';
 
 const AggregateCanvas = (props) => {
@@ -42,8 +43,6 @@ const AggregateCanvas = (props) => {
 
 const ViolinPlots = (props ) => {
     const svgRef = useRef();
-    const parseDate = d3.timeParse('%y%m%d');
-    const formatDate = d3.timeFormat('%y-%m-%d');
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
     const { shownData, xField, yField, colorField, width, height, onViolinClick, studentsChecked,  showLines, subBandCount, classColors, connectIndividual } = props;
@@ -198,7 +197,7 @@ const ViolinPlots = (props ) => {
         svg.call(zoomBehavior)
   
 
-    }, [shownData,xField, yField, colorField, width, height,  studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual, formatDate, parseDate]);
+    }, [shownData,xField, yField, colorField, width, height,  studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual]);
     
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
@@ -259,8 +258,8 @@ const BoxPlots = (props) => {
             
         const yAxis =d3.axisLeft(yScale).tickFormat(d => {
             if(yField==='Födelsedatum'||yField==='Testdatum')
-            {const dateObject = AggregateUtils.parseDate(d);
-            return AggregateUtils.formatDate(dateObject);
+            {const dateObject = parseDate(d);
+            return formatDate(dateObject);
             }
             return d;
         })
@@ -438,8 +437,8 @@ const CirclePlots = (props) => {
                 
             const yAxis =d3.axisLeft(yScale).tickFormat(d => {
                 if(yField==='Födelsedatum'||yField==='Testdatum')
-                {const dateObject = AggregateUtils.parseDate(d);
-                return AggregateCanvas.formatDate(dateObject);
+                {const dateObject = parseDate(d);
+                return formatDate(dateObject);
                 }
                 return d;
             })
