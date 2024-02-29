@@ -145,11 +145,11 @@ export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType
         return d3.scaleBand()
             .padding(0.05)   //0.05
             .domain(seasonToClasses[season])
-            .range([0, x0.bandwidth()]);
+            .range([0, xMainBandScale.bandwidth()]);
     }
 
     // Create main band scale for seasons
-    const x0 = d3.scaleBand()
+    const xMainBandScale = d3.scaleBand()
     .domain(seasons)
     .range([0, innerAggrWidth])
     .paddingInner(0.2)
@@ -168,10 +168,10 @@ export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType
     let tickValues = seasons; 
 
     // Create the x-axis using the new band scale `x1`
-    const xAxis = d3.axisBottom(x0)
+    const xAxis = d3.axisBottom(xMainBandScale)
         .tickValues(tickValues) ;// Use the combined class-season strings,  .tickFormat(d => d)
         
-    return {svg, g, sumstat, seasons, yScale, x0, xAxis, getSubBandScale, lastingClassGroups};
+    return {svg, g, sumstat, seasons, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups};
 
 }
 

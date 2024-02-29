@@ -51,57 +51,16 @@ const ViolinPlots = (props ) => {
 
     useEffect(() => {
 
-        const {svg, g, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField,'violin', plotMargin);
+        const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField,'violin', plotMargin);
 
-        // eslint-disable-next-line no-unused-vars
-        var clip = svg.append("defs").append("svg:clipPath")
-        .attr("id", "clip")
-        .append("svg:rect")
-        .attr("width", innerAggrWidth )
-        .attr("height", innerAggrHeight)
-        .attr("x", 0)
-        .attr("y", 0);
-
-        g.append("line")  // generate shadow line for the x-axis
-        .style("stroke", "black")  
-        .style("stroke-width", 0.5)  // Line width
-        .attr("x1", 0)  // Start of the line on the x-axis
-        .attr("x2", innerAggrWidth)  // End of the line on the x-axis (width of your plot)
-        .attr("y1", innerAggrHeight)  // Y-coordinate for the line
-        .attr("y2", innerAggrHeight); 
+        drawCommonAggrParts(svg, g, xAxis, yField, yScale);
 
         const aggregate = g.append('g')
         .attr('id', 'g').attr("clip-path", "url(#clip)");
 
-        // For the X axis label:
-        g.append("text")
-        .attr("y", innerAggrHeight + plotMargin.bottom / 2)
-        .attr("x", innerAggrWidth / 2)  
-        .attr("dy", "1em")    
-        .style("text-anchor", "middle")  
-        .text("Months of Testdatum"); 
+        const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
 
-        // Add the x-axis to the group element
-        g.append("g")
-            .attr("transform", `translate(0, ${innerAggrHeight})`)
-            .call(xAxis)
-            .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
-            .selectAll(".tick text")         
-            .style("text-anchor", "start") 
-            .attr("transform",  "rotate(45)"); 
-
-        g.append('g').call(d3.axisLeft(yScale).tickFormat(d => formatTickValue(d, yField)));
-
-        g.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -plotMargin.left)
-        .attr("x", -innerAggrHeight / 2) 
-        .attr("dy", "1em")  
-        .style("text-anchor", "middle")
-        .text(yField); 
-
-        
-        const subBandWidth = x0.bandwidth() / subBandCount;
+        const bandedX = (d) => getBandedX(d, xMainBandScale, getSubBandScale);       
 
         var maxNum = 0;
         for (var i in sumstat) {
@@ -112,13 +71,6 @@ const ViolinPlots = (props ) => {
         }
 
         const xNumScale = d3.scaleLinear().domain([-maxNum, maxNum]).range([-subBandWidth/2, subBandWidth/2]);
-
-        function bandedX(d) {
-            const season = d.value.season.toString();
-            const clazz = d.value.lastingclass.toString();
-            const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            return x0(season) + x1(clazz)         }
-
         
         aggregate.selectAll(".violins")
         .data(sumstat)
@@ -171,22 +123,13 @@ const ViolinPlots = (props ) => {
                 .curve(d3.curveCatmullRom)
                 );  
 
-        AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, x0, getSubBandScale, yScale, subBandWidth, classColors);
+        AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, classColors);
 
         if(studentsChecked) {       
-            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth,connectIndividual)   
+            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth,connectIndividual)   
         }
 
-        if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
-            const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-            AggregateUtils.violinZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale,xNumScale, studentsChecked, subBandCount);
-        }
-
-        // Setup zoom behavior
-        const zoomBehavior = AggregateUtils.createViolinZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, xNumScale, studentsChecked, subBandCount);
-
-        // Apply the zoom behavior to the SVG
-        svg.call(zoomBehavior)
+        setAggregationZoom( svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, xNumScale, studentsChecked, subBandCount, connectIndividual);
   
 
     }, [shownData,xField, yField, colorField, studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual]);
@@ -206,67 +149,19 @@ const BoxPlots = (props) => {
     // In your useEffect: 
     useEffect(() => {
 
-        console.log('BoxPlots useEffect');
+        const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin);
 
-        const {svg, g, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin);
-
-        // eslint-disable-next-line no-unused-vars
-        var clip = svg.append("defs").append("svg:clipPath")
-        .attr("id", "clip")
-        .append("svg:rect")
-        .attr("width", innerAggrWidth )
-        .attr("height", innerAggrHeight)
-        .attr("x", 0)
-        .attr("y", 0);
-
-        g.append("line")
-        .style("stroke", "black")  // Line color
-        .style("stroke-width", 0.5)  // Line width
-        .attr("x1", 0)  // Start of the line on the x-axis
-        .attr("x2", innerAggrWidth)  // End of the line on the x-axis (width of your plot)
-        .attr("y1", innerAggrHeight)  // Y-coordinate for the line
-        .attr("y2", innerAggrHeight); 
+        drawCommonAggrParts(svg, g, xAxis, yField, yScale);
 
         const aggregate = g.append('g')
         .attr('id', 'g').attr("clip-path", "url(#clip)");
 
-        // For the X axis label:
-        g.append("text")
-        .attr("y", innerAggrHeight + plotMargin.bottom / 2)
-        .attr("x", innerAggrWidth / 2)  
-        .attr("dy", "1em")    
-        .style("text-anchor", "middle")  
-        .text("Months of Testdatum"); 
-
-        // Add the x-axis to the group element
-        g.append("g")
-            .attr("transform", `translate(0, ${innerAggrHeight})`)
-            .call(xAxis)
-            .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
-            .selectAll(".tick text")         
-            .style("text-anchor", "start") 
-            .attr("transform",  "rotate(45)") ;
-            
-            
-        const yAxis =d3.axisLeft(yScale).tickFormat(d => formatTickValue(d, yField))
-
-        g.append('g').call(yAxis);
-
-        g.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -plotMargin.left)
-        .attr("x", -innerAggrHeight / 2) 
-        .attr("dy", "1em")  
-        .style("text-anchor", "middle")
-        .text(yField); 
-
-        // Vertical lines
-        const subBandWidth = x0.bandwidth() / subBandCount;
+        const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
         function bandedX(d) {
             const season = d.value.season.toString();
             const clazz = d.value.lastingclass.toString();   //.class
             const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            return x0(season) + x1(clazz) 
+            return xMainBandScale(season) + x1(clazz) 
         }
     
         aggregate.selectAll(".vertLines")
@@ -340,28 +235,15 @@ const BoxPlots = (props) => {
         .attr("stroke", "black")
         .style("stroke-width", 2)
 
-        AggregateUtils.presentLines(showLines, lastingClassGroups, aggregate, x0, getSubBandScale, yScale, subBandWidth, classColors);       
+        AggregateUtils.presentLines(showLines, lastingClassGroups, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, classColors);       
 
         // Add individual points with jitter
         if(studentsChecked) {
-            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth, connectIndividual)  //getSubBandScale,
+            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual)  //getSubBandScale,
         }
 
-
-        if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
-            const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-            AggregateUtils.boxZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
-        }
-
-        // Setup zoom behavior
-        const zoomBehavior = AggregateUtils.createBoxZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
-        // Apply the zoom behavior to the SVG
-        svg.call(zoomBehavior)
-
-        // Add color legend
-        //ColorLegend(identityClasses, "classID", svg, 200, margin);          
-
-        // ... rest of the zoom and event logic remains unchanged ...
+        setAggregationZoom( svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, null, studentsChecked, subBandCount, connectIndividual);
+        
     }, [shownData, xField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, subBandCount, connectIndividual]); 
     return (
         <svg className="scatter-canvas" ref={svgRef} width={aggrWidth} height={aggrHeight}></svg>
@@ -380,67 +262,21 @@ const CirclePlots = (props) => {
         
         useEffect(() => {
     
-            const {svg, g, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin);
+            const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin);
             
-            // eslint-disable-next-line no-unused-vars
-            var clip = svg.append("defs").append("svg:clipPath")
-            .attr("id", "clip")
-            .append("svg:rect")
-            .attr("width", innerAggrWidth )
-            .attr("height", innerAggrHeight)
-            .attr("x", 0)
-            .attr("y", 0);
-    
-            g.append("line")
-            .style("stroke", "black")  // Line color
-            .style("stroke-width", 0.5)  // Line width
-            .attr("x1", 0)  // Start of the line on the x-axis
-            .attr("x2", innerAggrWidth)  // End of the line on the x-axis (width of your plot)
-            .attr("y1", innerAggrHeight)  // Y-coordinate for the line
-            .attr("y2", innerAggrHeight); 
-    
+            drawCommonAggrParts(svg, g, xAxis, yField, yScale);
+
             const aggregate = g.append('g')
             .attr('id', 'g').attr("clip-path", "url(#clip)");
-
-            // For the X axis label:
-            g.append("text")
-                .attr("y", innerAggrHeight + plotMargin.bottom / 2)
-                .attr("x", innerAggrWidth / 2)  
-                .attr("dy", "1em")    
-                .style("text-anchor", "middle")  
-                .text("Months of Testdatum"); 
     
-            // Add the x-axis to the group element
-            g.append("g")
-                .attr("transform", `translate(0, ${innerAggrHeight})`)
-                .call(xAxis)
-                .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
-                .selectAll(".tick text")         
-                .style("text-anchor", "start") 
-                .attr("transform",  "rotate(45)") ;
-                
-                
-            const yAxis =d3.axisLeft(yScale).tickFormat(d => formatTickValue(d, yField))
-    
-            g.append('g').call(yAxis);
-    
-            g.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -plotMargin.left)
-            .attr("x", -innerAggrHeight / 2) 
-            .attr("dy", "1em")  
-            .style("text-anchor", "middle")
-            .text(yField); 
-    
-            const subBandWidth = x0.bandwidth() / subBandCount;
+            const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
             function bandedX(d) {
                 const season = d.value.season.toString();
                 const clazz = d.value.lastingclass.toString();   //.class
                 const x1 = getSubBandScale(season); // Get x1 scale for the current season
-                return x0(season) + x1(clazz) 
+                return xMainBandScale(season) + x1(clazz) 
             }        
     
-
             aggregate.selectAll('.circles')  //'.circles'
             .data(sumstat)  //filteredData
             .enter().append('circle')
@@ -474,22 +310,22 @@ const CirclePlots = (props) => {
             }); 
    
 
-            AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, x0, getSubBandScale, yScale, subBandWidth, classColors);
+            AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, classColors);
            
     
             // Add individual points with jitter
             if(studentsChecked) {
                 console.log('to re-present individuals');
-                AggregateUtils.PresentIndividuals(shownData, yField, aggregate, x0, getSubBandScale, yScale, subBandWidth, connectIndividual)  //getSubBandScale,
+                AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual)  //getSubBandScale,
             }    
     
             if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
                 const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-                AggregateUtils.circleZoomRender( zoomState, x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
+                AggregateUtils.circleZoomRender( zoomState, xMainBandScale, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
             }
     
             // Setup zoom behavior
-            const zoomBehavior = AggregateUtils.createCircleZoomBehavior(x0, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
+            const zoomBehavior = AggregateUtils.createCircleZoomBehavior(xMainBandScale, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
             // Apply the zoom behavior to the SVG
             svg.call(zoomBehavior)
 
@@ -503,6 +339,77 @@ const CirclePlots = (props) => {
         );
     
     }
+
+
+function drawCommonAggrParts(svg, g, xAxis, yField, yScale) {
+
+    // eslint-disable-next-line no-unused-vars
+    var clip = svg.append("defs").append("svg:clipPath")
+    .attr("id", "clip")
+    .append("svg:rect")
+    .attr("width", innerAggrWidth )
+    .attr("height", innerAggrHeight)
+    .attr("x", 0)
+    .attr("y", 0);
+
+    g.append("line")
+    .style("stroke", "black")  // Line color
+    .style("stroke-width", 0.5)  // Line width
+    .attr("x1", 0)  // Start of the line on the x-axis
+    .attr("x2", innerAggrWidth)  // End of the line on the x-axis (width of your plot)
+    .attr("y1", innerAggrHeight)  // Y-coordinate for the line
+    .attr("y2", innerAggrHeight); 
+
+    // For the X axis label:
+    g.append("text")
+        .attr("y", innerAggrHeight + plotMargin.bottom / 2)
+        .attr("x", innerAggrWidth / 2)  
+        .attr("dy", "1em")    
+        .style("text-anchor", "middle")  
+        .text("Months of Testdatum"); 
+
+    // Add the x-axis to the group element
+    g.append("g")
+        .attr("transform", `translate(0, ${innerAggrHeight})`)
+        .call(xAxis)
+        .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
+        .selectAll(".tick text")         
+        .style("text-anchor", "start") 
+        .attr("transform",  "rotate(45)") ;
+        
+        
+    const yAxis =d3.axisLeft(yScale).tickFormat(d => formatTickValue(d, yField))
+
+    g.append('g').call(yAxis);
+
+    g.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", -plotMargin.left)
+    .attr("x", -innerAggrHeight / 2) 
+    .attr("dy", "1em")  
+    .style("text-anchor", "middle")
+    .text(yField); 
+
+}
+
+
+function getBandedX(d, xMain, getSubBandScale) {
+    const season = d.value.season.toString();
+    const clazz = d.value.lastingclass.toString();   //.class
+    const xSub = getSubBandScale(season); // Get x1 scale for the current season
+    return xMain(season) + xSub(clazz) 
+} 
+
+
+function setAggregationZoom( svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, xNumScale, studentsChecked, subBandCount, connectIndividual)
+{
+    if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
+        const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
+        AggregateUtils.violinZoomRender( zoomState, xMainBandScale, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale,xNumScale, studentsChecked, subBandCount);
+    }
+    const zoomBehavior = AggregateUtils.createViolinZoomBehavior(xMainBandScale, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, xNumScale, studentsChecked, subBandCount);
+    svg.call(zoomBehavior)
+}
 
 
 export default AggregateCanvas;

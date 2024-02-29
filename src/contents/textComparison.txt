@@ -1,5 +1,4 @@
-box version:
-  
+Circle:           
         // eslint-disable-next-line no-unused-vars
         var clip = svg.append("defs").append("svg:clipPath")
         .attr("id", "clip")
@@ -50,11 +49,11 @@ box version:
         .style("text-anchor", "middle")
         .text(yField); 
 
-        // Vertical lines
         const subBandWidth = x0.bandwidth() / subBandCount;
         function bandedX(d) {
             const season = d.value.season.toString();
             const clazz = d.value.lastingclass.toString();   //.class
             const x1 = getSubBandScale(season); // Get x1 scale for the current season
             return x0(season) + x1(clazz) 
-        }
+        }        
+
