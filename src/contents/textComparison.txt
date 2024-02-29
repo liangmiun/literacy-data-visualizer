@@ -1,31 +1,18 @@
-export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
+export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
 {
     const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
-    // Apply zoom transformation to boxes
-    g.selectAll('.boxes, .medianText')  //
-    .attr("x", d => {  
-        return zoomedX(d);      
-    })
-    .attr("width", d => {
-        return subBandWidth; })
-
-    g.selectAll('.medianLines')
-    .attr("x1", d => {
-        return zoomedX(d); 
-    })
-    .attr("x2", d => {
-        return zoomedX(d) + subBandWidth;
-    })
-
-
-    g.selectAll('.vertLines')
-    .attr("x1", d => {
-        return zoomedX(d) + subBandWidth / 2;
-    })
-    .attr("x2", d => {
-        return zoomedX(d) + subBandWidth / 2;
-    })
-
+          
+    g.selectAll('.violins')
+    .attr("transform",  d => {
+        return `translate(${zoomedX(d)+ subBandWidth/2  }, 0)`;   //
+        })
+    .selectAll('.area')
+    .attr("d", d3.area()
+        .x0(d => xNum(-d.length *singleViolinWidthRatio)*zoomState.k )  //
+        .x1(d => xNum(d.length *singleViolinWidthRatio) *zoomState.k)    // 
+        .y(d => yScale(d.x0))   //d.x0
+        .curve(d3.curveCatmullRom)
+                );  
 
     g.selectAll('.lastingClassLines')
     .attr("x1", function(){
@@ -40,19 +27,18 @@ export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yF
     })
 
 
-    // Apply zoom transformation to lines  if (showLines)
+    // Apply zoom transformation to lines
     var filteredSelection = g.selectAll('.line-path')
-                          .filter(function() {
-                              return d3.select(this).style('visibility') === 'visible';
-                          });
+    .filter(function() {
+        return d3.select(this).style('visibility') === 'visible';
+    });
 
     if (filteredSelection.size() > 0) {
-        filteredSelection.attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+    filteredSelection.attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
     }
-
     
-
     if( studentsChecked) {
         zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale, connectIndividual);
     }
+    
 }

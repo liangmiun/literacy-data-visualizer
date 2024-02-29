@@ -129,7 +129,9 @@ const ViolinPlots = (props ) => {
             AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth,connectIndividual)   
         }
 
-        setAggregationZoom( svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, xNumScale, studentsChecked, subBandCount, connectIndividual);
+        console.log('to set violin zoom, xNumScale', xNumScale, typeof(xNumScale));
+
+        setAggregationZoom( 'violin', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, xNumScale);
   
 
     }, [shownData,xField, yField, colorField, studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual]);
@@ -242,7 +244,7 @@ const BoxPlots = (props) => {
             AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual)  //getSubBandScale,
         }
 
-        setAggregationZoom( svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, null, studentsChecked, subBandCount, connectIndividual);
+        setAggregationZoom( 'box', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, null);
         
     }, [shownData, xField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, subBandCount, connectIndividual]); 
     return (
@@ -319,15 +321,7 @@ const CirclePlots = (props) => {
                 AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual)  //getSubBandScale,
             }    
     
-            if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
-                const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-                AggregateUtils.circleZoomRender( zoomState, xMainBandScale, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
-            }
-    
-            // Setup zoom behavior
-            const zoomBehavior = AggregateUtils.createCircleZoomBehavior(xMainBandScale, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked,subBandCount);
-            // Apply the zoom behavior to the SVG
-            svg.call(zoomBehavior)
+            setAggregationZoom( 'circle', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, null);
 
             // d3.selection.prototype.attr = originalAttr;
     
@@ -401,13 +395,25 @@ function getBandedX(d, xMain, getSubBandScale) {
 } 
 
 
-function setAggregationZoom( svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, xNumScale, studentsChecked, subBandCount, connectIndividual)
+function setAggregationZoom( aggrType, svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual,  xNumScale)
 {
+    var renderer;
+    if(aggrType === 'box') {
+        renderer = AggregateUtils.boxZoomRender;
+    }
+    else if(aggrType === 'violin') {
+        renderer = AggregateUtils.violinZoomRender;
+    }
+    else {
+        // circle
+        renderer = AggregateUtils.circleZoomRender;
+    }
+
     if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity) {                  
         const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
-        AggregateUtils.violinZoomRender( zoomState, xMainBandScale, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale,xNumScale, studentsChecked, subBandCount);
+        renderer( zoomState, xMainBandScale, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount,xNumScale);
     }
-    const zoomBehavior = AggregateUtils.createViolinZoomBehavior(xMainBandScale, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, xNumScale, studentsChecked, subBandCount);
+    const zoomBehavior = AggregateUtils.createAggrZoomBehavior(renderer, xMainBandScale, yScale, 'band', 'linear', 'season', yField, null, connectIndividual, svg, g, xAxis, d3.axisLeft(yScale), newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount, xNumScale);
     svg.call(zoomBehavior)
 }
 
