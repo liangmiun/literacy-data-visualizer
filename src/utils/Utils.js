@@ -5,6 +5,19 @@ export const parseDate = d3.timeParse('%y%m%d');
 
 export const formatDate = d3.timeFormat('%y-%m-%d');
 
+export function formatTickValue(d, field) {
+  if (isDateFieldString(field)){
+      const dateObject = parseDate(d);
+      return formatDate(dateObject);
+  }
+  return d;
+}
+
+export function isDateFieldString(field) {
+  return field === 'Födelsedatum' || field === 'Testdatum';
+}
+
+
 export const data_fields = [
 "Testdatum",
 "Lexplore Score",
@@ -50,7 +63,7 @@ export function rowParser(d) {
     for (let field in d) {
       if (field === 'Skola' || field === 'Klass' || field === 'Läsår') {
         parsedRow[field] = String(d[field]);
-      } else if (field === 'Födelsedatum' || field === 'Testdatum') {
+      } else if (isDateFieldString(field)) {
         parsedRow[field] = parseDate(d[field]);
       } else if (field === 'Årskurs' || field === 'Läsnivå (5 = hög)') {
         parsedRow[field] = parseInt(d[field], 10);	
@@ -93,7 +106,7 @@ export const load = (callback) => {
     reader.onload = (e) => {
       const content = e.target.result;
       const loadedConfig = JSON.parse(content, (key, value) => {
-        if (key === "Födelsedatum" || key === "Testdatum") return value.map(v => new Date(v));
+        if (isDateFieldString(key)) return value.map(v => new Date(v));
         return value;
       });
       callback(loadedConfig);

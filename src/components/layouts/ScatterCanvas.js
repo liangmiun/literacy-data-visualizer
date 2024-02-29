@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { set } from 'd3-collection';
-import { ColorLegend, rescale, categoricals, translateExtentStartEnd } from '../../utils/Utils';
+import { ColorLegend, rescale, categoricals, translateExtentStartEnd, isDateFieldString } from 'utils/Utils';
 
 const ScatterCanvas =
 React.memo(
@@ -295,7 +295,7 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 {
     let vScale, type;
 
-    if (vField==='Födelsedatum'|| vField==='Testdatum') { 
+    if (isDateFieldString(vField)) { 
         const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
         const vPadding = (vMax - vMin)* 0.05;
         //const vPadding = (vMax - vMin) / (vMax - vMin) * 86400000;  // 1 day in milliseconds for padding

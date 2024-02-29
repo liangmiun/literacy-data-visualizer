@@ -1,14 +1,15 @@
 import React from 'react';
 import * as d3 from 'd3';
 import 'assets/App.css';
+import { isDateFieldString } from 'utils/Utils';
 
 const DetailCanvas = ({ data, keyList}) => {
 
-  const formatDate = d3.timeFormat('%Y.%m.%d');
+  const formatDetailPanelDate = d3.timeFormat('%Y.%m.%d');
 
   const DetailValue = (key, value) => {
-    if (key === 'Födelsedatum' || key === 'Testdatum') {
-        value = formatDate(value);
+    if (isDateFieldString(key)) {
+        value = formatDetailPanelDate(value);
     }
     return value;
   };
@@ -36,7 +37,7 @@ const DetailCanvas = ({ data, keyList}) => {
         case 'Födelsedatum':
         case 'Testdatum':
             const sortedDates = data.map(record => record[key]).sort((a, b) => a - b);
-            return `${formatDate(sortedDates[0])} - ${formatDate(sortedDates[sortedDates.length - 1])}`;
+            return `${formatDetailPanelDate(sortedDates[0])} - ${formatDetailPanelDate(sortedDates[sortedDates.length - 1])}`;
 
         case 'Standardpoäng':
         case 'Lexplore Score':
@@ -51,8 +52,8 @@ const DetailCanvas = ({ data, keyList}) => {
   const detailKey = (key) => { 
     if(key === 'season') return 'test period';
     if(key === 'lastingclass') return 'initial class'; 
-    else return key;};
-  
+    else return key;
+  };  
   
   return (
     <div className="detail-canvas" style={{ fontSize: '1.0em' }}>

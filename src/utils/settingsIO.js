@@ -1,6 +1,6 @@
 import { csvParse } from 'd3';
 import {initial_preset, latest_preset, updateLatestPreset}  from '../contents/InitialPreset.js';
-import { rowParser, preset_dict } from './Utils.js';
+import { rowParser, preset_dict, isDateFieldString } from './Utils.js';
 
 
 // Function to update the preset configuration based on current state values
@@ -112,7 +112,7 @@ export const handleResetToLatest = (configSetters) => {
 
 const handleResetToTarget = (preset, configSetters) => { 
     let parsed = JSON.parse(preset, (key, value) => { 
-      if (key === "Födelsedatum" || key === "Testdatum") return value.map(v => new Date(v));
+      if (isDateFieldString(key)) return value.map(v => new Date(v));
       return value;
     });
     setConfigFromPreset(configSetters)(parsed);

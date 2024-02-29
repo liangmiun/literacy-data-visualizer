@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
-import { formatDate, parseDate } from 'utils/Utils';
+import { formatTickValue } from 'utils/Utils';
 import * as AggregateUtils from 'utils/AggregateUtils';
 
 const AggregateCanvas = (props) => {
@@ -90,13 +90,7 @@ const ViolinPlots = (props ) => {
 
 
 
-        g.append('g').call(d3.axisLeft(yScale).tickFormat(d => {
-            if(yField==='Födelsedatum'||yField==='Testdatum')
-            {const dateObject = parseDate(d);
-            return formatDate(dateObject);
-            }
-            return d;
-        }));
+        g.append('g').call(d3.axisLeft(yScale).tickFormat(d => formatTickValue(d, yField)));
 
         g.append("text")
         .attr("transform", "rotate(-90)")
@@ -256,13 +250,7 @@ const BoxPlots = (props) => {
             .attr("transform",  "rotate(45)") ;
             
             
-        const yAxis =d3.axisLeft(yScale).tickFormat(d => {
-            if(yField==='Födelsedatum'||yField==='Testdatum')
-            {const dateObject = parseDate(d);
-            return formatDate(dateObject);
-            }
-            return d;
-        })
+        const yAxis =d3.axisLeft(yScale).tickFormat(d => formatTickValue(d, yField))
 
         g.append('g').call(yAxis);
 
@@ -435,13 +423,7 @@ const CirclePlots = (props) => {
                 .attr("transform",  "rotate(45)") ;
                 
                 
-            const yAxis =d3.axisLeft(yScale).tickFormat(d => {
-                if(yField==='Födelsedatum'||yField==='Testdatum')
-                {const dateObject = parseDate(d);
-                return formatDate(dateObject);
-                }
-                return d;
-            })
+            const yAxis =d3.axisLeft(yScale).tickFormat(d => formatTickValue(d, yField))
     
             g.append('g').call(yAxis);
     
