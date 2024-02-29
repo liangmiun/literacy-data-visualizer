@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { formatTickValue } from 'utils/Utils';
 import * as AggregateUtils from 'utils/AggregateUtils';
+import { aggrWidth, aggrHeight } from 'utils/constants';
 
 const AggregateCanvas = (props) => {
 
@@ -16,19 +17,19 @@ const AggregateCanvas = (props) => {
                     <>
                    
                         { props.aggregateType ==='violin' && < ViolinPlots shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
-                            width={props.width} height={props.height} onViolinClick={props.onPartClick}  
+                            onViolinClick={props.onPartClick}  
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
                             subBandCount = {subBandCount}  showLines={props.showLines}  connectIndividual = {props.connectIndividual}  />
                         }
                         
                         {props.aggregateType ==='box' && <BoxPlots    shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
-                            width={props.width} height={props.height} onBoxClick={props.onPartClick} 
+                            onBoxClick={props.onPartClick} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
                             subBandCount ={subBandCount}  showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
                         }
 
                         {props.aggregateType ==='circle' && <CirclePlots  shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
-                            width={props.width} height={props.height} onBoxClick={props.onPartClick} 
+                            onBoxClick={props.onPartClick} 
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}
                             subBandCount ={subBandCount}  showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
                         }
@@ -45,11 +46,11 @@ const ViolinPlots = (props ) => {
     const svgRef = useRef();
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const { shownData, xField, yField, colorField, width, height, onViolinClick, studentsChecked,  showLines, subBandCount, classColors, connectIndividual } = props;
+    const { shownData, xField, yField, colorField, onViolinClick, studentsChecked,  showLines, subBandCount, classColors, connectIndividual } = props;
 
     useEffect(() => {
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'violin');
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, aggrWidth, aggrHeight, 'violin');
 
         // eslint-disable-next-line no-unused-vars
         var clip = svg.append("defs").append("svg:clipPath")
@@ -191,7 +192,7 @@ const ViolinPlots = (props ) => {
         svg.call(zoomBehavior)
   
 
-    }, [shownData,xField, yField, colorField, width, height,  studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual]);
+    }, [shownData,xField, yField, colorField, studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual]);
     
     return (
         <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
@@ -203,14 +204,14 @@ const BoxPlots = (props) => {
     const svgRef = useRef();
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const {shownData, xField, yField, colorField, width, height, onBoxClick, studentsChecked, classColors, subBandCount, showLines, checkedClasses, connectIndividual } = props;
+    const {shownData, xField, yField, colorField, onBoxClick, studentsChecked, classColors, subBandCount, showLines, checkedClasses, connectIndividual } = props;
     
     // In your useEffect: 
     useEffect(() => {
 
         console.log('BoxPlots useEffect');
 
-        const {svg, g, margin, innerWidth, innerHeight, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'box');
+        const {svg, g, margin, innerWidth, innerHeight, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, aggrWidth, aggrHeight, 'box');
 
         // eslint-disable-next-line no-unused-vars
         var clip = svg.append("defs").append("svg:clipPath")
@@ -364,9 +365,9 @@ const BoxPlots = (props) => {
         //ColorLegend(identityClasses, "classID", svg, 200, margin);          
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [shownData, xField, yField, colorField, width, height, studentsChecked, onBoxClick, classColors, checkedClasses, showLines, subBandCount, connectIndividual]); 
+    }, [shownData, xField, yField, colorField, studentsChecked, onBoxClick, classColors, checkedClasses, showLines, subBandCount, connectIndividual]); 
     return (
-        <svg className="scatter-canvas" ref={svgRef} width={width} height={height}></svg>
+        <svg className="scatter-canvas" ref={svgRef} width={aggrWidth} height={aggrHeight}></svg>
     );
 
 }
@@ -376,14 +377,13 @@ const CirclePlots = (props) => {
         const svgRef = useRef();
         const newXScaleRef = useRef(null);
         const newYScaleRef = useRef(null);
-        const {shownData, xField, yField, colorField, width, height, 
-                onBoxClick, studentsChecked, classColors, subBandCount, showLines, connectIndividual } = props;
+        const {shownData, xField, yField, colorField, onBoxClick, studentsChecked, classColors, subBandCount, showLines, connectIndividual } = props;
 
         console.log('CirclePlots connect individual', connectIndividual);
         
         useEffect(() => {
     
-            const {svg, g, margin, innerWidth, innerHeight, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, width, height, 'box');
+            const {svg, g, margin, innerWidth, innerHeight, sumstat, yScale, x0, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, aggrWidth, aggrHeight, 'box');
             
             // eslint-disable-next-line no-unused-vars
             var clip = svg.append("defs").append("svg:clipPath")
@@ -499,7 +499,7 @@ const CirclePlots = (props) => {
             // d3.selection.prototype.attr = originalAttr;
     
 
-        }, [shownData, xField, yField, colorField, width, height,  studentsChecked,  classColors,  onBoxClick, showLines,subBandCount, connectIndividual]);  //onBoxClick,
+        }, [shownData, xField, yField, colorField, studentsChecked,  classColors,  onBoxClick, showLines,subBandCount, connectIndividual]);  //onBoxClick,
 
         return (
             <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>

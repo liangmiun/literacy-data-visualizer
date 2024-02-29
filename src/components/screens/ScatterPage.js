@@ -177,9 +177,7 @@ const ScatterPage = (props ) => {
           xField={props.xField}
           yField={props.yField}
           colorField = {props.colorField}
-          width={1000}
-          height={700}    
-          onPartClick={setSelectedClassDetail} //  handlePartClick
+          onPartClick={setSelectedClassDetail} 
           studentsChecked={studentsChecked}
           connectIndividual={connectIndividual}
           aggregateType = {aggregateType}
@@ -193,8 +191,6 @@ const ScatterPage = (props ) => {
           xField={props.xField}
           yField={props.yField}
           colorField = {props.colorField}
-          width= {1100}
-          height={800}
           setSelectedRecords={setSelectedRecords}
           showLines={props.showLines} 
         />
