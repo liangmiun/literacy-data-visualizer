@@ -62,8 +62,8 @@ const ViolinPlots = (props ) => {
         .attr("x", 0)
         .attr("y", 0);
 
-        g.append("line")
-        .style("stroke", "black")  // Line color
+        g.append("line")  // generate shadow line for the x-axis
+        .style("stroke", "black")  
         .style("stroke-width", 0.5)  // Line width
         .attr("x1", 0)  // Start of the line on the x-axis
         .attr("x2", innerAggrWidth)  // End of the line on the x-axis (width of your plot)
@@ -170,8 +170,6 @@ const ViolinPlots = (props ) => {
                 .y(d => yScale(d.x0))   //d.x0
                 .curve(d3.curveCatmullRom)
                 );  
-
-
 
         AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, x0, getSubBandScale, yScale, subBandWidth, classColors);
 
