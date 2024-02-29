@@ -1,5 +1,3 @@
-
-
 export const scatterWidth = 1100;
 export const scatterHeight = 800;
 

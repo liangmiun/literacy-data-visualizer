@@ -195,7 +195,7 @@ const ViolinPlots = (props ) => {
     }, [shownData,xField, yField, colorField, studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual]);
     
     return (
-        <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
+        <svg className="scatter-canvas" ref={svgRef} width={aggrWidth} height={aggrHeight}></svg>
     );
     };
 
@@ -204,7 +204,7 @@ const BoxPlots = (props) => {
     const svgRef = useRef();
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const {shownData, xField, yField, colorField, onBoxClick, studentsChecked, classColors, subBandCount, showLines, checkedClasses, connectIndividual } = props;
+    const {shownData, xField, yField, colorField, onBoxClick, studentsChecked, classColors, subBandCount, showLines, connectIndividual } = props;
     
     // In your useEffect: 
     useEffect(() => {
@@ -365,7 +365,7 @@ const BoxPlots = (props) => {
         //ColorLegend(identityClasses, "classID", svg, 200, margin);          
 
         // ... rest of the zoom and event logic remains unchanged ...
-    }, [shownData, xField, yField, colorField, studentsChecked, onBoxClick, classColors, checkedClasses, showLines, subBandCount, connectIndividual]); 
+    }, [shownData, xField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, subBandCount, connectIndividual]); 
     return (
         <svg className="scatter-canvas" ref={svgRef} width={aggrWidth} height={aggrHeight}></svg>
     );
@@ -502,7 +502,7 @@ const CirclePlots = (props) => {
         }, [shownData, xField, yField, colorField, studentsChecked,  classColors,  onBoxClick, showLines,subBandCount, connectIndividual]);  //onBoxClick,
 
         return (
-            <svg className="scatter-canvas" ref={svgRef} width={props.width} height={props.height}></svg>
+            <svg className="scatter-canvas" ref={svgRef} width={aggrWidth} height={aggrHeight}></svg>
         );
     
     }
