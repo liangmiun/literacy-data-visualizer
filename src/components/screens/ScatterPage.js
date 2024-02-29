@@ -12,7 +12,7 @@ import 'assets/App.css';
 
 const ScatterPage = (props ) => {  
 
-  const { data, isClassView,setIsClassView, aggregateType, setAggregateType} = props;
+  const { data, logicFilteredData, isClassView,setIsClassView, aggregateType, setAggregateType} = props;
   const trends = { all: 'all', overall_decline: 'overall decline',  logarithmic_decline: "logarithmicly decline", last_time_decline: 'last time decline'};
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
@@ -37,11 +37,11 @@ const ScatterPage = (props ) => {
   }, [ data]);   
 
   useEffect(() => {
-    if (Object.keys(props.logicFilteredData).length > 0)
+    if (Object.keys(logicFilteredData).length > 0)
     {
-      setDataToShow(props.logicFilteredData);
+      setDataToShow(logicFilteredData);
     }
-  }, [ props.logicFilteredData]);  
+  }, [ logicFilteredData]);    
 
   const handleClassColorPaletteClick= (school, classID, newColor) => {
     setSchoolClassesAndColorScale(prevState => {
@@ -66,25 +66,24 @@ const ScatterPage = (props ) => {
   const filterWithTrendThreshold = (optionValue, threshold) => {
 
     if(optionValue === trends.overall_decline){
-      const linearDeclined = linearDeclinedData(props.logicFilteredData, threshold);
+      const linearDeclined = linearDeclinedData(logicFilteredData, threshold);
       setMinDeclineThreshold(linearDeclined.minSlope);
       setDataToShow(linearDeclined.data);
     }
     else if(optionValue === trends.logarithmic_decline){
-      const logarithmicDeclined = logarithmicDeclinedData(props.logicFilteredData, threshold);
+      const logarithmicDeclined = logarithmicDeclinedData(logicFilteredData, threshold);
       setMinDeclineThreshold(logarithmicDeclined.minCoeff);
       setDataToShow(logarithmicDeclined.data);
     }
     else if(optionValue === trends.last_time_decline){
-      const lastTimeDeclined = lastTimeDeclinedData(props.logicFilteredData, threshold);
+      const lastTimeDeclined = lastTimeDeclinedData(logicFilteredData, threshold);
       setMinDeclineThreshold(lastTimeDeclined.minDiff);
       setDataToShow(lastTimeDeclined.data);
     }
     else{
-      setDataToShow(props.logicFilteredData);
+      setDataToShow(logicFilteredData);
     }   
   }
-
 
   const shownData = useMemo(() => {
 
