@@ -1,17 +1,16 @@
 import React, {useState, useEffect, useRef} from 'react';
-import * as d3 from 'd3';
 import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
-import './App.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
-import { rowParser,  load, data_fields, y_data_fields} from './Utils.js';
-import About from './About';
-import ScatterPage from './ScatterPage';
+import { rowParser,  load, data_fields, y_data_fields} from './Utils';
 import { useAuth } from './authentications/AuthContext';
 import ProtectedWrapper from './authentications/ProtectedWrapper';
 import Login from './authentications/Login';
 import Logout from './authentications/Logout';
-import * as settingsIO from './settingsIO.js';
+import * as settingsIO from './settingsIO';
+import './App.css';
+import About from './About';
+import ScatterPage from './ScatterPage';
 
 
 const App = () => { 
@@ -46,18 +45,6 @@ const App = () => {
   const fields_x = data_fields.filter(element => !y_data_fields.includes(element));
   const fields_y = y_data_fields;
 
-  // const preset_setters = {
-  //   xField, yField, colorField, checkedSchools, checkedClasses,
-  //   checkedOptions, rangeOptions, query, expression, isClassView,
-  //   showLines, aggregateType,
-
-  //   setXField, setYField, setColorField, setCheckedSchools,
-  //   setCheckedClasses, setCheckedOptions, setRangeOptions,
-  //   setQuery, setExpression, setIsClassView, setShowLines, setAggregateType,  
-    
-  //   setData, setLogicFilteredtData
-  // }
-
   const savePresetSetters = {
     xField, yField, colorField, checkedSchools, checkedClasses,
     checkedOptions, rangeOptions, query, expression, isClassView,
@@ -82,8 +69,6 @@ const App = () => {
     settingsIO.handleFileUpload(event, fileUploadSetters);
   }
 
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if(!isLogin) return;
     fetch(process.env.PUBLIC_URL +'/LiteracySampleEncrypt.csv')
@@ -205,32 +190,6 @@ const App = () => {
       </Router> 
   );
 };
-
-
-export function generateSchoolClassColorScale(schoolClasses) {
-
-  const classColorScaleMap = {};
-  const colors = d3.schemeCategory10;
-  const brighterColors = colors.map(color => d3.color(color).brighter(1).toString());
-  const Colors20 = colors.concat(brighterColors);
-
-  for(const school in schoolClasses){
-    const classsIDs = Object.keys(schoolClasses[school]);
-    const classColorScale = classsIDs.reduce((acc, classID, index) => {
-      acc[classID] = Colors20[index % 20];
-      return acc;
-    }, {});
-    classColorScaleMap[school] = classColorScale;
-  }
-
-
-  const schools = Object.keys(schoolClasses);
-  const schoolColorScale = d3.scaleOrdinal()
-  .domain(schools)
-  .range(schools.map(d => Colors20[schools.indexOf(d) % 20]));
-
-  return { schoolColor: schoolColorScale, classColor: classColorScaleMap };
-}
 
 
 export default App;
