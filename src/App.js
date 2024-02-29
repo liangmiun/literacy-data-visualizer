@@ -10,6 +10,7 @@ import Logout from './authentications/Logout';
 import * as settingsIO from './utils/settingsIO';
 import './assets/App.css';
 import About from './components/screens/About';
+import Help from './components/screens/Help';
 import ScatterPage from './components/screens/ScatterPage';
 
 const App = () => { 
@@ -102,6 +103,9 @@ const App = () => {
                     <Link to="/">Plot</Link>
                   </li>
                   <li  className="header-li-style">
+                    <Link to="/help">Help</Link>
+                  </li>
+                  <li  className="header-li-style">
                     <Link to="/about">About</Link>
                   </li>
                   <li  className="header-li-style">
@@ -124,12 +128,22 @@ const App = () => {
                       <ProtectedWrapper element={ <Logout setIsLogin={setIsLogin} />}/>
                     } 
                 />
+                <Route path="/help" 
+                    element={
+                      <ProtectedWrapper  
+                        element={
+                          <Help
+                          />
+                        } 
+
+                      />
+                    } 
+                />
                 <Route path="/about" 
                     element={
                       <ProtectedWrapper  
                         element={
                           <About
-                            data = {data}
                           />
                         } 
 
