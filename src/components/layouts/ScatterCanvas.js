@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { set } from 'd3-collection';
 import { ColorLegend, rescale, categoricals, translateExtentStartEnd, isDateFieldString } from 'utils/Utils';
+import { scatterWidth, scatterHeight } from 'utils/constants';
 
 const ScatterCanvas =
 React.memo(
-    ({ shownData, xField, yField, colorField, width, height, setSelectedRecords, showLines}) => { //
+    ({ shownData, xField, yField, colorField,  setSelectedRecords, showLines}) => { 
 
     const svgRef = useRef();    
     const [brushing, setBrushing] = useState(false);
@@ -17,9 +18,10 @@ React.memo(
 
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
+
         const margin = { top: 20, right: 160, bottom: 80, left: 80 };
-        const innerWidth = width - margin.left - margin.right;
-        const innerHeight = height - margin.top - margin.bottom;
+        const innerWidth = scatterWidth - margin.left - margin.right;
+        const innerHeight = scatterHeight - margin.top - margin.bottom;
 
         // eslint-disable-next-line
         var clip = svg.append("defs").append("svg:clipPath")
@@ -37,27 +39,127 @@ React.memo(
         const scatter = g.append('g')
         .attr('id', 'scatter').attr("clip-path", "url(#clip)");
 
-        const {scale: xScale, type: xType}  = GetScale(xField, shownData, innerWidth);
-        const {scale: yScale, type: yType}= GetScale(yField, shownData, innerHeight, true);              
+        const {scale: xScale, type: xType} = GetScale(xField, shownData, innerWidth);
+        const {scale: yScale, type: yType} =  GetScale(yField, shownData, innerHeight, true); 
+                     
         const colorDomain = Array.from(new Set(shownData.map(d => d[colorField])));
         colorDomain.sort();
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
+
         const xAxis = d3.axisBottom(xScale);
         const yAxis = d3.axisLeft(yScale);
+
         const line = d3.line()
-        .x(d => xScale(getValue(d[xField],xType)))
-        .y(d => yScale(getValue(d[yField], yType)));  
+        .x(d => xScale(getStrValue(d[xField],xType)))
+        .y(d => yScale(getStrValue(d[yField], yType)));        
+        
+        let combinedCircleSelection = [];
+        let selectedCircles = [];
 
-        plot();  
-        function plot() { 
+        axes_and_captions_plot();
+        
+        dots_plot();
 
-            let combinedCircleSelection = [];
-            let selectedCircles = [];
-            axes_and_captions_plot();
-            dots_plot();
+        connecting_lines_plot();           
 
-            connecting_lines_plot();           
+        process_zooming();
 
+        brush_part();
+
+        ColorLegend(shownData, colorField, svg, scatterWidth - margin.right , margin); 
+
+
+        function axes_and_captions_plot() {
+
+            g.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left)
+            .attr("x", -innerHeight / 2) 
+            .attr("dy", "1em")  
+            .style("text-anchor", "middle")
+            .text(yField); 
+    
+    
+            g.append("text")
+                .attr("y", innerHeight + margin.bottom / 2)
+                .attr("x", innerWidth / 2)  
+                .attr("dy", "2em")  
+                .style("text-anchor", "middle")
+                .text(xField);
+
+
+            const leftmostValue = xScale.domain()[0];
+            const rotationText =   leftmostValue && leftmostValue.length > 4 ? "rotate(45)" : "";
+            g.append('g').attr('transform', `translate(0, ${innerHeight})`)
+            .attr('class', 'x-axis') 
+            .call(d3.axisBottom(xScale))
+            .selectAll(".tick text")  // Selects all tick labels
+            .style("text-anchor", "start") 
+            .attr("transform", rotationText); // Rotates the labels by -45 degrees
+
+    
+            g.append('g')
+            .attr('class', 'y-axis') 
+            .call(d3.axisLeft(yScale)
+            ); 
+
+        }
+
+        function connecting_lines_plot() {
+            //  Group data by ElevID; filteredXYData
+            const elevIDGroups = d3.group(shownData, d => d.ElevID);
+
+            //  Sort data in each group by xField
+            elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
+    
+            //Draw lines
+            scatter.selectAll('.line-path')
+                .data(Array.from(elevIDGroups.values()))
+                .enter().append('path')
+                .attr('class', 'line-path')
+                .attr('d', d => { return line(d)})
+                .attr('fill', 'none')
+                .attr('stroke','rgba(128, 128, 128, 0.2)' )  
+                .attr('stroke-width', 0.5)
+                .style("visibility", showLines ? "visible" : "hidden");
+
+        }
+
+        function dots_plot(){
+            // Draw circles 
+            scatter.selectAll('circle')
+                .data(shownData)  //filteredData
+                .enter().append('circle')
+                .attr('cx',  function(d) {   return  xScale(getStrValue(d[xField], xType))}) 
+                .attr('cy', d => yScale(getStrValue(d[yField], yType)))
+                .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
+                .attr('fill', d => {  return colorScale(d[colorField])})
+                .on('click', function (event, d) {
+                    console.log("click transform", d3.zoomTransform(svg.node()).toString());
+                    if (!brushing) {
+                        const currentCircle = d3.select(this);
+                        if (event.ctrlKey) {
+                            ContinuousSelection(currentCircle);
+                        }
+                        else
+                        {
+                            combinedCircleSelection = [];
+                            if (selectedCircles.length > 0) {
+                                for (let i = 0; i < selectedCircles.length; i++) {
+                                    selectedCircles[i].attr('stroke-width', 0);
+                                }
+                            }
+                            selectedCircles = [];
+                            ContinuousSelection(currentCircle);
+                        }
+                    }
+
+                }); 
+
+        }
+
+        function process_zooming()
+        {
             if( svg.node() &&  d3.zoomTransform(svg.node()) && d3.zoomTransform(svg.node()) !== d3.zoomIdentity)
             {        
                 // if it is in an existing zooming state, then adopt that state.
@@ -66,206 +168,105 @@ React.memo(
             }
 
             const zoomBehavior = createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, xAxis, yAxis, newXScaleRef, newYScaleRef); 
-            svg.call(zoomBehavior);   
+            svg.call(zoomBehavior);  
 
-            brush_part();
-    
-            // Add color legend
-            ColorLegend(shownData, colorField, svg, width - margin.right , margin); //width  
+        }
 
-    
-            function axes_and_captions_plot() {
-
-                g.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -margin.left)
-                .attr("x", -innerHeight / 2) 
-                .attr("dy", "1em")  
-                .style("text-anchor", "middle")
-                .text(yField); 
-        
-        
-                g.append("text")
-                    .attr("y", innerHeight + margin.bottom / 2)
-                    .attr("x", innerWidth / 2)  
-                    .attr("dy", "2em")  
-                    .style("text-anchor", "middle")
-                    .text(xField);
-
-
-                const leftmostValue = xScale.domain()[0];
-                const rotationText =   leftmostValue && leftmostValue.length > 4 ? "rotate(45)" : "";
-                g.append('g').attr('transform', `translate(0, ${innerHeight})`)
-                .attr('class', 'x-axis') 
-                .call(d3.axisBottom(xScale))
-                .selectAll(".tick text")  // Selects all tick labels
-                .style("text-anchor", "start") 
-                .attr("transform", rotationText); // Rotates the labels by -45 degrees
-
-        
-                g.append('g')
-                .attr('class', 'y-axis') 
-                .call(d3.axisLeft(yScale)
-                ); 
-
-            }
-
-
-            function connecting_lines_plot() {
-                //  Group data by ElevID; filteredXYData
-                const elevIDGroups = d3.group(shownData, d => d.ElevID);
-
-                //  Sort data in each group by xField
-                elevIDGroups.forEach(values => values.sort((a, b) => d3.ascending(a[xField], b[xField])));
-        
-                //Draw lines
-                scatter.selectAll('.line-path')
-                    .data(Array.from(elevIDGroups.values()))
-                    .enter().append('path')
-                    .attr('class', 'line-path')
-                    .attr('d', d => { return line(d)})
-                    .attr('fill', 'none')
-                    .attr('stroke','rgba(128, 128, 128, 0.2)' )  
-                    .attr('stroke-width', 0.5)
-                    .style("visibility", showLines ? "visible" : "hidden");
-
-            }
-
-            function dots_plot(){
-                // Draw circles 
-                scatter.selectAll('circle')
-                    .data(shownData)  //filteredData
-                    .enter().append('circle')
-                    .attr('cx',  function(d) {   return  xScale(getValue(d[xField], xType))}) 
-                    .attr('cy', d => yScale(getValue(d[yField], yType)))
-                    .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
-                    .attr('fill', d => {  return colorScale(d[colorField])})
-                    .on('click', function (event, d) {
-                        console.log("click transform", d3.zoomTransform(svg.node()).toString());
-                        if (!brushing) {
-                            const currentCircle = d3.select(this);
-                            if (event.ctrlKey) {
-                                ContinuousSelection(currentCircle);
-                            }
-                            else
-                            {
-                                combinedCircleSelection = [];
-                                if (selectedCircles.length > 0) {
-                                    for (let i = 0; i < selectedCircles.length; i++) {
-                                        selectedCircles[i].attr('stroke-width', 0);
-                                    }
-                                }
-                                selectedCircles = [];
-                                ContinuousSelection(currentCircle);
-                            }
-                        }
-
-                    }); 
-
+        function ContinuousSelection(currentCircle)
+        {              
+            selectedCircles.push(currentCircle);
+            setSelectedRecords(selectedCircles.map(d => d.data()[0]));   
+            for (let i = 0; i < selectedCircles.length; i++) {
+                selectedCircles[i].attr('stroke', "black");
+                selectedCircles[i].attr('stroke-width', 3);
             }
             
+            const newlySelectedIDs = getElevIDSelected(currentCircle.data());
+            combinedCircleSelection = [...new Set([...combinedCircleSelection, ...newlySelectedIDs])];
 
-            function ContinuousSelection(currentCircle)
-            {              
-                selectedCircles.push(currentCircle);
-                setSelectedRecords(selectedCircles.map(d => d.data()[0]));   
-                for (let i = 0; i < selectedCircles.length; i++) {
-                    selectedCircles[i].attr('stroke', "black");
-                    selectedCircles[i].attr('stroke-width', 3);
-                }
+            g.selectAll('.line-path')
+            .attr('stroke-width',  d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
+            .attr('stroke', d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)')
+            .style("visibility",  d => showLines ||combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? "visible" : "hidden");
+        }   
+        
+        function getElevIDSelected(dataSelection) {
+            let selectedElevIDs = new Set(dataSelection.map(d => d.ElevID));
+            return shownData.filter(d => selectedElevIDs.has(d.ElevID));
+        }
+
+        function brush_part()
+        {
+            let combinedSelection = [];
+
+            const brushBehavior = d3.brush()
+            .on('end', (event) => {
+                if (!event.selection) return;
+                const [[x0, y0], [x1, y1]] = event.selection;
+                const currentXScale = newXScaleRef.current || xScale;
+                const currentYScale = newYScaleRef.current || yScale;
                 
-                const newlySelectedIDs = getElevIDSelected(currentCircle.data());
-                combinedCircleSelection = [...new Set([...combinedCircleSelection, ...newlySelectedIDs])];
+                let newlySelected = shownData.filter(d => 
+                    currentXScale(getStrValue(d[xField])) >= x0 && 
+                    currentXScale(getStrValue(d[xField])) <= x1 && 
+                    currentYScale(getStrValue(d[yField]))>= y0 && 
+                    currentYScale(getStrValue(d[yField])) <= y1
+                );
+                
+                if(showLines){
+                    newlySelected = getElevIDSelected(newlySelected);
+                }
 
+                combinedSelection = [...new Set([...combinedSelection, ...newlySelected])];
+                setSelectedRecords(combinedSelection);
+                
+                g.selectAll('circle')
+                    .attr('stroke', d => combinedSelection.includes(d) ? 'black' : 'transparent')  
+                    .attr('stroke-width', d => combinedSelection.includes(d) ? 2 : 0);  //
+                
                 g.selectAll('.line-path')
-                .attr('stroke-width',  d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
-                .attr('stroke', d => combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)')
-                .style("visibility",  d => showLines ||combinedCircleSelection.some(item => item.ElevID === d[0].ElevID) ? "visible" : "hidden");
-            }   
-
-            
-            function getElevIDSelected(dataSelection) {
-                let selectedElevIDs = new Set(dataSelection.map(d => d.ElevID));
-                return shownData.filter(d => selectedElevIDs.has(d.ElevID));
-            }
-            
-
-            function brush_part()
-            {
-                let combinedSelection = [];
-
-                const brushBehavior = d3.brush()
-                .on('end', (event) => {
-                    if (!event.selection) return;
-                    const [[x0, y0], [x1, y1]] = event.selection;
-                    const currentXScale = newXScaleRef.current || xScale;
-                    const currentYScale = newYScaleRef.current || yScale;
-                    
-                    let newlySelected = shownData.filter(d => 
-                        currentXScale(getValue(d[xField])) >= x0 && 
-                        currentXScale(getValue(d[xField])) <= x1 && 
-                        currentYScale(getValue(d[yField]))>= y0 && 
-                        currentYScale(getValue(d[yField])) <= y1
-                    );
-                    
-                    if(showLines){
-                        newlySelected = getElevIDSelected(newlySelected);
-                    }
-
-                    combinedSelection = [...new Set([...combinedSelection, ...newlySelected])];
-                    setSelectedRecords(combinedSelection);
-                    
-                    g.selectAll('circle')
-                        .attr('stroke', d => combinedSelection.includes(d) ? 'black' : 'transparent')  
-                        .attr('stroke-width', d => combinedSelection.includes(d) ? 2 : 0);  //
-                    
-                    g.selectAll('.line-path')
-                        .attr('stroke-width', d => combinedSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
-                        .attr('stroke', d => combinedSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)');
-                });
-        
-                let brush = g.append("g")
-                   .attr("class", "brush")
-                   .call(brushBehavior)
-                   .attr('display', 'none'); 
-        
-                if (prevBrushingRef.current !== brushing) {
-                    if (brushing) { 
-                        svg.on('.zoom', null);  // deactivate zoom
-                        brush.attr('display', null);
-        
-                    } else {
-                        brush.attr('display', 'none');
-                        setSelectedRecords([]);
-                        //svg.call(zoomBehavior);
-                    }
-                    if (newXScaleRef.current && newYScaleRef.current) {
-                        g.selectAll('circle')
-                            .attr('cx', d => {
-                                const value = newXScaleRef.current(d[xField]);
-                                return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
-                            })
-                            .attr('cy', d => {
-                                const value = newYScaleRef.current(d[yField]);
-                                return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
-                            });                
-
-                        g.selectAll('.line-path')
-                        .attr('d', line.x(d => newXScaleRef.current(d[xField])).y(d => newYScaleRef.current(d[yField])));
-
-                    }
-                }   
-        
-                prevBrushingRef.current = brushing;       
-       
+                    .attr('stroke-width', d => combinedSelection.some(item => item.ElevID === d[0].ElevID) ? 2 : 0.5)
+                    .attr('stroke', d => combinedSelection.some(item => item.ElevID === d[0].ElevID) ? 'rgba(0, 0, 0, 0.7)' : 'rgba(128, 128, 128, 0.2)');
+            });
     
-            }
-            
+            let brush = g.append("g")
+               .attr("class", "brush")
+               .call(brushBehavior)
+               .attr('display', 'none'); 
+    
+            if (prevBrushingRef.current !== brushing) {
+                if (brushing) { 
+                    svg.on('.zoom', null);  // deactivate zoom
+                    brush.attr('display', null);
+    
+                } else {
+                    brush.attr('display', 'none');
+                    setSelectedRecords([]);
+                    //svg.call(zoomBehavior);
+                }
+                if (newXScaleRef.current && newYScaleRef.current) {
+                    g.selectAll('circle')
+                        .attr('cx', d => {
+                            const value = newXScaleRef.current(d[xField]);
+                            return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
+                        })
+                        .attr('cy', d => {
+                            const value = newYScaleRef.current(d[yField]);
+                            return isNaN(value) ? 0 : value;  // Check for NaN and default to 0 if NaN
+                        });                
 
-            
-        } 
+                    g.selectAll('.line-path')
+                    .attr('d', line.x(d => newXScaleRef.current(d[xField])).y(d => newYScaleRef.current(d[yField])));
+
+                }
+            }   
+    
+            prevBrushingRef.current = brushing;       
    
-    },[shownData, xField, yField, colorField, width, height,  brushing,  showLines, newXScaleRef, newYScaleRef, setSelectedRecords]); //
+
+        }       
+    
+    },[shownData, xField, yField, colorField, brushing,  showLines, newXScaleRef, newYScaleRef, setSelectedRecords]); 
 
     return (
         <div className="scatter-canvas" style={{ position: 'relative' }}>
@@ -276,17 +277,17 @@ React.memo(
                     right: '60px',
                     // Optional: Add some spacing from the edges if needed
                     margin: '10px'
-                }}         
-            
+                }}
             >
                 {brushing ? 'de-brush' : 'brush'}
             </button>
-            <svg  ref={svgRef} width={width} height={height}  ></svg>
-                {/* width={width} height={height} */}
+
+            <svg  ref={svgRef} width={scatterWidth} height={scatterHeight}  ></svg>
+
         </div>
     );
-    },
 
+  },
 
 );
 
@@ -319,7 +320,7 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
         const [vMin, vMax] = d3.extent(filteredData, d => d[vField]);
         const vPadding = (vMax - vMin) * 0.03;
         vScale = d3.scaleLinear().domain([vMin - vPadding, vMax + vPadding]).range([0, innerWidth]);
-        if (yFlag) {  // Check if the current field is yField
+        if (yFlag) {  
             vScale = d3.scaleLinear().domain([vMin - vPadding, vMax + vPadding]).range([innerWidth, 0]);  // Invert the range values for y-axis
         } else {
             vScale = d3.scaleLinear().domain([vMin - vPadding, vMax + vPadding]).range([0, innerWidth]);
@@ -328,25 +329,18 @@ function GetScale(vField, filteredData, innerWidth, yFlag=false)
 
     }
 
-
     return {scale: vScale, type: type};
 
 }
 
 
 function createZoomBehavior(svg, xScale, yScale, xType, yType, xField, yField, line, xAxis, yAxis, newXScaleRef, newYScaleRef) {
-
     return d3.zoom()
       .scaleExtent([1, 10])
       .translateExtent( translateExtentStartEnd(1.1, 1.1, svg)) 
       .on('zoom', (event) => {
-
-            console.log("event transform", event.transform.toString(), "type: ", event.type, "source: ", event.sourceEvent,
-                "svg transform", d3.zoomTransform(svg.node()).toString());
-            zoomRender(event.transform, svg, xScale, yScale, xType, yType, xField, yField, line,  xAxis, yAxis, newXScaleRef, newYScaleRef);
-            
+            zoomRender(event.transform, svg, xScale, yScale, xType, yType, xField, yField, line,  xAxis, yAxis, newXScaleRef, newYScaleRef);            
         });
-
 }
 
 
@@ -362,19 +356,19 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
     // Apply zoom transformation to circles
     g.selectAll('circle')
       .attr('cx', d => {
-        const value = zoomXScale( getValue(d[xField], xType));
+        const value = zoomXScale( getStrValue(d[xField], xType));
         return isNaN(value) ? 0 : value;
       })
       .attr('cy', d => {
-        const value = zoomYScale( getValue(d[yField], yType));
+        const value = zoomYScale( getStrValue(d[yField], yType));
         return isNaN(value) ? 0 : value;
       });
 
     
     g.selectAll('.line-path')
     .attr('d', line.x(d => { 
-       return zoomXScale(getValue(d[xField], xType));})
-       .y(d => zoomYScale(getValue(d[yField], yType))));
+       return zoomXScale(getStrValue(d[xField], xType));})
+       .y(d => zoomYScale(getStrValue(d[yField], yType))));
 
     // Update the axes with the new scales
     const xAxisGroup = g.select('.x-axis');
@@ -397,9 +391,10 @@ function zoomRender(zoomState, svg, xScale, yScale, xType, yType, xField, yField
 }
 
 
-function getValue(value, type)
+function getStrValue(value, type)
 {
     if (type === 'point') {
+        // point type is categorical and numeric value is converted to string
         return value + "";
     }
     return value;
