@@ -24,7 +24,7 @@ const ScatterPage = (props ) => {
   const [diffThreshold, setDiffThreshold] = useState(0);
   const [dataToShow, setDataToShow] = useState([]);
   const [minDeclineThreshold, setMinDeclineThreshold] = useState(-1);
-
+  const [filterList, setFilterList] = useState([]);
 
   useEffect(() => {
     if (Object.keys(props.data).length > 0)
@@ -41,9 +41,7 @@ const ScatterPage = (props ) => {
     {
       setDataToShow(props.logicFilteredData);
     }
-  }, [ props.logicFilteredData]);   
- 
-
+  }, [ props.logicFilteredData]);  
 
   const handleClassColorPaletteClick= (school, classID, newColor) => {
     setSchoolClassesAndColorScale(prevState => {
@@ -86,36 +84,6 @@ const ScatterPage = (props ) => {
       setDataToShow(props.logicFilteredData);
     }   
   }
-
-  const studentKeyList = 
-    ['Skola',
-    'Årskurs',
-    'Klass',
-    'ElevID',
-    'Födelsedatum',
-    'Läsår',
-    'Testdatum',
-    'Standardpoäng',
-    'Lexplore Score'
-    ];
-
-  const classKeyList =
-  [
-    // 'lastingclass',
-    'school',
-    'class',
-    'season',
-    'min',
-    'q1',
-    'median',
-    'q3',
-    'max',
-    'count'
-  ];
-
-
-  const [filterList, setFilterList] = useState([]);
-
 
 
   const shownData = useMemo(() => {
@@ -272,8 +240,7 @@ const ScatterPage = (props ) => {
 };
 
 
-export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
-  console.log("schoolClassFilteredData checkedSchools",  checkedSchools);
+function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
   return data.filter(record => {
       // Check if the school of the record is in checkedSchools
       if (checkedSchools.includes(record.Skola)) {
@@ -291,6 +258,34 @@ export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
       return false;
   } );    
 }
+
+
+const studentKeyList = 
+  ['Skola',
+  'Årskurs',
+  'Klass',
+  'ElevID',
+  'Födelsedatum',
+  'Läsår',
+  'Testdatum',
+  'Standardpoäng',
+  'Lexplore Score'
+];
+
+
+const classKeyList =
+[
+  // 'lastingclass',
+  'school',
+  'class',
+  'season',
+  'min',
+  'q1',
+  'median',
+  'q3',
+  'max',
+  'count'
+];
 
 
 function linearDeclinedData(data, declineSlopeThreshold) {
@@ -423,6 +418,7 @@ function lastTimeDeclinedData(data, diffThreshold) {
   return { data: declinedData, minDiff: minDiff};
 
 }
+
 
 function calculateSlope(x, y) {
   const n = x.length;
