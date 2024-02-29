@@ -86,6 +86,7 @@ function OptionSlider({ label, min, max, setRangeOptions }) {
     );
 }
 
+
 function OptionCheckBoxes({ label, options, checkedOptions, setCheckedOptions }) {
     const handleCheckChange = (option, isChecked) => {
         if (isChecked) {

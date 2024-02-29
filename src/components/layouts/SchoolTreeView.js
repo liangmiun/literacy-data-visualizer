@@ -227,7 +227,7 @@ function ClassComponent({ props }) {
               checked={props.checkedClasses.includes(`${school}.${classId}`)}
               onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
             />
-            <Tooltip title={transformString(classId)} followCursor>       
+            <Tooltip title={transformClassTooltip(classId)} followCursor>       
               {classId }
             </Tooltip>
           </div>
@@ -261,7 +261,7 @@ function ClassComponent({ props }) {
 }
 
 
-function transformString(input) {
+function transformClassTooltip(input) {
   // Split the string by ":" to separate the prefix and the numbers
   const parts = input.split(':');
   const baseParts = parts[1].split('-');
