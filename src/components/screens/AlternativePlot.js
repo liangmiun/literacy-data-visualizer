@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import AxisSelectionCanvas from './components/AxisSelectionCanvas';
-import AggregateCanvas from './components/AggregateCanvas';
-import DetailCanvas from './components/DetailCanvas';
-import FilterCanvas from './components/FilterCanvas';
+import AxisSelectionCanvas from '../layouts/AxisSelectionCanvas';
+import AggregateCanvas from '../layouts/AggregateCanvas';
+import DetailCanvas from '../layouts/DetailCanvas';
+import FilterCanvas from '../layouts/FilterCanvas';
 import './App.css';
 import {schoolClassFilteredData } from './ScatterPage';
 

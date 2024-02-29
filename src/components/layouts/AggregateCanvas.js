@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
-import * as AggregateUtils from './AggregateUtils';
+import * as AggregateUtils from 'utils/AggregateUtils';
 
 const AggregateCanvas = (props) => {
 

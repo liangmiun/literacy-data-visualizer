@@ -1,13 +1,13 @@
 import * as d3 from 'd3';
 import React, { useState, useMemo, useEffect } from 'react';
-import AxisSelectionCanvas from './components/AxisSelectionCanvas';
-import AggregateCanvas from './components/AggregateCanvas';
-import ScatterCanvas from './components/ScatterCanvas';
-import DetailCanvas from './components/DetailCanvas';
-import FilterCanvas from './components/FilterCanvas';
-import LogicCanvas from './components/LogicCanvas';
-import { generateClassId, generateSchoolLastingClassMap, generateSchoolClassColorScale} from './Utils.js';
-import './App.css';
+import AxisSelectionCanvas from '../layouts/AxisSelectionCanvas';
+import AggregateCanvas from '../layouts/AggregateCanvas';
+import ScatterCanvas from '../layouts/ScatterCanvas';
+import DetailCanvas from '../layouts/DetailCanvas';
+import FilterCanvas from '../layouts/FilterCanvas';
+import LogicCanvas from '../layouts/LogicCanvas';
+import { generateClassId, generateSchoolLastingClassMap, generateSchoolClassColorScale} from '../../utils/Utils.js';
+import 'assets/App.css';
 
 
 const ScatterPage = (props ) => {  

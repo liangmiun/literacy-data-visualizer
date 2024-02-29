@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import '../App.css';
+import 'assets/App.css';
 import * as d3 from 'd3';
 import Tooltip from '@mui/material/Tooltip';
 

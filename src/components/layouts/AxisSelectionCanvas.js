@@ -7,7 +7,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import Tooltip from '@mui/material/Tooltip';
-import './AxisSelectionCanvas.css';
+import 'assets/AxisSelectionCanvas.css';
 
 const AxisSelectionCanvas = (props) => {
   const x_options = props.fields_x.map(field => ({ value: field, label: field }));

@@ -1,5 +1,5 @@
 import { csvParse } from 'd3';
-import {initial_preset, latest_preset, updateLatestPreset}  from './InitialPreset.js';
+import {initial_preset, latest_preset, updateLatestPreset}  from '../contents/InitialPreset.js';
 import { rowParser, preset_dict } from './Utils.js';
 
 

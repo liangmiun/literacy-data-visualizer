@@ -2,7 +2,7 @@ import React from 'react';
 import 'rc-slider/assets/index.css';
 import SchoolTreeView from './SchoolTreeView';
 import {OptionSelectGroup } from './ValueSelect';
-import '../App.css';
+import 'assets/App.css';
 
 
 const FilterCanvas = (props) => {

@@ -2,16 +2,15 @@ import React, {useState, useEffect, useRef} from 'react';
 import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
-import { rowParser,  load, data_fields, y_data_fields} from './Utils';
+import { rowParser,  load, data_fields, y_data_fields} from './utils/Utils';
 import { useAuth } from './authentications/AuthContext';
 import ProtectedWrapper from './authentications/ProtectedWrapper';
 import Login from './authentications/Login';
 import Logout from './authentications/Logout';
-import * as settingsIO from './settingsIO';
-import './App.css';
-import About from './About';
-import ScatterPage from './ScatterPage';
-
+import * as settingsIO from './utils/settingsIO';
+import './assets/App.css';
+import About from './components/screens/About';
+import ScatterPage from './components/screens/ScatterPage';
 
 const App = () => { 
 
@@ -190,6 +189,5 @@ const App = () => {
       </Router> 
   );
 };
-
 
 export default App;

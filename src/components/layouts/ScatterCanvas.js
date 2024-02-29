@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { set } from 'd3-collection';
-import { ColorLegend, rescale, categoricals, translateExtentStartEnd } from '../Utils';
+import { ColorLegend, rescale, categoricals, translateExtentStartEnd } from '../../utils/Utils';
 
 const ScatterCanvas =
 React.memo(

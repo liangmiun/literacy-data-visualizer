@@ -2,7 +2,7 @@ import { Box, Checkbox, FormControlLabel, Slider, FormGroup  } from '@mui/materi
 import React, { useState, useEffect, useRef } from 'react';
 import Button from '@mui/material/Button';
 import * as d3 from 'd3';
-import '../App.css';
+import 'assets/App.css';
 
 export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeOptions, setCheckedOptions, setRangeOptions }) {
     const allOptions = Object.keys(checkedOptions).concat(Object.keys(rangeOptions));

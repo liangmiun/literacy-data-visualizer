@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import {  rescale, translateExtentStartEnd } from '../Utils';
+import {  rescale, translateExtentStartEnd } from 'utils/Utils';
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 5;
@@ -577,12 +577,12 @@ function simpleHash(s) {
     return s.split('').reduce((acc, char) => Math.imul(31, acc) + char.charCodeAt(0) | 0, 0);
 }
 
+
 function consistentRandom(hashValue, min, max) {
     // Pseudo-random function based on a hash value
     const rand = Math.abs(hashValue % 1000) / 1000; // Normalize hash value to [0, 1)
     return min + rand * (max - min); // Scale to [min, max)
 }
-
 
 
 export const parseDate = d3.timeParse('%y%m%d');
