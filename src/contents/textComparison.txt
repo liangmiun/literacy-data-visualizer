@@ -1,59 +1,58 @@
-Circle:           
-        // eslint-disable-next-line no-unused-vars
-        var clip = svg.append("defs").append("svg:clipPath")
-        .attr("id", "clip")
-        .append("svg:rect")
-        .attr("width", innerAggrWidth )
-        .attr("height", innerAggrHeight)
-        .attr("x", 0)
-        .attr("y", 0);
+export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
+{
+    const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
+    // Apply zoom transformation to boxes
+    g.selectAll('.boxes, .medianText')  //
+    .attr("x", d => {  
+        return zoomedX(d);      
+    })
+    .attr("width", d => {
+        return subBandWidth; })
 
-        g.append("line")
-        .style("stroke", "black")  // Line color
-        .style("stroke-width", 0.5)  // Line width
-        .attr("x1", 0)  // Start of the line on the x-axis
-        .attr("x2", innerAggrWidth)  // End of the line on the x-axis (width of your plot)
-        .attr("y1", innerAggrHeight)  // Y-coordinate for the line
-        .attr("y2", innerAggrHeight); 
+    g.selectAll('.medianLines')
+    .attr("x1", d => {
+        return zoomedX(d); 
+    })
+    .attr("x2", d => {
+        return zoomedX(d) + subBandWidth;
+    })
 
-        const aggregate = g.append('g')
-        .attr('id', 'g').attr("clip-path", "url(#clip)");
 
-        // For the X axis label:
-        g.append("text")
-        .attr("y", innerAggrHeight + plotMargin.bottom / 2)
-        .attr("x", innerAggrWidth / 2)  
-        .attr("dy", "1em")    
-        .style("text-anchor", "middle")  
-        .text("Months of Testdatum"); 
+    g.selectAll('.vertLines')
+    .attr("x1", d => {
+        return zoomedX(d) + subBandWidth / 2;
+    })
+    .attr("x2", d => {
+        return zoomedX(d) + subBandWidth / 2;
+    })
 
-        // Add the x-axis to the group element
-        g.append("g")
-            .attr("transform", `translate(0, ${innerAggrHeight})`)
-            .call(xAxis)
-            .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
-            .selectAll(".tick text")         
-            .style("text-anchor", "start") 
-            .attr("transform",  "rotate(45)") ;
-            
-            
-        const yAxis =d3.axisLeft(yScale).tickFormat(d => formatTickValue(d, yField))
 
-        g.append('g').call(yAxis);
+    g.selectAll('.lastingClassLines')
+    .attr("x1", function(){
+        const startSeason = d3.select(this).attr('startSeason');
+        const startClassID = d3.select(this).attr('startClassID');
+        return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClassID)* zoomState.k + subBandWidth / 2;
+    })
+    .attr("x2", function(){
+        const endSeason = d3.select(this).attr('endSeason');
+        const endClassID = d3.select(this).attr('startClassID');
+        return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClassID)* zoomState.k + subBandWidth / 2;
+    })
 
-        g.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -plotMargin.left)
-        .attr("x", -innerAggrHeight / 2) 
-        .attr("dy", "1em")  
-        .style("text-anchor", "middle")
-        .text(yField); 
 
-        const subBandWidth = x0.bandwidth() / subBandCount;
-        function bandedX(d) {
-            const season = d.value.season.toString();
-            const clazz = d.value.lastingclass.toString();   //.class
-            const x1 = getSubBandScale(season); // Get x1 scale for the current season
-            return x0(season) + x1(clazz) 
-        }        
+    // Apply zoom transformation to lines  if (showLines)
+    var filteredSelection = g.selectAll('.line-path')
+                          .filter(function() {
+                              return d3.select(this).style('visibility') === 'visible';
+                          });
 
+    if (filteredSelection.size() > 0) {
+        filteredSelection.attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
+    }
+
+    
+
+    if( studentsChecked) {
+        zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale, connectIndividual);
+    }
+}
