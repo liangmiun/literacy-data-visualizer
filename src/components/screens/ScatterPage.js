@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import AxisSelectionCanvas from '../layouts/AxisSelectionCanvas';
 import AggregateCanvas from '../layouts/AggregateCanvas';
 import ScatterCanvas from '../layouts/ScatterCanvas';
@@ -12,7 +12,8 @@ import 'assets/App.css';
 
 const ScatterPage = (props ) => {  
 
-  const { data, logicFilteredData, isClassView,setIsClassView, aggregateType, setAggregateType} = props;
+  const { data, logicFilteredData, isClassView,setIsClassView, aggregateType, setAggregateType,
+          checkedSchools, checkedClasses, xField,yField, rangeOptions, checkedOptions  } = props;
   const trends = { all: 'all', overall_decline: 'overall decline',  logarithmic_decline: "logarithmicly decline", last_time_decline: 'last time decline'};
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
@@ -85,50 +86,81 @@ const ScatterPage = (props ) => {
     }   
   }
 
-  const shownData = useMemo(() => {
+  const checkedFilteredData= useCallback((data) =>{
 
-    
-    function checkedFilteredData(data) {
-      return data.filter(record => {
-          for (let key in props.checkedOptions) {
-              if ( filterList.includes(key) && ! props.checkedOptions[key].includes(record[key])) {
-                  return false;
-              }
-          }
-          return true;
-      });
-    }
-
-    function rangeFilteredData(data) {
-
-      for (let key in props.rangeOptions) {
-        const [min, max] = props.rangeOptions[key];
-        console.log(key, min instanceof Date? min.toISOString() : min, max);
-      }
-      var count = 0;
-
-      return data.filter(record => {
-          for (let key in props.rangeOptions) {
-            const [min, max] = props.rangeOptions[key];
-            if ( filterList.includes(key)  && !(record[key] >= min && record[key] <= max)) {
-
-                if( count % 1000 ===0) 
-                {
-                  console.log("filtered out: ",key, record[key], min, max, 
-                    record[key] >= min,  record[key] < min, "date?", typeof record[key], typeof min);
-                }
-                count++;
+    console.log("run checkedFilteredData" + filterList);
+    return data.filter(record => {
+        for (let key in checkedOptions) {
+            if ( filterList.includes(key) && !checkedOptions[key].includes(record[key])) {
                 return false;
             }
-          }
-          return true;
-      });
-    }
+        }
+        return true;
+    });
+  }, [checkedOptions, filterList]);
 
-    const nonNullData = dataToShow.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
-    return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData,props.checkedClasses,props.checkedSchools)));
+
+  const rangeFilteredData = useCallback((data) => {
+    console.log("run rangeFilteredData");
+    var count = 0;
+    return data.filter(record => {
+      for (let key in rangeOptions) {
+        const [min, max] = rangeOptions[key];
+        if (filterList.includes(key) && !(record[key] >= min && record[key] <= max)) {
+          if (count % 1000 === 0) {
+            console.log("filtered out: ", key, record[key], min, max,
+              record[key] >= min, record[key] < min, "date?", typeof record[key], typeof min);
+          }
+          count++;
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [rangeOptions, filterList]); 
+
+
+
+  const prevCheckedSchoolsRef = useRef();
+  const prevCheckedClassesRef = useRef();
+  const prevCheckedFilteredDataRef = useRef();
+  const prevRangeFilteredDataRef = useRef();
+
+  useEffect(() => {
+    // Store initial values
+    prevCheckedSchoolsRef.current = checkedSchools;
+    prevCheckedClassesRef.current = checkedClasses;
+    prevCheckedFilteredDataRef.current = checkedFilteredData;
+    prevRangeFilteredDataRef.current = rangeFilteredData;
+  },); // Run only once on mount
+
+
+
+
+  const shownData = useMemo(() => {
+
+        // Comparison logic
+        const changes = [];
+        if (checkedSchools !== prevCheckedSchoolsRef.current) changes.push('checkedSchools' + checkedSchools);
+        if (checkedClasses !== prevCheckedClassesRef.current) changes.push('checkedClasses');
+        if (checkedFilteredData !== prevCheckedFilteredDataRef.current) changes.push('checkedFilteredData');
+        if (rangeFilteredData !== prevRangeFilteredDataRef.current) changes.push('rangeFilteredData');
+    
+        console.log("useMemo re-run due to changes in: ", changes.join(', '));
+    
+        // Update refs with current values for the next render
+        prevCheckedSchoolsRef.current = checkedSchools;
+        prevCheckedClassesRef.current = checkedClasses;
+        prevCheckedFilteredDataRef.current = checkedFilteredData;
+        prevRangeFilteredDataRef.current = rangeFilteredData;
+
+    console.log("run shownData");
+
+    const nonNullData = dataToShow.filter(d => d[xField] !== null && d[yField] !== null); 
+
+    return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData,checkedClasses, checkedSchools)));
       
-  }, [dataToShow, props.checkedSchools, props.checkedClasses, props.xField, props.yField,  filterList, props.checkedOptions, props.rangeOptions]);  
+  }, [ dataToShow, xField, yField,checkedSchools,checkedClasses, checkedFilteredData,  rangeFilteredData]);  
 
   return (   
     <div className="app" >  

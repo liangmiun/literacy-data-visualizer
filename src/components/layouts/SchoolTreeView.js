@@ -1,6 +1,6 @@
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { TreeView } from '@mui/x-tree-view/TreeView';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -54,6 +54,7 @@ function SchoolTreeView(props) {
     if (isChecked) {
           props.setCheckedSchools(prev => [...prev, school]);
           props.setCheckedClasses(prev => [...prev, ...Object.keys(props.school_class[school]).map(classId => `${school}.${classId}`)]);
+          console.log('after handling, checkedSchools', props.checkedSchools);
       } else {   
           props.setCheckedSchools(prev => prev.filter(s => s !== school));
           props.setCheckedClasses(prev => prev.filter(c => !c.startsWith(`${school}.`)));
@@ -157,14 +158,13 @@ function SchoolComponent({ props }) {
   const someChecked = classCheckStates.some(checked => checked);
   const someUnchecked = classCheckStates.some(checked => !checked);
   const allChecked = classCheckStates.every(checked => checked);
-  const schoolInCheckedRef = useRef(props.checkedSchools.includes(school));
+  const schoolInChecked = props.checkedSchools.includes(school);
 
   useEffect(() => {
-    // Trigger the handler when allChecked changes from false to true and the school is not in the checkedSchools array
-    if (allChecked && !schoolInCheckedRef.current) {
+    if (allChecked && !schoolInChecked) {
       onSchoolCheckChange(school, true);
     }
-  }, [allChecked, school, onSchoolCheckChange ]);  //schoolInChecked
+  }, [allChecked, school, onSchoolCheckChange , schoolInChecked]);  //schoolInChecked
 
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start' }}>

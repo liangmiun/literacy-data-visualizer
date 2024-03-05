@@ -12,7 +12,7 @@ React.memo(
     const [brushing, setBrushing] = useState(false);
     const prevBrushingRef = useRef();
     const newXScaleRef = useRef(null);
-    const newYScaleRef = useRef(null);    
+    const newYScaleRef = useRef(null);  
     
     useEffect(() => {
 
@@ -20,8 +20,8 @@ React.memo(
         svg.selectAll('*').remove();
 
         const margin = { top: 20, right: 160, bottom: 80, left: 80 };
-        const innerWidth = scatterWidth - margin.left - margin.right;
-        const innerHeight = scatterHeight - margin.top - margin.bottom;
+        const innerWidth =scatterWidth - margin.left - margin.right;
+        const innerHeight =scatterHeight  - margin.top - margin.bottom;
 
         // eslint-disable-next-line
         var clip = svg.append("defs").append("svg:clipPath")
@@ -66,7 +66,7 @@ React.memo(
 
         brush_part();
 
-        ColorLegend(shownData, colorField, svg, scatterWidth - margin.right , margin); 
+        ColorLegend(shownData, colorField, svg, scatterWidth  - margin.right , margin); 
 
 
         function axes_and_captions_plot() {

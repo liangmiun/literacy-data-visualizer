@@ -1,7 +1,5 @@
 .grid-container {
   display: grid;
-  max-width: 1920px; 
-  max-height: 1080px;
   grid-template-columns: 4fr 1fr 1.5fr;
   grid-template-rows: 12vh 15vh 55vh 10vh;
 }
@@ -92,11 +90,10 @@
 }
 
 .detail-item {
-  width: 50%; /* Takes 50% of the parent width */
+  width: 50%; 
 }
 
 .logic-canvas {
-  max-width: 600px;
   grid-column: 2 / 4;
   grid-row: 4 / 5;
   padding: 50px;
@@ -104,7 +101,6 @@
 
 
 .filter-canvas {
-  max-width: 1200px;
   grid-column: 2 / 4;
   grid-row: 3 / 4;
   padding: 5px;
@@ -113,15 +109,12 @@
 }
 
 .school-tree-view {
-  max-width: 600px;
   grid-column: 1 / 2;
   padding: 3px;
   margin: 3px;
 }
 
 .option-select-group {
-  max-width: 600px;
-  /* max-height: 200px; */
   overflow-y: auto;
   grid-column: 2 / 3;
   padding: 2px;
@@ -129,7 +122,6 @@
 }
 
 .filter-row {
-  max-width: 600px;
   display: flex;
   align-items: center;
   gap: 10px;

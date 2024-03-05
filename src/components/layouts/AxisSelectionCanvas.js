@@ -110,7 +110,8 @@ function TrendBar({props, trendOptions, handleTrendChange, trendToLabel}) {
 
   return(
     <div className="trend-bar" style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray', padding:"5px"}}>
-      <div  style={{ width: '180px' }}  >                    
+      <div   >     
+        {/* style={{ width: '180px' }}                  */}
         <FormControl fullWidth>
           <Tooltip title="show all records or only declining records" followCursor>
             <InputLabel id="trend-label">Trend</InputLabel>
@@ -133,15 +134,16 @@ function TrendBar({props, trendOptions, handleTrendChange, trendToLabel}) {
 
       </div>
 
-      <div style={{ width: '120px' }}>
-      <DeclineThresholdSlider 
-        trend = {props.trend}
-        isDisabled = {props.trend === props.trendSet.all || props.isClassView}
-        setThreshold={props.trend === props.trendSet.overall_decline? props.setDeclineSlope : props.setDiffThreshold}
-        minThreshold={props.minDeclineThreshold}
-        label = {trendToLabel[props.trend]|| "  "}
-        filterWithTrendThreshold = {props.filterWithTrendThreshold}                    
-      />
+      <div >
+        {/* style={{ width: '120px' }} */}
+        <DeclineThresholdSlider 
+          trend = {props.trend}
+          isDisabled = {props.trend === props.trendSet.all || props.isClassView}
+          setThreshold={props.trend === props.trendSet.overall_decline? props.setDeclineSlope : props.setDiffThreshold}
+          minThreshold={props.minDeclineThreshold}
+          label = {trendToLabel[props.trend]|| "  "}
+          filterWithTrendThreshold = {props.filterWithTrendThreshold}                    
+        />
       </div>
     </div>
   );
