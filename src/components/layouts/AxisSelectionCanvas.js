@@ -1,6 +1,5 @@
 import React from 'react';
 import {InputLabel, Select as MuiSelect, MenuItem } from '@mui/material';
-import Select from 'react-select';
 import { Slider } from '@mui/material';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
@@ -66,41 +65,69 @@ function Axes({ props, x_options, y_options, colorOptions}) {
   return (
     <div className="axes" >
       <div className="field-pair"  >
-        <Tooltip title="Select variable on horizontal axis" followCursor>
-          <label htmlFor="x-field">X-field:</label>
-        </Tooltip>
-        <Select 
-          isDisabled = {props.isClassView} 
-          id="x-field"
-          value={{ value: props.xField, label: props.xField }}
-          options={x_options}
-          onChange={option => props.onXFieldChange(option.value)}
-        />
+        <FormControl fullWidth   size="small">
+          <Tooltip title="Select variable on horizontal axis" followCursor>
+            <InputLabel id="x-field-label">X-field</InputLabel>
+          </Tooltip>
+          <MuiSelect
+            labelId="x-field-label"
+            id="x-field"
+            sx={{ width: '7vw' }}
+            value={props.xField}
+            onChange={ (event) => props.onXFieldChange(event.target.value)}
+            label="X-field"
+          >
+            {x_options.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </MuiSelect>
+        </FormControl>
       </div>       
 
       <div className="field-pair" >
-        <Tooltip title="Select variable on vertical axis" followCursor>
-          <label htmlFor="y-field">Y-field:</label>
-        </Tooltip>
-        <Select
-          id="y-field"
-          value={{ value: props.yField, label: props.yField }}
-          options={y_options}
-          onChange={option => props.onYFieldChange(option.value)}
-        />
+        <FormControl fullWidth   size="small">
+          <Tooltip title="Select variable on vertical axis" followCursor>
+            <InputLabel id="y-field-label">Y-field</InputLabel>
+          </Tooltip>
+          <MuiSelect
+            labelId="y-field-label"
+            id="y-field"
+            sx={{ width: '9vw' }}
+            value={props.yField}
+            onChange={(event) => props.onYFieldChange(event.target.value)}
+            label="Y-field"
+          >
+            {y_options.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </MuiSelect>
+        </FormControl>
       </div>
 
       <div className="field-pair">
-      <Tooltip title="Select variable for color coded data" followCursor>
-        <label htmlFor="color-field">Color:</label>   
-      </Tooltip>   
-        <Select
-          isDisabled = {props.isClassView}
-          id="color-field"
-          value={{ value: props.colorField, label: props.colorField }}
-          options={colorOptions}
-          onChange={option => props.onColorFieldChange(option.value)}
-        />
+        <FormControl fullWidth   size="small">
+          <Tooltip title="Select variable for color coded data" followCursor>
+            <InputLabel id="color-field-label">Color</InputLabel>
+          </Tooltip>
+          <MuiSelect
+            labelId="color-label"
+            id="color-field"
+            value={props.colorField}
+            sx={{ width: '6vw' }}
+            onChange={(event) => props.onColorFieldChange(event.target.value)}
+            label="Color-field"
+          >
+            {colorOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </MuiSelect>
+        </FormControl>
       </div>
     </div>
   );
@@ -111,7 +138,7 @@ function TrendBar({props, trendOptions, handleTrendChange, trendToLabel}) {
   return(
     <div className="trend-bar" >
       <div  style={{width :'50%'}}  >     
-        <FormControl fullWidth>
+        <FormControl fullWidth   size="small">
           <Tooltip title="show all records or only declining records" followCursor>
             <InputLabel id="trend-label">Trend</InputLabel>
           </Tooltip>

@@ -84,16 +84,16 @@ function SchoolTreeView(props) {
         </Tooltip>
           
         </h4>  
-        <TreeView  style={{margin: '5px 5px',width: '100%' ,border: '1px solid gray',
+        <TreeView  style={{margin: '5px 5px',width: '100%' ,
             overflowX: 'auto', maxWidth: '20vw',
-            overflowY: 'auto', maxHeight:'45vh' }}
+            overflowY: 'auto', maxHeight:'50vh' }}
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
           defaultExpanded={expandedSchools}    
 
         >
 
-        <div  style={{ display: 'flex', alignItems: 'flex-start' }}>
+        <div  style={{ display: 'flex', alignItems: 'flex-start'  }}>
           <Checkbox  style={{ padding: '1px' }}
               checked={checkedAllSchools}
               indeterminate={indeterminateAllSchools}

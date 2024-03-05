@@ -1,13 +1,7 @@
 .grid-container {
   display: grid;
   grid-template-columns: 4fr 1fr 1.5fr;
-  grid-template-rows: 12vh 15vh 55vh 10vh;
-}
-
-@media screen and (max-width: 1400px) {
-  .grid-container, .app {   
-    grid-template-rows: 24vh 15vh 55vh 10vh;
-  }
+  grid-template-rows: 12vh 15vh 60vh 10vh;
 }
 
 .navigation {
@@ -31,7 +25,7 @@
 .app {
   display: grid;
   grid-template-columns: 4fr 1fr 1.5fr;
-  grid-template-rows: 12vh 15vh 55vh 10vh;
+  grid-template-rows: 12vh 15vh 60vh 10vh;
 }
 
 .login-container {
@@ -87,12 +81,11 @@
   align-content: flex-start;
   width: 95%;
   height: 95%;
-  margin-right: 2%;
+  margin: 1% 1%;
   grid-column: 2 / 4;
   grid-row: 2 / 3;
-  padding: 10px;
-  border: 1px solid #ccc;
-  /* background-color: lightgray; */
+  padding: 1% 1%;
+  border: 1px solid lightgray;
 }
 
 .detail-item {
@@ -102,14 +95,18 @@
 .logic-canvas {
   grid-column: 2 / 4;
   grid-row: 4 / 5;
-  padding: 50px;
+  padding: 0% 0%;
+  margin: 0% 0%;
+  align-items: center;
 }
 
 
 .filter-canvas {
+  height: 100%;
   grid-column: 2 / 4;
   grid-row: 3 / 4;
-  padding: 5px;
+  padding: 3% 1%;
+  margin: 1%, 1%;
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
@@ -117,14 +114,14 @@
 .school-tree-view {
   grid-column: 1 / 2;
   padding: 3px;
-  margin: 3px;
+  border: 1px solid lightgray;
 }
 
 .option-select-group {
   overflow-y: auto;
   grid-column: 2 / 3;
   padding: 2px;
-  margin: 5px;
+  border: 1px solid lightgray;
 }
 
 .filter-row {
