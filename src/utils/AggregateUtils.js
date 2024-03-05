@@ -106,11 +106,10 @@ export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType
 
     // Create main linear scale for y-axis
     const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
-    console.log("yMin and yMax: ", yMin, yMax);
     const yPadding = (yMax - yMin) * 0.1;
     const yScale = d3.scaleLinear()
         .domain([yMin - yPadding, yMax + yPadding])
-        .range([innerAggrHeight, 0]);
+        .range([innerAggrHeight(), 0]);
 
     // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
     const sumstat = setSumStat(filteredData, yScale, yField, aggregateType);
@@ -151,7 +150,7 @@ export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType
     // Create main band scale for seasons
     const xMainBandScale = d3.scaleBand()
     .domain(seasons)
-    .range([0, innerAggrWidth])
+    .range([0, innerAggrWidth()])
     .paddingInner(0.2)
     .paddingOuter(0.2);
 

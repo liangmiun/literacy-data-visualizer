@@ -4,6 +4,12 @@
   grid-template-rows: 12vh 15vh 55vh 10vh;
 }
 
+@media screen and (max-width: 1400px) {
+  .grid-container, .app {   
+    grid-template-rows: 24vh 15vh 55vh 10vh;
+  }
+}
+
 .navigation {
   grid-column: 3/ 4;
   grid-row: 1 / 2;

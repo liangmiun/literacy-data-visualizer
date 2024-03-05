@@ -60,12 +60,9 @@ export const saveConfig = (saveSetters) => {
         const stringified = JSON.stringify(preset_dict);
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(stringified);
         updateLatestPreset(stringified);
-
-
         const downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
 
-        console.log("save configuration");
         const fileName = prompt("Please enter the desired filename", "preset_config.json");
 
         if (fileName) {

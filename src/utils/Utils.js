@@ -223,8 +223,6 @@ export function ColorLegend(data, colorField, svg, width, margin) {
 
   colorDomain.forEach((value, index) => {
 
-      console.log("legend ", colorField, value);
-
       const strippedValue = value.toString().split(" ")[0];
       // Draw colored rectangle
       legend.append("rect")
@@ -314,7 +312,6 @@ export function translateExtentStartEnd(coeffX, coeffY, svg)
   var svgNode = svg.node();
   var svgWidth = svgNode.getBoundingClientRect().width;
   var svgHeight = svgNode.getBoundingClientRect().height;
-  console.log("SVG Width:", svgWidth, "Height:", svgHeight);
   const x0 = svgWidth / 2 * (1 - coeffX);
   const y0 = svgHeight / 2 * (1 - coeffY);
   const x1 = svgWidth / 2 * (1 + coeffX);

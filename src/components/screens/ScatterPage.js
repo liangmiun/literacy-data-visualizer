@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import AxisSelectionCanvas from '../layouts/AxisSelectionCanvas';
 import AggregateCanvas from '../layouts/AggregateCanvas';
 import ScatterCanvas from '../layouts/ScatterCanvas';
@@ -88,7 +88,6 @@ const ScatterPage = (props ) => {
 
   const checkedFilteredData= useCallback((data) =>{
 
-    console.log("run checkedFilteredData" + filterList);
     return data.filter(record => {
         for (let key in checkedOptions) {
             if ( filterList.includes(key) && !checkedOptions[key].includes(record[key])) {
@@ -101,17 +100,10 @@ const ScatterPage = (props ) => {
 
 
   const rangeFilteredData = useCallback((data) => {
-    console.log("run rangeFilteredData");
-    var count = 0;
     return data.filter(record => {
       for (let key in rangeOptions) {
         const [min, max] = rangeOptions[key];
         if (filterList.includes(key) && !(record[key] >= min && record[key] <= max)) {
-          if (count % 1000 === 0) {
-            console.log("filtered out: ", key, record[key], min, max,
-              record[key] >= min, record[key] < min, "date?", typeof record[key], typeof min);
-          }
-          count++;
           return false;
         }
       }
@@ -120,39 +112,7 @@ const ScatterPage = (props ) => {
   }, [rangeOptions, filterList]); 
 
 
-
-  const prevCheckedSchoolsRef = useRef();
-  const prevCheckedClassesRef = useRef();
-  const prevCheckedFilteredDataRef = useRef();
-  const prevRangeFilteredDataRef = useRef();
-
-  useEffect(() => {
-    // Store initial values
-    prevCheckedSchoolsRef.current = checkedSchools;
-    prevCheckedClassesRef.current = checkedClasses;
-    prevCheckedFilteredDataRef.current = checkedFilteredData;
-    prevRangeFilteredDataRef.current = rangeFilteredData;
-  },); // Run only once on mount
-
-
-
-
   const shownData = useMemo(() => {
-
-        // Comparison logic
-        const changes = [];
-        if (checkedSchools !== prevCheckedSchoolsRef.current) changes.push('checkedSchools' + checkedSchools);
-        if (checkedClasses !== prevCheckedClassesRef.current) changes.push('checkedClasses');
-        if (checkedFilteredData !== prevCheckedFilteredDataRef.current) changes.push('checkedFilteredData');
-        if (rangeFilteredData !== prevRangeFilteredDataRef.current) changes.push('rangeFilteredData');
-    
-        console.log("useMemo re-run due to changes in: ", changes.join(', '));
-    
-        // Update refs with current values for the next render
-        prevCheckedSchoolsRef.current = checkedSchools;
-        prevCheckedClassesRef.current = checkedClasses;
-        prevCheckedFilteredDataRef.current = checkedFilteredData;
-        prevRangeFilteredDataRef.current = rangeFilteredData;
 
     console.log("run shownData");
 

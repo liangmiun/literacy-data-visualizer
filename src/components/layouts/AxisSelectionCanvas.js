@@ -46,15 +46,15 @@ const AxisSelectionCanvas = (props) => {
     <div className="axis-selection-canvas" >
       <div className="axis-canvas-row"  style={{ display: 'flex' }} >
     
-        <Axes props={props} x_options={x_options} y_options={y_options} colorOptions={colorOptions} />
+        <Axes  props={props} x_options={x_options} y_options={y_options} colorOptions={colorOptions} />
 
-        <TrendBar props={props} trendOptions={trendOptions} handleTrendChange={handleTrendChange} trendToLabel={trendToLabel} />
+        <TrendBar   props={props} trendOptions={trendOptions} handleTrendChange={handleTrendChange} trendToLabel={trendToLabel} />
 
         <ShowLinesToggle props={props} />
 
         <ClassViewBar props={props} />
 
-        <PresetBar props={props} onSavePreset={onSavePreset} onLoadPreset={onLoadPreset} ImportDataButton={ImportDataButton} />
+        <PresetBar  props={props} onSavePreset={onSavePreset} onLoadPreset={onLoadPreset} ImportDataButton={ImportDataButton} />
 
       </div>
     </div>
@@ -64,7 +64,7 @@ const AxisSelectionCanvas = (props) => {
 
 function Axes({ props, x_options, y_options, colorOptions}) {
   return (
-    <div className="axes" style={{ display: 'flex' }}>
+    <div className="axes" >
       <div className="field-pair"  >
         <Tooltip title="Select variable on horizontal axis" followCursor>
           <label htmlFor="x-field">X-field:</label>
@@ -109,9 +109,8 @@ function Axes({ props, x_options, y_options, colorOptions}) {
 function TrendBar({props, trendOptions, handleTrendChange, trendToLabel}) {
 
   return(
-    <div className="trend-bar" style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray', padding:"5px"}}>
-      <div   >     
-        {/* style={{ width: '180px' }}                  */}
+    <div className="trend-bar" >
+      <div  style={{width :'50%'}}  >     
         <FormControl fullWidth>
           <Tooltip title="show all records or only declining records" followCursor>
             <InputLabel id="trend-label">Trend</InputLabel>
@@ -134,8 +133,7 @@ function TrendBar({props, trendOptions, handleTrendChange, trendToLabel}) {
 
       </div>
 
-      <div >
-        {/* style={{ width: '120px' }} */}
+      <div style={{width :'50%'}}>
         <DeclineThresholdSlider 
           trend = {props.trend}
           isDisabled = {props.trend === props.trendSet.all || props.isClassView}
@@ -153,7 +151,7 @@ function TrendBar({props, trendOptions, handleTrendChange, trendToLabel}) {
 function ShowLinesToggle({props}) {
 
   return (
-    <div className ="show-lines"  style={{ display: 'inline-flex', marginLeft: '1%'}}>
+    <div className ="show-lines"  >
       <input 
           type="checkbox" 
           checked = {props.showLines}
@@ -161,7 +159,7 @@ function ShowLinesToggle({props}) {
       />
 
       <Tooltip title="Line-connect records from identical individuals" followCursor>                
-      <label><br/>Show lines </label>
+      <label> Show lines </label>
       </Tooltip>
   </div>
   );
@@ -171,23 +169,26 @@ function ShowLinesToggle({props}) {
 function ClassViewBar({props}) {
 
   return (
-    <div className = "show-class-view" style={{ display: 'inline-flex', marginLeft: '1%',  border: '1px solid lightgray'}}>
-      <input 
-          type="checkbox" 
-          checked = {props.isClassView}
-          onChange={() => {props.setIsClassView(!props.isClassView); }}   
-          style={{  marginLeft: '5%'}}
-      />
+    <div className = "show-class-view" >
+      <div style={{ width: '30%', display: 'inline-flex', marginLeft: '1%', alignItems: 'center', marginRight:'2%'  }}>
+        <input 
+            type="checkbox" 
+            checked = {props.isClassView}
+            onChange={() => {props.setIsClassView(!props.isClassView); }}   
+            style={{ marginLeft: '5%'}}
+        />
 
-      <Tooltip title="Switch between class-aggregation view and individual view" followCursor>
-      <label><br/>Class View </label>
-      </Tooltip>
+        <Tooltip title="Switch between class-aggregation view and individual view" followCursor>
+        <label> Class View </label>
+        </Tooltip>
+
+      </div>
 
       {props.isClassView &&
         <div className='aggregate-buttons-row' 
-          style={{ display: 'inline-flex', alignItems: 'center',marginRight:'20px', padding:'2px' }}>
+          style={{   width: '70%',display: 'inline-flex', alignItems: 'center',marginRight:'20px', padding:'2px' }}>
 
-            <FormControl  style={{fontSize:'12px'}}>
+            <FormControl  style={{width: '50%', fontSize:'12px'}}>
               <RadioGroup                          
                 aria-labelledby="demo-controlled-radio-buttons-group"
                 name="controlled-radio-buttons-group"
@@ -200,27 +201,31 @@ function ClassViewBar({props}) {
               </RadioGroup>
             </FormControl>
 
-            <div  style={{ display: 'inline-block', marginLeft: '10%'}}>
-                <input 
-                    type="checkbox" 
-                    checked={props.studentsChecked} 
-                    onChange={() => props.setStudentsChecked(!props.studentsChecked)}
-                />
-              <Tooltip title="Whether to show individual dots on the class view" followCursor>
-                <label> <br />Present Individuals </label>
-              </Tooltip>
-            </div>
+            <div style={{  width: '50%', fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginLeft: '10%' }}>
 
-            <div  style={{ display: 'inline-block', marginLeft: '10%'}}>
-                <input 
-                    type="checkbox" 
-                    checked={props.connectIndividual} 
-                    onChange={() => props.setConnectIndividual(!props.connectIndividual)}
-                />
-              <Tooltip title="Whether to show lines connecting individual dots on the class view" followCursor>
-                <label>Connect individuals </label>
-              </Tooltip>
-            </div>
+              <div  style={{ display: 'inline-flex', margin: '10% 10%', alignItems: 'center'}}>
+                  <input 
+                      type="checkbox" 
+                      checked={props.studentsChecked} 
+                      onChange={() => props.setStudentsChecked(!props.studentsChecked)}
+                  />
+                <Tooltip title="Whether to show individual dots on the class view" followCursor>
+                  <label> Present Individuals </label>
+                </Tooltip>
+              </div>
+
+              <div  style={{ display: 'inline-flex', margin: '10% 10%', alignItems: 'center'}}>
+                  <input 
+                      type="checkbox" 
+                      checked={props.connectIndividual} 
+                      onChange={() => props.setConnectIndividual(!props.connectIndividual)}
+                  />
+                <Tooltip title="Whether to show lines connecting individual dots on the class view" followCursor>
+                  <label>Connect individuals </label>
+                </Tooltip>
+              </div>
+
+            </div >
         
         </div>
       }
@@ -233,8 +238,7 @@ function PresetBar({props, onSavePreset, onLoadPreset, ImportDataButton}) {
 
   return (
 
-    <div className="preset-buttons-row" 
-      style={{display: 'inline-flex',border: '1px solid lightgray', padding:'5px', marginLeft: '1%' }}>
+    <div className="preset-buttons-row"  >
 
           <button className="btn"
             id="reset-btn"

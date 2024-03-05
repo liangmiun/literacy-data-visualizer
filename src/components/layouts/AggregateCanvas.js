@@ -90,8 +90,6 @@ const ViolinPlots = (props ) => {
                 .attr("stroke", "black")
                 .attr("stroke-width", 1)
 
-            console.log('violin click', event.currentTarget);
-
             onViolinClick([{
                 // lastingclass: d.value.lastingclass,
                 school: d.value.school,
@@ -129,15 +127,13 @@ const ViolinPlots = (props ) => {
             AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth,connectIndividual)   
         }
 
-        console.log('to set violin zoom, xNumScale', xNumScale, typeof(xNumScale));
-
         setAggregationZoom( 'violin', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, xNumScale);
   
 
     }, [shownData,xField, yField, colorField, studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual]);
     
     return (
-        <svg className="scatter-canvas" ref={svgRef} width={aggrWidth} height={aggrHeight}></svg>
+        <svg className="scatter-canvas" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
     );
     };
 
@@ -201,8 +197,6 @@ const BoxPlots = (props) => {
                     .attr("stroke", "black")
                     .attr("stroke-width", 3)
 
-                console.log('box click', event.currentTarget);
-
 
                 onBoxClick([{
                 // lastingclass: d.value.lastingclass,
@@ -244,7 +238,7 @@ const BoxPlots = (props) => {
         
     }, [shownData, xField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, subBandCount, connectIndividual]); 
     return (
-        <svg className="scatter-canvas" ref={svgRef} width={aggrWidth} height={aggrHeight}></svg>
+        <svg className="scatter-canvas" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
     );
 
 }
@@ -255,14 +249,14 @@ const CirclePlots = (props) => {
         const newXScaleRef = useRef(null);
         const newYScaleRef = useRef(null);
         const {shownData, xField, yField, colorField, onBoxClick, studentsChecked, classColors, subBandCount, showLines, connectIndividual } = props;
-
-        console.log('CirclePlots connect individual', connectIndividual);
         
         useEffect(() => {
     
             const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin);
             
             drawCommonAggrParts(svg, g, xAxis, yField, yScale);
+
+            console.log(aggrWidth(), aggrHeight());
 
             const aggregate = g.append('g')
             .attr('id', 'g').attr("clip-path", "url(#clip)");
@@ -309,7 +303,6 @@ const CirclePlots = (props) => {
     
             // Add individual points with jitter
             if(studentsChecked) {
-                console.log('to re-present individuals');
                 AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual)  //getSubBandScale,
             }    
     
@@ -321,7 +314,7 @@ const CirclePlots = (props) => {
         }, [shownData, xField, yField, colorField, studentsChecked,  classColors,  onBoxClick, showLines,subBandCount, connectIndividual]);  //onBoxClick,
 
         return (
-            <svg className="scatter-canvas" ref={svgRef} width={aggrWidth} height={aggrHeight}></svg>
+            <svg className="scatter-canvas" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
         );
     
     }
@@ -333,8 +326,8 @@ function drawCommonAggrParts(svg, g, xAxis, yField, yScale) {
     var clip = svg.append("defs").append("svg:clipPath")
     .attr("id", "clip")
     .append("svg:rect")
-    .attr("width", innerAggrWidth )
-    .attr("height", innerAggrHeight)
+    .attr("width", innerAggrWidth() )
+    .attr("height", innerAggrHeight())
     .attr("x", 0)
     .attr("y", 0);
 
@@ -342,21 +335,21 @@ function drawCommonAggrParts(svg, g, xAxis, yField, yScale) {
     .style("stroke", "black")  // Line color
     .style("stroke-width", 0.5)  // Line width
     .attr("x1", 0)  // Start of the line on the x-axis
-    .attr("x2", innerAggrWidth)  // End of the line on the x-axis (width of your plot)
-    .attr("y1", innerAggrHeight)  // Y-coordinate for the line
-    .attr("y2", innerAggrHeight); 
+    .attr("x2", innerAggrWidth())  // End of the line on the x-axis (width of your plot)
+    .attr("y1", innerAggrHeight())  // Y-coordinate for the line
+    .attr("y2", innerAggrHeight()); 
 
     // For the X axis label:
     g.append("text")
-        .attr("y", innerAggrHeight + plotMargin.bottom / 2)
-        .attr("x", innerAggrWidth / 2)  
+        .attr("y", innerAggrHeight() + plotMargin.bottom / 2)
+        .attr("x", innerAggrWidth() / 2)  
         .attr("dy", "1em")    
         .style("text-anchor", "middle")  
         .text("Months of Testdatum"); 
 
     // Add the x-axis to the group element
     g.append("g")
-        .attr("transform", `translate(0, ${innerAggrHeight})`)
+        .attr("transform", `translate(0, ${innerAggrHeight()})`)
         .call(xAxis)
         .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
         .selectAll(".tick text")         
@@ -371,7 +364,7 @@ function drawCommonAggrParts(svg, g, xAxis, yField, yScale) {
     g.append("text")
     .attr("transform", "rotate(-90)")
     .attr("y", -plotMargin.left)
-    .attr("x", -innerAggrHeight / 2) 
+    .attr("x", -innerAggrHeight() / 2) 
     .attr("dy", "1em")  
     .style("text-anchor", "middle")
     .text(yField); 

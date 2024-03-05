@@ -5,8 +5,10 @@
 
 .axis-canvas-row {
   display: grid;
-  grid-template-columns: 10% 10% 10% 20% 25% 5% 20%; 
-  /* margin: 20px 20px 20px 20px; */
+  grid-template-columns: auto auto auto auto auto;   
+  /* 10% 10% 10% 20% 25% 5% 20% */
+  grid-template-rows: 1fr;
+
 }
 
 .field-pair:nth-child(1) {    
@@ -24,16 +26,38 @@
   margin: 0% 1% 1% 1%; 
 }
 
-.preset-buttons-row {
-  grid-column: 4 / 5; 
+.axes, .trend-bar, .show-lines, .show-class-view, .preset-buttons-row {
+  height: 10vh;
+  align-items: center;
+  display: inline-flex;
+  margin-left: 1%;
+  border: 1px solid lightgray;
+  padding: 0% 0.5%;
+}
+
+.axes {
+  width: 30vw;
+  grid-column: 1 / 2; 
 }
 
 .trend-bar{
-  grid-column: 5 / 6;
+  width: 25vw;
+  grid-column: 2/ 3;
 }
 
 .show-lines {
-  grid-column: 6 / 7; 
+  width: 5vw;
+  grid-column: 3 / 4; 
+}
+
+.show-class-view {
+  width: 20vw;
+  grid-column: 4 / 5; 
+}
+
+.preset-buttons-row {
+  width: 25vw;
+  grid-column: 5 / 6; 
 }
 
 .btn {
@@ -41,9 +65,7 @@
   height: 60px;    
 }
 
-.show-class-view {
-  grid-column: 7 / 8; 
-}
+
 
 
 

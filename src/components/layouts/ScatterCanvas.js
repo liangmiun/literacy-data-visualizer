@@ -20,8 +20,8 @@ React.memo(
         svg.selectAll('*').remove();
 
         const margin = { top: 20, right: 160, bottom: 80, left: 80 };
-        const innerWidth =scatterWidth - margin.left - margin.right;
-        const innerHeight =scatterHeight  - margin.top - margin.bottom;
+        const innerWidth =scatterWidth() - margin.left - margin.right;
+        const innerHeight =scatterHeight()  - margin.top - margin.bottom;
 
         // eslint-disable-next-line
         var clip = svg.append("defs").append("svg:clipPath")
@@ -66,7 +66,7 @@ React.memo(
 
         brush_part();
 
-        ColorLegend(shownData, colorField, svg, scatterWidth  - margin.right , margin); 
+        ColorLegend(shownData, colorField, svg, scatterWidth()  - margin.right , margin); 
 
 
         function axes_and_captions_plot() {
@@ -135,7 +135,6 @@ React.memo(
                 .attr('r', 3)  //d => selectedCircles.includes(d) ? 9 : 3
                 .attr('fill', d => {  return colorScale(d[colorField])})
                 .on('click', function (event, d) {
-                    console.log("click transform", d3.zoomTransform(svg.node()).toString());
                     if (!brushing) {
                         const currentCircle = d3.select(this);
                         if (event.ctrlKey) {
@@ -282,7 +281,7 @@ React.memo(
                 {brushing ? 'de-brush' : 'brush'}
             </button>
 
-            <svg  ref={svgRef} width={scatterWidth} height={scatterHeight}  ></svg>
+            <svg  ref={svgRef} width={scatterWidth()} height={scatterHeight()}  ></svg>
 
         </div>
     );

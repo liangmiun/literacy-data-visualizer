@@ -54,7 +54,6 @@ function SchoolTreeView(props) {
     if (isChecked) {
           props.setCheckedSchools(prev => [...prev, school]);
           props.setCheckedClasses(prev => [...prev, ...Object.keys(props.school_class[school]).map(classId => `${school}.${classId}`)]);
-          console.log('after handling, checkedSchools', props.checkedSchools);
       } else {   
           props.setCheckedSchools(prev => prev.filter(s => s !== school));
           props.setCheckedClasses(prev => prev.filter(c => !c.startsWith(`${school}.`)));
