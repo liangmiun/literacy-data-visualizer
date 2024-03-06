@@ -13,13 +13,14 @@ const LogicCanvas = ({fields, data, setLogicFilteredData, expression, setExpress
   }));
 
   return (
-    <div className='logic-canvas'>
-      <h4  style={{ margin:'1%', padding:'2%'}}>
+    <div className='logic-canvas'  
+      style={{  display: 'grid', gridTemplateRows: '1fr 1fr',  overflow: 'hidden'  }}>
+      <h4  style={{ height: '50%',  gridRow: '1 / 2', margin:'1%', padding:'0%'}}>
       <Tooltip title='Filter data using logical expressions  with "( , ) , == , != , contains , !contains , > , <" operators.' followCursor>  
         Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt; 500"
       </Tooltip>
       </h4>
-      <FilterDemo 
+      <FilterDemo style={{ height: '50%', gridRow: '2 / 3',}}
         data={data} options={field_options}  setLogicFilteredData={setLogicFilteredData} 
         expression={expression}  setExpression={setExpression}  query={query}  setQuery={setQuery}  />
     </div>
