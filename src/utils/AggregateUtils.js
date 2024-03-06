@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
-import {  rescale, translateExtentStartEnd } from '../Utils';
+import {  rescale, translateExtentStartEnd, formatDate } from 'utils/Utils';
+import { innerAggrWidth, innerAggrHeight } from './constants';
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 5;
@@ -95,24 +96,20 @@ export function getLastingClassID(school, seasonKey, classKey)
 }
 
 
-export function PreparePlotStructure(svgRef, filteredData, yField, width, height, aggregateType)  {
+export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType, margin)  {
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();           
 
     //set margin for svg
-    const margin = { top: 20, right: 20, bottom: 80, left: 80 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
     const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     // Create main linear scale for y-axis
     const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
-    console.log("yMin and yMax: ", yMin, yMax);
     const yPadding = (yMax - yMin) * 0.1;
     const yScale = d3.scaleLinear()
         .domain([yMin - yPadding, yMax + yPadding])
-        .range([innerHeight, 0]);
+        .range([innerAggrHeight(), 0]);
 
     // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
     const sumstat = setSumStat(filteredData, yScale, yField, aggregateType);
@@ -147,13 +144,13 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
         return d3.scaleBand()
             .padding(0.05)   //0.05
             .domain(seasonToClasses[season])
-            .range([0, x0.bandwidth()]);
+            .range([0, xMainBandScale.bandwidth()]);
     }
 
     // Create main band scale for seasons
-    const x0 = d3.scaleBand()
+    const xMainBandScale = d3.scaleBand()
     .domain(seasons)
-    .range([0, innerWidth])
+    .range([0, innerAggrWidth()])
     .paddingInner(0.2)
     .paddingOuter(0.2);
 
@@ -170,10 +167,10 @@ export function PreparePlotStructure(svgRef, filteredData, yField, width, height
     let tickValues = seasons; 
 
     // Create the x-axis using the new band scale `x1`
-    const xAxis = d3.axisBottom(x0)
+    const xAxis = d3.axisBottom(xMainBandScale)
         .tickValues(tickValues) ;// Use the combined class-season strings,  .tickFormat(d => d)
         
-    return {svg, g, margin, innerWidth, innerHeight, sumstat, seasons, yScale, x0, xAxis, getSubBandScale, lastingClassGroups};
+    return {svg, g, sumstat, seasons, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups};
 
 }
 
@@ -258,16 +255,15 @@ function setSumStat(filteredData, y, yField, aggregateType)
 }
 
 
-export function createBoxZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, connnectIndividual, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
+export function createAggrZoomBehavior( renderer, xScale, yScale, xType, yType, xField, yField, line, connectIndividual, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount, xNum) {   
     return d3.zoom()
       .scaleExtent([1, 20])
       .translateExtent( translateExtentStartEnd(1.1, 1, svg)) 
       .on('zoom', (event) => {
         const zoomState = event.transform;
-        boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connnectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
-
+        renderer(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount, xNum);
         });
-  }
+}
 
 
 export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
@@ -289,7 +285,6 @@ export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yF
         return zoomedX(d) + subBandWidth;
     })
 
-
     g.selectAll('.vertLines')
     .attr("x1", d => {
         return zoomedX(d) + subBandWidth / 2;
@@ -298,48 +293,9 @@ export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yF
         return zoomedX(d) + subBandWidth / 2;
     })
 
+    commonPartRender( g, zoomXScale, zoomYScale, zoomState, subBandWidth, getSubBandScale, connectIndividual, xField, yField, line, studentsChecked);
 
-    g.selectAll('.lastingClassLines')
-    .attr("x1", function(){
-        const startSeason = d3.select(this).attr('startSeason');
-        const startClassID = d3.select(this).attr('startClassID');
-        return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClassID)* zoomState.k + subBandWidth / 2;
-    })
-    .attr("x2", function(){
-        const endSeason = d3.select(this).attr('endSeason');
-        const endClassID = d3.select(this).attr('startClassID');
-        return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClassID)* zoomState.k + subBandWidth / 2;
-    })
-
-
-    // Apply zoom transformation to lines  if (showLines)
-    var filteredSelection = g.selectAll('.line-path')
-                          .filter(function() {
-                              return d3.select(this).style('visibility') === 'visible';
-                          });
-
-    if (filteredSelection.size() > 0) {
-        filteredSelection.attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
-    }
-
-    
-
-    if( studentsChecked) {
-        zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale, connectIndividual);
-    }
 }
-
-
-export function createCircleZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, connectIndividual, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount) {
-    return d3.zoom()
-      .scaleExtent([1, 20])
-      .translateExtent( translateExtentStartEnd(1.1, 1, svg)) 
-      .on('zoom', (event) => {
-        const zoomState = event.transform;
-        circleZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount);
-
-        });
-  }
 
 
 export function circleZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
@@ -351,75 +307,35 @@ export function circleZoomRender(zoomState,xScale, yScale, xType, yType, xField,
         return zoomedX(d)+ subBandWidth / 2;      
     })
 
-
-    g.selectAll('.lastingClassLines')
-    .attr("x1", function(){
-        const startSeason = d3.select(this).attr('startSeason');
-        const startClassID = d3.select(this).attr('startClassID');
-        return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClassID)* zoomState.k + subBandWidth / 2;
-    })
-    .attr("x2", function(){
-        const endSeason = d3.select(this).attr('endSeason');
-        const endClassID = d3.select(this).attr('startClassID');
-        return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClassID)* zoomState.k + subBandWidth / 2;
-    })
-
-
-    // // Apply zoom transformation to lines
-    // g.selectAll('.line-path')
-    // .filter(function() {
-    //     return d3.select(this).style('visibility') === 'visible';
-    //     })
-    // .attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
-
-    var filteredSelection = g.selectAll('.line-path')
-                          .filter(function() {
-                              return d3.select(this).style('visibility') === 'visible';
-                          });
-
-    if (filteredSelection.size() > 0) {
-        filteredSelection.attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
-    }
-
-
-
-    if( studentsChecked) {
-        zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale, connectIndividual);
-    }
-}
-
-
-export function createViolinZoomBehavior(xScale, yScale, xType, yType, xField, yField, line, connectIndividual, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
-{
-
-    return d3.zoom()
-      .scaleExtent([1, 20])
-      .translateExtent( translateExtentStartEnd(1.1, 1, svg)) 
-      .on('zoom', (event) => {
-            const zoomState = event.transform;
-            violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount);
-
-      });
+    commonPartRender( g, zoomXScale, zoomYScale, zoomState, subBandWidth, getSubBandScale, connectIndividual, xField, yField, line, studentsChecked);
 
 }
 
 
-export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, xNum, studentsChecked, subBandCount)
+export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale,  studentsChecked, subBandCount, xNum)
 {
     const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
           
     g.selectAll('.violins')
     .attr("transform",  d => {
-        return `translate(${zoomedX(d)+ subBandWidth/2  }, 0)`;   //
+        return `translate(${zoomedX(d)+ subBandWidth/2  }, 0)`;   
         })
     .selectAll('.area')
     .attr("d", d3.area()
-        .x0(d => xNum(-d.length *singleViolinWidthRatio)*zoomState.k )  //
-        .x1(d => xNum(d.length *singleViolinWidthRatio) *zoomState.k)    // 
+        .x0(d => xNum(-d.length *singleViolinWidthRatio)*zoomState.k )  
+        .x1(d => xNum(d.length *singleViolinWidthRatio) *zoomState.k)    
         .y(d => yScale(d.x0))   //d.x0
         .curve(d3.curveCatmullRom)
                 );  
 
+    commonPartRender( g, zoomXScale, zoomYScale, zoomState, subBandWidth, getSubBandScale, connectIndividual, xField, yField, line, studentsChecked);
+
+    
+}
+
+
+function commonPartRender( g, zoomXScale, zoomYScale, zoomState, subBandWidth, getSubBandScale, connectIndividual, xField, yField, line, studentsChecked)
+{
     g.selectAll('.lastingClassLines')
     .attr("x1", function(){
         const startSeason = d3.select(this).attr('startSeason');
@@ -431,7 +347,6 @@ export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField,
         const endClassID = d3.select(this).attr('startClassID');
         return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClassID)* zoomState.k + subBandWidth / 2;
     })
-
 
     // Apply zoom transformation to lines
     var filteredSelection = g.selectAll('.line-path')
@@ -442,13 +357,11 @@ export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField,
     if (filteredSelection.size() > 0) {
     filteredSelection.attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
     }
-
-
     
     if( studentsChecked) {
         zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale, connectIndividual);
     }
-    
+
 }
 
 
@@ -577,6 +490,7 @@ function simpleHash(s) {
     return s.split('').reduce((acc, char) => Math.imul(31, acc) + char.charCodeAt(0) | 0, 0);
 }
 
+
 function consistentRandom(hashValue, min, max) {
     // Pseudo-random function based on a hash value
     const rand = Math.abs(hashValue % 1000) / 1000; // Normalize hash value to [0, 1)
@@ -585,5 +499,3 @@ function consistentRandom(hashValue, min, max) {
 
 
 
-export const parseDate = d3.timeParse('%y%m%d');
-export const formatDate = d3.timeFormat('%y-%m-%d');

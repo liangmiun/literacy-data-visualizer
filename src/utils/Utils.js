@@ -1,7 +1,21 @@
 import * as d3 from 'd3';
 
 
-const parseDate = d3.timeParse('%y%m%d');
+export const parseDate = d3.timeParse('%y%m%d');
+
+export const formatDate = d3.timeFormat('%y-%m-%d');
+
+export function formatTickValue(d, field) {
+  if (isDateFieldString(field)){
+      const dateObject = parseDate(d);
+      return formatDate(dateObject);
+  }
+  return d;
+}
+
+export function isDateFieldString(field) {
+  return field === 'Födelsedatum' || field === 'Testdatum';
+}
 
 
 export const data_fields = [
@@ -49,7 +63,7 @@ export function rowParser(d) {
     for (let field in d) {
       if (field === 'Skola' || field === 'Klass' || field === 'Läsår') {
         parsedRow[field] = String(d[field]);
-      } else if (field === 'Födelsedatum' || field === 'Testdatum') {
+      } else if (isDateFieldString(field)) {
         parsedRow[field] = parseDate(d[field]);
       } else if (field === 'Årskurs' || field === 'Läsnivå (5 = hög)') {
         parsedRow[field] = parseInt(d[field], 10);	
@@ -92,7 +106,7 @@ export const load = (callback) => {
     reader.onload = (e) => {
       const content = e.target.result;
       const loadedConfig = JSON.parse(content, (key, value) => {
-        if (key === "Födelsedatum" || key === "Testdatum") return value.map(v => new Date(v));
+        if (isDateFieldString(key)) return value.map(v => new Date(v));
         return value;
       });
       callback(loadedConfig);
@@ -209,8 +223,6 @@ export function ColorLegend(data, colorField, svg, width, margin) {
 
   colorDomain.forEach((value, index) => {
 
-      console.log("legend ", colorField, value);
-
       const strippedValue = value.toString().split(" ")[0];
       // Draw colored rectangle
       legend.append("rect")
@@ -300,7 +312,6 @@ export function translateExtentStartEnd(coeffX, coeffY, svg)
   var svgNode = svg.node();
   var svgWidth = svgNode.getBoundingClientRect().width;
   var svgHeight = svgNode.getBoundingClientRect().height;
-  console.log("SVG Width:", svgWidth, "Height:", svgHeight);
   const x0 = svgWidth / 2 * (1 - coeffX);
   const y0 = svgHeight / 2 * (1 - coeffY);
   const x1 = svgWidth / 2 * (1 + coeffX);

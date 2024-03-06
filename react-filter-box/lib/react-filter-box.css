@@ -15,7 +15,7 @@
 }
 .react-filter-box {
   overflow-y: hidden;
-  height: 28px;
+  height: 100%;
   padding: 4px 6px;
   margin-bottom: 10px;
   font-size: 14px;

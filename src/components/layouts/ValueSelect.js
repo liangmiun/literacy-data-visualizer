@@ -1,17 +1,21 @@
 import { Box, Checkbox, FormControlLabel, Slider, FormGroup  } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Button from '@mui/material/Button';
 import * as d3 from 'd3';
-import '../App.css';
+import 'assets/App.css';
+
 
 export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeOptions, setCheckedOptions, setRangeOptions }) {
     const allOptions = Object.keys(checkedOptions).concat(Object.keys(rangeOptions));
     const [selectedOptions, setSelectedOptions] = useState([]);  
+
+    const setGetRef = useRef({allOptions, checkedOptions, rangeOptions, setCheckedOptions, setFilterList, setRangeOptions});
     
     useEffect(() => {
         // Automatically select all options when the component mounts
         if(data.length > 0) 
         {
+            const {allOptions, checkedOptions, rangeOptions, setCheckedOptions, setFilterList, setRangeOptions} = setGetRef.current;
             setSelectedOptions(allOptions);
             setFilterList(allOptions);
             allOptions.forEach(option => {
@@ -29,7 +33,7 @@ export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeO
 
 
     return (
-        <div className='option-panel'  tyle={{ margin: '0px 3px'}}>
+        <div className='option-select-group'  style={{ margin: '0px 3px'}}>
             <h4 style={{ textAlign: 'center' }}>Filter by option/range </h4>
 
             <div style={{ margin: '5px 30px',overflowY: 'auto',  overflowX: 'auto', maxWidth: '20vw', justifyContent: 'center', fontSize: '12px'}}>
@@ -44,6 +48,7 @@ export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeO
                     return null;
                 })}
             </div>
+
         </div>
     );
 }
@@ -82,6 +87,7 @@ function OptionSlider({ label, min, max, setRangeOptions }) {
         </div>
     );
 }
+
 
 function OptionCheckBoxes({ label, options, checkedOptions, setCheckedOptions }) {
     const handleCheckChange = (option, isChecked) => {
@@ -130,3 +136,6 @@ function OptionCheckBoxes({ label, options, checkedOptions, setCheckedOptions })
         </div>
     );
 }
+
+
+

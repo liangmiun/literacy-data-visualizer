@@ -1,16 +1,6 @@
-# literacy-data-visualizer
+# Help
 
-A data visualizer framework for the Lexplore literacy research project.
-
-## Webpage login/logout
-
-- This project is deployed as static server website in https://liangmiun.github.io/literacy-data-visualizer
-- Login with a sole account (authenticated by Firebase) for testing. Please ask the project manager/ developer for the account detail.
-- Logout by clicking on the upper-right Logout link.
-
-## Usage
-
-### Import Data
+## Import Data
 
 - Click on "Import Data" button on the top of webpage to import a .csv data. The .csv would stay at the user's client-side browser and be visualized.
 - The user-imported .csv is expected to include fields as below, so that the fields-based tree/option/range filters would operate at their full capacity.
@@ -18,8 +8,7 @@ A data visualizer framework for the Lexplore literacy research project.
 
 - If no data is imported by user, the webpage would present a sample data from the server-side which is AES-encrypted by Firebase key.
 
-
-### The scatterplot view
+## The scatterplot view
 
   Toggle off "Is Class View" to show a scatterplot of literacy record of individual students.
 
@@ -43,7 +32,7 @@ A data visualizer framework for the Lexplore literacy research project.
     - Clicking on save preset would save a local json file containing information of  current axis and filters configurations.
     - Clicking on load preset would load a preset json file into the current view.
   
-### The class aggregation plot 
+## The class aggregation plot 
 
   Toggle on "Is Class View" to show box/violin/circle plots of aggregation measures of selected classes.
 
@@ -51,28 +40,3 @@ A data visualizer framework for the Lexplore literacy research project.
 - Toggle the "Show Individuals" checkbox between showing or not showing individual dots in classes.
 - Click on a single box or violin, and its aggregated detail would show in the detail panel on the right.
 - The box/violin plots represent the performance of students from the same class across different years, with each cross-year-class consistently color-coded for easy comparison. The lines connecting the box plots illustrate the progression or trends of these student groups over the years.
-
-## Running the web server locally
-
-While we have a working URL for the visualisation tool, it can also be hosted locally.
-
-### Node.js and npm
-
-You need Node.js and npm installed to host the application. If you haven't installed them yet, instructions can be found here: https://radixweb.com/blog/installing-npm-and-nodejs-on-windows-and-mac
-
-### Get the web server running
-
-1. Download the repository folder in any manner you deem fit, and unzip the contents if necessary.
-2. Open the command prompt or terminal on your device and locate the repository folder.
-3. Run the command ```npm start```. This will run the local batch script which will set the web server up for you.
-4. When finished, terminate the web server with ctrl-c in the command prompt or terminal, type 'Y', then Enter.
-
-### Known issues
-
-#### "digital envelope routines::unsupported"
-
-Run ```$env:NODE_OPTIONS = "--openssl-legacy-provider"``` once before ```npm start```. Once done, you do not need to do so again.
-
-#### "Module not found: ..."
-
-Let Liang know, and he should push a fix soon enough.

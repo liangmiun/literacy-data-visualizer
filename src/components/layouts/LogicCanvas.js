@@ -13,13 +13,15 @@ const LogicCanvas = ({fields, data, setLogicFilteredData, expression, setExpress
   }));
 
   return (
-    <div className='logic-canvas'>
-      <h4>
+    <div className='logic-canvas'  
+      style={{  display: 'grid', gridTemplateRows: '1fr 1fr',  overflow: 'hidden'  }}>
+      <h4  style={{ height: '50%',  gridRow: '1 / 2', margin:'1%', padding:'0%'}}>
       <Tooltip title='Filter data using logical expressions  with "( , ) , == , != , contains , !contains , > , <" operators.' followCursor>  
-        Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt; 500"
+      <label>Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt; 500" </label>
       </Tooltip>
       </h4>
-      <FilterDemo data={data} options={field_options}  setLogicFilteredData={setLogicFilteredData} 
+      <FilterDemo style={{ height: '50%', gridRow: '2 / 3',}}
+        data={data} options={field_options}  setLogicFilteredData={setLogicFilteredData} 
         expression={expression}  setExpression={setExpression}  query={query}  setQuery={setQuery}  />
     </div>
     
@@ -36,14 +38,14 @@ export class FilterDemo extends React.Component {
           data: props.data
       }
       this.options = props.options;
-      this.setData = props.setLogicFilteredData;
+      this.setLogicData = props.setLogicFilteredData;  
       this.setPresetExpression = props.setExpression     
 
   }
 
   componentDidMount() {
     // Set initial data when the component mounts
-    this.setData(this.state.data);
+    this.setLogicData(this.state.data);
 }
 
   componentDidUpdate(prevProps) {
@@ -52,7 +54,7 @@ export class FilterDemo extends React.Component {
       this.setState({ query: this.props.query },
         () => {
           var newData = new SimpleResultProcessing(this.options).process(this.state.data, this.props.expression);
-          this.setData(newData);
+          this.setLogicData(newData);
         }
       );
     }
@@ -65,7 +67,7 @@ export class FilterDemo extends React.Component {
   onParseOk(expressions) {
 
       var newData = new SimpleResultProcessing(this.options).process(this.state.data, expressions);
-      this.setData(newData);
+      this.setLogicData(newData);
 
       this.props.setQuery(this.state.query);
       this.props.setExpression(expressions);

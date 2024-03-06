@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import '../App.css';
+import 'assets/App.css';
 import * as d3 from 'd3';
 import Tooltip from '@mui/material/Tooltip';
 
@@ -80,20 +80,20 @@ function SchoolTreeView(props) {
       <div  className='school-tree-view' style={{ margin: '0px 3px'}}>
         <h4 style={{ textAlign: 'center' }} >
         <Tooltip title="Select schools and classes: ☑ for all, ☐ for none and ▣ for some." followCursor>        
-          Filter by School and Class
+        <label>Filter by School and Class </label>
         </Tooltip>
           
         </h4>  
-        <TreeView  style={{margin: '5px 5px',width: '100%' ,border: '1px solid gray',
+        <TreeView  style={{margin: '5px 5px',width: '100%' ,
             overflowX: 'auto', maxWidth: '20vw',
-            overflowY: 'auto', maxHeight:'45vh' }}
+            overflowY: 'auto', maxHeight:'50vh' }}
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
           defaultExpanded={expandedSchools}    
 
         >
 
-        <div  style={{ display: 'flex', alignItems: 'flex-start' }}>
+        <div  style={{ display: 'flex', alignItems: 'flex-start'  }}>
           <Checkbox  style={{ padding: '1px' }}
               checked={checkedAllSchools}
               indeterminate={indeterminateAllSchools}
@@ -160,11 +160,10 @@ function SchoolComponent({ props }) {
   const schoolInChecked = props.checkedSchools.includes(school);
 
   useEffect(() => {
-    // Trigger the handler when allChecked changes from false to true and the school is not in the checkedSchools array
     if (allChecked && !schoolInChecked) {
       onSchoolCheckChange(school, true);
     }
-  }, [allChecked, school, onSchoolCheckChange ]);  //schoolInChecked
+  }, [allChecked, school, onSchoolCheckChange , schoolInChecked]);  //schoolInChecked
 
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -227,8 +226,8 @@ function ClassComponent({ props }) {
               checked={props.checkedClasses.includes(`${school}.${classId}`)}
               onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
             />
-            <Tooltip title={transformString(classId)} followCursor>       
-              {classId }
+            <Tooltip title={transformClassTooltip(classId)} followCursor>       
+            <label>{classId }</label>
             </Tooltip>
           </div>
         }
@@ -261,7 +260,7 @@ function ClassComponent({ props }) {
 }
 
 
-function transformString(input) {
+function transformClassTooltip(input) {
   // Split the string by ":" to separate the prefix and the numbers
   const parts = input.split(':');
   const baseParts = parts[1].split('-');
@@ -273,9 +272,12 @@ function transformString(input) {
   // Parse the first part of the number to use it as a base for incrementing
   let baseNumber = parseInt(baseParts[0]) + 2000;
 
-  const newString = "Class " +`${baseNumber}-${numPart ? numPart : ''}${letterPart ? letterPart[0] : ''}, ` +
-                    `${baseNumber+1}-${numPart ? parseInt(numPart)+1 : ''}${letterPart ? letterPart[0] : ''}, ` +
-                    `${baseNumber+2}-${numPart ? parseInt(numPart)+2 : ''}${letterPart ? letterPart[0] : ''} from ${parts[0]} school`;
+
+  // Use template literals to create the new string.
+  const newString = `Class ${baseNumber}-${numPart ? numPart : ''}${letterPart ? letterPart[0] : ''}, 
+                    ${baseNumber + 1}-${numPart ? parseInt(numPart) + 1 : ''}${letterPart ? letterPart[0] : ''},
+                    ${baseNumber + 2}-${numPart ? parseInt(numPart) + 2 : ''}${letterPart ? letterPart[0] : ''} from ${parts[0]} school`;
+
 
   return newString;
 }

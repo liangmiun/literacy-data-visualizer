@@ -1,18 +1,19 @@
 import * as d3 from 'd3';
-import React, { useState, useMemo, useEffect } from 'react';
-import AxisSelectionCanvas from './components/AxisSelectionCanvas';
-import AggregateCanvas from './components/AggregateCanvas';
-import ScatterCanvas from './components/ScatterCanvas';
-import DetailCanvas from './components/DetailCanvas';
-import FilterCanvas from './components/FilterCanvas';
-import LogicCanvas from './components/LogicCanvas';
-import { generateClassId, generateSchoolLastingClassMap, generateSchoolClassColorScale} from './Utils.js';
-import './App.css';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import AxisSelectionCanvas from '../layouts/AxisSelectionCanvas';
+import AggregateCanvas from '../layouts/AggregateCanvas';
+import ScatterCanvas from '../layouts/ScatterCanvas';
+import DetailCanvas from '../layouts/DetailCanvas';
+import FilterCanvas from '../layouts/FilterCanvas';
+import LogicCanvas from '../layouts/LogicCanvas';
+import { generateClassId, generateSchoolLastingClassMap, generateSchoolClassColorScale} from '../../utils/Utils.js';
+import 'assets/App.css';
 
 
 const ScatterPage = (props ) => {  
 
-  const { isClassView,setIsClassView, aggregateType, setAggregateType} = props;
+  const { data, logicFilteredData, isClassView,setIsClassView, aggregateType, setAggregateType,
+          checkedSchools, checkedClasses, xField,yField, rangeOptions, checkedOptions  } = props;
   const trends = { all: 'all', overall_decline: 'overall decline',  logarithmic_decline: "logarithmicly decline", last_time_decline: 'last time decline'};
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
@@ -24,26 +25,24 @@ const ScatterPage = (props ) => {
   const [diffThreshold, setDiffThreshold] = useState(0);
   const [dataToShow, setDataToShow] = useState([]);
   const [minDeclineThreshold, setMinDeclineThreshold] = useState(-1);
-
+  const [filterList, setFilterList] = useState([]);
 
   useEffect(() => {
-    if (Object.keys(props.data).length > 0)
+    if (Object.keys(data).length > 0)
     {
-      const nonNullLexploreData = props.data.filter(d => d['Lexplore Score'] !== null);
+      const nonNullLexploreData = data.filter(d => d['Lexplore Score'] !== null);
       const newSchoolClasses = generateSchoolLastingClassMap(nonNullLexploreData);  //
       const newClassColorScale = generateSchoolClassColorScale(newSchoolClasses).classColor;
       setSchoolClassesAndColorScale({ schoolClasses: newSchoolClasses, colorScale: newClassColorScale});
     }
-  }, [ props.data]);   
+  }, [ data]);   
 
   useEffect(() => {
-    if (Object.keys(props.logicFilteredData).length > 0)
+    if (Object.keys(logicFilteredData).length > 0)
     {
-      setDataToShow(props.logicFilteredData);
+      setDataToShow(logicFilteredData);
     }
-  }, [ props.logicFilteredData]);   
- 
-
+  }, [ logicFilteredData]);    
 
   const handleClassColorPaletteClick= (school, classID, newColor) => {
     setSchoolClassesAndColorScale(prevState => {
@@ -68,102 +67,65 @@ const ScatterPage = (props ) => {
   const filterWithTrendThreshold = (optionValue, threshold) => {
 
     if(optionValue === trends.overall_decline){
-      const linearDeclined = linearDeclinedData(props.logicFilteredData, threshold);
+      const linearDeclined = linearDeclinedData(logicFilteredData, threshold);
       setMinDeclineThreshold(linearDeclined.minSlope);
       setDataToShow(linearDeclined.data);
     }
     else if(optionValue === trends.logarithmic_decline){
-      const logarithmicDeclined = logarithmicDeclinedData(props.logicFilteredData, threshold);
+      const logarithmicDeclined = logarithmicDeclinedData(logicFilteredData, threshold);
       setMinDeclineThreshold(logarithmicDeclined.minCoeff);
       setDataToShow(logarithmicDeclined.data);
     }
     else if(optionValue === trends.last_time_decline){
-      const lastTimeDeclined = lastTimeDeclinedData(props.logicFilteredData, threshold);
+      const lastTimeDeclined = lastTimeDeclinedData(logicFilteredData, threshold);
       setMinDeclineThreshold(lastTimeDeclined.minDiff);
       setDataToShow(lastTimeDeclined.data);
     }
     else{
-      setDataToShow(props.logicFilteredData);
+      setDataToShow(logicFilteredData);
     }   
   }
 
-  const studentKeyList = 
-    ['Skola',
-    'Årskurs',
-    'Klass',
-    'ElevID',
-    'Födelsedatum',
-    'Läsår',
-    'Testdatum',
-    'Standardpoäng',
-    'Lexplore Score'
-    ];
+  const checkedFilteredData= useCallback((data) =>{
 
-  const classKeyList =
-  [
-    // 'lastingclass',
-    'school',
-    'class',
-    'season',
-    'min',
-    'q1',
-    'median',
-    'q3',
-    'max',
-    'count'
-  ];
-
-
-  const [filterList, setFilterList] = useState([]);
-
-
-  function checkedFilteredData(data) {
     return data.filter(record => {
-        for (let key in props.checkedOptions) {
-            if ( filterList.includes(key) && ! props.checkedOptions[key].includes(record[key])) {
+        for (let key in checkedOptions) {
+            if ( filterList.includes(key) && !checkedOptions[key].includes(record[key])) {
                 return false;
             }
         }
         return true;
     });
-  }
+  }, [checkedOptions, filterList]);
 
 
-  function rangeFilteredData(data) {
-
-    for (let key in props.rangeOptions) {
-      const [min, max] = props.rangeOptions[key];
-      console.log(key, min instanceof Date? min.toISOString() : min, max);
-    }
-    var count = 0;
-
+  const rangeFilteredData = useCallback((data) => {
     return data.filter(record => {
-        for (let key in props.rangeOptions) {
-          const [min, max] = props.rangeOptions[key];
-          if ( filterList.includes(key)  && !(record[key] >= min && record[key] <= max)) {
-
-              if( count % 1000 ===0) 
-              {
-                console.log("filtered out: ",key, record[key], min, max, 
-                  record[key] >= min,  record[key] < min, "date?", typeof record[key], typeof min);
-              }
-              count++;
-              return false;
-          }
+      for (let key in rangeOptions) {
+        const [min, max] = rangeOptions[key];
+        if (filterList.includes(key) && !(record[key] >= min && record[key] <= max)) {
+          return false;
         }
-        return true;
+      }
+      return true;
     });
-  }
+  }, [rangeOptions, filterList]); 
+
 
   const shownData = useMemo(() => {
-      const nonNullData = dataToShow.filter(d => d[props.xField] !== null && d[props.yField] !== null); 
-      return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData,props.checkedClasses,props.checkedSchools)));
-    }, [dataToShow, props.checkedOptions, props.rangeOptions, props.checkedSchools, props.checkedClasses]);  
+
+    console.log("run shownData");
+
+    const nonNullData = dataToShow.filter(d => d[xField] !== null && d[yField] !== null); 
+
+    return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData,checkedClasses, checkedSchools)));
+      
+  }, [ dataToShow, xField, yField,checkedSchools,checkedClasses, checkedFilteredData,  rangeFilteredData]);  
 
   return (   
     <div className="app" >  
       <AxisSelectionCanvas
-        data={props.data}
+        data={data}
         fields_x={props.fields_x}
         fields_y={props.fields_y}
         xField={props.xField}
@@ -207,9 +169,7 @@ const ScatterPage = (props ) => {
           xField={props.xField}
           yField={props.yField}
           colorField = {props.colorField}
-          width={1000}
-          height={700}    
-          onPartClick={setSelectedClassDetail} //  handlePartClick
+          onPartClick={setSelectedClassDetail} 
           studentsChecked={studentsChecked}
           connectIndividual={connectIndividual}
           aggregateType = {aggregateType}
@@ -223,8 +183,6 @@ const ScatterPage = (props ) => {
           xField={props.xField}
           yField={props.yField}
           colorField = {props.colorField}
-          width= {1100}
-          height={800}
           setSelectedRecords={setSelectedRecords}
           showLines={props.showLines} 
         />
@@ -237,7 +195,7 @@ const ScatterPage = (props ) => {
 
 
       <FilterCanvas 
-        data={props.data}
+        data={data}
         fields={props.fields} 
         checkedSchools={props.checkedSchools}
         setCheckedSchools={props.setCheckedSchools}
@@ -256,7 +214,7 @@ const ScatterPage = (props ) => {
 
       <LogicCanvas  
         fields={props.fields} 
-        data ={props.data}
+        data ={data}
         setLogicFilteredData={props.setLogicFilteredData}
         expression={props.expression}
         setExpression={props.setExpression}
@@ -269,8 +227,7 @@ const ScatterPage = (props ) => {
 };
 
 
-export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
-  console.log("schoolClassFilteredData checkedSchools",  checkedSchools);
+function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
   return data.filter(record => {
       // Check if the school of the record is in checkedSchools
       if (checkedSchools.includes(record.Skola)) {
@@ -288,6 +245,34 @@ export function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
       return false;
   } );    
 }
+
+
+const studentKeyList = 
+  ['Skola',
+  'Årskurs',
+  'Klass',
+  'ElevID',
+  'Födelsedatum',
+  'Läsår',
+  'Testdatum',
+  'Standardpoäng',
+  'Lexplore Score'
+];
+
+
+const classKeyList =
+[
+  // 'lastingclass',
+  'school',
+  'class',
+  'season',
+  'min',
+  'q1',
+  'median',
+  'q3',
+  'max',
+  'count'
+];
 
 
 function linearDeclinedData(data, declineSlopeThreshold) {
@@ -420,6 +405,7 @@ function lastTimeDeclinedData(data, diffThreshold) {
   return { data: declinedData, minDiff: minDiff};
 
 }
+
 
 function calculateSlope(x, y) {
   const n = x.length;
