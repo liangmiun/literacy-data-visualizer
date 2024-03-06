@@ -253,10 +253,8 @@ const CirclePlots = (props) => {
         useEffect(() => {
     
             const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin);
-            
+  
             drawCommonAggrParts(svg, g, xAxis, yField, yScale);
-
-            console.log(aggrWidth(), aggrHeight());
 
             const aggregate = g.append('g')
             .attr('id', 'g').attr("clip-path", "url(#clip)");

@@ -80,7 +80,7 @@ function SchoolTreeView(props) {
       <div  className='school-tree-view' style={{ margin: '0px 3px'}}>
         <h4 style={{ textAlign: 'center' }} >
         <Tooltip title="Select schools and classes: ☑ for all, ☐ for none and ▣ for some." followCursor>        
-          Filter by School and Class
+        <label>Filter by School and Class </label>
         </Tooltip>
           
         </h4>  
@@ -227,7 +227,7 @@ function ClassComponent({ props }) {
               onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
             />
             <Tooltip title={transformClassTooltip(classId)} followCursor>       
-              {classId }
+            <label>{classId }</label>
             </Tooltip>
           </div>
         }

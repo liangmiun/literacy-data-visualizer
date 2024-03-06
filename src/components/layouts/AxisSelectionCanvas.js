@@ -21,7 +21,7 @@ const AxisSelectionCanvas = (props) => {
       <input type="file" accept=".csv" onChange={handleFileUpload} style={{ display: 'none' }} id="fileUpload" />
       <label htmlFor="fileUpload" className="import-button">
       <Tooltip title="Import csv-format source data" followCursor>
-        Import Data
+      <label>Import Data</label>
       </Tooltip>
         
       </label>
@@ -272,7 +272,7 @@ function PresetBar({props, onSavePreset, onLoadPreset, ImportDataButton}) {
             onClick={() => props.handleResetToOnboarding()} // function to reset the state to the initial state
           >
             <Tooltip title="Reset to on-boarding view" followCursor>
-            Reset
+            <label>Reset</label>
             </Tooltip>
           </button>
 
@@ -281,7 +281,7 @@ function PresetBar({props, onSavePreset, onLoadPreset, ImportDataButton}) {
             onClick={() => props.handleResetToLatest()} // function to reset the state to the initial state
           >
             <Tooltip title="Reset to view of the last saved preset" followCursor>
-            Reset to latest saved
+            <label>Reset to latest saved</label>
             </Tooltip>
           </button>
 
@@ -291,7 +291,7 @@ function PresetBar({props, onSavePreset, onLoadPreset, ImportDataButton}) {
               onClick={() => onSavePreset()} // function to save current state as a preset
             >
               <Tooltip title="Save current filters, axis fields and view mode settings to a preset file" followCursor>
-              Save Preset
+              <label>Save Preset</label>
               </Tooltip>
             </button>
 
@@ -300,7 +300,7 @@ function PresetBar({props, onSavePreset, onLoadPreset, ImportDataButton}) {
             onClick={() => onLoadPreset()} // function to load a saved preset
           >
             <Tooltip title="Load filters, axis fields and view mode settings from a preset" followCursor>
-            Load Preset
+            <label>Load Preset</label>
             </Tooltip>
           </button>
 
@@ -324,7 +324,7 @@ function DeclineThresholdSlider({ trend, setThreshold, isDisabled, minThreshold,
       <div style={{ margin: '5px 10px', width: '80%' }}>
           <div style={{ whiteSpace: 'pre' }}>
           <Tooltip title="Set a threshold so the filtered data are declining under the thresthold." followCursor>            
-            {label }
+            <label>  {label } </label>
           </Tooltip>            
           </div>
 

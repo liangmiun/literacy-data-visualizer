@@ -17,7 +17,7 @@ const LogicCanvas = ({fields, data, setLogicFilteredData, expression, setExpress
       style={{  display: 'grid', gridTemplateRows: '1fr 1fr',  overflow: 'hidden'  }}>
       <h4  style={{ height: '50%',  gridRow: '1 / 2', margin:'1%', padding:'0%'}}>
       <Tooltip title='Filter data using logical expressions  with "( , ) , == , != , contains , !contains , > , <" operators.' followCursor>  
-        Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt; 500"
+      <label>Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt; 500" </label>
       </Tooltip>
       </h4>
       <FilterDemo style={{ height: '50%', gridRow: '2 / 3',}}
