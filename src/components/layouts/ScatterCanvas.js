@@ -19,7 +19,7 @@ React.memo(
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
 
-        const margin = { top: 20, right: 160, bottom: 80, left: 80 };
+        const margin = { top: 20, right: 100, bottom: 80, left: 80 };
         const innerWidth =scatterWidth() - margin.left - margin.right;
         const innerHeight =scatterHeight()  - margin.top - margin.bottom;
 

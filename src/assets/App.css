@@ -10,6 +10,27 @@
   z-index: 1;
 }
 
+.navigation .headers {
+  display: flex; 
+  align-items: flex-end;
+  flex-direction: row; 
+  padding: 0; 
+  margin: 2%;   
+}
+
+/* Media query for screens with a max-width of 1499px */
+@media screen and (max-width: 1500px) {
+  .navigation .headers {
+    flex-direction: column; 
+  }
+  .grid-container {
+    grid-template-rows: 12vh 15vh 60vh 30vh;
+  }
+  .app {
+    grid-template-rows: 12vh 15vh 60vh 30vh;
+  }
+}
+
 .header-li-style {
   display: inline-block; /* Display the list items in a horizontal line */
   margin-right: 10px; 
@@ -105,7 +126,7 @@
   padding: 1% 1%;
   margin: 1% 1%;
   align-items: center;
-  border: 1px solid lightgray;
+  /* border: 1px solid lightgray; */
 }
 
 .school-tree-view {
