@@ -35,7 +35,7 @@ export class FilterDemo extends React.Component {
   constructor(props) {
       super(props);
       this.state = {
-          data: props.data
+          data: props.data,
       }
       this.options = props.options;
       this.setLogicData = props.setLogicFilteredData;  
@@ -43,20 +43,11 @@ export class FilterDemo extends React.Component {
 
   }
 
-  componentDidMount() {
-    // Set initial data when the component mounts
-    this.setLogicData(this.state.data);
-}
 
   componentDidUpdate(prevProps) {
-    //Check if loadedExpression prop has changed
-    if (this.props.query !== prevProps.query) {
-      this.setState({ query: this.props.query },
-        () => {
-          var newData = new SimpleResultProcessing(this.options).process(this.state.data, this.props.expression);
-          this.setLogicData(newData);
-          //console.log('set logic data: FilterDemo:componentDidUpdate:query:', this.props.query, this.props.expression);
-        }
+    //Check if data has loaded from app.js
+    if ( this.props.data.length > 0 && this.props.data !== prevProps.data) {
+      this.setState({ data: this.props.data }
       );
     }
   }
@@ -68,10 +59,10 @@ export class FilterDemo extends React.Component {
   onParseOk(expressions) {
 
       var newData = new SimpleResultProcessing(this.options).process(this.state.data, expressions);
-      this.setLogicData(newData);
-
       this.props.setQuery(this.state.query);
       this.props.setExpression(expressions);
+      this.setLogicData(newData);
+      //console.log('onparseOk : FilterDemo:onParseOk:query:', this.state.query, expressions, this.state.data.length); //, this.state.query, expressions
   }
 
   render() {
