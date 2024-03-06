@@ -306,7 +306,7 @@ const CirclePlots = (props) => {
     
             setAggregationZoom( 'circle', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, null);
 
-            // d3.selection.prototype.attr = originalAttr;
+            
     
 
         }, [shownData, xField, yField, colorField, studentsChecked,  classColors,  onBoxClick, showLines,subBandCount, connectIndividual]);  //onBoxClick,
