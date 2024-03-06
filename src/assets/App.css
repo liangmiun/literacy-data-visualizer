@@ -23,12 +23,6 @@
   .navigation .headers {
     flex-direction: column; 
   }
-  .grid-container {
-    grid-template-rows: 12vh 15vh 60vh 30vh;
-  }
-  .app {
-    grid-template-rows: 12vh 15vh 60vh 30vh;
-  }
 }
 
 .header-li-style {
