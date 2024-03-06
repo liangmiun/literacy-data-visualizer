@@ -55,6 +55,7 @@ export class FilterDemo extends React.Component {
         () => {
           var newData = new SimpleResultProcessing(this.options).process(this.state.data, this.props.expression);
           this.setLogicData(newData);
+          //console.log('set logic data: FilterDemo:componentDidUpdate:query:', this.props.query, this.props.expression);
         }
       );
     }
