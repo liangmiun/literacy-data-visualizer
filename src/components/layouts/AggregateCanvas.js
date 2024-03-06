@@ -124,7 +124,7 @@ const ViolinPlots = (props ) => {
         AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, classColors);
 
         if(studentsChecked) {       
-            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth,connectIndividual)   
+            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth,connectIndividual, classColors)   
         }
 
         setAggregationZoom( 'violin', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, xNumScale);
@@ -231,7 +231,7 @@ const BoxPlots = (props) => {
 
         // Add individual points with jitter
         if(studentsChecked) {
-            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual)  //getSubBandScale,
+            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual,classColors)  //getSubBandScale,
         }
 
         setAggregationZoom( 'box', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, null);
@@ -301,7 +301,7 @@ const CirclePlots = (props) => {
     
             // Add individual points with jitter
             if(studentsChecked) {
-                AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual)  //getSubBandScale,
+                AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual, classColors)  
             }    
     
             setAggregationZoom( 'circle', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, null);

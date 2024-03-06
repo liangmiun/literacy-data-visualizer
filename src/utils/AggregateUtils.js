@@ -6,21 +6,25 @@ export const singleViolinWidthRatio = 1; // The width of a single violin relativ
 const indv_jitterWidth = 5;
 const indv_offset =0;
 
-export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWidth, connectIndividual )
+export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWidth, connectIndividual, classColors)
 {
     // Step 1: Group data by ElevID
     //const groupedData = d3.group(data, d => d.ElevID);
 
     // Calculate positions and draw circles
     const positions = []; // To store the positions of circles
+    data.forEach(d => {
+        const season = Season(d.Testdatum).toString();
+        const clazz = d.Klass.toString();
+        d.classID = getLastingClassID(d.Skola, season, clazz); // Enhance each datum with classID
+    });
     g.selectAll(".indvPoints")
         .data(data)
         .enter().append("circle")
         .attr("class", "indvPoints")
         .attr("cx", d => {                    
             const season = Season(d.Testdatum).toString(); // or whatever field you use for the season
-            const clazz = d.Klass.toString();
-            const classID = getLastingClassID(d.Skola, season, clazz);
+            const classID = d.classID;
             const x1 = getSubBandScale(season); // get the x1 scale for the current season
 
             // Unique string for hashing, combining properties that uniquely identify this data point
@@ -31,15 +35,16 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
 
             const record_id = d.ElevID +"-" + formatDate(d.Testdatum);
 
-            positions.push({ ElevID: d.ElevID, cx, cy: y(d[yField]), record_id: record_id});
+            positions.push({ ElevID: d.ElevID, cx, cy: y(d[yField]), record_id: record_id, Skola: d.Skola, classID: d.classID});
             return cx;
         })
         .attr("cy", d => { return y(d[yField])})
         .attr("r", 2)
         .style("fill", "white")
-        .attr("stroke", "black")
+        .attr("stroke", d => {
+            return  classColors[d.Skola][d.classID]   ;})
         .style("fill-opacity", 0.5)
-        .style("stroke-opacity", 0.5) 
+        .style("stroke-opacity", 1) 
         .attr("record_id", d => { return d.ElevID +"-" + formatDate(d.Testdatum)}) 
         .attr("indv_season", d => {return Season(d.Testdatum).toString()})
         .attr("indv_classID", d => { return getLastingClassID(d.Skola, Season(d.Testdatum).toString(), d.Klass.toString())})
@@ -60,7 +65,9 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
                 .attr("y1", points[i].cy)
                 .attr("x2", points[i + 1].cx)
                 .attr("y2", points[i + 1].cy)
-                .attr("stroke", "black")
+                .attr("stroke", () => {
+                    const d = points[i];
+                    return  classColors[d.Skola][d.classID]   ;})
                 .attr("stroke-width", 0.5)
                 .attr("stroke-opacity", 0.5)
                 .attr("start_record_id", points[i].record_id)
