@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { set } from 'd3-collection';
-import { ColorLegend, rescale, categoricals, translateExtentStartEnd, isDateFieldString } from 'utils/Utils';
-import { scatterWidth, scatterHeight } from 'utils/constants';
+import { colorLegend, rescale, categoricals, translateExtentStartEnd, isDateFieldString, colors20 } from 'utils/Utils';
+import { scatterWidth, scatterHeight, plotMargin } from 'utils/constants';
 
 const ScatterCanvas =
 React.memo(
@@ -19,7 +19,7 @@ React.memo(
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
 
-        const margin = { top: 20, right: 100, bottom: 80, left: 80 };
+        const margin = plotMargin;
         const innerWidth =scatterWidth() - margin.left - margin.right;
         const innerHeight =scatterHeight()  - margin.top - margin.bottom;
 
@@ -44,7 +44,7 @@ React.memo(
                      
         const colorDomain = Array.from(new Set(shownData.map(d => d[colorField])));
         colorDomain.sort();
-        const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
+        const colorScale = d3.scaleOrdinal(colors20()).domain(colorDomain); 
 
         const xAxis = d3.axisBottom(xScale);
         const yAxis = d3.axisLeft(yScale);
@@ -66,7 +66,7 @@ React.memo(
 
         brush_part();
 
-        ColorLegend(shownData, colorField, svg, scatterWidth()  - margin.right , margin); 
+        colorLegend(shownData, colorField, svg, scatterWidth()  - margin.right , margin); 
 
 
         function axes_and_captions_plot() {
@@ -83,7 +83,7 @@ React.memo(
             g.append("text")
                 .attr("y", innerHeight + margin.bottom / 2)
                 .attr("x", innerWidth / 2)  
-                .attr("dy", "2em")  
+                .attr("dy", "1em")  
                 .style("text-anchor", "middle")
                 .text(xField);
 
@@ -269,19 +269,21 @@ React.memo(
 
     return (
         <div className="scatter-canvas" style={{ position: 'relative' }}>
-            <button onClick={() => setBrushing(!brushing)}
-                style={{
-                    position: 'absolute',
-                    bottom: '30px',
-                    right: '60px',
-                    // Optional: Add some spacing from the edges if needed
-                    margin: '10px'
-                }}
-            >
-                {brushing ? 'de-brush' : 'brush'}
-            </button>
 
-            <svg  ref={svgRef} width={scatterWidth()} height={scatterHeight()}  ></svg>
+            <svg  className= "plot-svg" ref={svgRef} width={scatterWidth()} height={scatterHeight()}  ></svg>
+
+            <button onClick={() => setBrushing(!brushing)}
+                        style={{
+                            position: 'absolute',
+                            bottom: '30px',
+                            right: '60px',
+                            width: '50px',
+                            height: '30px',
+                            margin: '10px'
+                        }}
+                    >
+                        {brushing ? 'de-brush' : 'brush'}
+            </button>
 
         </div>
     );

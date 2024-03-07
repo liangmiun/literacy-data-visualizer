@@ -11,7 +11,7 @@ const AggregateCanvas = (props) => {
 
     return(
         
-        <>
+        <div className="scatter-canvas" >
             {
                 // filteredData.length > 0 && 
                 (
@@ -38,7 +38,7 @@ const AggregateCanvas = (props) => {
                     </>
                 )
             }
-        </>
+        </div>
     )
 };
 
@@ -56,7 +56,7 @@ const ViolinPlots = (props ) => {
         drawCommonAggrParts(svg, g, xAxis, yField, yScale);
 
         const aggregate = g.append('g')
-        .attr('id', 'g').attr("clip-path", "url(#clip)");
+        .attr('id', 'aggregate').attr("clip-path", "url(#clip)");
 
         const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
 
@@ -133,7 +133,7 @@ const ViolinPlots = (props ) => {
     }, [shownData,xField, yField, colorField, studentsChecked,  onViolinClick, showLines, subBandCount, classColors, connectIndividual]);
     
     return (
-        <svg className="scatter-canvas" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
+        <svg   className= "plot-svg" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
     );
     };
 
@@ -152,7 +152,7 @@ const BoxPlots = (props) => {
         drawCommonAggrParts(svg, g, xAxis, yField, yScale);
 
         const aggregate = g.append('g')
-        .attr('id', 'g').attr("clip-path", "url(#clip)");
+        .attr('id', 'aggregate').attr("clip-path", "url(#clip)");
 
         const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
 
@@ -238,7 +238,7 @@ const BoxPlots = (props) => {
         
     }, [shownData, xField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, subBandCount, connectIndividual]); 
     return (
-        <svg className="scatter-canvas" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
+        <svg   className= "plot-svg" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
     );
 
 }
@@ -257,7 +257,7 @@ const CirclePlots = (props) => {
             drawCommonAggrParts(svg, g, xAxis, yField, yScale);
 
             const aggregate = g.append('g')
-            .attr('id', 'g').attr("clip-path", "url(#clip)");
+            .attr('id', 'aggregate').attr("clip-path", "url(#clip)");
     
             const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
 
@@ -312,7 +312,7 @@ const CirclePlots = (props) => {
         }, [shownData, xField, yField, colorField, studentsChecked,  classColors,  onBoxClick, showLines,subBandCount, connectIndividual]);  //onBoxClick,
 
         return (
-            <svg className="scatter-canvas" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
+            <svg  className= "plot-svg" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
         );
     
     }

@@ -176,18 +176,23 @@ export function generateSchoolLastingClassMap(litData) {
 
 }
 
+export function colors20() {
+  const colors = d3.schemeCategory10;
+  const brighterColors = colors.map(color => {
+    const brightenedColor = d3.color(color).brighter(1);
+    return `rgba(${brightenedColor.r}, ${brightenedColor.g}, ${brightenedColor.b}, 0.5)`;
+  });
+  return colors.concat(brighterColors);
+}
 
 export function generateSchoolClassColorScale(schoolClasses) {
 
     const classColorScaleMap = {};
-    const colors = d3.schemeCategory10;
-    const brighterColors = colors.map(color => d3.color(color).brighter(1).toString());
-    const Colors20 = colors.concat(brighterColors);
 
     for(const school in schoolClasses){
       const classsIDs = Object.keys(schoolClasses[school]);
       const classColorScale = classsIDs.reduce((acc, classID, index) => {
-        acc[classID] = Colors20[index % 20];
+        acc[classID] = colors20()[index % 20];
         return acc;
       }, {});
       classColorScaleMap[school] = classColorScale;
@@ -196,20 +201,20 @@ export function generateSchoolClassColorScale(schoolClasses) {
     const schools = Object.keys(schoolClasses);
     const schoolColorScale = d3.scaleOrdinal()
     .domain(schools)
-    .range(schools.map(d => Colors20[schools.indexOf(d) % 20]));
+    .range(schools.map(d => colors20()[schools.indexOf(d) % 20]));
 
     return { schoolColor: schoolColorScale, classColor: classColorScaleMap };
   }
 
 
-export function ColorLegend(data, colorField, svg, width, margin) {
+export function colorLegend(data, colorField, svg, width, margin) {
 
   const colorDomain = Array.from(
     new Set(data.map(d => d[colorField]).filter(value => value != null))
   );
   
   colorDomain.sort();
-  const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(colorDomain); 
+  const colorScale = d3.scaleOrdinal(colors20()).domain(colorDomain); // d3.schemeCategory10
 
 // Add a group for the legend
   const legend = svg.append("g")
@@ -221,7 +226,10 @@ export function ColorLegend(data, colorField, svg, width, margin) {
   .style("font-weight", "bold")  // Make the title bold (optional)
   .text(colorField);
 
-  colorDomain.forEach((value, index) => {
+  const first20ColorDomain = colorDomain.slice(0, 20);
+
+
+  first20ColorDomain.forEach((value, index) => {
 
       const strippedValue = value.toString().split(" ")[0];
       // Draw colored rectangle
