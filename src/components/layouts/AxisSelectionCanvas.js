@@ -69,20 +69,25 @@ function Axes({ props, x_options, y_options, colorOptions}) {
           <Tooltip title="Select variable on horizontal axis" followCursor>
             <InputLabel id="x-field-label">X-field</InputLabel>
           </Tooltip>
-          <MuiSelect
-            labelId="x-field-label"
-            id="x-field"
-            sx={{ width: '7vw' }}
-            value={props.xField}
-            onChange={ (event) => props.onXFieldChange(event.target.value)}
-            label="X-field"
-          >
-            {x_options.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </MuiSelect>
+          <Tooltip title={props.isClassView ? "X-field is locked to Test Date in Class View" : ''} followCursor>
+          <div>
+            <MuiSelect
+              disabled = {props.isClassView}
+              labelId="x-field-label"
+              id="x-field"
+              sx={{ width: '7vw' }}
+              value={props.isClassView? 'Testdatum': props.xField}
+              onChange={ (event) => props.onXFieldChange(event.target.value)}
+              label="X-field"
+            >
+              {x_options.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </MuiSelect>
+          </div>
+          </Tooltip>
         </FormControl>
       </div>       
 
@@ -113,10 +118,14 @@ function Axes({ props, x_options, y_options, colorOptions}) {
           <Tooltip title="Select variable for color coded data" followCursor>
             <InputLabel id="color-field-label">Color</InputLabel>
           </Tooltip>
+
+          <Tooltip title={props.isClassView ? "Color is locked to class names in Class View" : ''} followCursor>
+          <div>
           <MuiSelect
+            disabled = {props.isClassView}
             labelId="color-label"
             id="color-field"
-            value={props.colorField}
+            value={props.isClassView? 'Klass': props.colorField}
             sx={{ width: '6vw' }}
             onChange={(event) => props.onColorFieldChange(event.target.value)}
             label="Color-field"
@@ -127,6 +136,8 @@ function Axes({ props, x_options, y_options, colorOptions}) {
               </MenuItem>
             ))}
           </MuiSelect>
+          </div>
+          </Tooltip>
         </FormControl>
       </div>
     </div>
@@ -142,20 +153,25 @@ function TrendBar({props, trendOptions, handleTrendChange, trendToLabel}) {
           <Tooltip title="show all records or only declining records" followCursor>
             <InputLabel id="trend-label">Trend</InputLabel>
           </Tooltip>
-          <MuiSelect
-            disabled = {props.isClassView} 
-            labelId="trend-label"
-            id="trend"
-            value={props.trend}
-            onChange={handleTrendChange}
-            label="Trend"
-          >
-            {trendOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </MuiSelect>
+
+          <Tooltip title={props.isClassView ? "Trend for individual students is disabled Class View" : ''} followCursor>
+          <div>
+            <MuiSelect
+              disabled = {props.isClassView} 
+              labelId="trend-label"
+              id="trend"
+              value={props.trend}
+              onChange={handleTrendChange}
+              label="Trend"
+            >
+              {trendOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </MuiSelect>
+          </div>
+          </Tooltip>
         </FormControl>
 
       </div>

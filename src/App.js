@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
-import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Link, Routes, useLocation } from 'react-router-dom';
 import { rowParser,  load, data_fields, y_data_fields} from './utils/Utils';
 import { useAuth } from './authentications/AuthContext';
 import ProtectedWrapper from './authentications/ProtectedWrapper';
@@ -94,31 +94,7 @@ const App = () => {
   return ( 
       <Router  basename="literacy-data-visualizer"  >
           <div className = "grid-container">
-            {/* Add navigation links */}
-            <nav className='navigation'>
-              <ul className ="headers">
-                {currentUser? 
-                  <>
-                  <li  className="header-li-style">
-                    <Link to="/">Plot</Link>
-                  </li>
-                  <li  className="header-li-style">
-                    <Link to="/help">Help</Link>
-                  </li>
-                  <li  className="header-li-style">
-                    <Link to="/about">About</Link>
-                  </li>
-                  <li  className="header-li-style">
-                    <Link to="/logout">Logout</Link>
-                  </li>
-                  </>                  
-                  :
-                  <li  className="header-li-style">
-                  <Link to="/login">Login</Link>
-                  </li>
-                }
-              </ul>
-            </nav>
+            <Navigation currentUser={currentUser} />
             {/* Define routes */}
             <div className="content">
               <Routes>
@@ -202,5 +178,41 @@ const App = () => {
       </Router> 
   );
 };
+
+
+function Navigation({ currentUser }) {
+  const location = useLocation(); // Correct use within a functional component
+
+  return (
+    <nav className='navigation'>
+    <ul className ="headers">
+      {currentUser? 
+        <>
+        <li  className="header-li-style">
+          <Link to="/">Plot</Link>
+        </li>
+        <li  className="header-li-style">
+          <Link to="/help">Help</Link>
+        </li>
+        <li  className="header-li-style">
+          <Link to="/about">About</Link>
+        </li>
+        {location.pathname !== "/"  &&
+        <li  className="header-li-style">
+          <Link to="/logout">Logout</Link>
+        </li>
+        }
+        </>                  
+        :
+        <li  className="header-li-style">
+        <Link to="/login">Login</Link>
+        </li>
+      }
+      </ul>
+    </nav>
+
+  );
+}
+
 
 export default App;
