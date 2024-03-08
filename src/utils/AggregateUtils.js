@@ -369,6 +369,7 @@ function commonPartRender( g, zoomXScale, zoomYScale, zoomState, subBandWidth, g
         zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale, connectIndividual);
     }
 
+
 }
 
 

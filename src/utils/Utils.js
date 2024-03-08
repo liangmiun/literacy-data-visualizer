@@ -207,6 +207,52 @@ export function generateSchoolClassColorScale(schoolClasses) {
   }
 
 
+export function aggrColorLegend( checkedClasses, classColors, svg, width, margin) {
+  
+    const legend = svg.append("g").attr("class", "legend")
+        .attr("transform", `translate(${width + 30}, ${margin.top})`);  // Adjust position as required  //width - legendWidth
+  
+    legend.append("text")
+    .attr("x", 0)
+    .attr("y", -5)  // Position the title a bit above the colored rectangles
+    .style("font-weight", "bold")  // Make the title bold (optional)
+    .text("Classes");
+
+    const first20CheckedClasses = checkedClasses.slice(0, 20);
+
+    console.log(checkedClasses);
+  
+    first20CheckedClasses.forEach((schoolClass, index) => {
+
+        const school = schoolClass.split(".")[0];
+        const classID = schoolClass.split(".")[1];
+        console.log(schoolClass, Object.keys(classColors),  classColors[school][classID]);
+        
+        // Draw colored rectangle
+        legend.append("rect")
+            .attr("x", 0)
+            .attr("y", index * 20)
+            .attr("width", 15)
+            .attr("height", 15)
+            .style("fill", classColors[school][classID]);
+  
+        // Draw text beside rectangle
+        legend.append("text")
+            .attr("x", 25)  // Adjust for padding beside rectangle
+            .attr("y", index * 20 + 12)  // Adjust to vertically center text
+            .text(classID);
+    });
+  
+    if (checkedClasses.length > 20) {
+        legend.append("text")
+            .attr("x", 0)
+            .attr("y", checkedClasses.length * 20 + 12)
+            .text("(and more ...)");
+    }
+
+}
+
+
 export function colorLegend(data, colorField, svg, width, margin) {
 
   const colorDomain = Array.from(
@@ -217,7 +263,7 @@ export function colorLegend(data, colorField, svg, width, margin) {
   const colorScale = d3.scaleOrdinal(colors20()).domain(colorDomain); // d3.schemeCategory10
 
 // Add a group for the legend
-  const legend = svg.append("g")
+  const legend = svg.append("g").attr("class", "legend")
       .attr("transform", `translate(${width + 30}, ${margin.top})`);  // Adjust position as required  //width - legendWidth
 
   legend.append("text")
@@ -246,6 +292,13 @@ export function colorLegend(data, colorField, svg, width, margin) {
           .attr("y", index * 20 + 12)  // Adjust to vertically center text
           .text(strippedValue);
   });
+
+  if (colorDomain.length > 20) {
+      legend.append("text")
+          .attr("x", 0)
+          .attr("y", first20ColorDomain.length * 20 + 12)
+          .text("(and more ...)");
+  }
 
 
 }

@@ -31,7 +31,7 @@ const ScatterPage = (props ) => {
     if (Object.keys(data).length > 0)
     {
       const nonNullLexploreData = data.filter(d => d['Lexplore Score'] !== null);
-      const newSchoolClasses = generateSchoolLastingClassMap(nonNullLexploreData);  //
+      const newSchoolClasses = generateSchoolLastingClassMap(nonNullLexploreData);  
       const newClassColorScale = generateSchoolClassColorScale(newSchoolClasses).classColor;
       setSchoolClassesAndColorScale({ schoolClasses: newSchoolClasses, colorScale: newClassColorScale});
     }
@@ -174,7 +174,7 @@ const ScatterPage = (props ) => {
           connectIndividual={connectIndividual}
           aggregateType = {aggregateType}
           classColors={schoolClassesAndColorScale.colorScale}
-          checkedClasses={props.checkedClasses}
+          checkedClasses={checkedClasses}
           showLines={props.showLines} 
         />
         :
@@ -197,9 +197,9 @@ const ScatterPage = (props ) => {
       <FilterCanvas 
         data={data}
         fields={props.fields} 
-        checkedSchools={props.checkedSchools}
+        checkedSchools={checkedSchools}
         setCheckedSchools={props.setCheckedSchools}
-        checkedClasses={props.checkedClasses}
+        checkedClasses={checkedClasses}
         setCheckedClasses={props.setCheckedClasses}
         rangeOptions={props.rangeOptions}
         setRangeOptions={props.setRangeOptions}

@@ -32,7 +32,7 @@ function SchoolTreeView(props) {
       );
 
     setIndeterminateAllSchools(someChecked && someUnchecked);
-    setCheckedAllSchools(allSchools.length === checkedSchools.length && someUnchecked === false); //???
+    setCheckedAllSchools(allSchools.length === checkedSchools.length && someUnchecked === false); 
   }, [props.checkedSchools, allSchools]);
 
 
