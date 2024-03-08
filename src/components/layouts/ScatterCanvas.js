@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import { set } from 'd3-collection';
 import { colorLegend, rescale, categoricals, translateExtentStartEnd, isDateFieldString, colors20 } from 'utils/Utils';
-import { scatterWidth, scatterHeight, plotMargin } from 'utils/constants';
+import { plotMargin } from 'utils/constants';
 
 const ScatterCanvas =
 React.memo(
@@ -12,16 +12,38 @@ React.memo(
     const [brushing, setBrushing] = useState(false);
     const prevBrushingRef = useRef();
     const newXScaleRef = useRef(null);
-    const newYScaleRef = useRef(null);  
-    
+    const newYScaleRef = useRef(null); 
+    const [dimensions,setDimensions] = useState({ width: (0.60 * window.innerWidth) , height:(0.85*window.innerHeight) }); 
+    const gridRef = useRef(null);
+
+
     useEffect(() => {
+        // resize the plot canvas when the browser window is resized.
+        const updateDimensions = () => {
+          if (gridRef.current) {
+            const rect = gridRef.current.getBoundingClientRect();
+            setDimensions({ width: rect.width, height: rect.height });
+          }
+        };
+    
+        updateDimensions(); // Update dimensions on mount
+    
+        window.addEventListener('resize', updateDimensions); // Update on resize
+    
+        // Cleanup
+        return () => window.removeEventListener('resize', updateDimensions);
+      }, []);    
+
+    
+    useEffect(() => {          
 
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
 
         const margin = plotMargin;
-        const innerWidth =scatterWidth() - margin.left - margin.right;
-        const innerHeight =scatterHeight()  - margin.top - margin.bottom;
+        
+        const innerWidth =  dimensions.width - margin.left - margin.right;
+        const innerHeight = dimensions.height - margin.top - margin.bottom;
 
         // eslint-disable-next-line
         var clip = svg.append("defs").append("svg:clipPath")
@@ -66,7 +88,7 @@ React.memo(
 
         brush_part();
 
-        colorLegend(shownData, colorField, svg, scatterWidth()  - margin.right , margin); 
+        colorLegend(shownData, colorField, svg, dimensions.width  - margin.right , margin); 
 
 
         function axes_and_captions_plot() {
@@ -77,7 +99,7 @@ React.memo(
             .attr("x", -innerHeight / 2) 
             .attr("dy", "1em")  
             .style("text-anchor", "middle")
-            .text(yField); 
+            .text(yField ); 
     
     
             g.append("text")
@@ -265,12 +287,13 @@ React.memo(
 
         }       
     
-    },[shownData, xField, yField, colorField, brushing,  showLines, newXScaleRef, newYScaleRef, setSelectedRecords]); 
+    },[shownData, xField, yField, colorField, brushing,  showLines, newXScaleRef, newYScaleRef, setSelectedRecords, dimensions]); 
 
     return (
-        <div className="scatter-canvas" style={{ position: 'relative' }}>
+        
+        <div  ref = {gridRef} className="scatter-canvas" style={{ position: 'relative' }}>
 
-            <svg  className= "plot-svg" ref={svgRef} width={scatterWidth()} height={scatterHeight()}  ></svg>
+            <svg  className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}  ></svg>
 
             <button onClick={() => setBrushing(!brushing)}
                         style={{

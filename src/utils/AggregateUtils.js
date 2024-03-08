@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import {  rescale, translateExtentStartEnd, formatDate } from 'utils/Utils';
-import { innerAggrWidth, innerAggrHeight } from './constants';
+
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 5;
@@ -103,7 +103,7 @@ export function getLastingClassID(school, seasonKey, classKey)
 }
 
 
-export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType, margin)  {
+export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType, margin, dimensions)  {
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();           
@@ -116,7 +116,7 @@ export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType
     const yPadding = (yMax - yMin) * 0.1;
     const yScale = d3.scaleLinear()
         .domain([yMin - yPadding, yMax + yPadding])
-        .range([innerAggrHeight(), 0]);
+        .range([ dimensions.height - margin.top - margin.bottom, 0]);
 
     // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
     const sumstat = setSumStat(filteredData, yScale, yField, aggregateType);
@@ -157,7 +157,7 @@ export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType
     // Create main band scale for seasons
     const xMainBandScale = d3.scaleBand()
     .domain(seasons)
-    .range([0, innerAggrWidth()])
+    .range([0, dimensions.width - margin.left - margin.right])
     .paddingInner(0.2)
     .paddingOuter(0.2);
 

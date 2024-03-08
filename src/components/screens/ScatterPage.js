@@ -26,8 +26,9 @@ const ScatterPage = (props ) => {
   const [dataToShow, setDataToShow] = useState([]);
   const [minDeclineThreshold, setMinDeclineThreshold] = useState(-1);
   const [filterList, setFilterList] = useState([]);
-  const [ emptyFilterOptions, setEmptyFilterOptions] = useState({});  
+  const [emptyFilterOptions, setEmptyFilterOptions] = useState({}); 
 
+  
   useEffect(() => {
     if (Object.keys(data).length > 0)
     {
@@ -212,7 +213,7 @@ const ScatterPage = (props ) => {
           showLines={props.showLines} 
         />
         :
-        <ScatterCanvas
+        <ScatterCanvas 
           shownData={shownData}
           xField={props.xField}
           yField={props.yField}

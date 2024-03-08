@@ -1,35 +1,56 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { formatTickValue, aggrColorLegend } from 'utils/Utils';
 import * as AggregateUtils from 'utils/AggregateUtils';
-import { aggrWidth, aggrHeight, innerAggrWidth, innerAggrHeight, plotMargin } from 'utils/constants';
+import {  plotMargin } from 'utils/constants';
 
 
 const AggregateCanvas = (props) => {
+
+    const [dimensions,setDimensions] = useState({ width: (0.60 * window.innerWidth) , height:(0.85*window.innerHeight) }); 
+    const gridRef = useRef(null);
+
+
+    useEffect(() => {
+        // resize the plot canvas when the browser window is resized.
+        const updateDimensions = () => {
+          if (gridRef.current) {
+            const rect = gridRef.current.getBoundingClientRect();
+            setDimensions({ width: rect.width, height: rect.height });
+          }
+        };
+    
+        updateDimensions(); // Update dimensions on mount
+    
+        window.addEventListener('resize', updateDimensions); // Update on resize
+    
+        // Cleanup
+        return () => window.removeEventListener('resize', updateDimensions);
+      }, []);    
    
 
     return(
         
-        <div className="scatter-canvas" >
+        <div  ref= {gridRef} className="scatter-canvas" >
             {
                 // filteredData.length > 0 && 
                 (
                     <>
                    
                         { props.aggregateType ==='violin' && < ViolinPlots shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
-                            onViolinClick={props.onPartClick}  
+                            onViolinClick={props.onPartClick}  dimensions={dimensions}
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}  checkedClasses={props.checkedClasses}
                             showLines={props.showLines}  connectIndividual = {props.connectIndividual}  />
                         }
                         
                         {props.aggregateType ==='box' && <BoxPlots    shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
-                            onBoxClick={props.onPartClick} 
+                            onBoxClick={props.onPartClick} dimensions={dimensions}
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}  checkedClasses={props.checkedClasses}
                             showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
                         }
 
                         {props.aggregateType ==='circle' && <CirclePlots  shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
-                            onBoxClick={props.onPartClick} 
+                            onBoxClick={props.onPartClick} dimensions={dimensions}
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}  checkedClasses={props.checkedClasses}
                             showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
                         }
@@ -46,15 +67,15 @@ const ViolinPlots = (props ) => {
     const svgRef = useRef();
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const { shownData, xField, yField, colorField, onViolinClick, studentsChecked,  showLines, checkedClasses, classColors, connectIndividual } = props;
+    const { shownData, xField, yField, colorField, onViolinClick, studentsChecked,  showLines, checkedClasses, classColors, connectIndividual, dimensions } = props;
 
     useEffect(() => {
 
         const subBandCount = checkedClasses.length;
 
-        const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField,'violin', plotMargin);
+        const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField,'violin', plotMargin, dimensions);
 
-        drawCommonAggrParts(svg, g, xAxis, yField, yScale);
+        drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions);
 
         const aggregate = g.append('g')
         .attr('id', 'aggregate').attr("clip-path", "url(#clip)");
@@ -131,10 +152,10 @@ const ViolinPlots = (props ) => {
         setAggregationZoom( 'violin', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, xNumScale);
   
 
-    }, [shownData,xField, yField, colorField, studentsChecked,  onViolinClick, showLines, checkedClasses, classColors, connectIndividual]);
+    }, [shownData,xField, yField, colorField, studentsChecked,  onViolinClick, showLines, checkedClasses, classColors, connectIndividual, dimensions]);
     
     return (
-        <svg   className= "plot-svg" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
+        <svg   className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
     );
     };
 
@@ -143,16 +164,16 @@ const BoxPlots = (props) => {
     const svgRef = useRef();
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const {shownData, xField, yField, colorField, onBoxClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual } = props;
+    const {shownData, xField, yField, colorField, onBoxClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual, dimensions } = props;
     
     // In your useEffect: 
     useEffect(() => {
 
         const subBandCount = checkedClasses.length;
 
-        const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin);
+        const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin, dimensions);
 
-        drawCommonAggrParts(svg, g, xAxis, yField, yScale);
+        drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions);
 
         const aggregate = g.append('g')
         .attr('id', 'aggregate').attr("clip-path", "url(#clip)");
@@ -239,9 +260,9 @@ const BoxPlots = (props) => {
 
         setAggregationZoom( 'box', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, null);
         
-    }, [shownData, xField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, checkedClasses, connectIndividual]); 
+    }, [shownData, xField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, checkedClasses, connectIndividual, dimensions]); 
     return (
-        <svg   className= "plot-svg" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
+        <svg   className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
     );
 
 }
@@ -251,15 +272,15 @@ const CirclePlots = (props) => {
         const svgRef = useRef();
         const newXScaleRef = useRef(null);
         const newYScaleRef = useRef(null);
-        const {shownData, xField, yField, colorField, onBoxClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual } = props;
+        const {shownData, xField, yField, colorField, onBoxClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual, dimensions } = props;
         
         useEffect(() => {
 
             const subBandCount = checkedClasses.length;
     
-            const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin);
+            const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin, dimensions);
   
-            drawCommonAggrParts(svg, g, xAxis, yField, yScale);
+            drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions);
 
             const aggregate = g.append('g')
             .attr('id', 'aggregate').attr("clip-path", "url(#clip)");
@@ -277,7 +298,6 @@ const CirclePlots = (props) => {
             .attr('r', 6)  
             .attr('fill', d => {
                 const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
-                //console.log('school',d.value.school,"classID", classID, 'classColor length',Object.keys(classColors).length);
                 return  classColors[d.value.school][classID] ;})
             .on("click", function(event,d) {   
 
@@ -314,27 +334,30 @@ const CirclePlots = (props) => {
 
             //colorLegend(shownData, colorField, svg, aggrWidth()  - plotMargin.right , plotMargin); 
 
-            aggrColorLegend( checkedClasses, classColors, svg, aggrWidth()- plotMargin.right , plotMargin)
+            aggrColorLegend( checkedClasses, classColors, svg, dimensions.width- plotMargin.right , plotMargin)
 
     
 
-        }, [shownData, xField, yField, colorField, studentsChecked,  classColors,  onBoxClick, showLines,checkedClasses, connectIndividual]);  //onBoxClick,
+        }, [shownData, xField, yField, colorField, studentsChecked,  classColors,  onBoxClick, showLines,checkedClasses, connectIndividual, dimensions]);  //onBoxClick,
 
         return (
-            <svg  className= "plot-svg" ref={svgRef} width={aggrWidth()} height={aggrHeight()}></svg>
+            <svg  className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
         );
     
     }
 
 
-function drawCommonAggrParts(svg, g, xAxis, yField, yScale) {
+function drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions) {
+
+    const innerAggrWidth = dimensions.width - plotMargin.left - plotMargin.right;
+    const innerAggrHeight = dimensions.height - plotMargin.top - plotMargin.bottom;
 
     // eslint-disable-next-line no-unused-vars
     var clip = svg.append("defs").append("svg:clipPath")
     .attr("id", "clip")
     .append("svg:rect")
-    .attr("width", innerAggrWidth() )
-    .attr("height", innerAggrHeight())
+    .attr("width", innerAggrWidth )
+    .attr("height", innerAggrHeight)
     .attr("x", 0)
     .attr("y", 0);
 
@@ -342,21 +365,21 @@ function drawCommonAggrParts(svg, g, xAxis, yField, yScale) {
     .style("stroke", "black")  // Line color
     .style("stroke-width", 0.5)  // Line width
     .attr("x1", 0)  // Start of the line on the x-axis
-    .attr("x2", innerAggrWidth())  // End of the line on the x-axis (width of your plot)
-    .attr("y1", innerAggrHeight())  // Y-coordinate for the line
-    .attr("y2", innerAggrHeight()); 
+    .attr("x2", innerAggrWidth)  // End of the line on the x-axis (width of your plot)
+    .attr("y1", innerAggrHeight)  // Y-coordinate for the line
+    .attr("y2", innerAggrHeight); 
 
     // For the X axis label:
     g.append("text")
-        .attr("y", innerAggrHeight() + plotMargin.bottom / 2)
-        .attr("x", innerAggrWidth() / 2)  
+        .attr("y", innerAggrHeight + plotMargin.bottom / 2)
+        .attr("x", innerAggrWidth / 2)  
         .attr("dy", "1em")    
         .style("text-anchor", "middle")  
         .text("Months of Testdatum"); 
 
     // Add the x-axis to the group element
     g.append("g")
-        .attr("transform", `translate(0, ${innerAggrHeight()})`)
+        .attr("transform", `translate(0, ${innerAggrHeight})`)
         .call(xAxis)
         .attr('class', 'x-axis').attr("clip-path", "url(#clip)")
         .selectAll(".tick text")         
@@ -371,7 +394,7 @@ function drawCommonAggrParts(svg, g, xAxis, yField, yScale) {
     g.append("text")
     .attr("transform", "rotate(-90)")
     .attr("y", -plotMargin.left)
-    .attr("x", -innerAggrHeight() / 2) 
+    .attr("x", -innerAggrHeight / 2) 
     .attr("dy", "1em")  
     .style("text-anchor", "middle")
     .text(yField); 
