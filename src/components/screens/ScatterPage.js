@@ -26,6 +26,7 @@ const ScatterPage = (props ) => {
   const [dataToShow, setDataToShow] = useState([]);
   const [minDeclineThreshold, setMinDeclineThreshold] = useState(-1);
   const [filterList, setFilterList] = useState([]);
+  const [ emptyFilterOptions, setEmptyFilterOptions] = useState({});  
 
   useEffect(() => {
     if (Object.keys(data).length > 0)
@@ -122,6 +123,39 @@ const ScatterPage = (props ) => {
       
   }, [ dataToShow, xField, yField,checkedSchools,checkedClasses, checkedFilteredData,  rangeFilteredData]);  
 
+  useEffect(() => {
+    // Define the labels and their options
+    const labelsWithOptions = {
+      "Årskurs": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "Läsår": ["18/19", "19/20", "20/21", "21/22", "22/23"],
+      "Stanine": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    };
+
+    // Initialize emptyOptions with labels as keys and empty arrays as values
+    let newEmptyOptions = Object.keys(labelsWithOptions).reduce((acc, label) => {
+      acc[label] = [];
+      return acc;
+    }, {});
+
+    // Iterate through each label and its options
+    Object.entries(labelsWithOptions).forEach(([label, options]) => {
+      options.forEach(option => {
+        // Check if there's no record in shownData with the current label and option
+        const isOptionMissing = !shownData.some(recordX => recordX[label] === option);
+        if (isOptionMissing) {
+          // If the option is missing, add it to the respective label in newEmptyOptions
+          newEmptyOptions[label].push(option);
+        }
+      });
+    });
+
+    // Update the emptyOptions state with newEmptyOptions
+    setEmptyFilterOptions(newEmptyOptions);
+    
+  }, [shownData]);
+  
+
+
   return (   
     <div className="app" >  
       <AxisSelectionCanvas
@@ -210,6 +244,7 @@ const ScatterPage = (props ) => {
         school_class={schoolClassesAndColorScale.schoolClasses}
         onColorPaletteClick={handleClassColorPaletteClick}
         classColors = {schoolClassesAndColorScale.colorScale}
+        emptyFilterOptions={emptyFilterOptions}
       />   
 
       <LogicCanvas  

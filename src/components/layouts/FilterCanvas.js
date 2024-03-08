@@ -30,6 +30,7 @@ const FilterCanvas = (props) => {
         setCheckedOptions={props.setCheckedOptions}   
         rangeOptions={props.rangeOptions}  
         setRangeOptions={props.setRangeOptions}
+        emptyFilterOptions={props.emptyFilterOptions}
       />
 
     </div>

@@ -208,46 +208,47 @@ export function generateSchoolClassColorScale(schoolClasses) {
 
 
 export function aggrColorLegend( checkedClasses, classColors, svg, width, margin) {
-  
-    const legend = svg.append("g").attr("class", "legend")
-        .attr("transform", `translate(${width + 30}, ${margin.top})`);  // Adjust position as required  //width - legendWidth
-  
-    legend.append("text")
-    .attr("x", 0)
-    .attr("y", -5)  // Position the title a bit above the colored rectangles
-    .style("font-weight", "bold")  // Make the title bold (optional)
-    .text("Classes");
 
-    const first20CheckedClasses = checkedClasses.slice(0, 20);
+    if(Object.keys(classColors).length > 0)
+    {
+      const legend = svg.append("g").attr("class", "legend")
+          .attr("transform", `translate(${width + 30}, ${margin.top})`);  // Adjust position as required  //width - legendWidth
+    
+      legend.append("text")
+      .attr("x", 0)
+      .attr("y", -5)  // Position the title a bit above the colored rectangles
+      .style("font-weight", "bold")  // Make the title bold (optional)
+      .text("Classes");
 
-    console.log(checkedClasses);
-  
-    first20CheckedClasses.forEach((schoolClass, index) => {
+      const first20CheckedClasses = checkedClasses.slice(0, 20);
 
-        const school = schoolClass.split(".")[0];
-        const classID = schoolClass.split(".")[1];
-        console.log(schoolClass, Object.keys(classColors),  classColors[school][classID]);
-        
-        // Draw colored rectangle
-        legend.append("rect")
-            .attr("x", 0)
-            .attr("y", index * 20)
-            .attr("width", 15)
-            .attr("height", 15)
-            .style("fill", classColors[school][classID]);
-  
-        // Draw text beside rectangle
-        legend.append("text")
-            .attr("x", 25)  // Adjust for padding beside rectangle
-            .attr("y", index * 20 + 12)  // Adjust to vertically center text
-            .text(classID);
-    });
-  
-    if (checkedClasses.length > 20) {
-        legend.append("text")
-            .attr("x", 0)
-            .attr("y", checkedClasses.length * 20 + 12)
-            .text("(and more ...)");
+    
+      first20CheckedClasses.forEach((schoolClass, index) => {
+
+          const school = schoolClass.split(".")[0];
+          const classID = schoolClass.split(".")[1];
+          
+          // Draw colored rectangle
+          legend.append("rect")
+              .attr("x", 0)
+              .attr("y", index * 20)
+              .attr("width", 15)
+              .attr("height", 15)
+              .style("fill", classColors[school][classID]);
+    
+          // Draw text beside rectangle
+          legend.append("text")
+              .attr("x", 25)  // Adjust for padding beside rectangle
+              .attr("y", index * 20 + 12)  // Adjust to vertically center text
+              .text(classID);
+      });
+    
+      if (checkedClasses.length > 20) {
+          legend.append("text")
+              .attr("x", 0)
+              .attr("y", checkedClasses.length * 20 + 12)
+              .text("(and more ...)");
+      }
     }
 
 }
@@ -380,6 +381,7 @@ export function translateExtentStartEnd(coeffX, coeffY, svg)
 
   return [[x0, y0], [x1, y1]];
 }
+
 
 
 

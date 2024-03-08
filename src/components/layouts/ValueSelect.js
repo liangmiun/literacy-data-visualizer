@@ -3,9 +3,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Button from '@mui/material/Button';
 import * as d3 from 'd3';
 import 'assets/App.css';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import {greyTheme} from 'assets/themes.js';
+import Tooltip from '@mui/material/Tooltip';
 
 
-export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeOptions, setCheckedOptions, setRangeOptions }) {
+export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeOptions, setCheckedOptions, setRangeOptions, emptyFilterOptions }) {
     const allOptions = Object.keys(checkedOptions).concat(Object.keys(rangeOptions));
     const [selectedOptions, setSelectedOptions] = useState([]);  
 
@@ -40,7 +43,9 @@ export function OptionSelectGroup({ data, setFilterList,  checkedOptions, rangeO
                 {selectedOptions.map(option => {
                     if (checkedOptions.hasOwnProperty(option)) {
                         const uniqueValues = [...new Set(data.map(item => item[option]))];
-                        return <OptionCheckBoxes   key={option} label={option} options={uniqueValues} checkedOptions={checkedOptions[option]} setCheckedOptions={setCheckedOptions} />;
+                        return <OptionCheckBoxes   key={option} label={option} options={uniqueValues} 
+                                emptyFilterOptions={emptyFilterOptions}
+                                checkedOptions={checkedOptions[option]} setCheckedOptions={setCheckedOptions} />;
                     } else if (rangeOptions.hasOwnProperty(option)) {
                         const [minValue, maxValue] = d3.extent(data, d => d[option]);
                         return <OptionSlider   key={option} label={option} min={+minValue} max={+maxValue} setRangeOptions={setRangeOptions} />;
@@ -89,9 +94,11 @@ function OptionSlider({ label, min, max, setRangeOptions }) {
 }
 
 
-function OptionCheckBoxes({ label, options, checkedOptions, setCheckedOptions }) {
+function OptionCheckBoxes({ label, options, checkedOptions, setCheckedOptions, emptyFilterOptions }) {
+    const defaultTheme = createTheme();
     const handleCheckChange = (option, isChecked) => {
         if (isChecked) {
+            console.log('label', label,"option", option);
             setCheckedOptions(prev => ({ ...prev, [label]: [...prev[label], option] }));
         } else {
             setCheckedOptions(prev => ({ ...prev, [label]: prev[label].filter(item => item !== option) }));
@@ -114,24 +121,32 @@ function OptionCheckBoxes({ label, options, checkedOptions, setCheckedOptions })
                 </Button>
             </div>
             <FormGroup row>
-                {sorted_options.map(option => (
-                    <FormControlLabel
-                        key={option}
-                        control={
-                            <Checkbox
-                                checked={checkedOptions.includes(option)}
-                                onChange={(event) => handleCheckChange(option, event.target.checked)}
-                                size= "small"
-                            />
-                        }
-                        label={       
-                                  <Box component="div" fontSize={12}>
-                                    {option}
-                                  </Box>
-                        }
-                        
-                    />
-                ))}
+                {sorted_options.map((option, index) => {
+                    const isOptionMissing = emptyFilterOptions[label] && emptyFilterOptions[label].includes(option);
+                    return (
+                        <ThemeProvider theme={ isOptionMissing ? greyTheme: defaultTheme}>
+                        <Tooltip title={isOptionMissing ?"No record has this option value.": ""} followCursor>
+                        <FormControlLabel
+                            key={option}
+                            control={
+                                <Checkbox
+                                    checked={checkedOptions.includes(option)}
+                                    onChange={(event) => handleCheckChange(option, event.target.checked)}
+                                    size= "small"
+                                />
+                            }
+                            label={       
+                                    <Box component="div" fontSize={12}>
+                                        {option}
+                                    </Box>
+                            }
+                            
+                        />
+                        </Tooltip>
+                        </ThemeProvider>
+                    );
+                }
+                )}
             </FormGroup>
         </div>
     );
