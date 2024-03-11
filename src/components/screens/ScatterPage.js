@@ -165,9 +165,11 @@ const ScatterPage = (props ) => {
         fields_y={props.fields_y}
         xField={props.xField}
         yField={props.yField}
+        seasonField={props.seasonField}
         colorField = {props.colorField}
         onXFieldChange={props.setXField}
         onYFieldChange={props.setYField}
+        onSeasonFieldChange={props.setSeasonField}
         onColorFieldChange={props.setColorField}
         save = {props.save}
         load = {props.load}
@@ -201,7 +203,7 @@ const ScatterPage = (props ) => {
 
         <AggregateCanvas
           shownData={shownData}
-          xField={props.xField}
+          seasonField = {props.seasonField}
           yField={props.yField}
           colorField = {props.colorField}
           onPartClick={setSelectedClassDetail} 

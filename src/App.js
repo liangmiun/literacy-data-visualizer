@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import { csvParse } from 'd3';
 import CryptoJS from 'crypto-js';
 import { BrowserRouter as Router, Route, Link, Routes, useLocation } from 'react-router-dom';
-import { rowParser,  load, data_fields, y_data_fields} from './utils/Utils';
+import { rowParser,  load, data_fields, y_data_fields, season_choice_fields} from './utils/Utils';
 import { useAuth } from './authentications/AuthContext';
 import ProtectedWrapper from './authentications/ProtectedWrapper';
 import Login from './authentications/Login';
@@ -23,6 +23,7 @@ const App = () => {
   const [showLines, setShowLines] = useState(false);
   const [xField, setXField] = useState('Testdatum');
   const [yField, setYField] = useState('Lexplore Score');
+  const [seasonField, setSeasonField] = useState('Quarter');
   const [colorField, setColorField] = useState('Årskurs');
   const [checkedSchools, setCheckedSchools] = useState([]);
   const [checkedClasses, setCheckedClasses] = useState([]);
@@ -42,7 +43,7 @@ const App = () => {
   const [aggregateType, setAggregateType] = useState('circle');   
 
   const fields = data_fields;
-  const fields_x = data_fields.filter(element => !y_data_fields.includes(element));
+  const fields_x = isClassView? season_choice_fields :  data_fields.filter(element => !y_data_fields.includes(element));  
   const fields_y = y_data_fields;
 
   const savePresetSetters = {
@@ -138,6 +139,8 @@ const App = () => {
                             setXField={setXField}
                             yField={yField}
                             setYField={setYField}
+                            seasonField={seasonField}
+                            setSeasonField={setSeasonField}
                             colorField={colorField}
                             setColorField={setColorField}
                             fields={fields}

@@ -6,7 +6,7 @@ export const singleViolinWidthRatio = 1; // The width of a single violin relativ
 const indv_jitterWidth = 5;
 const indv_offset =0;
 
-export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , subBandWidth, connectIndividual, classColors)
+export function PresentIndividuals(data, seasonField, yField, g, x0, getSubBandScale, y , subBandWidth, connectIndividual, classColors)
 {
     // Step 1: Group data by ElevID
     //const groupedData = d3.group(data, d => d.ElevID);
@@ -14,7 +14,7 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
     // Calculate positions and draw circles
     const positions = []; // To store the positions of circles
     data.forEach(d => {
-        const season = Season(d.Testdatum).toString();
+        const season = Season(d.Testdatum, seasonField).toString();
         const clazz = d.Klass.toString();
         d.classID = getLastingClassID(d.Skola, season, clazz); // Enhance each datum with classID
     });
@@ -23,7 +23,7 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
         .enter().append("circle")
         .attr("class", "indvPoints")
         .attr("cx", d => {                    
-            const season = Season(d.Testdatum).toString(); // or whatever field you use for the season
+            const season = Season(d.Testdatum, seasonField).toString(); // or whatever field you use for the season
             const classID = d.classID;
             const x1 = getSubBandScale(season); // get the x1 scale for the current season
 
@@ -46,8 +46,8 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
         .style("fill-opacity", 0.5)
         .style("stroke-opacity", 1) 
         .attr("record_id", d => { return d.ElevID +"-" + formatDate(d.Testdatum)}) 
-        .attr("indv_season", d => {return Season(d.Testdatum).toString()})
-        .attr("indv_classID", d => { return getLastingClassID(d.Skola, Season(d.Testdatum).toString(), d.Klass.toString())})
+        .attr("indv_season", d => {return Season(d.Testdatum, seasonField).toString()})
+        .attr("indv_classID", d => { return getLastingClassID(d.Skola, Season(d.Testdatum, seasonField).toString(), d.Klass.toString())})
         .attr("jitterOffset", (d) => { 
             const uniqueIdentifier = `${d.ElevID}`;
             const hashValue = simpleHash(uniqueIdentifier);
@@ -79,11 +79,45 @@ export function PresentIndividuals(data, yField, g, x0, getSubBandScale, y , sub
 }
 
 
-export function Season(dateObject) {
+function getSemesterFromDate(dateObject) {
+    const month = getMonthFromDate(dateObject); 
+    const halfYear = Math.floor((month - 1) / 6);
+    return ['Spring', 'Autumn'][halfYear];
+}
+
+
+function getQuarterFromDate(dateObject) {
+    const month =getMonthFromDate(dateObject); // +1 to make month range 1-12 instead of 0-11
+    const day = dateObject.getDate();
+    
+    if (month < 3 || (month === 3 && day <= 15)) {
+        return 'Q1';
+    } else if (month < 7) {
+        return 'Q2';
+    } else if (month < 10 || (month === 10 && day <= 15)) {
+        return 'Q3';
+    } else {
+        return 'Q4';
+    }
+}
+
+function getMonthFromDate(dateObject) {
+    return dateObject.getMonth() + 1;
+}
+
+export function Season(dateObject, type) {
     const year = dateObject.getFullYear();
-    const month = dateObject.getMonth(); // 0 = January, 1 = February, ..., 11 = December
-    //const day = dateObject.getDate();
-    return `${year}-${month + 1}`;  //-${day}
+
+    var season = '';
+    if (type === 'Quarter') {
+        season = getQuarterFromDate(dateObject);
+    } else if (type === 'Semester') {
+        season = getSemesterFromDate(dateObject);
+    } else {
+        season = getMonthFromDate(dateObject);
+    }
+
+    return `${year}-${season}`;  //-${day}
 
 }
 
@@ -92,18 +126,33 @@ export function getLastingClassID(school, seasonKey, classKey)
 {
     const klassNum = parseInt(classKey[0]);
     const testYear = parseInt(seasonKey.split('-')[0]) - 2000;
-    const testSeason = parseInt(seasonKey.split('-')[1]);
-    const schoolYear = testSeason <7? testYear - 1 : testYear;
+    const testSeason = seasonKey.split('-')[1];
+    // judge the school year
+    const schoolYear = isFirstHalfYear(testSeason)? testYear - 1 : testYear;
 
     const klassSuffix = classKey.length>1? classKey[1]: '';
     const skolaShort = school.toString().substring(0,4).replace(/\s+/g, '_');
     const newKlassNum = 3* ( Math.ceil(klassNum / 3) - 1) + 1;
+
     return `${skolaShort}:${schoolYear - klassNum +  newKlassNum}-${newKlassNum}${klassSuffix}`;
 
 }
 
+function isFirstHalfYear(testSeason)
+{
+    if(testSeason === 'Q1' || testSeason === 'Q2' || testSeason === 'Spring') {
+        return true;
+    }
+    
+    if(!isNaN(parseInt(testSeason))) {
+        return parseInt(testSeason) < 7;
+    }
+    return false;
 
-export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType, margin, dimensions)  {
+}
+
+
+export function PreparePlotStructure(svgRef, filteredData, seasonField, yField, aggregateType, margin, dimensions)  {
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();           
@@ -119,7 +168,7 @@ export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType
         .range([ dimensions.height - margin.top - margin.bottom, 0]);
 
     // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
-    const sumstat = setSumStat(filteredData, yScale, yField, aggregateType);
+    const sumstat = setSumStat(filteredData, yScale, seasonField, yField, aggregateType);
 
     // Sort the sumstat by key to ensure boxes layout horizontally within each season:
     // Here sumstat is in a flat structure.
@@ -182,12 +231,12 @@ export function PreparePlotStructure(svgRef, filteredData, yField, aggregateType
 }
 
 
-function setSumStat(filteredData, y, yField, aggregateType)
+function setSumStat(filteredData, yScale, seasonField,yField, aggregateType)
 {
     const sumstat = [];
     if(aggregateType === 'violin'){
-        const histogram = d3.bin().domain(y.domain()).thresholds(y.ticks(30)).value(d => d);
-        const grouped = d3.group(filteredData, d => Season(d.Testdatum), d => d.Skola, d => d.Klass);   
+        const histogram = d3.bin().domain(yScale.domain()).thresholds(yScale.ticks(30)).value(d => d);
+        const grouped = d3.group(filteredData, d => Season(d.Testdatum, seasonField), d => d.Skola, d => d.Klass);   
         grouped.forEach((seasonGroup, seasonKey) => {
             seasonGroup.forEach((schoolGroup, schoolKey) => {
                 schoolGroup.forEach((values, klassKey) => {
@@ -224,7 +273,7 @@ function setSumStat(filteredData, y, yField, aggregateType)
         });
     }
     else  {
-        const grouped = d3.group(filteredData,  function(d){ return Season(d.Testdatum)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
+        const grouped = d3.group(filteredData,  function(d){ return Season(d.Testdatum, seasonField)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
         grouped.forEach((seasonGroup, seasonKey) => {
             seasonGroup.forEach((schoolGroup, schoolKey) => {
                 schoolGroup.forEach((values, classKey) => {
@@ -257,7 +306,6 @@ function setSumStat(filteredData, y, yField, aggregateType)
             });
         });
     }
-
     return sumstat;
 }
 

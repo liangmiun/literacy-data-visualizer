@@ -37,19 +37,19 @@ const AggregateCanvas = (props) => {
                 (
                     <>
                    
-                        { props.aggregateType ==='violin' && < ViolinPlots shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
+                        { props.aggregateType ==='violin' && < ViolinPlots shownData={props.shownData} seasonField={props.seasonField} yField={props.yField} colorField={props.colorField} 
                             onViolinClick={props.onPartClick}  dimensions={dimensions}
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}  checkedClasses={props.checkedClasses}
                             showLines={props.showLines}  connectIndividual = {props.connectIndividual}  />
                         }
                         
-                        {props.aggregateType ==='box' && <BoxPlots    shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
+                        {props.aggregateType ==='box' && <BoxPlots    shownData={props.shownData} seasonField={props.seasonField} yField={props.yField} colorField={props.colorField} 
                             onBoxClick={props.onPartClick} dimensions={dimensions}
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}  checkedClasses={props.checkedClasses}
                             showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
                         }
 
-                        {props.aggregateType ==='circle' && <CirclePlots  shownData={props.shownData} xField={props.xField} yField={props.yField} colorField={props.colorField} 
+                        {props.aggregateType ==='circle' && <CirclePlots  shownData={props.shownData} seasonField={props.seasonField} yField={props.yField} colorField={props.colorField} 
                             onBoxClick={props.onPartClick} dimensions={dimensions}
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}  checkedClasses={props.checkedClasses}
                             showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
@@ -67,13 +67,13 @@ const ViolinPlots = (props ) => {
     const svgRef = useRef();
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const { shownData, xField, yField, colorField, onViolinClick, studentsChecked,  showLines, checkedClasses, classColors, connectIndividual, dimensions } = props;
+    const { shownData, yField, seasonField, colorField, onViolinClick, studentsChecked,  showLines, checkedClasses, classColors, connectIndividual, dimensions } = props;
 
     useEffect(() => {
 
         const subBandCount = checkedClasses.length;
 
-        const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField,'violin', plotMargin, dimensions);
+        const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData,seasonField, yField,'violin', plotMargin, dimensions);
 
         drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions);
 
@@ -146,13 +146,13 @@ const ViolinPlots = (props ) => {
         AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, classColors);
 
         if(studentsChecked) {       
-            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth,connectIndividual, classColors)   
+            AggregateUtils.PresentIndividuals(shownData, seasonField, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth,connectIndividual, classColors)   
         }
 
         setAggregationZoom( 'violin', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, xNumScale);
   
 
-    }, [shownData,xField, yField, colorField, studentsChecked,  onViolinClick, showLines, checkedClasses, classColors, connectIndividual, dimensions]);
+    }, [shownData,seasonField, yField, colorField, studentsChecked,  onViolinClick, showLines, checkedClasses, classColors, connectIndividual, dimensions]);
     
     return (
         <svg   className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
@@ -164,14 +164,14 @@ const BoxPlots = (props) => {
     const svgRef = useRef();
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const {shownData, xField, yField, colorField, onBoxClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual, dimensions } = props;
+    const {shownData, seasonField, yField, colorField, onBoxClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual, dimensions } = props;
     
     // In your useEffect: 
     useEffect(() => {
 
         const subBandCount = checkedClasses.length;
 
-        const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin, dimensions);
+        const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups}  = AggregateUtils.PreparePlotStructure(svgRef, shownData, seasonField, yField, 'box', plotMargin, dimensions);
 
         drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions);
 
@@ -255,12 +255,12 @@ const BoxPlots = (props) => {
 
         // Add individual points with jitter
         if(studentsChecked) {
-            AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual,classColors)  //getSubBandScale,
+            AggregateUtils.PresentIndividuals(shownData, seasonField, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual,classColors)  //getSubBandScale,
         }
 
         setAggregationZoom( 'box', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, null);
         
-    }, [shownData, xField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, checkedClasses, connectIndividual, dimensions]); 
+    }, [shownData, seasonField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, checkedClasses, connectIndividual, dimensions]); 
     return (
         <svg   className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
     );
@@ -272,13 +272,13 @@ const CirclePlots = (props) => {
         const svgRef = useRef();
         const newXScaleRef = useRef(null);
         const newYScaleRef = useRef(null);
-        const {shownData, xField, yField, colorField, onBoxClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual, dimensions } = props;
+        const {shownData, seasonField, yField, colorField, onBoxClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual, dimensions } = props;
         
         useEffect(() => {
 
             const subBandCount = checkedClasses.length;
     
-            const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, yField, 'box', plotMargin, dimensions);
+            const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, seasonField, yField, 'box', plotMargin, dimensions);
   
             drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions);
 
@@ -327,7 +327,7 @@ const CirclePlots = (props) => {
     
             // Add individual points with jitter
             if(studentsChecked) {
-                AggregateUtils.PresentIndividuals(shownData, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual, classColors)  
+                AggregateUtils.PresentIndividuals(shownData, seasonField, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual, classColors)  
             }    
     
             setAggregationZoom( 'circle', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, null);
@@ -338,7 +338,7 @@ const CirclePlots = (props) => {
 
     
 
-        }, [shownData, xField, yField, colorField, studentsChecked,  classColors,  onBoxClick, showLines,checkedClasses, connectIndividual, dimensions]);  //onBoxClick,
+        }, [shownData, seasonField, yField, colorField, studentsChecked,  classColors,  onBoxClick, showLines,checkedClasses, connectIndividual, dimensions]);  //onBoxClick,
 
         return (
             <svg  className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>

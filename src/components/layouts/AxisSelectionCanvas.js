@@ -69,15 +69,13 @@ function Axes({ props, x_options, y_options, colorOptions}) {
           <Tooltip title="Select variable on horizontal axis" followCursor>
             <InputLabel id="x-field-label">X-field</InputLabel>
           </Tooltip>
-          <Tooltip title={props.isClassView ? "X-field is locked to Test Date in Class View" : ''} followCursor>
           <div>
             <MuiSelect
-              disabled = {props.isClassView}
               labelId="x-field-label"
               id="x-field"
               sx={{ width: '7vw' }}
-              value={props.isClassView? 'Testdatum': props.xField}
-              onChange={ (event) => props.onXFieldChange(event.target.value)}
+              value={props.isClassView? props.seasonField: props.xField}   //props.isClassView? 'Testdatum': props.xField
+              onChange={ (event) => {  props.isClassView? props.onSeasonFieldChange(event.target.value) :  props.onXFieldChange(event.target.value)}}
               label="X-field"
             >
               {x_options.map((option) => (
@@ -87,7 +85,6 @@ function Axes({ props, x_options, y_options, colorOptions}) {
               ))}
             </MuiSelect>
           </div>
-          </Tooltip>
         </FormControl>
       </div>       
 

@@ -125,7 +125,7 @@ function OptionCheckBoxes({ label, options, checkedOptions, setCheckedOptions, e
                     const isOptionMissing = emptyFilterOptions[label] && emptyFilterOptions[label].includes(option);
                     return (
                         <ThemeProvider key={option} theme={ isOptionMissing ? greyTheme: defaultTheme}>
-                        <Tooltip title={isOptionMissing ?"No record has this option value.": ""} followCursor>
+                        <Tooltip title={isOptionMissing ?"No filtered record has this option value.": ""} followCursor>
                         <FormControlLabel
                             key={option}
                             control={

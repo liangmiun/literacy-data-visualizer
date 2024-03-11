@@ -53,6 +53,9 @@ export const y_data_fields = [
   ]
 
 
+export const season_choice_fields = ['Month', 'Quarter', 'Semester'];
+
+
 export function rowParser(d) {
 
 
