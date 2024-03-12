@@ -247,9 +247,10 @@ export function aggrColorLegend( checkedClasses, classColors, svg, width, margin
       });
     
       if (checkedClasses.length > 20) {
+          console.log("classes more than 20: ", checkedClasses.length);
           legend.append("text")
               .attr("x", 0)
-              .attr("y", checkedClasses.length * 20 + 12)
+              .attr("y", 20 * 20 + 12)
               .text("(and more ...)");
       }
     }

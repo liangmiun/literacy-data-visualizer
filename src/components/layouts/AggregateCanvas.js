@@ -151,6 +151,7 @@ const ViolinPlots = (props ) => {
 
         setAggregationZoom( 'violin', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, xNumScale);
   
+        aggrColorLegend( checkedClasses, classColors, svg, dimensions.width- plotMargin.right , plotMargin)
 
     }, [shownData,seasonField, yField, colorField, studentsChecked,  onViolinClick, showLines, checkedClasses, classColors, connectIndividual, dimensions]);
     
@@ -260,6 +261,8 @@ const BoxPlots = (props) => {
 
         setAggregationZoom( 'box', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, null);
         
+        aggrColorLegend( checkedClasses, classColors, svg, dimensions.width- plotMargin.right , plotMargin)
+
     }, [shownData, seasonField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, checkedClasses, connectIndividual, dimensions]); 
     return (
         <svg   className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
@@ -332,11 +335,7 @@ const CirclePlots = (props) => {
     
             setAggregationZoom( 'circle', svg, g, xMainBandScale, yScale, yField, xAxis, getSubBandScale, newXScaleRef, newYScaleRef, studentsChecked, subBandCount, connectIndividual, null);
 
-            //colorLegend(shownData, colorField, svg, aggrWidth()  - plotMargin.right , plotMargin); 
-
-            aggrColorLegend( checkedClasses, classColors, svg, dimensions.width- plotMargin.right , plotMargin)
-
-    
+            aggrColorLegend( checkedClasses, classColors, svg, dimensions.width- plotMargin.right , plotMargin)    
 
         }, [shownData, seasonField, yField, colorField, studentsChecked,  classColors,  onBoxClick, showLines,checkedClasses, connectIndividual, dimensions]);  //onBoxClick,
 
