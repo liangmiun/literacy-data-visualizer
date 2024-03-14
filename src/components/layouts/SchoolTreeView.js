@@ -185,13 +185,14 @@ function SchoolComponent({ props }) {
           key={school}
         >
           {Object.entries(classesMap).map(([classId, classes], cIdx) => (
-            <ClassComponent
+            <ClassSequenceComponent
               key={classId}
               props={{
                 school,
                 classId,
                 idx,
                 cIdx,
+                classesMap,
                 checkedClasses,
                 handleClassCheckChange,
                 setPaletteID,
@@ -206,34 +207,51 @@ function SchoolComponent({ props }) {
 
           ))}
       </TreeItem>  
-
-
     </div>
   );
 }
 
 
-function ClassComponent({ props }) {
-  const { school, classId, idx, cIdx, handleClassCheckChange, setPaletteID, paletteID, handleColorChange } = props;
+function ClassSequenceComponent({ props }) {
+  const { school, classId, classesMap, idx, cIdx, handleClassCheckChange, setPaletteID, paletteID, handleColorChange } = props;
+
+  const classesInSequence = classesMap[classId].classes.map(item =>  item.Läsår + '-' + item.Klass);
 
   return (
-    <div key={classId} style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
+    <div key={classId}  style={{ display: 'flex', alignItems: 'flex-start' }} >  
+    {/* //  style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }} */}
+      <Checkbox 
+        checked={props.checkedClasses.includes(`${school}.${classId}`)}
+        style={{ padding: '1px' }}
+        onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
+      />
       <TreeItem
-        nodeId={`class-${idx}-${cIdx}`}
+        nodeId={`classSequence-${idx}-${cIdx}`}
         label={
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Checkbox 
-              checked={props.checkedClasses.includes(`${school}.${classId}`)}
-              onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
-            />
-            <Tooltip title={transformClassTooltip(classId)} followCursor>       
-            <label>{classId }</label>
-            </Tooltip>
+          {classId }
           </div>
         }
         key={classId}
-      />
-
+      >
+          {Object.entries(classesInSequence).map(([ yearlyIdx,yearlyClass], cIdx) => (
+            <SingleYearClassComponent
+              key={yearlyClass}
+              props={{
+                school,
+                yearlyClass,
+                idx,
+                cIdx,
+                handleClassCheckChange,
+                setPaletteID,
+                paletteID,
+                handleColorChange,
+                isClassView: props.isClassView,
+                classColors: props.classColors
+              }}
+            />
+          ))}
+      </TreeItem>
       <div>
         <div 
           style={{ width: '10px', height: '10px', backgroundColor: props.isClassView? props.classColors[school][classId]: 'white', marginLeft: '5px' }}
@@ -257,6 +275,56 @@ function ClassComponent({ props }) {
       </div>
     </div>
   );
+}
+
+
+function SingleYearClassComponent({ props }) {
+  const { school, yearlyClass, idx, cIdx, handleClassCheckChange, setPaletteID, paletteID, handleColorChange } = props;  
+  console.log(yearlyClass, cIdx);
+
+  return (
+    <div key={yearlyClass} style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
+      <TreeItem
+        nodeId={`classByYear-${idx}-${cIdx}`}
+        label={
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Checkbox 
+              checked={true}
+              //onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
+            />
+            {/* <Tooltip title={transformClassTooltip(yearlyClass)} followCursor>        */}
+            <label>{yearlyClass }</label>
+            {/* </Tooltip> */}
+          </div>
+        }
+        key={yearlyClass}
+      />
+
+      <div>
+        <div 
+          style={{ width: '10px', height: '10px', backgroundColor: props.isClassView? props.classColors[school][yearlyClass]: 'white', marginLeft: '5px' }}
+          onClick={() => setPaletteID(yearlyClass)}
+        />
+        {paletteID===yearlyClass && props.isClassView && (
+          <div style={{ marginTop: '5px' }}>
+            {[0, 1].map(row => (
+              <div key={row} style={{ display: 'flex' }}>
+                {d3.schemeCategory10.slice(row * 5, (row + 1) * 5).map((paletteColor, index) => (
+                  <div 
+                    key={index}
+                    style={{ width: '10px', height: '10px', backgroundColor:  paletteColor, marginLeft: '2px' }}
+                    onClick={() => handleColorChange(school, yearlyClass, paletteColor)}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+
 }
 
 

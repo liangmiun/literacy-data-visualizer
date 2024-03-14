@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import {classIDfromYearSchoolClass} from './AggregateUtils.js';
 
 
 export const parseDate = d3.timeParse('%y%m%d');
@@ -124,15 +125,12 @@ export const load = (callback) => {
 };
 
 
-export function generateClassId(record) {
+export function generateClassID(record) {
   const year = parseInt(record.Läsår.split('/')[0]);
   const skola = record.Skola;
-  const klassNum = parseInt(record.Klass[0]);
-  const klassSuffix = record.Klass.length > 1 ? record.Klass[1] : '';
   const skolaShort = skola.substring(0, 4).replace(/\s+/g, '_');
 
-  const newKlassNum = 3* ( Math.ceil(klassNum / 3) - 1) + 1;
-  return `${skolaShort}:${year - klassNum +  newKlassNum}-${newKlassNum}${klassSuffix}`;
+  return classIDfromYearSchoolClass(year, skolaShort, record.Klass);
 }
 
 
@@ -141,20 +139,20 @@ export function generateSchoolLastingClassMap(litData) {
 
   litData.forEach(entry => {
       const school = entry.Skola;
-      const classId = generateClassId(entry); // Use the function from Utils.js to generate the classID
+      const classID = generateClassID(entry); // Use the function from Utils.js to generate the classID
 
       if (!schoolMap[school]) {
           schoolMap[school] = {};
       }
 
-      if (!schoolMap[school][classId]) {
-          schoolMap[school][classId] = {
+      if (!schoolMap[school][classID]) {
+          schoolMap[school][classID] = {
               classes: [],
           };
       }
 
-      if (!schoolMap[school][classId].classes.some(klass => klass.Klass === entry.Klass)) {
-          schoolMap[school][classId].classes.push({ Läsår: entry.Läsår, Klass: entry.Klass });
+      if (!schoolMap[school][classID].classes.some(klass => klass.Klass === entry.Klass)) {
+          schoolMap[school][classID].classes.push({ Läsår: entry.Läsår, Klass: entry.Klass });
       }
   });
 

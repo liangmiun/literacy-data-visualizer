@@ -309,6 +309,8 @@ const CirclePlots = (props) => {
                     .attr("stroke", "black")
                     .attr("stroke-width", 3)
 
+                console.log('circle clicked', d.value.lastingclass)
+
                 onCircleClick([{
                 // lastingclass: d.value.lastingclass,
                 school: d.value.school,
@@ -323,13 +325,9 @@ const CirclePlots = (props) => {
                 }])          
 
             }); 
-   
 
             AggregateUtils.presentLines(showLines, lastingClassGroups,  aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, classColors);
-           
     
-            // Add individual points with jitter
-            console.log('studentsChecked', studentsChecked)
             if(studentsChecked) {
                 AggregateUtils.PresentIndividuals(shownData, seasonField, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual, classColors)  
             }    

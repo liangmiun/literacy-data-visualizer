@@ -121,22 +121,55 @@ export function Season(dateObject, type) {
 
 }
 
+function getCurrentSchoolYear() {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    // Check if the current date is after June 30
+    if (currentDate.getMonth() > 5 ) {
+      // It's after June 30
+      return currentYear;
+    } else {
+      // It's on or before June 30
+      return currentYear - 1;
+    }
+  }
+  
 
 export function getLastingClassID(school, seasonKey, classKey)
 {
-    const klassNum = parseInt(classKey[0]);
     const testYear = parseInt(seasonKey.split('-')[0]) - 2000;
     const testSeason = seasonKey.split('-')[1];
-    // judge the school year
     const schoolYear = isFirstHalfYear(testSeason)? testYear - 1 : testYear;
+    const schoolShort = school.toString().substring(0,4).replace(/\s+/g, '_');
 
-    const klassSuffix = classKey.length>1? classKey[1]: '';
-    const skolaShort = school.toString().substring(0,4).replace(/\s+/g, '_');
-    const newKlassNum = 3* ( Math.ceil(klassNum / 3) - 1) + 1;
+    return  classIDfromYearSchoolClass(schoolYear, schoolShort, classKey);
+}
 
-    return `${skolaShort}:${schoolYear - klassNum +  newKlassNum}-${newKlassNum}${klassSuffix}`;
+
+export function classIDfromYearSchoolClass(schoolYearTwoDigit, schoolShort, classKey)
+{
+    const classNum = parseInt(classKey[0]);
+    const classSuffix = classKey.length>1? classKey[1]: '';
+    const currentSchoolYear = getCurrentSchoolYear() - 2000;
+    var newClassNum ;
+    var newSchoolYear;
+
+    if( classNum + currentSchoolYear - schoolYearTwoDigit <= 9)
+    {
+        newClassNum = classNum + currentSchoolYear - schoolYearTwoDigit;
+        newSchoolYear = currentSchoolYear;
+    }
+    else
+    {
+        newClassNum = 9;
+        newSchoolYear = schoolYearTwoDigit - classNum +  9;
+    }
+
+
+    return `${schoolShort}:${newSchoolYear}-${newClassNum}${classSuffix}`;
 
 }
+
 
 function isFirstHalfYear(testSeason)
 {

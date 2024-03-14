@@ -6,7 +6,7 @@ import ScatterCanvas from '../layouts/ScatterCanvas';
 import DetailCanvas from '../layouts/DetailCanvas';
 import FilterCanvas from '../layouts/FilterCanvas';
 import LogicCanvas from '../layouts/LogicCanvas';
-import { generateClassId, generateSchoolLastingClassMap, generateSchoolClassColorScale} from '../../utils/Utils.js';
+import { generateClassID, generateSchoolLastingClassMap, generateSchoolClassColorScale} from '../../utils/Utils.js';
 import 'assets/App.css';
 
 
@@ -273,7 +273,7 @@ function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
       }
 
       // Construct the school.class string from the record
-      const schoolClassCombo = `${record.Skola}.${generateClassId(record)}`;
+      const schoolClassCombo = `${record.Skola}.${generateClassID(record)}`;
       // Check if this combo is in checkedClasses
       if (checkedClasses.includes(schoolClassCombo)) {
           return true;
