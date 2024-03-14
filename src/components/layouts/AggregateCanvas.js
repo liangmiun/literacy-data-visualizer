@@ -50,7 +50,7 @@ const AggregateCanvas = (props) => {
                         }
 
                         {props.aggregateType ==='circle' && <CirclePlots  shownData={props.shownData} seasonField={props.seasonField} yField={props.yField} colorField={props.colorField} 
-                            onBoxClick={props.onPartClick} dimensions={dimensions}
+                            onCircleClick={props.onPartClick} dimensions={dimensions}
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}  checkedClasses={props.checkedClasses}
                             showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
                         }
@@ -275,7 +275,7 @@ const CirclePlots = (props) => {
         const svgRef = useRef();
         const newXScaleRef = useRef(null);
         const newYScaleRef = useRef(null);
-        const {shownData, seasonField, yField, colorField, onBoxClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual, dimensions } = props;
+        const {shownData, seasonField, yField, colorField, onCircleClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual, dimensions } = props;
         
         useEffect(() => {
 
@@ -304,12 +304,12 @@ const CirclePlots = (props) => {
                 return  classColors[d.value.school][classID] ;})
             .on("click", function(event,d) {   
 
-                d3.selectAll("circle").attr("stroke-width", 0)
+                d3.selectAll(".circles").attr("stroke-width", 0)
                 d3.select(this)
                     .attr("stroke", "black")
                     .attr("stroke-width", 3)
 
-                onBoxClick([{
+                onCircleClick([{
                 // lastingclass: d.value.lastingclass,
                 school: d.value.school,
                 class: d.value.class,
@@ -329,6 +329,7 @@ const CirclePlots = (props) => {
            
     
             // Add individual points with jitter
+            console.log('studentsChecked', studentsChecked)
             if(studentsChecked) {
                 AggregateUtils.PresentIndividuals(shownData, seasonField, yField, aggregate, xMainBandScale, getSubBandScale, yScale, subBandWidth, connectIndividual, classColors)  
             }    
@@ -337,7 +338,7 @@ const CirclePlots = (props) => {
 
             aggrColorLegend( checkedClasses, classColors, svg, dimensions.width- plotMargin.right , plotMargin)    
 
-        }, [shownData, seasonField, yField, colorField, studentsChecked,  classColors,  onBoxClick, showLines,checkedClasses, connectIndividual, dimensions]);  //onBoxClick,
+        }, [shownData, seasonField, yField, colorField, studentsChecked,  classColors,  onCircleClick, showLines,checkedClasses, connectIndividual, dimensions]);  //onBoxClick,
 
         return (
             <svg  className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>

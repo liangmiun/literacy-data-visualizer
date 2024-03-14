@@ -6,7 +6,7 @@ export const singleViolinWidthRatio = 1; // The width of a single violin relativ
 const indv_jitterWidth = 5;
 const indv_offset =0;
 
-export function PresentIndividuals(data, seasonField, yField, g, x0, getSubBandScale, y , subBandWidth, connectIndividual, classColors)
+export function PresentIndividuals(data, seasonField, yField, g, x0, getSubBandScale, yScale , subBandWidth, connectIndividual, classColors)
 {
     // Step 1: Group data by ElevID
     //const groupedData = d3.group(data, d => d.ElevID);
@@ -35,16 +35,16 @@ export function PresentIndividuals(data, seasonField, yField, g, x0, getSubBandS
 
             const record_id = d.ElevID +"-" + formatDate(d.Testdatum);
 
-            positions.push({ ElevID: d.ElevID, cx, cy: y(d[yField]), record_id: record_id, Skola: d.Skola, classID: d.classID});
+            positions.push({ ElevID: d.ElevID, cx, cy: yScale(d[yField]), record_id: record_id, Skola: d.Skola, classID: d.classID});
             return cx;
         })
-        .attr("cy", d => { return y(d[yField])})
+        .attr("cy", d => { return yScale(d[yField])})
         .attr("r", 2)
         .style("fill", "white")
         .attr("stroke", d => {
+            console.log("individual jitter color: ", classColors[d.Skola][d.classID] );
             return  classColors[d.Skola][d.classID]   ;})
         .style("fill-opacity", 0.5)
-        .style("stroke-opacity", 1) 
         .attr("record_id", d => { return d.ElevID +"-" + formatDate(d.Testdatum)}) 
         .attr("indv_season", d => {return Season(d.Testdatum, seasonField).toString()})
         .attr("indv_classID", d => { return getLastingClassID(d.Skola, Season(d.Testdatum, seasonField).toString(), d.Klass.toString())})
@@ -462,6 +462,7 @@ export function init_ZoomSetting(zoomState,xScale, yScale, xType, yType, g, xAxi
 
 export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale,connectIndividual)
 {
+    console.log("zoomIndividualJitter");
     g.selectAll(".indvPoints")
     .attr("cx", function() {
         const season = d3.select(this).attr("indv_season");
@@ -469,9 +470,6 @@ export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, ge
         const jitterOffset = d3.select(this).attr("jitterOffset");
         return zoomXScale(season) + getSubBandScale(season)(classID) * zoomState.k + subBandWidth/2 + jitterOffset*zoomState.k;
     })
-
-   
-
     
     g.selectAll(".indvLines")
     .each(function() {
