@@ -210,7 +210,7 @@ export function generateSchoolClassColorScale(schoolClasses) {
 
 export function aggrColorLegend( checkedClasses, classColors, svg, width, margin) {
 
-    if(Object.keys(classColors).length > 0)
+    if(Object.keys(classColors).length > 0 && checkedClasses.length > 0)
     {
       const legend = svg.append("g").attr("class", "legend")
           .attr("transform", `translate(${width + 30}, ${margin.top})`);  // Adjust position as required  //width - legendWidth

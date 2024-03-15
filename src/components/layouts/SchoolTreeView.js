@@ -60,15 +60,22 @@ function SchoolTreeView(props) {
       }
   };
 
-  const handleClassCheckChange = (schoolClass, isChecked) => {
-      const [school, ] = schoolClass.split('.');
+  const handleClassSequenceCheckChange = (schoolClass, isChecked) => {
       if (isChecked) {
+          console.log("An sequence checked", props.checkedClasses,schoolClass);
           props.setCheckedClasses(prev => [...prev, schoolClass]);
       } else {
           props.setCheckedClasses(prev => prev.filter(c => c !== schoolClass));
-          props.setCheckedSchools(prev => prev.filter(s => s !== school));
       }
   };
+
+  const handleYearlyClassCheckChange = (school_sequence_class, isChecked) => {
+    if (isChecked) {
+        props.setCheckedYearlyClasses(prev => [...prev, school_sequence_class]);
+    } else {
+        props.setCheckedYearlyClasses(prev => { if(prev.length>0 ) return prev.filter(c => c !== school_sequence_class);  return prev;});
+    }
+};
 
   const handleColorChange = (school, classID, newColor) => {
     setPaletteID('');
@@ -120,7 +127,9 @@ function SchoolTreeView(props) {
                   idx,
                   checkedClasses: props.checkedClasses,
                   setCheckedClasses: props.setCheckedClasses,
-                  handleClassCheckChange,
+                  handleClassSequenceCheckChange,
+                  checkedYearlyClasses: props.checkedYearlyClasses,  
+                  handleYearlyClassCheckChange,
                   checkedSchools: props.checkedSchools,
                   onSchoolCheckChange: handleSchoolCheckChange,
                   setPaletteID,
@@ -148,29 +157,30 @@ function SchoolTreeView(props) {
 
 
 function SchoolComponent({ props }) {
-  const { school, classesMap, checkedClasses, onSchoolCheckChange, idx, handleClassCheckChange, 
+  const { school, classesMap, checkedClasses, onSchoolCheckChange, idx, handleClassSequenceCheckChange, handleYearlyClassCheckChange,
         setPaletteID, paletteID, handleColorChange} = props;
-  const classCheckStates = Object.entries(classesMap).map(([classId]) =>
+
+  const sequenceCheckStates = Object.entries(classesMap).map(([classId]) =>
     checkedClasses.includes(`${school}.${classId}`)
   );
 
-  const someChecked = classCheckStates.some(checked => checked);
-  const someUnchecked = classCheckStates.some(checked => !checked);
-  const allChecked = classCheckStates.every(checked => checked);
+  const someSequenceChecked = sequenceCheckStates.some(checked => checked);
+  const someSequenceUnchecked = sequenceCheckStates.some(checked => !checked);
+  const allSequenceChecked = sequenceCheckStates.every(checked => checked);
   const schoolInChecked = props.checkedSchools.includes(school);
 
   useEffect(() => {
-    if (allChecked && !schoolInChecked) {
+    if (allSequenceChecked && !schoolInChecked) {
       onSchoolCheckChange(school, true);
     }
-  }, [allChecked, school, onSchoolCheckChange , schoolInChecked]);  //schoolInChecked
+  }, [allSequenceChecked, school, onSchoolCheckChange , schoolInChecked]);  
 
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start' }}>
       <Checkbox
         style={{ padding: '1px' }}
         checked={props.checkedSchools.includes(school)}
-        indeterminate={someChecked && someUnchecked}
+        indeterminate={someSequenceChecked && someSequenceUnchecked}
         onChange={(event) => onSchoolCheckChange(school, event.target.checked)}
       />
       {/* Render classes and other UI elements here */}
@@ -194,7 +204,9 @@ function SchoolComponent({ props }) {
                 cIdx,
                 classesMap,
                 checkedClasses,
-                handleClassCheckChange,
+                checkedYearlyClasses: props.checkedYearlyClasses,
+                handleClassSequenceCheckChange,
+                handleYearlyClassCheckChange,
                 setPaletteID,
                 paletteID,
                 handleColorChange,
@@ -213,9 +225,26 @@ function SchoolComponent({ props }) {
 
 
 function ClassSequenceComponent({ props }) {
-  const { school, classId, classesMap, idx, cIdx, handleClassCheckChange, setPaletteID, paletteID, handleColorChange } = props;
+  const { school, classId, classesMap, idx, cIdx, checkedYearlyClasses, handleClassSequenceCheckChange, handleYearlyClassCheckChange ,setPaletteID, paletteID, handleColorChange } = props;
 
   const classesInSequence = classesMap[classId].classes.map(item =>  item.Läsår + '-' + item.Klass);
+
+  const classCheckStates = Object.entries(classesInSequence).map(([yearlyId, yearlyClass]) =>{
+    return checkedYearlyClasses.map( item => item.split('.')[1]).includes(`${yearlyClass}`)
+  }
+);
+
+  const someClassChecked = classCheckStates.some(checked => checked);
+  const someClassUnchecked = classCheckStates.some(checked => !checked);
+  const allClassChecked = classCheckStates.every(checked => checked);
+  console.log(props.checkedClasses, classId, props.checkedClasses.includes(classId));
+  const sequenceInChecked = props.checkedClasses.includes(classId);
+
+  useEffect(() => {
+    if (allClassChecked && !sequenceInChecked) {
+      handleClassSequenceCheckChange(classId, true);
+    }
+  }, [allClassChecked, classId, handleClassSequenceCheckChange , sequenceInChecked]);  
 
   return (
     <div key={classId}  style={{ display: 'flex', alignItems: 'flex-start' }} >  
@@ -223,7 +252,8 @@ function ClassSequenceComponent({ props }) {
       <Checkbox 
         checked={props.checkedClasses.includes(`${school}.${classId}`)}
         style={{ padding: '1px' }}
-        onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
+        indeterminate={someClassChecked && someClassUnchecked}
+        onChange={(event) => handleClassSequenceCheckChange(`${school}.${classId}`, event.target.checked)}
       />
       <TreeItem
         nodeId={`classSequence-${idx}-${cIdx}`}
@@ -239,10 +269,13 @@ function ClassSequenceComponent({ props }) {
               key={yearlyClass}
               props={{
                 school,
-                yearlyClass,
+                classId,
+                checkedYearlyClasses: props.checkedYearlyClasses,
+                yearlyClass,                
                 idx,
                 cIdx,
-                handleClassCheckChange,
+                handleClassSequenceCheckChange,
+                handleYearlyClassCheckChange,
                 setPaletteID,
                 paletteID,
                 handleColorChange,
@@ -279,8 +312,7 @@ function ClassSequenceComponent({ props }) {
 
 
 function SingleYearClassComponent({ props }) {
-  const { school, yearlyClass, idx, cIdx, handleClassCheckChange, setPaletteID, paletteID, handleColorChange } = props;  
-  console.log(yearlyClass, cIdx);
+  const { school, classId, yearlyClass, idx, cIdx, handleYearlyClassCheckChange, setPaletteID, paletteID, handleColorChange } = props;  
 
   return (
     <div key={yearlyClass} style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
@@ -289,8 +321,8 @@ function SingleYearClassComponent({ props }) {
         label={
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Checkbox 
-              checked={true}
-              //onChange={(event) => handleClassCheckChange(`${school}.${classId}`, event.target.checked)}
+              checked={props.checkedYearlyClasses.length>0 && props.checkedYearlyClasses.includes(`${classId}.${yearlyClass}`)}
+              onChange={(event) => handleYearlyClassCheckChange(`${classId}.${yearlyClass}`, event.target.checked)}
             />
             {/* <Tooltip title={transformClassTooltip(yearlyClass)} followCursor>        */}
             <label>{yearlyClass }</label>

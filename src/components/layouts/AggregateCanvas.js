@@ -279,7 +279,7 @@ const CirclePlots = (props) => {
         
         useEffect(() => {
 
-            const subBandCount = checkedClasses.length;
+            const subBandCount =  checkedClasses.length > 0 ? checkedClasses.length : 1;;
     
             const {svg, g, sumstat, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups }  = AggregateUtils.PreparePlotStructure(svgRef, shownData, seasonField, yField, 'box', plotMargin, dimensions);
   

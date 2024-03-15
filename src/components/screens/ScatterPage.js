@@ -13,7 +13,7 @@ import 'assets/App.css';
 const ScatterPage = (props ) => {  
 
   const { data, logicFilteredData, isClassView,setIsClassView, aggregateType, setAggregateType,
-          checkedSchools, checkedClasses, xField,yField, rangeOptions, checkedOptions  } = props;
+          checkedSchools, checkedClasses, checkedYearlyClasses, xField,yField, rangeOptions, checkedOptions  } = props;
   const trends = { all: 'all', overall_decline: 'overall decline',  logarithmic_decline: "logarithmicly decline", last_time_decline: 'last time decline'};
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
@@ -120,9 +120,9 @@ const ScatterPage = (props ) => {
 
     const nonNullData = dataToShow.filter(d => d[xField] !== null && d[yField] !== null); 
 
-    return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData,checkedClasses, checkedSchools)));
+    return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData, checkedSchools,checkedClasses, checkedYearlyClasses)));
       
-  }, [ dataToShow, xField, yField,checkedSchools,checkedClasses, checkedFilteredData,  rangeFilteredData]);  
+  }, [ dataToShow, xField, yField,checkedSchools,checkedClasses, checkedYearlyClasses, checkedFilteredData,  rangeFilteredData]);  
 
   useEffect(() => {
     // Define the labels and their options
@@ -238,6 +238,8 @@ const ScatterPage = (props ) => {
         setCheckedSchools={props.setCheckedSchools}
         checkedClasses={checkedClasses}
         setCheckedClasses={props.setCheckedClasses}
+        checkedYearlyClasses={checkedYearlyClasses}
+        setCheckedYearlyClasses={props.setCheckedYearlyClasses}
         rangeOptions={props.rangeOptions}
         setRangeOptions={props.setRangeOptions}
         checkedOptions={props.checkedOptions}
@@ -265,18 +267,25 @@ const ScatterPage = (props ) => {
 };
 
 
-function schoolClassFilteredData(data,checkedClasses,checkedSchools) {
+function schoolClassFilteredData(data,checkedSchools,checkedClasses, checkedYearlyClasses) {
   return data.filter(record => {
       // Check if the school of the record is in checkedSchools
       if (checkedSchools.includes(record.Skola)) {
           return true;
       }
 
+      const classSequenceID = generateClassID(record);
+
       // Construct the school.class string from the record
-      const schoolClassCombo = `${record.Skola}.${generateClassID(record)}`;
+      const schoolSequenceCombo = `${record.Skola}.${classSequenceID}`;
       // Check if this combo is in checkedClasses
-      if (checkedClasses.includes(schoolClassCombo)) {
+      if (checkedClasses.includes(schoolSequenceCombo)) {
           return true;
+      }
+
+      const sequenceClassCombo = `${classSequenceID}.${record.Läsår}-${record.Klass}`;
+      if(checkedYearlyClasses.includes(sequenceClassCombo)){
+        return true;
       }
 
       // If none of the above conditions are met, exclude this record

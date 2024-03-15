@@ -27,6 +27,7 @@ const App = () => {
   const [colorField, setColorField] = useState('Årskurs');
   const [checkedSchools, setCheckedSchools] = useState([]);
   const [checkedClasses, setCheckedClasses] = useState([]);
+  const [checkedYearlyClasses, setCheckedYearlyClasses] = useState([]);  
   const [query, setQuery] = useState('');
   const [expression, setExpression] = useState('');
   const [checkedOptions, setCheckedOptions] = useState(
@@ -156,6 +157,8 @@ const App = () => {
                             setCheckedSchools={setCheckedSchools}
                             checkedClasses={checkedClasses}
                             setCheckedClasses={setCheckedClasses}
+                            checkedYearlyClasses={checkedYearlyClasses}
+                            setCheckedYearlyClasses={setCheckedYearlyClasses}
                             checkedOptions={checkedOptions}
                             setCheckedOptions={setCheckedOptions}
                             rangeOptions={rangeOptions}
