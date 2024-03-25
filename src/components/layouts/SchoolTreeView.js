@@ -14,13 +14,14 @@ function SchoolTreeView(props) {
   const { checkedSchools, setCheckedSchools, checkedClasses, setCheckedClasses, checkedYearlyClasses, setCheckedYearlyClasses,
           isClassView, classColors, school_class_map, onColorPaletteClick} = props;
 
-  const [checkedAllSchools, setCheckedAllSchools] = useState(true);
-  const [existIndeterminateSchool, setExistIndeterminateSchool] = useState(false);
-
   const allSchools = Object.keys(school_class_map);
-  // const allClasses = allSchools.flatMap(school => 
-  //     Object.keys(school_class_map[school]).map(classId => `${school}.${classId}`)
-  // );
+  const [checkedAllSchools, setCheckedAllSchools] = useState(true);
+  const [schoolIndeterminateStates, setSchoolIndeterminateStates] = useState(Object.keys(allSchools).reduce((obj, key) => {
+    obj[key] = false;
+    return obj;
+  }, {}));
+  const someSchoolIndeterminate = Object.values(schoolIndeterminateStates).some(indet => indet);
+
   const [paletteID, setPaletteID] = useState('');
   const [expandedSchools, ] = useState(['root']); 
   const [indeterminateAllSchools, setIndeterminateAllSchools] = useState(false);
@@ -35,9 +36,9 @@ function SchoolTreeView(props) {
       !checkedSchools.includes(school) 
       );
 
-    setIndeterminateAllSchools(existIndeterminateSchool || (someChecked && someUnchecked));
+    setIndeterminateAllSchools( someSchoolIndeterminate ||(someChecked && someUnchecked));
     setCheckedAllSchools(allSchools.length === checkedSchools.length && someUnchecked === false); 
-  }, [checkedSchools, allSchools, existIndeterminateSchool]);
+  }, [checkedSchools, allSchools, someSchoolIndeterminate]);
 
 
   const handleAllSchoolsCheckChange = (isChecked) => {
@@ -102,6 +103,7 @@ function SchoolTreeView(props) {
           //   return [...prev, ...classesInSequence.map(item => `${classId}.${item}`).filter(c => !prev.includes(c))];        
           // });
       } else {
+          console.log('unchecked sequence', schoolClass);
           setCheckedClasses(prev => prev.filter(c => c !== schoolClass));
           for( const yearlyClass of yearlyClasses) {
             if(checkedYearlyClasses.includes(yearlyClass)){
@@ -119,6 +121,7 @@ function SchoolTreeView(props) {
     } else {
         setCheckedYearlyClasses(prev => { if(prev.length>0 ) return prev.filter(c => c !== sequence_class);  return prev;});
     }
+    console.log('handleYearlyClassCheckChange', checkedYearlyClasses);
   };
 
 
@@ -182,7 +185,7 @@ function SchoolTreeView(props) {
                   handleColorChange,
                   isClassView,
                   classColors,
-                  setExistIndeterminateSchool
+                  setSchoolIndeterminateStates
                 }}
               />
             
@@ -204,19 +207,25 @@ function SchoolTreeView(props) {
 
 function SchoolComponent({ props }) {
   const { school, classesMap, checkedClasses, handleSchoolCheckChange, idx, handleClassSequenceCheckChange,handleYearlyClassCheckChange, 
-        setPaletteID, paletteID, handleColorChange, checkedYearlyClasses, isClassView, classColors, setExistIndeterminateSchool} = props;
+        setPaletteID, paletteID, handleColorChange, checkedYearlyClasses, isClassView, classColors, setSchoolIndeterminateStates} = props;
 
   const sequenceCheckStates = Object.entries(classesMap).map(([classId]) =>
     checkedClasses.includes(`${school}.${classId}`)
   );
 
-  const [schoolHasIndeterminateSequence, setSchoolHasIndeterminateSequence] = useState(false);
+  const [sequenceIndeterminateStates, setSequenceIndeterminateStates] = useState(Object.keys(classesMap).reduce((obj, key) => {
+    obj[key] = false;
+    return obj;
+  }, {}));
+  const someSequenseInterminate = Object.values(sequenceIndeterminateStates).some(indet => indet);
+
+  //console.log('sequenceIndeterminateStates', sequenceIndeterminateStates);
 
   const someSequenceChecked = sequenceCheckStates.some(checked => checked);
   const someSequenceUnchecked = sequenceCheckStates.some(checked => !checked);
   const allSequenceChecked = sequenceCheckStates.every(checked => checked);
   const schoolInChecked = props.checkedSchools.includes(school);
-  const isSchoolIndeterminate = schoolHasIndeterminateSequence || (someSequenceChecked && someSequenceUnchecked);
+  const isSchoolIndeterminate = someSequenseInterminate || (someSequenceChecked && someSequenceUnchecked);
 
   useEffect(() => {
     if (allSequenceChecked && !schoolInChecked) {
@@ -225,20 +234,12 @@ function SchoolComponent({ props }) {
   }, [allSequenceChecked, school, handleSchoolCheckChange , schoolInChecked]);  
 
   useEffect(() => {
-    if (someSequenceChecked && someSequenceUnchecked) {
-      setExistIndeterminateSchool(true);
+    if (isSchoolIndeterminate) {
+      setSchoolIndeterminateStates(prev => ({ ...prev, [school]: true }));
     }
     else
-      setExistIndeterminateSchool(false);
-  }, [setExistIndeterminateSchool, someSequenceChecked, someSequenceUnchecked]);
-
-  // useEffect(() => {
-  //   if (someClassChecked && someClassUnchecked) {
-  //     setSchoolHasIndeterminateSequence(true);
-  //   }
-  //   else
-  //     setSchoolHasIndeterminateSequence(false);
-  // }, [setSchoolHasIndeterminateSequence, someClassChecked, someClassUnchecked]);
+      setSchoolIndeterminateStates(prev => ({ ...prev, [school]: false }));
+  }, [setSchoolIndeterminateStates, isSchoolIndeterminate, school]);
 
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -277,7 +278,7 @@ function SchoolComponent({ props }) {
                 handleColorChange,
                 isClassView,
                 classColors,
-                setSchoolHasIndeterminateSequence
+                setSequenceIndeterminateStates
               }}
             
             
@@ -291,15 +292,13 @@ function SchoolComponent({ props }) {
 
 
 function ClassSequenceComponent({ props }) {
-  const { school, classId, classesMap, idx, cIdx, checkedYearlyClasses, handleClassSequenceCheckChange, setSchoolHasIndeterminateSequence,
+  const { school, classId, classesMap, idx, cIdx, checkedYearlyClasses, handleClassSequenceCheckChange, setSequenceIndeterminateStates,
           setPaletteID, paletteID, handleColorChange, isClassView, classColors, handleYearlyClassCheckChange } = props;
 
   const classesInSequence = classesMap[classId].classes.map(item =>  item.Läsår + '-' + item.Klass);
 
   const classCheckStates = Object.entries(classesInSequence).map(([yearlyId, yearlyClass]) =>{
     return checkedYearlyClasses.includes(`${classId}.${yearlyClass}`)
-
-    //return checkedYearlyClasses.map( item => item.split('.')[1]).includes(`${yearlyClass}`)
   }  // problematic here.
 );
 
@@ -317,11 +316,13 @@ function ClassSequenceComponent({ props }) {
 
   useEffect(() => {
     if (someClassChecked && someClassUnchecked) {
-      setSchoolHasIndeterminateSequence(true);
+      setSequenceIndeterminateStates(prev => ({ ...prev, [classId]: true }));
     }
     else
-      setSchoolHasIndeterminateSequence(false);
-  }, [setSchoolHasIndeterminateSequence, someClassChecked, someClassUnchecked]);
+    {
+      setSequenceIndeterminateStates(prev => ({ ...prev, [classId]: false }));
+    }
+  }, [setSequenceIndeterminateStates, someClassChecked, someClassUnchecked, classId]);
 
   return (
     <div key={classId}  style={{ display: 'flex', alignItems: 'flex-start' }} >  
@@ -390,8 +391,6 @@ function ClassSequenceComponent({ props }) {
 function SingleYearClassComponent({ props }) {
   const { school, classId, yearlyClass, idx, cIdx, setPaletteID, paletteID, handleColorChange,
           checkedYearlyClasses, handleYearlyClassCheckChange, isClassView, classColors } = props;  
-
-
 
   return (
     <div key={yearlyClass} style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
