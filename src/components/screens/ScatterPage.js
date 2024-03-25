@@ -246,7 +246,7 @@ const ScatterPage = (props ) => {
         setCheckedOptions={props.setCheckedOptions}
         setFilterList=  {setFilterList}
         isClassView={isClassView}
-        school_class={schoolClassesAndColorScale.schoolClasses}
+        school_class_map={schoolClassesAndColorScale.schoolClasses}
         onColorPaletteClick={handleClassColorPaletteClick}
         classColors = {schoolClassesAndColorScale.colorScale}
         emptyFilterOptions={emptyFilterOptions}

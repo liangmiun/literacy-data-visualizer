@@ -19,7 +19,7 @@ const FilterCanvas = (props) => {
         checkedYearlyClasses={props.checkedYearlyClasses}
         setCheckedYearlyClasses={props.setCheckedYearlyClasses}
         isClassView={props.isClassView}
-        school_class={props.school_class}
+        school_class_map={props.school_class_map}
         onColorPaletteClick={props.onColorPaletteClick}
         classColors = {props.classColors}
       />
