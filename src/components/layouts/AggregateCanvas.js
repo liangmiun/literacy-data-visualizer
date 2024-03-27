@@ -1,14 +1,29 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import { formatTickValue, aggrColorLegend } from 'utils/Utils';
+import { formatTickValue, aggrColorLegend} from 'utils/Utils';
 import * as AggregateUtils from 'utils/AggregateUtils';
 import {  plotMargin } from 'utils/constants';
 
 
 const AggregateCanvas = (props) => {
 
+    const {selectedClasses} = props;
     const [dimensions,setDimensions] = useState({ width: (0.60 * window.innerWidth) , height:(0.85*window.innerHeight) }); 
     const gridRef = useRef(null);
+    const [checkedClasses, setCheckedClasses] = useState([]);  
+
+    useEffect(() => {
+
+        const tempSet = new Set(selectedClasses.map(item => {
+            const schoolShort = item.school.toString().substring(0,4).replace(/\s+/g, '_');
+            const classId = AggregateUtils.classIDfromYearSchoolClass(parseInt(item.schoolYear.split("/")[0]), schoolShort, item.class) ;
+            return `${item.school}.${classId}`;
+          }));         
+
+        setCheckedClasses(Array.from(tempSet));
+
+    },[selectedClasses]) 
+
 
 
     useEffect(() => {
@@ -38,20 +53,20 @@ const AggregateCanvas = (props) => {
                     <>
                    
                         { props.aggregateType ==='violin' && < ViolinPlots shownData={props.shownData} seasonField={props.seasonField} yField={props.yField} colorField={props.colorField} 
-                            onViolinClick={props.onPartClick}  dimensions={dimensions}
-                            studentsChecked={props.studentsChecked}  classColors={props.classColors}  checkedClasses={props.checkedClasses}
+                            onViolinClick={props.onPartClick}  dimensions={dimensions} checkedClasses= {checkedClasses}
+                            studentsChecked={props.studentsChecked}  classColors={props.classColors}  
                             showLines={props.showLines}  connectIndividual = {props.connectIndividual}  />
                         }
                         
                         {props.aggregateType ==='box' && <BoxPlots    shownData={props.shownData} seasonField={props.seasonField} yField={props.yField} colorField={props.colorField} 
-                            onBoxClick={props.onPartClick} dimensions={dimensions}
-                            studentsChecked={props.studentsChecked}  classColors={props.classColors}  checkedClasses={props.checkedClasses}
+                            onBoxClick={props.onPartClick} dimensions={dimensions} checkedClasses= {checkedClasses}
+                            studentsChecked={props.studentsChecked}  classColors={props.classColors}  
                             showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
                         }
 
                         {props.aggregateType ==='circle' && <CirclePlots  shownData={props.shownData} seasonField={props.seasonField} yField={props.yField} colorField={props.colorField} 
-                            onCircleClick={props.onPartClick} dimensions={dimensions}
-                            studentsChecked={props.studentsChecked}  classColors={props.classColors}  checkedClasses={props.checkedClasses}
+                            onCircleClick={props.onPartClick} dimensions={dimensions} checkedClasses= {checkedClasses}
+                            studentsChecked={props.studentsChecked}  classColors={props.classColors} 
                             showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
                         }
 
@@ -67,7 +82,7 @@ const ViolinPlots = (props ) => {
     const svgRef = useRef();
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const { shownData, yField, seasonField, colorField, onViolinClick, studentsChecked,  showLines, checkedClasses, classColors, connectIndividual, dimensions } = props;
+    const { shownData, yField,  checkedClasses, seasonField, colorField, onViolinClick, studentsChecked,  showLines,  classColors, connectIndividual, dimensions } = props;
 
     useEffect(() => {
 

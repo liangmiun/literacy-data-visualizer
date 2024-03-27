@@ -85,8 +85,6 @@ export const preset_dict = {
   xField: '',
   yField: '',
   colorField: '',
-  checkedSchools: [],
-  checkedClasses: [],
   checkedOptions: {},
   rangeOptions: {},
   query: '',

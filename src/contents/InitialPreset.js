@@ -2,8 +2,6 @@ export const initial_preset = JSON.stringify(
   {"xField":"Testdatum",
   "yField":"Lexplore Score",
   "colorField":"Årskurs",
-  "checkedSchools":["Bodals skola"],
-  "checkedClasses":["Bodals skola.Boda:22-9A","Bodals skola.Boda:22-9B","Bodals skola.Boda:23-7A","Bodals skola.Boda:23-7B","Bodals skola.Boda:23-8A","Bodals skola.Boda:23-9A","Bodals skola.Boda:23-9B"],
   "checkedOptions":{"Årskurs":[2,3,4,1,5,6,7,9,8],
   "Läsår":["18/19","19/20","20/21","21/22","22/23"],
   "Stanine":[null,7,5,8,4,9,3,6,2,1]},

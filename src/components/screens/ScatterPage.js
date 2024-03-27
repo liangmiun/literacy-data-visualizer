@@ -13,9 +13,9 @@ import 'assets/App.css';
 const ScatterPage = (props ) => {  
 
   const { data, logicFilteredData, isClassView,setIsClassView, aggregateType, setAggregateType, selectedClasses, setSelectedClasses,
-          checkedSchools, checkedClasses, checkedYearlyClasses, xField,yField, rangeOptions, checkedOptions  } = props;
+          xField,yField, rangeOptions, checkedOptions  } = props;
   const trends = { all: 'all', overall_decline: 'overall decline',  logarithmic_decline: "logarithmicly decline", last_time_decline: 'last time decline'};
-  const [selectedRecords, setSelectedRecords] = useState([]);
+  const [clickedRecords, setClickedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
@@ -131,15 +131,13 @@ const ScatterPage = (props ) => {
 
   const shownData = useMemo(() => {
 
-    console.log("run shownData, selectedClasses: ", selectedClasses);
+    console.log("run shownData,  ");
 
     const nonNullData = dataToShow.filter(d => d[xField] !== null && d[yField] !== null); 
-
-    console.log("run shownData, selectedClasses: ", selectedClasses, schoolClassFilteredData(nonNullData, selectedClasses).length);
-
     return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData, selectedClasses)));
       
   }, [ dataToShow, xField, yField, selectedClasses, checkedFilteredData,  rangeFilteredData]);  
+
 
   useEffect(() => {
     // Define the labels and their options
@@ -220,6 +218,7 @@ const ScatterPage = (props ) => {
 
         <AggregateCanvas
           shownData={shownData}
+          selectedClasses={selectedClasses}
           seasonField = {props.seasonField}
           yField={props.yField}
           colorField = {props.colorField}
@@ -228,7 +227,6 @@ const ScatterPage = (props ) => {
           connectIndividual={connectIndividual}
           aggregateType = {aggregateType}
           classColors={schoolClassesAndColorScale.colorScale}
-          checkedClasses={checkedClasses}
           showLines={props.showLines} 
         />
         :
@@ -237,14 +235,14 @@ const ScatterPage = (props ) => {
           xField={props.xField}
           yField={props.yField}
           colorField = {props.colorField}
-          setSelectedRecords={setSelectedRecords}
+          setSelectedRecords={setClickedRecords}
           showLines={props.showLines} 
         />
 
       }
       
       <DetailCanvas 
-        data={isClassView? selectedClassDetail :selectedRecords} 
+        data={isClassView? selectedClassDetail :clickedRecords} 
         keyList={isClassView? classKeyList : studentKeyList} />
 
 
@@ -254,12 +252,6 @@ const ScatterPage = (props ) => {
         allClasses={allClasses}
         selectedClasses={selectedClasses}
         setSelectedClasses={setSelectedClasses} 
-        checkedSchools={checkedSchools}
-        setCheckedSchools={props.setCheckedSchools}
-        checkedClasses={checkedClasses}
-        setCheckedClasses={props.setCheckedClasses}
-        checkedYearlyClasses={checkedYearlyClasses}
-        setCheckedYearlyClasses={props.setCheckedYearlyClasses}
         rangeOptions={props.rangeOptions}
         setRangeOptions={props.setRangeOptions}
         checkedOptions={props.checkedOptions}

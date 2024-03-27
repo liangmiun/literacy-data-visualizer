@@ -12,7 +12,7 @@ import Tooltip from '@mui/material/Tooltip';
 
 function SchoolTreeView(props) {
 
-  const { allClasses, selectedClasses, setSelectedClasses,  checkedSchools, checkedClasses, setCheckedClasses, checkedYearlyClasses, setCheckedYearlyClasses,
+  const { allClasses, selectedClasses, setSelectedClasses,  
           isClassView, classColors, school_class_map, onColorPaletteClick} = props;
 
   const [areAllSchoolSelected, setAreAllSchoolSelected] = useState(true);
@@ -47,50 +47,10 @@ function SchoolTreeView(props) {
     };
 
 
-  const handleClassSequenceCheckChange = (schoolClass, isChecked) => {
-      const [school, classId] = schoolClass.split('.');  
-      const classesMap =school_class_map[school];
-      const classesInSequence = classesMap[classId].classes.map(item =>  item.Läsår + '-' + item.Klass);
-      const yearlyClasses = classesInSequence.map(item => `${classId}.${item}`);    
-      if (isChecked) {
-          console.log('checked sequence', schoolClass);
-          setCheckedClasses(prev => [...prev, schoolClass]);
-
-          for( const yearlyClass of yearlyClasses) {
-            if(!checkedYearlyClasses.includes(yearlyClass)){
-              handleYearlyClassCheckChange(yearlyClass, true);
-            }
-          }
-          // setCheckedYearlyClasses(prev => {
-          //   return [...prev, ...classesInSequence.map(item => `${classId}.${item}`).filter(c => !prev.includes(c))];        
-          // });
-      } else {
-          console.log('unchecked sequence', schoolClass);
-          setCheckedClasses(prev => prev.filter(c => c !== schoolClass));
-          for( const yearlyClass of yearlyClasses) {
-            if(checkedYearlyClasses.includes(yearlyClass)){
-              handleYearlyClassCheckChange(yearlyClass, false);
-            }
-          }
-          //setCheckedYearlyClasses(prev => prev.filter(c => !c.startsWith(`${classId}.`)));
-      }
-  };
-
-  const handleYearlyClassCheckChange = (sequence_class, isChecked) => {
-    if (isChecked) {
-        setCheckedYearlyClasses(prev => [...prev, sequence_class]);
-    } else {
-        setCheckedYearlyClasses(prev => { if(prev.length>0 ) return prev.filter(c => c !== sequence_class);  return prev;});
-    }
-    console.log('handleYearlyClassCheckChange', checkedYearlyClasses);
-  };
-
   const handleColorChange = (school, classID, newColor) => {
     setPaletteID('');
     onColorPaletteClick(school, classID, newColor);
   };
-
-
 
   return (
       <div  className='school-tree-view' style={{ margin: '0px 3px'}}>
@@ -137,12 +97,6 @@ function SchoolTreeView(props) {
                   allClassesInSchool: allClasses.filter(c => c.school === school),
                   classesMap,
                   idx,
-                  checkedClasses,
-                  setCheckedClasses,
-                  handleClassSequenceCheckChange,
-                  handleYearlyClassCheckChange,
-                  checkedYearlyClasses,                    
-                  checkedSchools,
                   setPaletteID,
                   paletteID,
                   handleColorChange,
@@ -169,8 +123,7 @@ function SchoolTreeView(props) {
 
 function SchoolComponent({ props }) {
   const { school, selectedClasses, setSelectedClasses, allClassesInSchool,
-        classesMap, checkedClasses,  idx, handleClassSequenceCheckChange,handleYearlyClassCheckChange, 
-        setPaletteID, paletteID, handleColorChange, checkedYearlyClasses, isClassView, classColors } = props;
+        classesMap, idx, setPaletteID, paletteID, handleColorChange, isClassView, classColors } = props;
 
   const [areAllClassesInSchoolSelected, setAreAllClassesInSchoolSelected] = useState(false);
   const [selectedClassesInSchool, setSelectedClassesInSchool] = useState(selectedClasses.filter(c => c.school === school));  
@@ -247,10 +200,6 @@ function SchoolComponent({ props }) {
                   class: item.Klass
                 })),
                 classesMap,
-                checkedClasses,
-                checkedYearlyClasses,
-                handleClassSequenceCheckChange,
-                handleYearlyClassCheckChange,
                 setPaletteID,
                 paletteID,
                 handleColorChange,

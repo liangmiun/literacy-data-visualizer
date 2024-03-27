@@ -26,9 +26,6 @@ const App = () => {
   const [seasonField, setSeasonField] = useState('Quarter');
   const [colorField, setColorField] = useState('Årskurs');
   const [selectedClasses, setSelectedClasses] = useState([]);
-  const [checkedSchools, setCheckedSchools] = useState([]);
-  const [checkedClasses, setCheckedClasses] = useState([]);
-  const [checkedYearlyClasses, setCheckedYearlyClasses] = useState([]);  
   const [query, setQuery] = useState('');
   const [expression, setExpression] = useState('');
   const [checkedOptions, setCheckedOptions] = useState(
@@ -49,14 +46,13 @@ const App = () => {
   const fields_y = y_data_fields;
 
   const savePresetSetters = {
-    xField, yField, colorField, checkedSchools, checkedClasses,
+    xField, yField, colorField, 
     checkedOptions, rangeOptions, query, expression, isClassView,
     showLines, aggregateType
   } ;
 
   const configSetters = {
-    setXField, setYField, setColorField, setCheckedSchools,
-    setCheckedClasses, setCheckedOptions, setRangeOptions,
+    setXField, setYField, setColorField, setCheckedOptions, setRangeOptions,
     setQuery, setExpression, setIsClassView, setShowLines, setAggregateType
     };
 
@@ -156,12 +152,6 @@ const App = () => {
                             setExpression={setExpression}
                             selectedClasses={selectedClasses}
                             setSelectedClasses={setSelectedClasses}
-                            checkedSchools={checkedSchools}
-                            setCheckedSchools={setCheckedSchools}
-                            checkedClasses={checkedClasses}
-                            setCheckedClasses={setCheckedClasses}
-                            checkedYearlyClasses={checkedYearlyClasses}
-                            setCheckedYearlyClasses={setCheckedYearlyClasses}
                             checkedOptions={checkedOptions}
                             setCheckedOptions={setCheckedOptions}
                             rangeOptions={rangeOptions}
