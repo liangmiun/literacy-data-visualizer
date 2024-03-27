@@ -12,6 +12,9 @@ const FilterCanvas = (props) => {
     <div  className='filter-canvas'>      
 
       <SchoolTreeView  className='school-tree-view' 
+        allClasses={props.allClasses} 
+        selectedClasses={props.selectedClasses} 
+        setSelectedClasses={props.setSelectedClasses}
         checkedSchools={props.checkedSchools}
         setCheckedSchools={props.setCheckedSchools}
         checkedClasses={props.checkedClasses}

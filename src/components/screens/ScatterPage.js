@@ -6,13 +6,13 @@ import ScatterCanvas from '../layouts/ScatterCanvas';
 import DetailCanvas from '../layouts/DetailCanvas';
 import FilterCanvas from '../layouts/FilterCanvas';
 import LogicCanvas from '../layouts/LogicCanvas';
-import { generateClassID, generateSchoolLastingClassMap, generateSchoolClassColorScale} from '../../utils/Utils.js';
+import { generateSchoolLastingClassMap, generateSchoolClassColorScale} from '../../utils/Utils.js';
 import 'assets/App.css';
 
 
 const ScatterPage = (props ) => {  
 
-  const { data, logicFilteredData, isClassView,setIsClassView, aggregateType, setAggregateType,
+  const { data, logicFilteredData, isClassView,setIsClassView, aggregateType, setAggregateType, selectedClasses, setSelectedClasses,
           checkedSchools, checkedClasses, checkedYearlyClasses, xField,yField, rangeOptions, checkedOptions  } = props;
   const trends = { all: 'all', overall_decline: 'overall decline',  logarithmic_decline: "logarithmicly decline", last_time_decline: 'last time decline'};
   const [selectedRecords, setSelectedRecords] = useState([]);
@@ -21,6 +21,7 @@ const ScatterPage = (props ) => {
   const [studentsChecked, setStudentsChecked] = useState(false);
   const [connectIndividual, setConnectIndividual] = useState(false);
   const [schoolClassesAndColorScale, setSchoolClassesAndColorScale ]= useState({schoolClasses:{}, colorScale: {}});
+  const [allClasses, setAllClasses] = useState([]);
   const [declineSlopeThreshold, setDeclineSlopeThreshold] = useState(0);
   const [diffThreshold, setDiffThreshold] = useState(0);
   const [dataToShow, setDataToShow] = useState([]);
@@ -36,8 +37,22 @@ const ScatterPage = (props ) => {
       const newSchoolClasses = generateSchoolLastingClassMap(nonNullLexploreData);  
       const newClassColorScale = generateSchoolClassColorScale(newSchoolClasses).classColor;
       setSchoolClassesAndColorScale({ schoolClasses: newSchoolClasses, colorScale: newClassColorScale});
+
     }
-  }, [ data]);   
+  }, [ data]); 
+
+  useEffect(() => {  
+    let allClassesList = [];
+    for (const [school, classesMap] of Object.entries(schoolClassesAndColorScale.schoolClasses)) {
+      for(const sequence of Object.values(classesMap)) {
+        for( const yearlyClass of Object.values(sequence.classes))
+        {
+          allClassesList.push({school: school, schoolYear: yearlyClass.Läsår,class: yearlyClass.Klass});
+        }
+      }
+    } 
+    setAllClasses(allClassesList);
+  }, [schoolClassesAndColorScale]);
 
   useEffect(() => {
     if (Object.keys(logicFilteredData).length > 0)
@@ -116,13 +131,15 @@ const ScatterPage = (props ) => {
 
   const shownData = useMemo(() => {
 
-    console.log("run shownData");
+    console.log("run shownData, selectedClasses: ", selectedClasses);
 
     const nonNullData = dataToShow.filter(d => d[xField] !== null && d[yField] !== null); 
 
-    return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData, checkedSchools,checkedClasses, checkedYearlyClasses)));
+    console.log("run shownData, selectedClasses: ", selectedClasses, schoolClassFilteredData(nonNullData, selectedClasses).length);
+
+    return checkedFilteredData(rangeFilteredData(schoolClassFilteredData(nonNullData, selectedClasses)));
       
-  }, [ dataToShow, xField, yField,checkedSchools,checkedClasses, checkedYearlyClasses, checkedFilteredData,  rangeFilteredData]);  
+  }, [ dataToShow, xField, yField, selectedClasses, checkedFilteredData,  rangeFilteredData]);  
 
   useEffect(() => {
     // Define the labels and their options
@@ -233,7 +250,10 @@ const ScatterPage = (props ) => {
 
       <FilterCanvas 
         data={data}
-        fields={props.fields} 
+        fields={props.fields}
+        allClasses={allClasses}
+        selectedClasses={selectedClasses}
+        setSelectedClasses={setSelectedClasses} 
         checkedSchools={checkedSchools}
         setCheckedSchools={props.setCheckedSchools}
         checkedClasses={checkedClasses}
@@ -267,30 +287,15 @@ const ScatterPage = (props ) => {
 };
 
 
-function schoolClassFilteredData(data,checkedSchools,checkedClasses, checkedYearlyClasses) {
-  return data.filter(record => {
-      // Check if the school of the record is in checkedSchools
-      if (checkedSchools.includes(record.Skola)) {
-          return true;
-      }
+function schoolClassFilteredData(data,selectedClasses) {
+  return data.filter(record => { 
 
-      const classSequenceID = generateClassID(record);
+    if (selectedClasses.some(item => item.school === record.Skola && item.schoolYear === record.Läsår && item.class === record.Klass)) {
+      return true;
+    }
+    return false;
+  });
 
-      // Construct the school.class string from the record
-      const schoolSequenceCombo = `${record.Skola}.${classSequenceID}`;
-      // Check if this combo is in checkedClasses
-      if (checkedClasses.includes(schoolSequenceCombo)) {
-          return true;
-      }
-
-      const sequenceClassCombo = `${classSequenceID}.${record.Läsår}-${record.Klass}`;
-      if(checkedYearlyClasses.includes(sequenceClassCombo)){
-        return true;
-      }
-
-      // If none of the above conditions are met, exclude this record
-      return false;
-  } );    
 }
 
 

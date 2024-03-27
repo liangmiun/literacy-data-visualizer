@@ -25,6 +25,7 @@ const App = () => {
   const [yField, setYField] = useState('Lexplore Score');
   const [seasonField, setSeasonField] = useState('Quarter');
   const [colorField, setColorField] = useState('Årskurs');
+  const [selectedClasses, setSelectedClasses] = useState([]);
   const [checkedSchools, setCheckedSchools] = useState([]);
   const [checkedClasses, setCheckedClasses] = useState([]);
   const [checkedYearlyClasses, setCheckedYearlyClasses] = useState([]);  
@@ -153,6 +154,8 @@ const App = () => {
                             setQuery={setQuery}
                             expression={expression}
                             setExpression={setExpression}
+                            selectedClasses={selectedClasses}
+                            setSelectedClasses={setSelectedClasses}
                             checkedSchools={checkedSchools}
                             setCheckedSchools={setCheckedSchools}
                             checkedClasses={checkedClasses}
