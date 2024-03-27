@@ -194,14 +194,18 @@ function SchoolComponent({ props }) {
   }  ,[school, selectedClassesInSchool, allClassesInSchool]);
 
 
+  useEffect(() => {
+    //update selected classes in school
+    setSelectedClassesInSchool(selectedClasses.filter(c => c.school === school));
+  },[selectedClasses, school]);
 
-  function handleSchoolCheckChange(school, isChecked) { 
+
+
+  function handleSchoolCheckChange(isChecked) { 
     if(isChecked){
-      setSelectedClassesInSchool(allClassesInSchool); 
-      setSelectedClasses(prev => [...prev.filter(c => c.school !== school), ...selectedClassesInSchool]); 
+      setSelectedClasses(prev => [...prev.filter(c => c.school !== school), ...allClassesInSchool]); 
     }
     else{
-      setSelectedClassesInSchool([]);
       setSelectedClasses(prev => prev.filter(c => c.school !== school));
     }
   }
@@ -214,7 +218,7 @@ function SchoolComponent({ props }) {
         style={{ padding: '1px' }}
         checked={areAllClassesInSchoolSelected}
         indeterminate={  !areAllClassesInSchoolSelected && selectedClassesInSchool.length > 0}
-        onChange={(event) => handleSchoolCheckChange(school, event.target.checked)}
+        onChange={(event) => handleSchoolCheckChange(event.target.checked)}
       />
       {/* Render classes and other UI elements here */}
 
@@ -271,6 +275,8 @@ function ClassSequenceComponent({ props }) {
   const classesInSequence = classesMap[classId].classes.map(item =>  item.Läsår + '-' + item.Klass);
   const schoolShort = school.toString().substring(0,4).replace(/\s+/g, '_');
 
+  console.log('allClassesInSequence', allClassesInSequence, classId);
+
   const [areAllClassesInSequenceSelected, setAreAllClassesInSequenceSelected] = useState(false);
   const [selectedClassesInSequence, setSelectedClassesInSequence] = useState(
       selectedClasses.filter(c => c.school === school && classIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]), schoolShort, c.class) === classId)
@@ -291,18 +297,25 @@ function ClassSequenceComponent({ props }) {
     else {
       setAreAllClassesInSequenceSelected(false);
     }
+
+    console.log('areAllInSequenceSelected', areAllInSequenceSelected, sortedAll, sortedSelected);
   },[selectedClassesInSequence, allClassesInSequence]);
+
+  useEffect(() => {
+    //update selected classes in sequence
+    setSelectedClassesInSequence(selectedClasses.filter(c => c.school === school && classIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]), schoolShort, c.class) === classId));
+  },[selectedClasses, classId, school, schoolShort]);
 
   
   function handleClassSequenceCheckChange( isChecked) {
   
     if(isChecked){
-      setSelectedClassesInSequence(allClassesInSequence);
+      //setSelectedClassesInSequence(allClassesInSequence);
       setSelectedClasses( prev => [...prev.filter(c => c.school !== school || classIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]),schoolShort, c.class) !== classId), ...allClassesInSequence]);
     }
     else
     {
-      setSelectedClassesInSequence([]);
+      //setSelectedClassesInSequence([]);
       setSelectedClasses( prev => prev.filter(c => c.school !== school || classIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]),schoolShort, c.class) !== classId));
     }
   }
@@ -381,15 +394,17 @@ function SingleYearClassComponent({ props }) {
 
   const [isClassChecked, setIsClassChecked] = useState(false);
 
+  useEffect(() => {
+    setIsClassChecked(props.selectedClasses.some(c => c.school === school && c.schoolYear === yearlyClass.split('-')[0] && c.class === yearlyClass.split('-')[1]));
+  },[props.selectedClasses, school, yearlyClass]);
+
   function handleYearlyClassCheckChange(isChecked) {
     const schoolYear = yearlyClass.split('-')[0];
     const className = yearlyClass.split('-')[1];
     if(isChecked){
-      setIsClassChecked(true);
       setSelectedClasses(prev => [...prev.filter( c => !( c.school=== school && c.schoolYear === schoolYear && c.class === className ) ), {school: school, schoolYear:schoolYear, class: className}]);
     }
     else{
-      setIsClassChecked(false);
       setSelectedClasses(prev => prev.filter( c => !( c.school=== school && c.schoolYear === schoolYear && c.class === className ) ));
     }
   }
