@@ -61,12 +61,12 @@ const ScatterPage = (props ) => {
     }
   }, [ logicFilteredData]);    
 
-  const handleClassColorPaletteClick= (school, classID, newColor) => {
+  const handleClassColorPaletteClick= (school, sequenceID, newColor) => {
     setSchoolClassesAndColorScale(prevState => {
       // Extracting the current state of schoolClasses and colorScale
       const { schoolClasses, colorScale } = prevState;
       const prevClasses = colorScale[school] || {};
-      const updatedClasses = { ...prevClasses, [classID]: newColor };   
+      const updatedClasses = { ...prevClasses, [sequenceID]: newColor };   
       // Returning the new state with the updated colorScale and unchanged schoolClasses
       return {
         schoolClasses: schoolClasses, // keeping the existing schoolClasses unchanged

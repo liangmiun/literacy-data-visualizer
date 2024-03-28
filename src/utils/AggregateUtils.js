@@ -8,15 +8,12 @@ const indv_offset =0;
 
 export function PresentIndividuals(data, seasonField, yField, g, x0, getSubBandScale, yScale , subBandWidth, connectIndividual, classColors)
 {
-    // Step 1: Group data by ElevID
-    //const groupedData = d3.group(data, d => d.ElevID);
-
     // Calculate positions and draw circles
     const positions = []; // To store the positions of circles
     data.forEach(d => {
         const season = Season(d.Testdatum, seasonField).toString();
         const clazz = d.Klass.toString();
-        d.classID = getLastingClassID(d.Skola, season, clazz); // Enhance each datum with classID
+        d.sequenceID = getLastingSequenceID(d.Skola, season, clazz); 
     });
     g.selectAll(".indvPoints")
         .data(data)
@@ -24,30 +21,29 @@ export function PresentIndividuals(data, seasonField, yField, g, x0, getSubBandS
         .attr("class", "indvPoints")
         .attr("cx", d => {                    
             const season = Season(d.Testdatum, seasonField).toString(); // or whatever field you use for the season
-            const classID = d.classID;
+            const sequenceID = d.sequenceID;
             const x1 = getSubBandScale(season); // get the x1 scale for the current season
 
             // Unique string for hashing, combining properties that uniquely identify this data point
             const uniqueIdentifier = `${d.ElevID}`; //`${d.Skola}-${season}-${clazz}`
             const hashValue = simpleHash(uniqueIdentifier);
             const jitterOffset = consistentRandom(hashValue, -indv_jitterWidth / 2, indv_jitterWidth / 2);
-            const cx = x0(season) + x1(classID)  + subBandWidth/2 + indv_offset + jitterOffset;   //- indv_jitterWidth/2 + Math.random()*indv_jitterWidth
+            const cx = x0(season) + x1(sequenceID)  + subBandWidth/2 + indv_offset + jitterOffset;   //- indv_jitterWidth/2 + Math.random()*indv_jitterWidth
 
             const record_id = d.ElevID +"-" + formatDate(d.Testdatum);
 
-            positions.push({ ElevID: d.ElevID, cx, cy: yScale(d[yField]), record_id: record_id, Skola: d.Skola, classID: d.classID});
+            positions.push({ ElevID: d.ElevID, cx, cy: yScale(d[yField]), record_id: record_id, Skola: d.Skola, sequenceID: d.sequenceID});
             return cx;
         })
         .attr("cy", d => { return yScale(d[yField])})
         .attr("r", 2)
         .style("fill", "white")
         .attr("stroke", d => {
-            console.log("individual jitter color: ", classColors[d.Skola][d.classID] );
-            return  classColors[d.Skola][d.classID]   ;})
+            return  classColors[d.Skola][d.sequenceID]   ;})
         .style("fill-opacity", 0.5)
         .attr("record_id", d => { return d.ElevID +"-" + formatDate(d.Testdatum)}) 
         .attr("indv_season", d => {return Season(d.Testdatum, seasonField).toString()})
-        .attr("indv_classID", d => { return getLastingClassID(d.Skola, Season(d.Testdatum, seasonField).toString(), d.Klass.toString())})
+        .attr("indv_sequenceID", d => { return getLastingSequenceID(d.Skola, Season(d.Testdatum, seasonField).toString(), d.Klass.toString())})
         .attr("jitterOffset", (d) => { 
             const uniqueIdentifier = `${d.ElevID}`;
             const hashValue = simpleHash(uniqueIdentifier);
@@ -67,7 +63,7 @@ export function PresentIndividuals(data, seasonField, yField, g, x0, getSubBandS
                 .attr("y2", points[i + 1].cy)
                 .attr("stroke", () => {
                     const d = points[i];
-                    return  classColors[d.Skola][d.classID]   ;})
+                    return  classColors[d.Skola][d.sequenceID]   ;})
                 .attr("stroke-width", 0.5)
                 .attr("stroke-opacity", 0.5)
                 .attr("start_record_id", points[i].record_id)
@@ -135,18 +131,17 @@ function getCurrentSchoolYear() {
   }
   
 
-export function getLastingClassID(school, seasonKey, classKey)
+export function getLastingSequenceID(school, seasonKey, classKey)
 {
     const testYear = parseInt(seasonKey.split('-')[0]) - 2000;
     const testSeason = seasonKey.split('-')[1];
     const schoolYear = isFirstHalfYear(testSeason)? testYear - 1 : testYear;
-    const schoolShort = school.toString().substring(0,4).replace(/\s+/g, '_');
 
-    return  classIDfromYearSchoolClass(schoolYear, schoolShort, classKey);
+    return  sequenceIDfromYearSchoolClass(schoolYear, school, classKey);
 }
 
 
-export function classIDfromYearSchoolClass(schoolYearTwoDigit, schoolShort, classKey)
+export function sequenceIDfromYearSchoolClass(schoolYearTwoDigit, school, classKey)  
 {
     const classNum = parseInt(classKey[0]);
     const classSuffix = classKey.length>1? classKey[1]: '';
@@ -166,7 +161,7 @@ export function classIDfromYearSchoolClass(schoolYearTwoDigit, schoolShort, clas
     }
 
 
-    return `${schoolShort}:${newSchoolYear}-${newClassNum}${classSuffix}`;
+    return `${school}:${newSchoolYear}/${newSchoolYear+1}-${newClassNum}${classSuffix}`;
 
 }
 
@@ -287,7 +282,7 @@ function setSumStat(filteredData, yScale, seasonField,yField, aggregateType)
                     sumstat.push({
                         key: `${klassKey}-${seasonKey}`,
                         value: {
-                            lastingclass: getLastingClassID(schoolKey, seasonKey, klassKey),                                
+                            lastingclass: getLastingSequenceID(schoolKey, seasonKey, klassKey),                                
                             season: seasonKey,
                             school: schoolKey,
                             class: klassKey,
@@ -322,7 +317,7 @@ function setSumStat(filteredData, yScale, seasonField,yField, aggregateType)
                     sumstat.push({
                         key: `${classKey}-${seasonKey}`,
                         value: {
-                            lastingclass: getLastingClassID(schoolKey, seasonKey, classKey),
+                            lastingclass: getLastingSequenceID(schoolKey, seasonKey, classKey),
                             school: schoolKey,
                             class: classKey,
                             season: seasonKey,
@@ -427,13 +422,13 @@ function commonPartRender( g, zoomXScale, zoomYScale, zoomState, subBandWidth, g
     g.selectAll('.lastingClassLines')
     .attr("x1", function(){
         const startSeason = d3.select(this).attr('startSeason');
-        const startClassID = d3.select(this).attr('startClassID');
-        return zoomXScale(startSeason) + getSubBandScale(startSeason)(startClassID)* zoomState.k + subBandWidth / 2;
+        const startSequenceID = d3.select(this).attr('startSequenceID');
+        return zoomXScale(startSeason) + getSubBandScale(startSeason)(startSequenceID)* zoomState.k + subBandWidth / 2;
     })
     .attr("x2", function(){
         const endSeason = d3.select(this).attr('endSeason');
-        const endClassID = d3.select(this).attr('startClassID');
-        return zoomXScale(endSeason) + getSubBandScale(endSeason)(endClassID)* zoomState.k + subBandWidth / 2;
+        const endSequenceID = d3.select(this).attr('startSequenceID');
+        return zoomXScale(endSeason) + getSubBandScale(endSeason)(endSequenceID)* zoomState.k + subBandWidth / 2;
     })
 
     // Apply zoom transformation to lines
@@ -499,9 +494,9 @@ export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, ge
     g.selectAll(".indvPoints")
     .attr("cx", function() {
         const season = d3.select(this).attr("indv_season");
-        const classID = d3.select(this).attr("indv_classID");
+        const sequenceID = d3.select(this).attr("indv_sequenceID");
         const jitterOffset = d3.select(this).attr("jitterOffset");
-        return zoomXScale(season) + getSubBandScale(season)(classID) * zoomState.k + subBandWidth/2 + jitterOffset*zoomState.k;
+        return zoomXScale(season) + getSubBandScale(season)(sequenceID) * zoomState.k + subBandWidth/2 + jitterOffset*zoomState.k;
     })
     
     g.selectAll(".indvLines")
@@ -555,11 +550,11 @@ export function presentLines(showLines, lastingClassGroups,  g, x0, getSubBandSc
                     .attr("y1", y(startPoint.value.median))
                     .attr("y2", y(endPoint.value.median))
                     .attr("stroke", () => {            
-                        const classID = getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
-                        return  classColors[startPoint.value.school][classID]; }) 
+                        const sequenceID = getLastingSequenceID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
+                        return  classColors[startPoint.value.school][sequenceID]; }) 
                     .attr('stroke-width', 1)
                     .attr("startSeason", startPoint.value.season.toString())
-                    .attr("startClassID", getLastingClassID(startPoint.value.school, startPoint.value.season, startPoint.value.class))
+                    .attr("startSequenceID", getLastingSequenceID(startPoint.value.school, startPoint.value.season, startPoint.value.class))
                     .attr("endSeason", endPoint.value.season.toString())
                     .attr("endClass", endPoint.value.class.toString())                  
                     ; 

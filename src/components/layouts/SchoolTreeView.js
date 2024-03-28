@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import {classIDfromYearSchoolClass} from 'utils/AggregateUtils.js';
+import {sequenceIDfromYearSchoolClass} from 'utils/AggregateUtils.js';
 import 'assets/App.css';
 import * as d3 from 'd3';
 import Tooltip from '@mui/material/Tooltip';
@@ -47,9 +47,9 @@ function SchoolTreeView(props) {
     };
 
 
-  const handleColorChange = (school, classID, newColor) => {
+  const handleColorChange = (school, sequenceID, newColor) => {
     setPaletteID('');
-    onColorPaletteClick(school, classID, newColor);
+    onColorPaletteClick(school, sequenceID, newColor);
   };
 
   return (
@@ -184,12 +184,12 @@ function SchoolComponent({ props }) {
           }
           key={school}
         >
-          {Object.entries(classesMap).map(([classId, classes], cIdx) => (
+          {Object.entries(classesMap).map(([sequenceID, classes], cIdx) => (
             <ClassSequenceComponent
-              key={classId}
+              key={sequenceID}
               props={{
                 school,
-                classId,
+                sequenceID,
                 idx,
                 cIdx,
                 selectedClasses,
@@ -218,15 +218,14 @@ function SchoolComponent({ props }) {
 
 
 function ClassSequenceComponent({ props }) {
-  const { school, classId,  selectedClasses, setSelectedClasses, allClassesInSequence,  classesMap, idx, cIdx, checkedYearlyClasses, 
+  const { school, sequenceID,  selectedClasses, setSelectedClasses, allClassesInSequence,  classesMap, idx, cIdx, checkedYearlyClasses, 
           setPaletteID, paletteID, handleColorChange, isClassView, classColors, handleYearlyClassCheckChange } = props;
 
-  const classesInSequence = classesMap[classId].classes.map(item =>  item.Läsår + '-' + item.Klass);
-  const schoolShort = school.toString().substring(0,4).replace(/\s+/g, '_');
+  const classesInSequence = classesMap[sequenceID].classes.map(item =>  item.Läsår + '-' + item.Klass);
 
   const [areAllClassesInSequenceSelected, setAreAllClassesInSequenceSelected] = useState(false);
   const [selectedClassesInSequence, setSelectedClassesInSequence] = useState(
-      selectedClasses.filter(c => c.school === school && classIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]), schoolShort, c.class) === classId)
+      selectedClasses.filter(c => c.school === school && sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]), school, c.class) === sequenceID)
     );
 
   useEffect(() => {
@@ -249,26 +248,26 @@ function ClassSequenceComponent({ props }) {
 
   useEffect(() => {
     //update selected classes in sequence
-    setSelectedClassesInSequence(selectedClasses.filter(c => c.school === school && classIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]), schoolShort, c.class) === classId));
-  },[selectedClasses, classId, school, schoolShort]);
+    setSelectedClassesInSequence(selectedClasses.filter(c => c.school === school && sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]), school, c.class) === sequenceID));
+  },[selectedClasses, sequenceID, school]);
 
   
   function handleClassSequenceCheckChange( isChecked) {
   
     if(isChecked){
       //setSelectedClassesInSequence(allClassesInSequence);
-      setSelectedClasses( prev => [...prev.filter(c => c.school !== school || classIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]),schoolShort, c.class) !== classId), ...allClassesInSequence]);
+      setSelectedClasses( prev => [...prev.filter(c => c.school !== school || sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]),school, c.class) !== sequenceID), ...allClassesInSequence]);
     }
     else
     {
       //setSelectedClassesInSequence([]);
-      setSelectedClasses( prev => prev.filter(c => c.school !== school || classIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]),schoolShort, c.class) !== classId));
+      setSelectedClasses( prev => prev.filter(c => c.school !== school || sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]),school, c.class) !== sequenceID));
     }
   }
 
 
   return (
-    <div key={classId}  style={{ display: 'flex', alignItems: 'flex-start' }} >  
+    <div key={sequenceID}  style={{ display: 'flex', alignItems: 'flex-start' }} >  
     {/* //  style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }} */}
       <Checkbox 
         checked={areAllClassesInSequenceSelected}
@@ -280,10 +279,10 @@ function ClassSequenceComponent({ props }) {
         nodeId={`classSequence-${idx}-${cIdx}`}
         label={
           <div style={{ display: 'flex', alignItems: 'center' }}>
-          {classId }
+          {sequenceID.split(':')[1]}
           </div>
         }
-        key={classId}
+        key={sequenceID}
       >
           {Object.entries(classesInSequence).map(([ yearlyIdx,yearlyClass], cIdx) => (
             <SingleYearClassComponent
@@ -292,7 +291,6 @@ function ClassSequenceComponent({ props }) {
                 school,
                 selectedClasses,
                 setSelectedClasses,
-                classId,
                 checkedYearlyClasses,
                 handleYearlyClassCheckChange,
                 yearlyClass,                
@@ -309,10 +307,10 @@ function ClassSequenceComponent({ props }) {
       </TreeItem>
       <div>
         <div 
-          style={{ width: '10px', height: '10px', backgroundColor: props.isClassView? props.classColors[school][classId]: 'white', marginLeft: '5px' }}
-          onClick={() => setPaletteID(classId)}
+          style={{ width: '10px', height: '10px', backgroundColor: props.isClassView? props.classColors[school][sequenceID]: 'white', marginLeft: '5px' }}
+          onClick={() => setPaletteID(sequenceID)}
         />
-        {paletteID===classId && props.isClassView && (
+        {paletteID===sequenceID && props.isClassView && (
           <div style={{ marginTop: '5px' }}>
             {[0, 1].map(row => (
               <div key={row} style={{ display: 'flex' }}>
@@ -320,7 +318,7 @@ function ClassSequenceComponent({ props }) {
                   <div 
                     key={index}
                     style={{ width: '10px', height: '10px', backgroundColor:  paletteColor, marginLeft: '2px' }}
-                    onClick={() => handleColorChange(school, classId, paletteColor)}
+                    onClick={() => handleColorChange(school, sequenceID, paletteColor)}
                   />
                 ))}
               </div>

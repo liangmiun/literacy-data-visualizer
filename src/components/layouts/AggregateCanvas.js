@@ -15,9 +15,8 @@ const AggregateCanvas = (props) => {
     useEffect(() => {
 
         const tempSet = new Set(selectedClasses.map(item => {
-            const schoolShort = item.school.toString().substring(0,4).replace(/\s+/g, '_');
-            const classId = AggregateUtils.classIDfromYearSchoolClass(parseInt(item.schoolYear.split("/")[0]), schoolShort, item.class) ;
-            return `${item.school}.${classId}`;
+            const sequenceID = AggregateUtils.sequenceIDfromYearSchoolClass(parseInt(item.schoolYear.split("/")[0]), item.school, item.class) ;
+            return `${item.school}.${sequenceID}`;
           }));         
 
         setCheckedClasses(Array.from(tempSet));
@@ -117,8 +116,8 @@ const ViolinPlots = (props ) => {
             return `translate(${bandedX(d)}, 0)`;  
             })
         .style("fill", d => {
-            const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
-            return  classColors[d.value.school][classID]   ; 
+            const sequenceID = AggregateUtils.getLastingSequenceID(d.value.school, d.value.season, d.value.class);
+            return  classColors[d.value.school][sequenceID]   ; 
         })
         .on("click", function(event, d) {
 
@@ -227,8 +226,8 @@ const BoxPlots = (props) => {
                 return subBandWidth;
             })
             .style("fill", d => {
-                const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
-                return  classColors[d.value.school][classID]   ;  // colorScale(classId)  "url(#mygrad)"  `url(#mygrad-${classID})`
+                const sequenceID = AggregateUtils.getLastingSequenceID(d.value.school, d.value.season, d.value.class);
+                return  classColors[d.value.school][sequenceID]   ;  
             })
             .on("click", function(event,d) {
                 
@@ -315,8 +314,8 @@ const CirclePlots = (props) => {
             .attr('cy', d => yScale(d.value.median))
             .attr('r', 6)  
             .attr('fill', d => {
-                const classID = AggregateUtils.getLastingClassID(d.value.school, d.value.season, d.value.class);
-                return  classColors[d.value.school][classID] ;})
+                const sequenceID = AggregateUtils.getLastingSequenceID(d.value.school, d.value.season, d.value.class);
+                return  classColors[d.value.school][sequenceID] ;})
             .on("click", function(event,d) {   
 
                 d3.selectAll(".circles").attr("stroke-width", 0)

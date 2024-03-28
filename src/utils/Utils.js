@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import {classIDfromYearSchoolClass} from './AggregateUtils.js';
+import {sequenceIDfromYearSchoolClass} from './AggregateUtils.js';
 
 
 export const parseDate = d3.timeParse('%y%m%d');
@@ -123,12 +123,11 @@ export const load = (callback) => {
 };
 
 
-export function generateClassID(record) {
+export function generateSequenceID(record) {
   const year = parseInt(record.Läsår.split('/')[0]);
   const skola = record.Skola;
-  const skolaShort = skola.substring(0, 4).replace(/\s+/g, '_');
 
-  return classIDfromYearSchoolClass(year, skolaShort, record.Klass);
+  return sequenceIDfromYearSchoolClass(year, skola, record.Klass);
 }
 
 
@@ -137,28 +136,28 @@ export function generateSchoolLastingClassMap(litData) {
 
   litData.forEach(entry => {
       const school = entry.Skola;
-      const classID = generateClassID(entry); // Use the function from Utils.js to generate the classID
+      const sequenceID = generateSequenceID(entry); // Use the function from Utils.js to generate the sequenceID
 
       if (!schoolMap[school]) {
           schoolMap[school] = {};
       }
 
-      if (!schoolMap[school][classID]) {
-          schoolMap[school][classID] = {
+      if (!schoolMap[school][sequenceID]) {
+          schoolMap[school][sequenceID] = {
               classes: [],
           };
       }
 
-      if (!schoolMap[school][classID].classes.some(klass => klass.Klass === entry.Klass)) {
-          schoolMap[school][classID].classes.push({ Läsår: entry.Läsår, Klass: entry.Klass });
+      if (!schoolMap[school][sequenceID].classes.some(klass => klass.Klass === entry.Klass)) {
+          schoolMap[school][sequenceID].classes.push({ Läsår: entry.Läsår, Klass: entry.Klass });
       }
   });
 
       // Convert the schoolMap to a sorted array of schools
   const sortedSchools = Object.keys(schoolMap).sort().map(school => {
         // Sort class IDs for each school
-        const sortedClasses = Object.keys(schoolMap[school]).sort().reduce((acc, classId) => {
-            acc[classId] = schoolMap[school][classId];
+        const sortedClasses = Object.keys(schoolMap[school]).sort().reduce((acc, sequenceID) => {
+            acc[sequenceID] = schoolMap[school][sequenceID];
             return acc;
         }, {});
 
@@ -190,8 +189,8 @@ export function generateSchoolClassColorScale(schoolClasses) {
 
     for(const school in schoolClasses){
       const classsIDs = Object.keys(schoolClasses[school]);
-      const classColorScale = classsIDs.reduce((acc, classID, index) => {
-        acc[classID] = colors20()[index % 20];
+      const classColorScale = classsIDs.reduce((acc, sequenceID, index) => {
+        acc[sequenceID] = colors20()[index % 20];
         return acc;
       }, {});
       classColorScaleMap[school] = classColorScale;
@@ -225,7 +224,7 @@ export function aggrColorLegend( checkedClasses, classColors, svg, width, margin
       first20CheckedClasses.forEach((schoolClass, index) => {
 
           const school = schoolClass.split(".")[0];
-          const classID = schoolClass.split(".")[1];
+          const sequenceID = schoolClass.split(".")[1];
           
           // Draw colored rectangle
           legend.append("rect")
@@ -233,13 +232,13 @@ export function aggrColorLegend( checkedClasses, classColors, svg, width, margin
               .attr("y", index * 20)
               .attr("width", 15)
               .attr("height", 15)
-              .style("fill", classColors[school][classID]);
+              .style("fill", classColors[school][sequenceID]);
     
           // Draw text beside rectangle
           legend.append("text")
               .attr("x", 25)  // Adjust for padding beside rectangle
               .attr("y", index * 20 + 12)  // Adjust to vertically center text
-              .text(classID);
+              .text(sequenceID.split(":")[1]);
       });
     
       if (checkedClasses.length > 20) {
