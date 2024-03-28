@@ -7,13 +7,14 @@ import { rowParser, preset_dict, isDateFieldString } from './Utils.js';
 const updatePreset = (setters) => {
     // Directly modify the passed preset object
     const {
-      xField, yField, colorField, 
+      xField, yField, colorField, selectedClasses,
       checkedOptions, rangeOptions, query, expression, isClassView,
       showLines, aggregateType
     } = setters;
     preset_dict.xField = xField;
     preset_dict.yField = yField;
     preset_dict.colorField = colorField;
+    preset_dict.selectedClasses = selectedClasses;
     preset_dict.checkedOptions = checkedOptions;
     preset_dict.rangeOptions = rangeOptions;
     preset_dict.query = query;
@@ -28,7 +29,7 @@ export const setConfigFromPreset = ( setters) => {  //preset
 
     return (preset) => {
         const {
-            setXField, setYField, setColorField, setCheckedOptions, setRangeOptions,
+            setXField, setYField, setColorField, setSelectedClasses,  setCheckedOptions, setRangeOptions,
             setQuery, setExpression, setIsClassView, setShowLines, setAggregateType
         } = setters;
 
@@ -36,6 +37,7 @@ export const setConfigFromPreset = ( setters) => {  //preset
         setXField(preset.xField);
         setYField(preset.yField);
         setColorField(preset.colorField);
+        setSelectedClasses(preset.selectedClasses);
         setCheckedOptions(preset.checkedOptions);
         setRangeOptions(preset.rangeOptions);
         setQuery(preset.query);

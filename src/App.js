@@ -46,13 +46,13 @@ const App = () => {
   const fields_y = y_data_fields;
 
   const savePresetSetters = {
-    xField, yField, colorField, 
+    xField, yField, colorField, selectedClasses,
     checkedOptions, rangeOptions, query, expression, isClassView,
     showLines, aggregateType
   } ;
 
   const configSetters = {
-    setXField, setYField, setColorField, setCheckedOptions, setRangeOptions,
+    setXField, setYField, setColorField, setSelectedClasses, setCheckedOptions, setRangeOptions,
     setQuery, setExpression, setIsClassView, setShowLines, setAggregateType
     };
 

@@ -5,10 +5,10 @@ import { Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import {sequenceIDfromYearSchoolClass} from 'utils/AggregateUtils.js';
+import { FormControl, InputLabel, MenuItem, Select as MuiSelect } from '@mui/material';
 import 'assets/App.css';
 import * as d3 from 'd3';
 import Tooltip from '@mui/material/Tooltip';
-
 
 function SchoolTreeView(props) {
 
@@ -18,6 +18,8 @@ function SchoolTreeView(props) {
   const [areAllSchoolSelected, setAreAllSchoolSelected] = useState(true);
   const [paletteID, setPaletteID] = useState('');
   const [expandedSchools, ] = useState(['root']); 
+  const [classesGroupOptions, setClassesGroupOptions] = useState(['9-year tenure','3-year tenure','school-year']);
+  const [ groupOption, setGroupOption] = useState('9-year tenure');
 
   useEffect(() => {
 
@@ -57,9 +59,29 @@ function SchoolTreeView(props) {
         <h4 style={{ textAlign: 'center' }} >
         <Tooltip title="Select schools and classes: ☑ for all, ☐ for none and ▣ for some." followCursor>        
         <label>Filter by School and Class </label>
-        </Tooltip>
-          
+        </Tooltip>          
         </h4>  
+
+        <div style={{   display: 'flex',  justifyContent: 'center' }} >
+        <FormControl  size="small"  >
+          <Tooltip title="Select variable on vertical axis" followCursor>
+            <InputLabel >Group classes by</InputLabel>
+          </Tooltip>
+          <MuiSelect
+            sx={{ width: '8vw', height: '1.5vw'}}
+            value={groupOption}
+            onChange={(event) => setGroupOption(event.target.value)}
+            label="class-group-field"
+          >
+            {classesGroupOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </MuiSelect>
+        </FormControl>
+        </div>
+
         <TreeView  style={{margin: '5px 5px',width: '100%' ,
             overflowX: 'auto', maxWidth: '20vw',
             overflowY: 'auto', maxHeight:'50vh' }}
@@ -307,7 +329,7 @@ function ClassSequenceComponent({ props }) {
       </TreeItem>
       <div>
         <div 
-          style={{ width: '10px', height: '10px', backgroundColor: props.isClassView? props.classColors[school][sequenceID]: 'white', marginLeft: '5px' }}
+          style={{ width: '10px', height: '10px', backgroundColor: props.isClassView? props.classColors[school][sequenceID]: 'white', marginLeft: '5px', marginTop: '6px'}}
           onClick={() => setPaletteID(sequenceID)}
         />
         {paletteID===sequenceID && props.isClassView && (
