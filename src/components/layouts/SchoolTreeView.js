@@ -224,8 +224,6 @@ function ClassSequenceComponent({ props }) {
   const classesInSequence = classesMap[classId].classes.map(item =>  item.Läsår + '-' + item.Klass);
   const schoolShort = school.toString().substring(0,4).replace(/\s+/g, '_');
 
-  console.log('allClassesInSequence', allClassesInSequence, classId);
-
   const [areAllClassesInSequenceSelected, setAreAllClassesInSequenceSelected] = useState(false);
   const [selectedClassesInSequence, setSelectedClassesInSequence] = useState(
       selectedClasses.filter(c => c.school === school && classIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]), schoolShort, c.class) === classId)
@@ -247,7 +245,6 @@ function ClassSequenceComponent({ props }) {
       setAreAllClassesInSequenceSelected(false);
     }
 
-    console.log('areAllInSequenceSelected', areAllInSequenceSelected, sortedAll, sortedSelected);
   },[selectedClassesInSequence, allClassesInSequence]);
 
   useEffect(() => {
