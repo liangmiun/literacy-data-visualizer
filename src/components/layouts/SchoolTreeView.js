@@ -188,6 +188,22 @@ function SchoolComponent({ props }) {
     }
   }
 
+  const sortedSequenceEntries = Object.entries(classesMap).sort((a, b) => {
+    // Extract sequenceIDs from the entries
+    const sequenceID_A = a[0];
+    const sequenceID_B = b[0];
+
+    // Apply functionAAA to get values to compare
+    const valueA = startToEndYearInSequence(sequenceID_A, groupOption);
+    const valueB = startToEndYearInSequence(sequenceID_B, groupOption);
+
+    // For numerical or string comparison
+    if(valueA < valueB) return -1;
+    if(valueA > valueB) return 1;
+    return 0;
+
+  });
+
 
 
   return (
@@ -209,7 +225,7 @@ function SchoolComponent({ props }) {
           }
           key={school}
         >
-          {Object.entries(classesMap).map(([sequenceID, classes], cIdx) => (
+          {sortedSequenceEntries.map(([sequenceID, classes], cIdx) => (
             <ClassSequenceComponent
               key={sequenceID}
               props={{
@@ -313,7 +329,7 @@ function ClassSequenceComponent({ props }) {
         nodeId={`classSequence-${idx}-${cIdx}`}
         label={
           <div style={{ display: 'flex', alignItems: 'center' }}>
-          {sequenceID.split(':')[1]}
+          {startToEndYearInSequence(sequenceID, groupOption)}
           </div>
         }
         key={sequenceID}
@@ -452,6 +468,31 @@ function transformClassTooltip(input) {
 
 
   return newString;
+}
+
+
+function startToEndYearInSequence(sequenceID, groupOption) {
+  const endYearClass = sequenceID.split(':')[1]
+  //22/23-9A
+  const classNum = endYearClass.split('-')[1].replace(/\D/g, '');
+  const classLetter = endYearClass.split('-')[1].replace(/\d/g, '');
+
+  var startClassNum;
+  if(groupOption === "9-year tenure"){
+    startClassNum = 1;
+  }
+  else if(groupOption === "3-year tenure"){
+    startClassNum = 3* ( Math.ceil(classNum / 3) - 1) + 1
+  }
+  else if(groupOption === "school-year"){
+    return endYearClass;
+  }
+
+  const startYear = parseInt(endYearClass.split('-')[0].split('/')[0] ) +  startClassNum - classNum;
+  const startYearClass = `${startYear}/${startYear + 1}-${startClassNum}${classLetter}`;
+
+
+  return `${startYearClass} to ${endYearClass}`;
 }
 
 
