@@ -123,20 +123,20 @@ export const load = (callback) => {
 };
 
 
-export function generateSequenceID(record) {
+export function generateSequenceID(record, sequenceType) {
   const year = parseInt(record.Läsår.split('/')[0]);
   const skola = record.Skola;
 
-  return sequenceIDfromYearSchoolClass(year, skola, record.Klass);
+  return sequenceIDfromYearSchoolClass(year, skola, record.Klass, sequenceType);
 }
 
 
-export function generateSchoolLastingClassMap(litData) {
+export function generateSchoolLastingClassMap(litData, sequenceType) {
   const schoolMap = {};
 
   litData.forEach(entry => {
       const school = entry.Skola;
-      const sequenceID = generateSequenceID(entry); // Use the function from Utils.js to generate the sequenceID
+      const sequenceID = generateSequenceID(entry, sequenceType); // Use the function from Utils.js to generate the sequenceID
 
       if (!schoolMap[school]) {
           schoolMap[school] = {};

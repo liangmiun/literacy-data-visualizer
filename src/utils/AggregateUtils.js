@@ -6,14 +6,14 @@ export const singleViolinWidthRatio = 1; // The width of a single violin relativ
 const indv_jitterWidth = 5;
 const indv_offset =0;
 
-export function PresentIndividuals(data, seasonField, yField, g, x0, getSubBandScale, yScale , subBandWidth, connectIndividual, classColors)
+export function PresentIndividuals(data, seasonField, yField, g, x0, getSubBandScale, yScale , subBandWidth, connectIndividual, classColors, sequenceType)
 {
     // Calculate positions and draw circles
     const positions = []; // To store the positions of circles
     data.forEach(d => {
         const season = Season(d.Testdatum, seasonField).toString();
         const clazz = d.Klass.toString();
-        d.sequenceID = getLastingSequenceID(d.Skola, season, clazz); 
+        d.sequenceID = getLastingSequenceID(d.Skola, season, clazz, sequenceType); 
     });
     g.selectAll(".indvPoints")
         .data(data)
@@ -43,7 +43,7 @@ export function PresentIndividuals(data, seasonField, yField, g, x0, getSubBandS
         .style("fill-opacity", 0.5)
         .attr("record_id", d => { return d.ElevID +"-" + formatDate(d.Testdatum)}) 
         .attr("indv_season", d => {return Season(d.Testdatum, seasonField).toString()})
-        .attr("indv_sequenceID", d => { return getLastingSequenceID(d.Skola, Season(d.Testdatum, seasonField).toString(), d.Klass.toString())})
+        .attr("indv_sequenceID", d => { return getLastingSequenceID(d.Skola, Season(d.Testdatum, seasonField).toString(), d.Klass.toString(),sequenceType)})
         .attr("jitterOffset", (d) => { 
             const uniqueIdentifier = `${d.ElevID}`;
             const hashValue = simpleHash(uniqueIdentifier);
@@ -131,37 +131,54 @@ function getCurrentSchoolYear() {
   }
   
 
-export function getLastingSequenceID(school, seasonKey, classKey)
+export function getLastingSequenceID(school, seasonKey, classKey, sequenceType)
 {
     const testYear = parseInt(seasonKey.split('-')[0]) - 2000;
     const testSeason = seasonKey.split('-')[1];
     const schoolYear = isFirstHalfYear(testSeason)? testYear - 1 : testYear;
 
-    return  sequenceIDfromYearSchoolClass(schoolYear, school, classKey);
+    return  sequenceIDfromYearSchoolClass(schoolYear, school, classKey, sequenceType);
 }
 
 
-export function sequenceIDfromYearSchoolClass(schoolYearTwoDigit, school, classKey)  
+export function sequenceIDfromYearSchoolClass(schoolYearTwoDigit, school, classKey, sequenceType)  
 {
     const classNum = parseInt(classKey[0]);
     const classSuffix = classKey.length>1? classKey[1]: '';
     const currentSchoolYear = getCurrentSchoolYear() - 2000;
+    const {newClassNum, newSchoolYear} = classNumAndYearForSequence(classNum, currentSchoolYear, schoolYearTwoDigit, sequenceType);
+
+    return `${school}:${newSchoolYear}/${newSchoolYear+1}-${newClassNum}${classSuffix}`;
+
+}
+
+function classNumAndYearForSequence(classNum, currentSchoolYear, schoolYearTwoDigit, sequenceType )
+{
     var newClassNum ;
     var newSchoolYear;
+    var endClassNum;
 
-    if( classNum + currentSchoolYear - schoolYearTwoDigit <= 9)
+    if(sequenceType === '9-year tenure')
+    { endClassNum = 9; }
+    else if (sequenceType === '3-year tenure')
+    { endClassNum = 3* ( Math.ceil(classNum / 3) - 1) + 3; }
+    else 
+    { endClassNum = classNum; }
+
+
+    if( classNum + currentSchoolYear - schoolYearTwoDigit <= endClassNum)
     {
-        newClassNum = classNum + currentSchoolYear - schoolYearTwoDigit;
-        newSchoolYear = currentSchoolYear;
+        newClassNum = classNum + currentSchoolYear - schoolYearTwoDigit; //
+        newSchoolYear = currentSchoolYear;  
     }
     else
     {
-        newClassNum = 9;
-        newSchoolYear = schoolYearTwoDigit - classNum +  9;
-    }
+        newClassNum = endClassNum;
+        newSchoolYear = schoolYearTwoDigit - classNum +  endClassNum;
+    }    
 
 
-    return `${school}:${newSchoolYear}/${newSchoolYear+1}-${newClassNum}${classSuffix}`;
+    return {newClassNum, newSchoolYear};
 
 }
 
@@ -180,7 +197,7 @@ function isFirstHalfYear(testSeason)
 }
 
 
-export function PreparePlotStructure(svgRef, filteredData, seasonField, yField, aggregateType, margin, dimensions)  {
+export function PreparePlotStructure(svgRef, filteredData, seasonField, yField, aggregateType, margin, dimensions, sequenceType)  {
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();           
@@ -196,7 +213,7 @@ export function PreparePlotStructure(svgRef, filteredData, seasonField, yField, 
         .range([ dimensions.height - margin.top - margin.bottom, 0]);
 
     // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
-    const sumstat = setSumStat(filteredData, yScale, seasonField, yField, aggregateType);
+    const sumstat = setSumStat(filteredData, yScale, seasonField, yField, aggregateType, sequenceType);
 
     // Sort the sumstat by key to ensure boxes layout horizontally within each season:
     // Here sumstat is in a flat structure.
@@ -259,7 +276,7 @@ export function PreparePlotStructure(svgRef, filteredData, seasonField, yField, 
 }
 
 
-function setSumStat(filteredData, yScale, seasonField,yField, aggregateType)
+function setSumStat(filteredData, yScale, seasonField,yField, aggregateType,sequenceType)
 {
     const sumstat = [];
     if(aggregateType === 'violin'){
@@ -282,7 +299,7 @@ function setSumStat(filteredData, yScale, seasonField,yField, aggregateType)
                     sumstat.push({
                         key: `${klassKey}-${seasonKey}`,
                         value: {
-                            lastingclass: getLastingSequenceID(schoolKey, seasonKey, klassKey),                                
+                            lastingclass: getLastingSequenceID(schoolKey, seasonKey, klassKey,sequenceType),                                
                             season: seasonKey,
                             school: schoolKey,
                             class: klassKey,
@@ -317,7 +334,7 @@ function setSumStat(filteredData, yScale, seasonField,yField, aggregateType)
                     sumstat.push({
                         key: `${classKey}-${seasonKey}`,
                         value: {
-                            lastingclass: getLastingSequenceID(schoolKey, seasonKey, classKey),
+                            lastingclass: getLastingSequenceID(schoolKey, seasonKey, classKey,sequenceType),
                             school: schoolKey,
                             class: classKey,
                             season: seasonKey,
@@ -525,7 +542,7 @@ export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, ge
 }
 
 
-export function presentLines(showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, classColors)
+export function presentLines(showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, classColors, sequenceType)
 {
     if(showLines) {
             
@@ -550,11 +567,11 @@ export function presentLines(showLines, lastingClassGroups,  g, x0, getSubBandSc
                     .attr("y1", y(startPoint.value.median))
                     .attr("y2", y(endPoint.value.median))
                     .attr("stroke", () => {            
-                        const sequenceID = getLastingSequenceID(startPoint.value.school, startPoint.value.season, startPoint.value.class);
+                        const sequenceID = getLastingSequenceID(startPoint.value.school, startPoint.value.season, startPoint.value.class,sequenceType);
                         return  classColors[startPoint.value.school][sequenceID]; }) 
                     .attr('stroke-width', 1)
                     .attr("startSeason", startPoint.value.season.toString())
-                    .attr("startSequenceID", getLastingSequenceID(startPoint.value.school, startPoint.value.season, startPoint.value.class))
+                    .attr("startSequenceID", getLastingSequenceID(startPoint.value.school, startPoint.value.season, startPoint.value.class, sequenceType))
                     .attr("endSeason", endPoint.value.season.toString())
                     .attr("endClass", endPoint.value.class.toString())                  
                     ; 

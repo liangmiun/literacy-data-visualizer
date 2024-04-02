@@ -28,18 +28,19 @@ const ScatterPage = (props ) => {
   const [minDeclineThreshold, setMinDeclineThreshold] = useState(-1);
   const [filterList, setFilterList] = useState([]);
   const [emptyFilterOptions, setEmptyFilterOptions] = useState({}); 
+  const [ groupOption, setGroupOption] = useState('9-year tenure');
 
   
   useEffect(() => {
     if (Object.keys(data).length > 0)
     {
       const nonNullLexploreData = data.filter(d => d['Lexplore Score'] !== null);
-      const newSchoolClasses = generateSchoolLastingClassMap(nonNullLexploreData);  
+      const newSchoolClasses = generateSchoolLastingClassMap(nonNullLexploreData, groupOption);  
       const newClassColorScale = generateSchoolClassColorScale(newSchoolClasses).classColor;
       setSchoolClassesAndColorScale({ schoolClasses: newSchoolClasses, colorScale: newClassColorScale});
 
     }
-  }, [ data]); 
+  }, [ data, groupOption]); 
 
   useEffect(() => {  
     let allClassesList = [];
@@ -228,6 +229,7 @@ const ScatterPage = (props ) => {
           aggregateType = {aggregateType}
           classColors={schoolClassesAndColorScale.colorScale}
           showLines={props.showLines} 
+          groupOption={groupOption}
         />
         :
         <ScatterCanvas 
@@ -262,6 +264,8 @@ const ScatterPage = (props ) => {
         onColorPaletteClick={handleClassColorPaletteClick}
         classColors = {schoolClassesAndColorScale.colorScale}
         emptyFilterOptions={emptyFilterOptions}
+        groupOption={groupOption}
+        setGroupOption={setGroupOption}
       />   
 
       <LogicCanvas  

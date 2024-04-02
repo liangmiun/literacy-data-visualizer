@@ -13,13 +13,14 @@ import Tooltip from '@mui/material/Tooltip';
 function SchoolTreeView(props) {
 
   const { allClasses, selectedClasses, setSelectedClasses,  
-          isClassView, classColors, school_class_map, onColorPaletteClick} = props;
+          isClassView, classColors, school_class_map, onColorPaletteClick,
+          groupOption, setGroupOption} = props;
 
   const [areAllSchoolSelected, setAreAllSchoolSelected] = useState(true);
   const [paletteID, setPaletteID] = useState('');
   const [expandedSchools, ] = useState(['root']); 
-  const [classesGroupOptions, setClassesGroupOptions] = useState(['9-year tenure','3-year tenure','school-year']);
-  const [ groupOption, setGroupOption] = useState('9-year tenure');
+  const [classesGroupOptions, ] = useState(['9-year tenure','3-year tenure','school-year']);
+  //const [ groupOption, setGroupOption] = useState('9-year tenure');
 
   useEffect(() => {
 
@@ -124,6 +125,7 @@ function SchoolTreeView(props) {
                   handleColorChange,
                   isClassView,
                   classColors,
+                  groupOption
                 }}
               />
             
@@ -145,7 +147,8 @@ function SchoolTreeView(props) {
 
 function SchoolComponent({ props }) {
   const { school, selectedClasses, setSelectedClasses, allClassesInSchool,
-        classesMap, idx, setPaletteID, paletteID, handleColorChange, isClassView, classColors } = props;
+        classesMap, idx, setPaletteID, paletteID, handleColorChange, 
+        isClassView, classColors, groupOption } = props;
 
   const [areAllClassesInSchoolSelected, setAreAllClassesInSchoolSelected] = useState(false);
   const [selectedClassesInSchool, setSelectedClassesInSchool] = useState(selectedClasses.filter(c => c.school === school));  
@@ -227,6 +230,7 @@ function SchoolComponent({ props }) {
                 handleColorChange,
                 isClassView,
                 classColors,
+                groupOption
               }}
             
             
@@ -240,14 +244,17 @@ function SchoolComponent({ props }) {
 
 
 function ClassSequenceComponent({ props }) {
-  const { school, sequenceID,  selectedClasses, setSelectedClasses, allClassesInSequence,  classesMap, idx, cIdx, checkedYearlyClasses, 
-          setPaletteID, paletteID, handleColorChange, isClassView, classColors, handleYearlyClassCheckChange } = props;
+  const { school, sequenceID,  selectedClasses, setSelectedClasses, allClassesInSequence,  classesMap, idx, cIdx, 
+          setPaletteID, paletteID, handleColorChange, 
+          isClassView, classColors, handleYearlyClassCheckChange, groupOption } = props;
+
 
   const classesInSequence = classesMap[sequenceID].classes.map(item =>  item.Läsår + '-' + item.Klass);
 
   const [areAllClassesInSequenceSelected, setAreAllClassesInSequenceSelected] = useState(false);
   const [selectedClassesInSequence, setSelectedClassesInSequence] = useState(
-      selectedClasses.filter(c => c.school === school && sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]), school, c.class) === sequenceID)
+      selectedClasses.filter(c => c.school === school 
+        && sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]), school, c.class, groupOption) === sequenceID)
     );
 
   useEffect(() => {
@@ -270,20 +277,25 @@ function ClassSequenceComponent({ props }) {
 
   useEffect(() => {
     //update selected classes in sequence
-    setSelectedClassesInSequence(selectedClasses.filter(c => c.school === school && sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]), school, c.class) === sequenceID));
-  },[selectedClasses, sequenceID, school]);
+    setSelectedClassesInSequence(selectedClasses.filter(c => c.school === school 
+      && sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]), school, c.class, groupOption) === sequenceID));
+  },[selectedClasses, sequenceID, school, groupOption]);
 
   
   function handleClassSequenceCheckChange( isChecked) {
   
     if(isChecked){
       //setSelectedClassesInSequence(allClassesInSequence);
-      setSelectedClasses( prev => [...prev.filter(c => c.school !== school || sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]),school, c.class) !== sequenceID), ...allClassesInSequence]);
+      setSelectedClasses( 
+        prev => [...prev.filter(c => 
+          c.school !== school || sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]),school, c.class,groupOption) !== sequenceID), 
+          ...allClassesInSequence]);
     }
     else
     {
       //setSelectedClassesInSequence([]);
-      setSelectedClasses( prev => prev.filter(c => c.school !== school || sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]),school, c.class) !== sequenceID));
+      setSelectedClasses( prev => prev.filter(
+        c => c.school !== school || sequenceIDfromYearSchoolClass(parseInt(c.schoolYear.split("/")[0]),school, c.class, groupOption) !== sequenceID));
     }
   }
 
@@ -306,14 +318,13 @@ function ClassSequenceComponent({ props }) {
         }
         key={sequenceID}
       >
-          {Object.entries(classesInSequence).map(([ yearlyIdx,yearlyClass], cIdx) => (
+          { groupOption !== "school-year"  && Object.entries(classesInSequence).map(([ yearlyIdx,yearlyClass], cIdx) => (
             <SingleYearClassComponent
               key={yearlyClass}
               props={{
                 school,
                 selectedClasses,
                 setSelectedClasses,
-                checkedYearlyClasses,
                 handleYearlyClassCheckChange,
                 yearlyClass,                
                 idx,

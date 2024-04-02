@@ -19,6 +19,8 @@ const FilterCanvas = (props) => {
         school_class_map={props.school_class_map}
         onColorPaletteClick={props.onColorPaletteClick}
         classColors = {props.classColors}
+        groupOption={props.groupOption}
+        setGroupOption={props.setGroupOption}
       />
 
 
