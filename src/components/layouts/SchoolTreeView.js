@@ -448,28 +448,6 @@ function SingleYearClassComponent({ props }) {
 }
 
 
-function transformClassTooltip(input) {
-  // Split the string by ":" to separate the prefix and the numbers
-  const parts = input.split(':');
-  const baseParts = parts[1].split('-');
-
-  // Further split the second part of the number to separate digits and letters
-  const numPart = baseParts[1].match(/\d+/g); // Matches all the digit(s)
-  const letterPart = baseParts[1].match(/[a-zA-Z]+/g); // Matches all the letter(s)
-
-  // Parse the first part of the number to use it as a base for incrementing
-  let baseNumber = parseInt(baseParts[0]) + 2000;
-
-
-  // Use template literals to create the new string.
-  const newString = `Class ${baseNumber}-${numPart ? numPart : ''}${letterPart ? letterPart[0] : ''}, 
-                    ${baseNumber + 1}-${numPart ? parseInt(numPart) + 1 : ''}${letterPart ? letterPart[0] : ''},
-                    ${baseNumber + 2}-${numPart ? parseInt(numPart) + 2 : ''}${letterPart ? letterPart[0] : ''} from ${parts[0]} school`;
-
-
-  return newString;
-}
-
 
 function startToEndYearInSequence(sequenceID, groupOption) {
   const endYearClass = sequenceID.split(':')[1]
