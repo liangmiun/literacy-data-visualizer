@@ -28,7 +28,8 @@ const ScatterPage = (props ) => {
   const [minDeclineThreshold, setMinDeclineThreshold] = useState(-1);
   const [filterList, setFilterList] = useState([]);
   const [emptyFilterOptions, setEmptyFilterOptions] = useState({}); 
-  const [ groupOption, setGroupOption] = useState('9-year tenure');
+  const [groupOption, setGroupOption] = useState('9-year tenure');
+  const [triggerRenderByConfig, setTriggerRenderByConfig] = useState(false);
 
   
   useEffect(() => {
@@ -60,7 +61,11 @@ const ScatterPage = (props ) => {
     {
       setDataToShow(logicFilteredData);
     }
-  }, [ logicFilteredData]);    
+  }, [ logicFilteredData]); 
+  
+  const triggerRenderByConfigChange = () => {
+    setTriggerRenderByConfig(!triggerRenderByConfig);
+  }
 
   const handleClassColorPaletteClick= (school, sequenceID, newColor) => {
     setSchoolClassesAndColorScale(prevState => {
@@ -212,7 +217,7 @@ const ScatterPage = (props ) => {
         filterWithTrendThreshold={filterWithTrendThreshold}
         handleResetToOnboarding={props.handleResetToOnboarding}
         handleResetToLatest={props.handleResetToLatest}
-        
+        triggerRenderByConfigChange={triggerRenderByConfigChange}
       />
 
       {isClassView ?
@@ -230,6 +235,7 @@ const ScatterPage = (props ) => {
           classColors={schoolClassesAndColorScale.colorScale}
           showLines={props.showLines} 
           groupOption={groupOption}
+          triggerRenderByConfig = {triggerRenderByConfig}
         />
         :
         <ScatterCanvas 

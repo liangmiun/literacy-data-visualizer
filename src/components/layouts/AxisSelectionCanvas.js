@@ -7,6 +7,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import Tooltip from '@mui/material/Tooltip';
 import 'assets/AxisSelectionCanvas.css';
+import {Editor} from  'utils/configEditor.js';
 
 const AxisSelectionCanvas = (props) => {
   const x_options = props.fields_x.map(field => ({ value: field, label: field }));
@@ -324,6 +325,8 @@ function PresetBar({props, onSavePreset, onLoadPreset, ImportDataButton}) {
           </button>
 
           <ImportDataButton  handleFileUpload={props.handleFileUpload} />  
+
+          <Editor  triggerRenderByConfigChange ={props.triggerRenderByConfigChange} />
 
 
     </div>

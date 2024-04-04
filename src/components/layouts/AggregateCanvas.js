@@ -2,12 +2,13 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { formatTickValue, aggrColorLegend} from 'utils/Utils';
 import * as AggregateUtils from 'utils/AggregateUtils';
-import {  plotMargin } from 'utils/constants';
+import { plotMargin } from 'utils/constants';
+//import { editorConfigs } from 'utils/configEditor';
 
 
 const AggregateCanvas = (props) => {
 
-    const {selectedClasses, groupOption} = props;
+    const {selectedClasses, groupOption, triggerRenderByConfig} = props;
     const [dimensions,setDimensions] = useState({ width: (0.60 * window.innerWidth) , height:(0.85*window.innerHeight) }); 
     const gridRef = useRef(null);
     const [checkedClasses, setCheckedClasses] = useState([]);  
@@ -21,8 +22,7 @@ const AggregateCanvas = (props) => {
 
         setCheckedClasses(Array.from(tempSet));
 
-    },[selectedClasses, groupOption]) 
-
+    },[selectedClasses, groupOption])  
 
 
     useEffect(() => {
@@ -54,19 +54,25 @@ const AggregateCanvas = (props) => {
                         { props.aggregateType ==='violin' && < ViolinPlots shownData={props.shownData} seasonField={props.seasonField} yField={props.yField} colorField={props.colorField} 
                             onViolinClick={props.onPartClick}  dimensions={dimensions} checkedClasses= {checkedClasses}
                             studentsChecked={props.studentsChecked}  classColors={props.classColors} groupOption={groupOption}  
-                            showLines={props.showLines}  connectIndividual = {props.connectIndividual}  />
+                            showLines={props.showLines}  connectIndividual = {props.connectIndividual} 
+                            triggerRenderByConfig={triggerRenderByConfig}
+                            />
                         }
                         
                         {props.aggregateType ==='box' && <BoxPlots    shownData={props.shownData} seasonField={props.seasonField} yField={props.yField} colorField={props.colorField} 
                             onBoxClick={props.onPartClick} dimensions={dimensions} checkedClasses= {checkedClasses}
                             studentsChecked={props.studentsChecked}  classColors={props.classColors}  groupOption={groupOption}  
-                            showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
+                            showLines={props.showLines}  connectIndividual = {props.connectIndividual}
+                            triggerRenderByConfig={triggerRenderByConfig}
+                        />
                         }
 
                         {props.aggregateType ==='circle' && <CirclePlots  shownData={props.shownData} seasonField={props.seasonField} yField={props.yField} colorField={props.colorField} 
                             onCircleClick={props.onPartClick} dimensions={dimensions} checkedClasses= {checkedClasses}
                             studentsChecked={props.studentsChecked}  classColors={props.classColors} groupOption={groupOption}  
-                            showLines={props.showLines}  connectIndividual = {props.connectIndividual}/>
+                            showLines={props.showLines}  connectIndividual = {props.connectIndividual}
+                            triggerRenderByConfig={triggerRenderByConfig}
+                        />
                         }
 
                     </>
@@ -81,7 +87,7 @@ const ViolinPlots = (props ) => {
     const svgRef = useRef();
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const { shownData, groupOption,yField,  checkedClasses, seasonField, colorField, onViolinClick, studentsChecked,  showLines,  classColors, connectIndividual, dimensions } = props;
+    const { shownData, groupOption,yField,  checkedClasses, seasonField, colorField, onViolinClick, studentsChecked,  showLines,  classColors, connectIndividual, dimensions, triggerRenderByConfig } = props;
 
     useEffect(() => {
 
@@ -168,7 +174,7 @@ const ViolinPlots = (props ) => {
   
         aggrColorLegend( checkedClasses, classColors, svg, dimensions.width- plotMargin.right , plotMargin)
 
-    }, [shownData,groupOption,seasonField, yField, colorField, studentsChecked,  onViolinClick, showLines, checkedClasses, classColors, connectIndividual, dimensions]);
+    }, [shownData,groupOption,seasonField, yField, colorField, studentsChecked,  onViolinClick, showLines, checkedClasses, classColors, connectIndividual, dimensions, triggerRenderByConfig]);
     
     return (
         <svg   className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
@@ -180,7 +186,7 @@ const BoxPlots = (props) => {
     const svgRef = useRef();
     const newXScaleRef = useRef(null);
     const newYScaleRef = useRef(null);
-    const {shownData, groupOption, seasonField, yField, colorField, onBoxClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual, dimensions } = props;
+    const {shownData, groupOption, seasonField, yField, colorField, onBoxClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual, dimensions, triggerRenderByConfig } = props;
     
     // In your useEffect: 
     useEffect(() => {
@@ -279,7 +285,7 @@ const BoxPlots = (props) => {
         
         aggrColorLegend( checkedClasses, classColors, svg, dimensions.width- plotMargin.right , plotMargin)
 
-    }, [shownData, groupOption, seasonField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, checkedClasses, connectIndividual, dimensions]); 
+    }, [shownData, groupOption, seasonField, yField, colorField, studentsChecked, onBoxClick, classColors, showLines, checkedClasses, connectIndividual, dimensions, triggerRenderByConfig]); 
     return (
         <svg   className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
     );
@@ -291,7 +297,8 @@ const CirclePlots = (props) => {
         const svgRef = useRef();
         const newXScaleRef = useRef(null);
         const newYScaleRef = useRef(null);
-        const {shownData, groupOption,seasonField, yField, colorField, onCircleClick, studentsChecked, classColors, checkedClasses, showLines, connectIndividual, dimensions } = props;
+        const {shownData, groupOption,seasonField, yField, colorField, onCircleClick, studentsChecked, classColors, 
+            checkedClasses, showLines, connectIndividual, dimensions, triggerRenderByConfig } = props;
         
         useEffect(() => {
 
@@ -353,7 +360,8 @@ const CirclePlots = (props) => {
 
             aggrColorLegend( checkedClasses, classColors, svg, dimensions.width- plotMargin.right , plotMargin)    
 
-        }, [shownData, groupOption, seasonField, yField, colorField, studentsChecked,  classColors,  onCircleClick, showLines,checkedClasses, connectIndividual, dimensions]);  //onBoxClick,
+        }, [shownData, groupOption, seasonField, yField, colorField, studentsChecked,  classColors, 
+             onCircleClick, showLines,checkedClasses, connectIndividual, dimensions, triggerRenderByConfig]);  //onBoxClick,
 
         return (
             <svg  className= "plot-svg" ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>

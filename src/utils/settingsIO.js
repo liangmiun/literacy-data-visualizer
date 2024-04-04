@@ -111,5 +111,3 @@ const handleResetToTarget = (preset, configSetters) => {
     });
     setConfigFromPreset(configSetters)(parsed);
 }
-
-  

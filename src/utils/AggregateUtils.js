@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import {  rescale, translateExtentStartEnd, formatDate } from 'utils/Utils';
+import {editorConfigs} from 'utils/configEditor.js';
 
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
@@ -82,15 +83,21 @@ function getSemesterFromDate(dateObject) {
 }
 
 
+function getBoundaryDate(boundary, year) {
+    return new Date(`${year}-${boundary}`);
+}
+
+
 function getQuarterFromDate(dateObject) {
-    const month =getMonthFromDate(dateObject); // +1 to make month range 1-12 instead of 0-11
-    const day = dateObject.getDate();
+    const { springEnd, summerEnd, autumnEnd } = editorConfigs.seasonBoundaries;
+    const year = dateObject.getFullYear();
+    const date = new Date(year, dateObject.getMonth(), dateObject.getDate()); // Normalize time to avoid hour differences affecting comparison
     
-    if (month < 3 || (month === 3 && day <= 15)) {
+    if (date <= getBoundaryDate(springEnd, year)) {
         return 'Q1';
-    } else if (month < 7) {
+    } else if (date <= getBoundaryDate(summerEnd,year)) {
         return 'Q2';
-    } else if (month < 10 || (month === 10 && day <= 15)) {
+    } else if (date <= getBoundaryDate(autumnEnd,year)) {
         return 'Q3';
     } else {
         return 'Q4';
