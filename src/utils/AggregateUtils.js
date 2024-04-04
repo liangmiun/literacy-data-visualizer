@@ -1,530 +1,850 @@
-import * as d3 from 'd3';
-import {  rescale, translateExtentStartEnd, formatDate } from 'utils/Utils';
-import {editorConfigs} from 'utils/configEditor.js';
-
+import * as d3 from "d3";
+import { rescale, translateExtentStartEnd, formatDate } from "utils/Utils";
+import { editorConfigs } from "utils/configEditor.js";
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 5;
-const indv_offset =0;
+const indv_offset = 0;
 
-export function PresentIndividuals(data, seasonField, yField, g, x0, getSubBandScale, yScale , subBandWidth, connectIndividual, classColors, sequenceType)
-{
-    // Calculate positions and draw circles
-    const positions = []; // To store the positions of circles
-    data.forEach(d => {
-        const season = Season(d.Testdatum, seasonField).toString();
-        const clazz = d.Klass.toString();
-        d.sequenceID = getLastingSequenceID(d.Skola, season, clazz, sequenceType); 
+export function PresentIndividuals(
+  data,
+  seasonField,
+  yField,
+  g,
+  x0,
+  getSubBandScale,
+  yScale,
+  subBandWidth,
+  connectIndividual,
+  classColors,
+  sequenceType
+) {
+  // Calculate positions and draw circles
+  const positions = []; // To store the positions of circles
+  data.forEach((d) => {
+    const season = Season(d.Testdatum, seasonField).toString();
+    const clazz = d.Klass.toString();
+    d.sequenceID = getLastingSequenceID(d.Skola, season, clazz, sequenceType);
+  });
+  g.selectAll(".indvPoints")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("class", "indvPoints")
+    .attr("cx", (d) => {
+      const season = Season(d.Testdatum, seasonField).toString(); // or whatever field you use for the season
+      const sequenceID = d.sequenceID;
+      const x1 = getSubBandScale(season); // get the x1 scale for the current season
+
+      // Unique string for hashing, combining properties that uniquely identify this data point
+      const uniqueIdentifier = `${d.ElevID}`; //`${d.Skola}-${season}-${clazz}`
+      const hashValue = simpleHash(uniqueIdentifier);
+      const jitterOffset = consistentRandom(
+        hashValue,
+        -indv_jitterWidth / 2,
+        indv_jitterWidth / 2
+      );
+      const cx =
+        x0(season) +
+        x1(sequenceID) +
+        subBandWidth / 2 +
+        indv_offset +
+        jitterOffset; //- indv_jitterWidth/2 + Math.random()*indv_jitterWidth
+
+      const record_id = d.ElevID + "-" + formatDate(d.Testdatum);
+
+      positions.push({
+        ElevID: d.ElevID,
+        cx,
+        cy: yScale(d[yField]),
+        record_id: record_id,
+        Skola: d.Skola,
+        sequenceID: d.sequenceID,
+      });
+      return cx;
+    })
+    .attr("cy", (d) => {
+      return yScale(d[yField]);
+    })
+    .attr("r", 2)
+    .style("fill", "white")
+    .attr("stroke", (d) => {
+      return classColors[d.Skola][d.sequenceID];
+    })
+    .style("fill-opacity", 0.5)
+    .attr("record_id", (d) => {
+      return d.ElevID + "-" + formatDate(d.Testdatum);
+    })
+    .attr("indv_season", (d) => {
+      return Season(d.Testdatum, seasonField).toString();
+    })
+    .attr("indv_sequenceID", (d) => {
+      return getLastingSequenceID(
+        d.Skola,
+        Season(d.Testdatum, seasonField).toString(),
+        d.Klass.toString(),
+        sequenceType
+      );
+    })
+    .attr("jitterOffset", (d) => {
+      const uniqueIdentifier = `${d.ElevID}`;
+      const hashValue = simpleHash(uniqueIdentifier);
+      return consistentRandom(
+        hashValue,
+        -indv_jitterWidth / 2,
+        indv_jitterWidth / 2
+      );
     });
-    g.selectAll(".indvPoints")
-        .data(data)
-        .enter().append("circle")
-        .attr("class", "indvPoints")
-        .attr("cx", d => {                    
-            const season = Season(d.Testdatum, seasonField).toString(); // or whatever field you use for the season
-            const sequenceID = d.sequenceID;
-            const x1 = getSubBandScale(season); // get the x1 scale for the current season
 
-            // Unique string for hashing, combining properties that uniquely identify this data point
-            const uniqueIdentifier = `${d.ElevID}`; //`${d.Skola}-${season}-${clazz}`
-            const hashValue = simpleHash(uniqueIdentifier);
-            const jitterOffset = consistentRandom(hashValue, -indv_jitterWidth / 2, indv_jitterWidth / 2);
-            const cx = x0(season) + x1(sequenceID)  + subBandWidth/2 + indv_offset + jitterOffset;   //- indv_jitterWidth/2 + Math.random()*indv_jitterWidth
+  const groupedPositions = d3.group(positions, (d) => d.ElevID);
+  groupedPositions.forEach((value, key) => {
+    const points = value;
 
-            const record_id = d.ElevID +"-" + formatDate(d.Testdatum);
-
-            positions.push({ ElevID: d.ElevID, cx, cy: yScale(d[yField]), record_id: record_id, Skola: d.Skola, sequenceID: d.sequenceID});
-            return cx;
+    for (let i = 0; i < points.length - 1; i++) {
+      g.append("line")
+        .attr("class", "indvLines")
+        .attr("x1", points[i].cx)
+        .attr("y1", points[i].cy)
+        .attr("x2", points[i + 1].cx)
+        .attr("y2", points[i + 1].cy)
+        .attr("stroke", () => {
+          const d = points[i];
+          return classColors[d.Skola][d.sequenceID];
         })
-        .attr("cy", d => { return yScale(d[yField])})
-        .attr("r", 2)
-        .style("fill", "white")
-        .attr("stroke", d => {
-            return  classColors[d.Skola][d.sequenceID]   ;})
-        .style("fill-opacity", 0.5)
-        .attr("record_id", d => { return d.ElevID +"-" + formatDate(d.Testdatum)}) 
-        .attr("indv_season", d => {return Season(d.Testdatum, seasonField).toString()})
-        .attr("indv_sequenceID", d => { return getLastingSequenceID(d.Skola, Season(d.Testdatum, seasonField).toString(), d.Klass.toString(),sequenceType)})
-        .attr("jitterOffset", (d) => { 
-            const uniqueIdentifier = `${d.ElevID}`;
-            const hashValue = simpleHash(uniqueIdentifier);
-            return  consistentRandom(hashValue, -indv_jitterWidth / 2, indv_jitterWidth / 2);        
-        });
-
-    const groupedPositions = d3.group(positions, d => d.ElevID);
-    groupedPositions.forEach((value, key) => {
-        const points = value;
-
-        for (let i = 0; i < points.length - 1; i++) {
-            g.append("line")
-                .attr("class", "indvLines")
-                .attr("x1", points[i].cx)
-                .attr("y1", points[i].cy)
-                .attr("x2", points[i + 1].cx)
-                .attr("y2", points[i + 1].cy)
-                .attr("stroke", () => {
-                    const d = points[i];
-                    return  classColors[d.Skola][d.sequenceID]   ;})
-                .attr("stroke-width", 0.5)
-                .attr("stroke-opacity", 0.5)
-                .attr("start_record_id", points[i].record_id)
-                .attr("end_record_id", points[i + 1].record_id)
-                .style("visibility", connectIndividual ? "visible" : "hidden");;
-        }
-    });
-
+        .attr("stroke-width", 0.5)
+        .attr("stroke-opacity", 0.5)
+        .attr("start_record_id", points[i].record_id)
+        .attr("end_record_id", points[i + 1].record_id)
+        .style("visibility", connectIndividual ? "visible" : "hidden");
+    }
+  });
 }
-
 
 function getSemesterFromDate(dateObject) {
-    const month = getMonthFromDate(dateObject); 
-    const halfYear = Math.floor((month - 1) / 6);
-    return ['Spring', 'Autumn'][halfYear];
+  const month = getMonthFromDate(dateObject);
+  const halfYear = Math.floor((month - 1) / 6);
+  return ["Spring", "Autumn"][halfYear];
 }
-
 
 function getBoundaryDate(boundary, year) {
-    return new Date(`${year}-${boundary}`);
+  return new Date(`${year}-${boundary}`);
 }
 
-
 function getQuarterFromDate(dateObject) {
-    const { springEnd, summerEnd, autumnEnd } = editorConfigs.seasonBoundaries;
-    const year = dateObject.getFullYear();
-    const date = new Date(year, dateObject.getMonth(), dateObject.getDate()); // Normalize time to avoid hour differences affecting comparison
-    
-    if (date <= getBoundaryDate(springEnd, year)) {
-        return 'Q1';
-    } else if (date <= getBoundaryDate(summerEnd,year)) {
-        return 'Q2';
-    } else if (date <= getBoundaryDate(autumnEnd,year)) {
-        return 'Q3';
-    } else {
-        return 'Q4';
-    }
+  const { springEnd, summerEnd, autumnEnd } = editorConfigs.seasonBoundaries;
+  const year = dateObject.getFullYear();
+  const date = new Date(year, dateObject.getMonth(), dateObject.getDate()); // Normalize time to avoid hour differences affecting comparison
+
+  if (date <= getBoundaryDate(springEnd, year)) {
+    return "Q1";
+  } else if (date <= getBoundaryDate(summerEnd, year)) {
+    return "Q2";
+  } else if (date <= getBoundaryDate(autumnEnd, year)) {
+    return "Q3";
+  } else {
+    return "Q4";
+  }
 }
 
 function getMonthFromDate(dateObject) {
-    return dateObject.getMonth() + 1;
+  return dateObject.getMonth() + 1;
 }
 
 export function Season(dateObject, type) {
-    const year = dateObject.getFullYear();
+  const year = dateObject.getFullYear();
 
-    var season = '';
-    if (type === 'Quarter') {
-        season = getQuarterFromDate(dateObject);
-    } else if (type === 'Semester') {
-        season = getSemesterFromDate(dateObject);
-    } else {
-        season = getMonthFromDate(dateObject);
-    }
+  var season = "";
+  if (type === "Quarter") {
+    season = getQuarterFromDate(dateObject);
+  } else if (type === "Semester") {
+    season = getSemesterFromDate(dateObject);
+  } else {
+    season = getMonthFromDate(dateObject);
+  }
 
-    return `${year}-${season}`;  //-${day}
-
+  return `${year}-${season}`; //-${day}
 }
 
 function getCurrentSchoolYear() {
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    // Check if the current date is after June 30
-    if (currentDate.getMonth() > 5 ) {
-      // It's after June 30
-      return currentYear;
-    } else {
-      // It's on or before June 30
-      return currentYear - 1;
-    }
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  // Check if the current date is after June 30
+  if (currentDate.getMonth() > 5) {
+    // It's after June 30
+    return currentYear;
+  } else {
+    // It's on or before June 30
+    return currentYear - 1;
   }
-  
-
-export function getLastingSequenceID(school, seasonKey, classKey, sequenceType)
-{
-    const testYear = parseInt(seasonKey.split('-')[0]) - 2000;
-    const testSeason = seasonKey.split('-')[1];
-    const schoolYear = isFirstHalfYear(testSeason)? testYear - 1 : testYear;
-
-    return  sequenceIDfromYearSchoolClass(schoolYear, school, classKey, sequenceType);
 }
 
+export function getLastingSequenceID(
+  school,
+  seasonKey,
+  classKey,
+  sequenceType
+) {
+  const testYear = parseInt(seasonKey.split("-")[0]) - 2000;
+  const testSeason = seasonKey.split("-")[1];
+  const schoolYear = isFirstHalfYear(testSeason) ? testYear - 1 : testYear;
 
-export function sequenceIDfromYearSchoolClass(schoolYearTwoDigit, school, classKey, sequenceType)  
-{
-    const classNum = parseInt(classKey[0]);
-    const classSuffix = classKey.length>1? classKey[1]: '';
-    const currentSchoolYear = getCurrentSchoolYear() - 2000;
-    const {newClassNum, newSchoolYear} = classNumAndYearForSequence(classNum, currentSchoolYear, schoolYearTwoDigit, sequenceType);
-
-    return `${school}:${newSchoolYear}/${newSchoolYear+1}-${newClassNum}${classSuffix}`;
-
+  return sequenceIDfromYearSchoolClass(
+    schoolYear,
+    school,
+    classKey,
+    sequenceType
+  );
 }
 
-function classNumAndYearForSequence(classNum, currentSchoolYear, schoolYearTwoDigit, sequenceType )
-{
-    var newClassNum ;
-    var newSchoolYear;
-    var endClassNum;
+export function sequenceIDfromYearSchoolClass(
+  schoolYearTwoDigit,
+  school,
+  classKey,
+  sequenceType
+) {
+  const classNum = parseInt(classKey[0]);
+  const classSuffix = classKey.length > 1 ? classKey[1] : "";
+  const currentSchoolYear = getCurrentSchoolYear() - 2000;
+  const { newClassNum, newSchoolYear } = classNumAndYearForSequence(
+    classNum,
+    currentSchoolYear,
+    schoolYearTwoDigit,
+    sequenceType
+  );
 
-    if(sequenceType === '9-year tenure')
-    { endClassNum = 9; }
-    else if (sequenceType === '3-year tenure')
-    { endClassNum = 3* ( Math.ceil(classNum / 3) - 1) + 3; }
-    else 
-    { endClassNum = classNum; }
-
-
-    if( classNum + currentSchoolYear - schoolYearTwoDigit <= endClassNum)
-    {
-        newClassNum = classNum + currentSchoolYear - schoolYearTwoDigit; //
-        newSchoolYear = currentSchoolYear;  
-    }
-    else
-    {
-        newClassNum = endClassNum;
-        newSchoolYear = schoolYearTwoDigit - classNum +  endClassNum;
-    }    
-
-
-    return {newClassNum, newSchoolYear};
-
+  return `${school}:${newSchoolYear}/${
+    newSchoolYear + 1
+  }-${newClassNum}${classSuffix}`;
 }
 
+function classNumAndYearForSequence(
+  classNum,
+  currentSchoolYear,
+  schoolYearTwoDigit,
+  sequenceType
+) {
+  var newClassNum;
+  var newSchoolYear;
+  var endClassNum;
 
-function isFirstHalfYear(testSeason)
-{
-    if(testSeason === 'Q1' || testSeason === 'Q2' || testSeason === 'Spring') {
-        return true;
-    }
-    
-    if(!isNaN(parseInt(testSeason))) {
-        return parseInt(testSeason) < 7;
-    }
-    return false;
+  if (sequenceType === "9-year tenure") {
+    endClassNum = 9;
+  } else if (sequenceType === "3-year tenure") {
+    endClassNum = 3 * (Math.ceil(classNum / 3) - 1) + 3;
+  } else {
+    endClassNum = classNum;
+  }
 
+  if (classNum + currentSchoolYear - schoolYearTwoDigit <= endClassNum) {
+    newClassNum = classNum + currentSchoolYear - schoolYearTwoDigit; //
+    newSchoolYear = currentSchoolYear;
+  } else {
+    newClassNum = endClassNum;
+    newSchoolYear = schoolYearTwoDigit - classNum + endClassNum;
+  }
+
+  return { newClassNum, newSchoolYear };
 }
 
+function isFirstHalfYear(testSeason) {
+  if (testSeason === "Q1" || testSeason === "Q2" || testSeason === "Spring") {
+    return true;
+  }
 
-export function PreparePlotStructure(svgRef, filteredData, seasonField, yField, aggregateType, margin, dimensions, sequenceType)  {
+  if (!isNaN(parseInt(testSeason))) {
+    return parseInt(testSeason) < 7;
+  }
+  return false;
+}
 
-    const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove();           
+export function PreparePlotStructure(
+  svgRef,
+  filteredData,
+  seasonField,
+  yField,
+  aggregateType,
+  margin,
+  dimensions,
+  sequenceType
+) {
+  const svg = d3.select(svgRef.current);
+  svg.selectAll("*").remove();
 
-    //set margin for svg
-    const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
+  //set margin for svg
+  const g = svg
+    .append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    // Create main linear scale for y-axis
-    const [yMin, yMax] = d3.extent(filteredData, d => d[yField]);
-    const yPadding = (yMax - yMin) * 0.1;
-    const yScale = d3.scaleLinear()
-        .domain([yMin - yPadding, yMax + yPadding])
-        .range([ dimensions.height - margin.top - margin.bottom, 0]);
+  // Create main linear scale for y-axis
+  const [yMin, yMax] = d3.extent(filteredData, (d) => d[yField]);
+  const yPadding = (yMax - yMin) * 0.1;
+  const yScale = d3
+    .scaleLinear()
+    .domain([yMin - yPadding, yMax + yPadding])
+    .range([dimensions.height - margin.top - margin.bottom, 0]);
 
-    // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
-    const sumstat = setSumStat(filteredData, yScale, seasonField, yField, aggregateType, sequenceType);
+  // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
+  console.log(
+    "removeAggrOfSizeLowerThan",
+    editorConfigs.removeAggrOfSizeLowerThan
+  );
+  const sumstat = setSumStat(
+    filteredData,
+    yScale,
+    seasonField,
+    yField,
+    aggregateType,
+    sequenceType
+  ).filter((d) => d.value.count >= editorConfigs.removeAggrOfSizeLowerThan);
 
-    // Sort the sumstat by key to ensure boxes layout horizontally within each season:
-    // Here sumstat is in a flat structure.
-    sumstat.sort((a, b) => {
-        const xComp = d3.ascending(a.season, b.season);
-        return xComp !== 0 ? xComp : d3.ascending(a.class, b.class);
-    });
+  // Sort the sumstat by key to ensure boxes layout horizontally within each season:
+  // Here sumstat is in a flat structure.
+  sumstat.sort((a, b) => {
+    const xComp = d3.ascending(a.season, b.season);
+    return xComp !== 0 ? xComp : d3.ascending(a.class, b.class);
+  });
 
-    const lastingClassGroups = d3.group(sumstat, d => d.value.lastingclass);
+  const lastingClassGroups = d3.group(sumstat, (d) => d.value.lastingclass);
 
-    // Create an array of unique seasons
-    const seasons = Array.from(new Set(sumstat.map(d => d.value.season.toString())));  // d => d.key.split('-')[1]  d => d.value.season.toString()
+  // Create an array of unique seasons
+  const seasons = Array.from(
+    new Set(sumstat.map((d) => d.value.season.toString()))
+  ); // d => d.key.split('-')[1]  d => d.value.season.toString()
 
+  // Create a mapping of each season to its classes
+  const seasonToClasses = {};
 
-    // Create a mapping of each season to its classes
-    const seasonToClasses = {};
+  seasons.forEach((season) => {
+    let classesForSeason = sumstat
+      .filter((d) => d.value.season === season)
+      .map((d) => d.value.lastingclass); // .class
+    classesForSeason.sort((a, b) => a.toString().localeCompare(b.toString()));
+    seasonToClasses[season] = classesForSeason;
+  });
 
-    seasons.forEach(season => {
-        let classesForSeason = sumstat
-            .filter(d => d.value.season === season)
-            .map(d => d.value.lastingclass);  // .class
-        classesForSeason.sort((a, b) => a.toString().localeCompare(b.toString()));
-        seasonToClasses[season] = classesForSeason;
+  // Create a function to get the sub-band scale for classes within a given season
+  function getSubBandScale(season) {
+    return d3
+      .scaleBand()
+      .padding(0.05) //0.05
+      .domain(seasonToClasses[season])
+      .range([0, xMainBandScale.bandwidth()]);
+  }
 
-    });
-
-    // Create a function to get the sub-band scale for classes within a given season
-    function getSubBandScale(season) {
-        return d3.scaleBand()
-            .padding(0.05)   //0.05
-            .domain(seasonToClasses[season])
-            .range([0, xMainBandScale.bandwidth()]);
-    }
-
-    // Create main band scale for seasons
-    const xMainBandScale = d3.scaleBand()
+  // Create main band scale for seasons
+  const xMainBandScale = d3
+    .scaleBand()
     .domain(seasons)
     .range([0, dimensions.width - margin.left - margin.right])
     .paddingInner(0.2)
     .paddingOuter(0.2);
 
-    // g.selectAll(".padding-rect")
-    // .data(seasons)
-    // .enter().append("rect")
-    // .attr("class", "padding-rect")
-    // .attr("x", d => x0(d) - x0.step() * x0.paddingInner() / 2)
-    // .attr("width", x0.step())
-    // .attr("height", innerHeight)  // Set to the height of your chart area
-    // .attr("fill", "white");  // Color for the padding areas
+  // g.selectAll(".padding-rect")
+  // .data(seasons)
+  // .enter().append("rect")
+  // .attr("class", "padding-rect")
+  // .attr("x", d => x0(d) - x0.step() * x0.paddingInner() / 2)
+  // .attr("width", x0.step())
+  // .attr("height", innerHeight)  // Set to the height of your chart area
+  // .attr("fill", "white");  // Color for the padding areas
 
-    // Generate the tick values (just the combined class-season strings now)
-    let tickValues = seasons; 
+  // Generate the tick values (just the combined class-season strings now)
+  let tickValues = seasons;
 
-    // Create the x-axis using the new band scale `x1`
-    const xAxis = d3.axisBottom(xMainBandScale)
-        .tickValues(tickValues) ;// Use the combined class-season strings,  .tickFormat(d => d)
-        
-    return {svg, g, sumstat, seasons, yScale, xMainBandScale, xAxis, getSubBandScale, lastingClassGroups};
+  // Create the x-axis using the new band scale `x1`
+  const xAxis = d3.axisBottom(xMainBandScale).tickValues(tickValues); // Use the combined class-season strings,  .tickFormat(d => d)
 
+  return {
+    svg,
+    g,
+    sumstat,
+    seasons,
+    yScale,
+    xMainBandScale,
+    xAxis,
+    getSubBandScale,
+    lastingClassGroups,
+  };
 }
 
+function setSumStat(
+  filteredData,
+  yScale,
+  seasonField,
+  yField,
+  aggregateType,
+  sequenceType
+) {
+  const sumstat = [];
+  if (aggregateType === "violin") {
+    const histogram = d3
+      .bin()
+      .domain(yScale.domain())
+      .thresholds(yScale.ticks(30))
+      .value((d) => d);
+    const grouped = d3.group(
+      filteredData,
+      (d) => Season(d.Testdatum, seasonField),
+      (d) => d.Skola,
+      (d) => d.Klass
+    );
+    grouped.forEach((seasonGroup, seasonKey) => {
+      seasonGroup.forEach((schoolGroup, schoolKey) => {
+        schoolGroup.forEach((values, klassKey) => {
+          const input = values.map((g) => g[yField]);
+          const bins = histogram(input);
+          const bin_values = bins.flatMap((bin) => bin.slice(0, bin.length));
+          const sortedValues = bin_values.sort(d3.ascending);
+          const q1 = d3.quantile(sortedValues, 0.25);
+          const median = d3.quantile(sortedValues, 0.5);
+          const q3 = d3.quantile(sortedValues, 0.75);
+          const interQuantileRange = q3 - q1;
+          const min = q1 - 1.5 * interQuantileRange;
+          const max = q3 + 1.5 * interQuantileRange;
 
-function setSumStat(filteredData, yScale, seasonField,yField, aggregateType,sequenceType)
-{
-    const sumstat = [];
-    if(aggregateType === 'violin'){
-        const histogram = d3.bin().domain(yScale.domain()).thresholds(yScale.ticks(30)).value(d => d);
-        const grouped = d3.group(filteredData, d => Season(d.Testdatum, seasonField), d => d.Skola, d => d.Klass);   
-        grouped.forEach((seasonGroup, seasonKey) => {
-            seasonGroup.forEach((schoolGroup, schoolKey) => {
-                schoolGroup.forEach((values, klassKey) => {
-                    const input = values.map(g => g[yField]);
-                    const bins = histogram(input);
-                    const bin_values = bins.flatMap(bin => bin.slice(0, bin.length));
-                    const sortedValues = bin_values.sort(d3.ascending);
-                    const q1 = d3.quantile(sortedValues, 0.25);
-                    const median = d3.quantile(sortedValues, 0.5);
-                    const q3 = d3.quantile(sortedValues, 0.75);
-                    const interQuantileRange = q3 - q1;
-                    const min = q1 - 1.5 * interQuantileRange;
-                    const max = q3 + 1.5 * interQuantileRange;
-
-                    sumstat.push({
-                        key: `${klassKey}-${seasonKey}`,
-                        value: {
-                            lastingclass: getLastingSequenceID(schoolKey, seasonKey, klassKey,sequenceType),                                
-                            season: seasonKey,
-                            school: schoolKey,
-                            class: klassKey,
-                            bins: bins,
-                            q1: q1, 
-                            median: median, 
-                            q3: q3, 
-                            interQuantileRange: interQuantileRange, 
-                            min: min, 
-                            max: max,
-                            count: sortedValues.length
-                        }
-                    });
-                });
-            });
+          sumstat.push({
+            key: `${klassKey}-${seasonKey}`,
+            value: {
+              lastingclass: getLastingSequenceID(
+                schoolKey,
+                seasonKey,
+                klassKey,
+                sequenceType
+              ),
+              season: seasonKey,
+              school: schoolKey,
+              class: klassKey,
+              bins: bins,
+              q1: q1,
+              median: median,
+              q3: q3,
+              interQuantileRange: interQuantileRange,
+              min: min,
+              max: max,
+              count: sortedValues.length,
+            },
+          });
         });
-    }
-    else  {
-        const grouped = d3.group(filteredData,  function(d){ return Season(d.Testdatum, seasonField)}, d =>d.Skola, d => d.Klass); //d => Season(d.Testdatum)
-        grouped.forEach((seasonGroup, seasonKey) => {
-            seasonGroup.forEach((schoolGroup, schoolKey) => {
-                schoolGroup.forEach((values, classKey) => {
+      });
+    });
+  } else {
+    const grouped = d3.group(
+      filteredData,
+      function (d) {
+        return Season(d.Testdatum, seasonField);
+      },
+      (d) => d.Skola,
+      (d) => d.Klass
+    ); //d => Season(d.Testdatum)
+    grouped.forEach((seasonGroup, seasonKey) => {
+      seasonGroup.forEach((schoolGroup, schoolKey) => {
+        schoolGroup.forEach((values, classKey) => {
+          const sortedValues = values.map((g) => g[yField]).sort(d3.ascending);
+          const q1 = d3.quantile(sortedValues, 0.25);
+          const median = d3.quantile(sortedValues, 0.5);
+          const q3 = d3.quantile(sortedValues, 0.75);
+          const interQuantileRange = q3 - q1;
+          const min = q1 - 1.5 * interQuantileRange;
+          const max = q3 + 1.5 * interQuantileRange;
 
-                    const sortedValues = values.map(g => g[yField]).sort(d3.ascending);                    
-                    const q1 = d3.quantile(sortedValues, 0.25);
-                    const median = d3.quantile(sortedValues, 0.5);
-                    const q3 = d3.quantile(sortedValues, 0.75);
-                    const interQuantileRange = q3 - q1;
-                    const min = q1 - 1.5 * interQuantileRange;
-                    const max = q3 + 1.5 * interQuantileRange;
-
-                    sumstat.push({
-                        key: `${classKey}-${seasonKey}`,
-                        value: {
-                            lastingclass: getLastingSequenceID(schoolKey, seasonKey, classKey,sequenceType),
-                            school: schoolKey,
-                            class: classKey,
-                            season: seasonKey,
-                            q1: q1, 
-                            median: median, 
-                            q3: q3, 
-                            interQuantileRange: interQuantileRange, 
-                            min: min, 
-                            max: max,
-                            count: sortedValues.length
-                        }
-                    });
-                });
-            });
+          sumstat.push({
+            key: `${classKey}-${seasonKey}`,
+            value: {
+              lastingclass: getLastingSequenceID(
+                schoolKey,
+                seasonKey,
+                classKey,
+                sequenceType
+              ),
+              school: schoolKey,
+              class: classKey,
+              season: seasonKey,
+              q1: q1,
+              median: median,
+              q3: q3,
+              interQuantileRange: interQuantileRange,
+              min: min,
+              max: max,
+              count: sortedValues.length,
+            },
+          });
         });
-    }
-    return sumstat;
+      });
+    });
+  }
+  return sumstat;
 }
 
-
-export function createAggrZoomBehavior( renderer, xScale, yScale, xType, yType, xField, yField, line, connectIndividual, svg, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount, xNum) {   
-    return d3.zoom()
-      .scaleExtent([1, 20])
-      .translateExtent( translateExtentStartEnd(1.1, 1, svg)) 
-      .on('zoom', (event) => {
-        const zoomState = event.transform;
-        renderer(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount, xNum);
-        });
+export function createAggrZoomBehavior(
+  renderer,
+  xScale,
+  yScale,
+  xType,
+  yType,
+  xField,
+  yField,
+  line,
+  connectIndividual,
+  svg,
+  g,
+  xAxis,
+  yAxis,
+  newXScaleRef,
+  newYScaleRef,
+  getSubBandScale,
+  studentsChecked,
+  subBandCount,
+  xNum
+) {
+  return d3
+    .zoom()
+    .scaleExtent([1, 20])
+    .translateExtent(translateExtentStartEnd(1.1, 1, svg))
+    .on("zoom", (event) => {
+      const zoomState = event.transform;
+      renderer(
+        zoomState,
+        xScale,
+        yScale,
+        xType,
+        yType,
+        xField,
+        yField,
+        line,
+        connectIndividual,
+        g,
+        xAxis,
+        yAxis,
+        newXScaleRef,
+        newYScaleRef,
+        getSubBandScale,
+        studentsChecked,
+        subBandCount,
+        xNum
+      );
+    });
 }
 
-
-export function boxZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
-{
-    const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
-    // Apply zoom transformation to boxes
-    g.selectAll('.boxes, .medianText')  //
-    .attr("x", d => {  
-        return zoomedX(d);      
+export function boxZoomRender(
+  zoomState,
+  xScale,
+  yScale,
+  xType,
+  yType,
+  xField,
+  yField,
+  line,
+  connectIndividual,
+  g,
+  xAxis,
+  yAxis,
+  newXScaleRef,
+  newYScaleRef,
+  getSubBandScale,
+  studentsChecked,
+  subBandCount
+) {
+  const { zoomXScale, zoomYScale, subBandWidth, zoomedX } = init_ZoomSetting(
+    zoomState,
+    xScale,
+    yScale,
+    xType,
+    yType,
+    g,
+    xAxis,
+    yAxis,
+    newXScaleRef,
+    newYScaleRef,
+    getSubBandScale,
+    subBandCount
+  );
+  // Apply zoom transformation to boxes
+  g.selectAll(".boxes, .medianText") //
+    .attr("x", (d) => {
+      return zoomedX(d);
     })
-    .attr("width", d => {
-        return subBandWidth; })
-
-    g.selectAll('.medianLines')
-    .attr("x1", d => {
-        return zoomedX(d); 
-    })
-    .attr("x2", d => {
-        return zoomedX(d) + subBandWidth;
-    })
-
-    g.selectAll('.vertLines')
-    .attr("x1", d => {
-        return zoomedX(d) + subBandWidth / 2;
-    })
-    .attr("x2", d => {
-        return zoomedX(d) + subBandWidth / 2;
-    })
-
-    commonPartRender( g, zoomXScale, zoomYScale, zoomState, subBandWidth, getSubBandScale, connectIndividual, xField, yField, line, studentsChecked);
-
-}
-
-
-export function circleZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, studentsChecked, subBandCount)
-{
-    const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
-    // Apply zoom transformation to circles
-    g.selectAll('.circles')  //
-    .attr("cx", d => {  
-        return zoomedX(d)+ subBandWidth / 2;      
-    })
-
-    commonPartRender( g, zoomXScale, zoomYScale, zoomState, subBandWidth, getSubBandScale, connectIndividual, xField, yField, line, studentsChecked);
-
-}
-
-
-export function violinZoomRender(zoomState,xScale, yScale, xType, yType, xField, yField, line, connectIndividual, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale,  studentsChecked, subBandCount, xNum)
-{
-    const {zoomXScale, zoomYScale, subBandWidth, zoomedX} = init_ZoomSetting(zoomState, xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount);
-          
-    g.selectAll('.violins')
-    .attr("transform",  d => {
-        return `translate(${zoomedX(d)+ subBandWidth/2  }, 0)`;   
-        })
-    .selectAll('.area')
-    .attr("d", d3.area()
-        .x0(d => xNum(-d.length *singleViolinWidthRatio)*zoomState.k )  
-        .x1(d => xNum(d.length *singleViolinWidthRatio) *zoomState.k)    
-        .y(d => yScale(d.x0))   //d.x0
-        .curve(d3.curveCatmullRom)
-                );  
-
-    commonPartRender( g, zoomXScale, zoomYScale, zoomState, subBandWidth, getSubBandScale, connectIndividual, xField, yField, line, studentsChecked);
-
-    
-}
-
-
-function commonPartRender( g, zoomXScale, zoomYScale, zoomState, subBandWidth, getSubBandScale, connectIndividual, xField, yField, line, studentsChecked)
-{
-    g.selectAll('.lastingClassLines')
-    .attr("x1", function(){
-        const startSeason = d3.select(this).attr('startSeason');
-        const startSequenceID = d3.select(this).attr('startSequenceID');
-        return zoomXScale(startSeason) + getSubBandScale(startSeason)(startSequenceID)* zoomState.k + subBandWidth / 2;
-    })
-    .attr("x2", function(){
-        const endSeason = d3.select(this).attr('endSeason');
-        const endSequenceID = d3.select(this).attr('startSequenceID');
-        return zoomXScale(endSeason) + getSubBandScale(endSeason)(endSequenceID)* zoomState.k + subBandWidth / 2;
-    })
-
-    // Apply zoom transformation to lines
-    var filteredSelection = g.selectAll('.line-path')
-    .filter(function() {
-        return d3.select(this).style('visibility') === 'visible';
+    .attr("width", (d) => {
+      return subBandWidth;
     });
 
-    if (filteredSelection.size() > 0) {
-    filteredSelection.attr('d', line.x(d => zoomXScale(d[xField])).y(d => zoomYScale(d[yField])));
-    }
-    
-    if( studentsChecked) {
-        zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale, connectIndividual);
-    }
-
-
-}
-
-
-export function init_ZoomSetting(zoomState,xScale, yScale, xType, yType, g, xAxis, yAxis, newXScaleRef, newYScaleRef, getSubBandScale, subBandCount)
-{
-    //const zoomState = event.transform;    
-    const zoomXScale = rescale(xScale, zoomState, xType, 'x');         
-    const zoomYScale = rescale(yScale, zoomState, yType, 'y' );
-
-    newXScaleRef.current = zoomXScale;
-    newYScaleRef.current = zoomYScale;
-    const subBandWidth = zoomXScale.bandwidth() / subBandCount;  
-
-    function zoomedX(d) {
-        const season = d.value.season.toString();
-        const clazz = d.value.lastingclass.toString();
-        const x1 = getSubBandScale(season); // Get x1 scale for the current season
-        const value = zoomXScale(season) + x1(clazz) * zoomState.k   //zoomXScale(season) + x1(clazz) 
-        return isNaN(value) ? 0 : value;         
-    }
-
-    // Update the axes with the new scales
-    const xAxisGroup = g.select('.x-axis');
-    const yAxisGroup = g.select('.y-axis');
-
-    if (xType === 'point') {  
-        xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));
-    } else {
-        xAxisGroup.call(xAxis.scale(zoomXScale));
-    }
-
-    if (yType === 'point') {  
-        yAxisGroup.call(yAxis.scale(zoomYScale).tickValues(yScale.domain()));
-    } else {
-        yAxisGroup.call(yAxis.scale(zoomYScale));
-    }
-
-    return {zoomState, zoomXScale, zoomYScale, subBandWidth, zoomedX};
-
-}
-
-
-export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, getSubBandScale,connectIndividual)
-{
-    console.log("zoomIndividualJitter");
-    g.selectAll(".indvPoints")
-    .attr("cx", function() {
-        const season = d3.select(this).attr("indv_season");
-        const sequenceID = d3.select(this).attr("indv_sequenceID");
-        const jitterOffset = d3.select(this).attr("jitterOffset");
-        return zoomXScale(season) + getSubBandScale(season)(sequenceID) * zoomState.k + subBandWidth/2 + jitterOffset*zoomState.k;
+  g.selectAll(".medianLines")
+    .attr("x1", (d) => {
+      return zoomedX(d);
     })
-    
-    g.selectAll(".indvLines")
-    .each(function() {
+    .attr("x2", (d) => {
+      return zoomedX(d) + subBandWidth;
+    });
+
+  g.selectAll(".vertLines")
+    .attr("x1", (d) => {
+      return zoomedX(d) + subBandWidth / 2;
+    })
+    .attr("x2", (d) => {
+      return zoomedX(d) + subBandWidth / 2;
+    });
+
+  commonPartRender(
+    g,
+    zoomXScale,
+    zoomYScale,
+    zoomState,
+    subBandWidth,
+    getSubBandScale,
+    connectIndividual,
+    xField,
+    yField,
+    line,
+    studentsChecked
+  );
+}
+
+export function circleZoomRender(
+  zoomState,
+  xScale,
+  yScale,
+  xType,
+  yType,
+  xField,
+  yField,
+  line,
+  connectIndividual,
+  g,
+  xAxis,
+  yAxis,
+  newXScaleRef,
+  newYScaleRef,
+  getSubBandScale,
+  studentsChecked,
+  subBandCount
+) {
+  const { zoomXScale, zoomYScale, subBandWidth, zoomedX } = init_ZoomSetting(
+    zoomState,
+    xScale,
+    yScale,
+    xType,
+    yType,
+    g,
+    xAxis,
+    yAxis,
+    newXScaleRef,
+    newYScaleRef,
+    getSubBandScale,
+    subBandCount
+  );
+  // Apply zoom transformation to circles
+  g.selectAll(".circles") //
+    .attr("cx", (d) => {
+      return zoomedX(d) + subBandWidth / 2;
+    });
+
+  commonPartRender(
+    g,
+    zoomXScale,
+    zoomYScale,
+    zoomState,
+    subBandWidth,
+    getSubBandScale,
+    connectIndividual,
+    xField,
+    yField,
+    line,
+    studentsChecked
+  );
+}
+
+export function violinZoomRender(
+  zoomState,
+  xScale,
+  yScale,
+  xType,
+  yType,
+  xField,
+  yField,
+  line,
+  connectIndividual,
+  g,
+  xAxis,
+  yAxis,
+  newXScaleRef,
+  newYScaleRef,
+  getSubBandScale,
+  studentsChecked,
+  subBandCount,
+  xNum
+) {
+  const { zoomXScale, zoomYScale, subBandWidth, zoomedX } = init_ZoomSetting(
+    zoomState,
+    xScale,
+    yScale,
+    xType,
+    yType,
+    g,
+    xAxis,
+    yAxis,
+    newXScaleRef,
+    newYScaleRef,
+    getSubBandScale,
+    subBandCount
+  );
+
+  g.selectAll(".violins")
+    .attr("transform", (d) => {
+      return `translate(${zoomedX(d) + subBandWidth / 2}, 0)`;
+    })
+    .selectAll(".area")
+    .attr(
+      "d",
+      d3
+        .area()
+        .x0((d) => xNum(-d.length * singleViolinWidthRatio) * zoomState.k)
+        .x1((d) => xNum(d.length * singleViolinWidthRatio) * zoomState.k)
+        .y((d) => yScale(d.x0)) //d.x0
+        .curve(d3.curveCatmullRom)
+    );
+
+  commonPartRender(
+    g,
+    zoomXScale,
+    zoomYScale,
+    zoomState,
+    subBandWidth,
+    getSubBandScale,
+    connectIndividual,
+    xField,
+    yField,
+    line,
+    studentsChecked
+  );
+}
+
+function commonPartRender(
+  g,
+  zoomXScale,
+  zoomYScale,
+  zoomState,
+  subBandWidth,
+  getSubBandScale,
+  connectIndividual,
+  xField,
+  yField,
+  line,
+  studentsChecked
+) {
+  g.selectAll(".lastingClassLines")
+    .attr("x1", function () {
+      const startSeason = d3.select(this).attr("startSeason");
+      const startSequenceID = d3.select(this).attr("startSequenceID");
+      return (
+        zoomXScale(startSeason) +
+        getSubBandScale(startSeason)(startSequenceID) * zoomState.k +
+        subBandWidth / 2
+      );
+    })
+    .attr("x2", function () {
+      const endSeason = d3.select(this).attr("endSeason");
+      const endSequenceID = d3.select(this).attr("startSequenceID");
+      return (
+        zoomXScale(endSeason) +
+        getSubBandScale(endSeason)(endSequenceID) * zoomState.k +
+        subBandWidth / 2
+      );
+    });
+
+  // Apply zoom transformation to lines
+  var filteredSelection = g.selectAll(".line-path").filter(function () {
+    return d3.select(this).style("visibility") === "visible";
+  });
+
+  if (filteredSelection.size() > 0) {
+    filteredSelection.attr(
+      "d",
+      line.x((d) => zoomXScale(d[xField])).y((d) => zoomYScale(d[yField]))
+    );
+  }
+
+  if (studentsChecked) {
+    zoomIndividualJitter(
+      g,
+      zoomXScale,
+      zoomState,
+      subBandWidth,
+      getSubBandScale,
+      connectIndividual
+    );
+  }
+}
+
+export function init_ZoomSetting(
+  zoomState,
+  xScale,
+  yScale,
+  xType,
+  yType,
+  g,
+  xAxis,
+  yAxis,
+  newXScaleRef,
+  newYScaleRef,
+  getSubBandScale,
+  subBandCount
+) {
+  //const zoomState = event.transform;
+  const zoomXScale = rescale(xScale, zoomState, xType, "x");
+  const zoomYScale = rescale(yScale, zoomState, yType, "y");
+
+  newXScaleRef.current = zoomXScale;
+  newYScaleRef.current = zoomYScale;
+  const subBandWidth = zoomXScale.bandwidth() / subBandCount;
+
+  function zoomedX(d) {
+    const season = d.value.season.toString();
+    const clazz = d.value.lastingclass.toString();
+    const x1 = getSubBandScale(season); // Get x1 scale for the current season
+    const value = zoomXScale(season) + x1(clazz) * zoomState.k; //zoomXScale(season) + x1(clazz)
+    return isNaN(value) ? 0 : value;
+  }
+
+  // Update the axes with the new scales
+  const xAxisGroup = g.select(".x-axis");
+  const yAxisGroup = g.select(".y-axis");
+
+  if (xType === "point") {
+    xAxisGroup.call(xAxis.scale(zoomXScale).tickValues(xScale.domain()));
+  } else {
+    xAxisGroup.call(xAxis.scale(zoomXScale));
+  }
+
+  if (yType === "point") {
+    yAxisGroup.call(yAxis.scale(zoomYScale).tickValues(yScale.domain()));
+  } else {
+    yAxisGroup.call(yAxis.scale(zoomYScale));
+  }
+
+  return { zoomState, zoomXScale, zoomYScale, subBandWidth, zoomedX };
+}
+
+export function zoomIndividualJitter(
+  g,
+  zoomXScale,
+  zoomState,
+  subBandWidth,
+  getSubBandScale,
+  connectIndividual
+) {
+  console.log("zoomIndividualJitter");
+  g.selectAll(".indvPoints").attr("cx", function () {
+    const season = d3.select(this).attr("indv_season");
+    const sequenceID = d3.select(this).attr("indv_sequenceID");
+    const jitterOffset = d3.select(this).attr("jitterOffset");
+    return (
+      zoomXScale(season) +
+      getSubBandScale(season)(sequenceID) * zoomState.k +
+      subBandWidth / 2 +
+      jitterOffset * zoomState.k
+    );
+  });
+
+  g.selectAll(".indvLines").each(function () {
     // Current line element
     var line = d3.select(this);
 
@@ -538,70 +858,83 @@ export function zoomIndividualJitter( g, zoomXScale, zoomState, subBandWidth, ge
 
     // Ensure elements were found before attempting to read attributes
     if (!dStart.empty() && !dEnd.empty()) {
-        // Set the line's x1 and x2 attributes based on the found circles' cx attributes
-        line.attr("x1", dStart.attr("cx"))
-            .attr("x2", dEnd.attr("cx"))
-            .style("visibility", connectIndividual ? "visible" : "hidden");
+      // Set the line's x1 and x2 attributes based on the found circles' cx attributes
+      line
+        .attr("x1", dStart.attr("cx"))
+        .attr("x2", dEnd.attr("cx"))
+        .style("visibility", connectIndividual ? "visible" : "hidden");
     }
-    }); 
-    
-
+  });
 }
 
-
-export function presentLines(showLines, lastingClassGroups,  g, x0, getSubBandScale, y, subBandWidth, classColors, sequenceType)
-{
-    if(showLines) {
-            
-        lastingClassGroups.forEach((values, lastingClassKey) => {
-            for(let i = 0; i < values.length - 1; i++) {
-                const startPoint = values[i];
-                const endPoint = values[i + 1]; 
-                g.append("line")
-                    .attr("class", "lastingClassLines")
-                    .attr("x1", () => {
-                        const season = startPoint.value.season.toString();
-                        const clazz = startPoint.value.lastingclass.toString();
-                        const x1 = getSubBandScale(season);
-                        return x0(season) + x1(clazz) + subBandWidth / 2;
-                    })
-                    .attr("x2", () => {
-                        const season = endPoint.value.season.toString();
-                        const clazz = endPoint.value.lastingclass.toString();
-                        const x1 = getSubBandScale(season);
-                        return x0(season) + x1(clazz) + subBandWidth / 2;
-                    })
-                    .attr("y1", y(startPoint.value.median))
-                    .attr("y2", y(endPoint.value.median))
-                    .attr("stroke", () => {            
-                        const sequenceID = getLastingSequenceID(startPoint.value.school, startPoint.value.season, startPoint.value.class,sequenceType);
-                        return  classColors[startPoint.value.school][sequenceID]; }) 
-                    .attr('stroke-width', 1)
-                    .attr("startSeason", startPoint.value.season.toString())
-                    .attr("startSequenceID", getLastingSequenceID(startPoint.value.school, startPoint.value.season, startPoint.value.class, sequenceType))
-                    .attr("endSeason", endPoint.value.season.toString())
-                    .attr("endClass", endPoint.value.class.toString())                  
-                    ; 
-            }
-        }); 
-    }
-
-
-
+export function presentLines(
+  showLines,
+  lastingClassGroups,
+  g,
+  x0,
+  getSubBandScale,
+  y,
+  subBandWidth,
+  classColors,
+  sequenceType
+) {
+  if (showLines) {
+    lastingClassGroups.forEach((values, lastingClassKey) => {
+      for (let i = 0; i < values.length - 1; i++) {
+        const startPoint = values[i];
+        const endPoint = values[i + 1];
+        g.append("line")
+          .attr("class", "lastingClassLines")
+          .attr("x1", () => {
+            const season = startPoint.value.season.toString();
+            const clazz = startPoint.value.lastingclass.toString();
+            const x1 = getSubBandScale(season);
+            return x0(season) + x1(clazz) + subBandWidth / 2;
+          })
+          .attr("x2", () => {
+            const season = endPoint.value.season.toString();
+            const clazz = endPoint.value.lastingclass.toString();
+            const x1 = getSubBandScale(season);
+            return x0(season) + x1(clazz) + subBandWidth / 2;
+          })
+          .attr("y1", y(startPoint.value.median))
+          .attr("y2", y(endPoint.value.median))
+          .attr("stroke", () => {
+            const sequenceID = getLastingSequenceID(
+              startPoint.value.school,
+              startPoint.value.season,
+              startPoint.value.class,
+              sequenceType
+            );
+            return classColors[startPoint.value.school][sequenceID];
+          })
+          .attr("stroke-width", 1)
+          .attr("startSeason", startPoint.value.season.toString())
+          .attr(
+            "startSequenceID",
+            getLastingSequenceID(
+              startPoint.value.school,
+              startPoint.value.season,
+              startPoint.value.class,
+              sequenceType
+            )
+          )
+          .attr("endSeason", endPoint.value.season.toString())
+          .attr("endClass", endPoint.value.class.toString());
+      }
+    });
+  }
 }
-
 
 function simpleHash(s) {
-    // A very basic hash function for demonstration purposes
-    return s.split('').reduce((acc, char) => Math.imul(31, acc) + char.charCodeAt(0) | 0, 0);
+  // A very basic hash function for demonstration purposes
+  return s
+    .split("")
+    .reduce((acc, char) => (Math.imul(31, acc) + char.charCodeAt(0)) | 0, 0);
 }
-
 
 function consistentRandom(hashValue, min, max) {
-    // Pseudo-random function based on a hash value
-    const rand = Math.abs(hashValue % 1000) / 1000; // Normalize hash value to [0, 1)
-    return min + rand * (max - min); // Scale to [min, max)
+  // Pseudo-random function based on a hash value
+  const rand = Math.abs(hashValue % 1000) / 1000; // Normalize hash value to [0, 1)
+  return min + rand * (max - min); // Scale to [min, max)
 }
-
-
-
