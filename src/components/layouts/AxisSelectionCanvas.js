@@ -218,8 +218,14 @@ function ClassViewBar({props}) {
             style={{ marginLeft: '5%'}}
         />
 
-        <Tooltip title="Switch between class-aggregation view and individual view" followCursor>
-        <label> Class View </label>
+        <Tooltip  title="Switch between class-aggregation view and individual view" followCursor>
+        <label style={{ 
+          fontSize: '12px',
+          width: '100%', 
+          overflow: 'hidden',
+          whiteSpace: 'normal',
+          textOverflow: 'clip'   
+          }}> Class/ Tenure View </label >
         </Tooltip>
 
       </div>
