@@ -284,10 +284,6 @@ export function PreparePlotStructure(
     .range([dimensions.height - margin.top - margin.bottom, 0]);
 
   // Group the individuals based on Klass and Testdatum (season), with season as first level and Klass as second level.
-  console.log(
-    "removeAggrOfSizeLowerThan",
-    editorConfigs.removeAggrOfSizeLowerThan
-  );
   const sumstat = setSumStat(
     filteredData,
     yScale,
