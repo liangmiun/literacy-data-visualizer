@@ -65,7 +65,12 @@ export function Editor({ triggerRenderByConfigChange }) {
           <button onClick={handleSave}>Save Config</button>
         </div>
       ) : (
-        <button onClick={() => setIsEditing(true)}>Edit Config</button>
+        <button
+          onClick={() => setIsEditing(true)}
+          style={{ marginLeft: "5px" }}
+        >
+          Edit Config
+        </button>
       )}
     </div>
   );
