@@ -461,7 +461,6 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
       <button
         className="btn"
         id="save-preset-btn"
-        //style={{ color: 'gray' }}
         onClick={() => onSavePreset()} // function to save current state as a preset
       >
         <Tooltip
