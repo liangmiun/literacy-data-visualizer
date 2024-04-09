@@ -6,7 +6,7 @@ export let editorConfigs = {
     summerEnd: "06-30",
     autumnEnd: "10-15",
   },
-  removeAggrOfSizeLowerThan: 3,
+  removeAggrOfSizeLowerThan: 0,
 };
 
 function setEditorConfigs(newConfigs) {
