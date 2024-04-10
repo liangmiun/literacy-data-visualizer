@@ -183,7 +183,7 @@ const ScatterPage = (props) => {
   );
 
   const shownData = useMemo(() => {
-    console.log("run shownData,  ");
+    console.log("run shownData,   ");
 
     const nonNullData = dataToShow.filter(
       (d) => d[xField] !== null && d[yField] !== null
@@ -243,6 +243,7 @@ const ScatterPage = (props) => {
       Årskurs: [1, 2, 3, 4, 5, 6, 7, 8, 9],
       Läsår: ["18/19", "19/20", "20/21", "21/22", "22/23"],
       Stanine: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      Klasses: allClasses,
     };
 
     // Initialize emptyOptions with labels as keys and empty arrays as values
@@ -254,50 +255,83 @@ const ScatterPage = (props) => {
       {}
     );
 
+    console.log("newEmptyOptions initially:", newEmptyOptions);
+
     const nonNullData = dataToShow.filter(
       (d) => d[xField] !== null && d[yField] !== null
     );
-    const dataToProcess = rangeFilteredData(
-      schoolClassFilteredData(nonNullData, selectedClasses)
-    );
+    // const dataToProcess = rangeFilteredData(
+    //   schoolClassFilteredData(nonNullData, selectedClasses)
+    // );
+
+    const dataToProcess = rangeFilteredData(nonNullData);
 
     function findRecordWithExceptionAndOthersChecked(
       data,
-      checkedOptions,
-      exceptionOption
+      exceptionKey,
+      exceptionValue
     ) {
-      const exceptionKey = Object.keys(exceptionOption)[0]; // Assuming only one key-value pair in exceptionOption
-      return data.some((record) => {
-        // Check exceptionOption first
-        if (record[exceptionKey] !== exceptionOption[exceptionKey]) {
-          return false; // Skip this record if it does not match the exceptionOption
-        }
-
-        // Check other options
-        const meetOtherOptions = Object.entries(checkedOptions).every(
-          ([key, value]) => {
-            // Skip checking for exceptionOption's key
-            if (key === exceptionKey) return true;
-            // Check if record's value for the key is within the checked options
-            return value.includes(record[key]);
+      //const exceptionKey = Object.keys(exceptionOption)[0]; // Assuming only one key-value pair in exceptionOption
+      if (exceptionKey !== "Klasses") {
+        return data.some((record) => {
+          // Check exceptionOption first
+          if (record[exceptionKey] !== exceptionValue) {
+            return false; // Skip this record if it does not match the exceptionOption
           }
-        );
 
-        return meetOtherOptions;
-      });
+          // Check other options
+          const meetOtherOptionRequests =
+            Object.entries(checkedOptions).every(([key, value]) => {
+              // Skip checking for exceptionOption's key
+              if (key === exceptionKey) return true;
+              // Check if record's value for the key is within the checked options
+              return value.includes(record[key]);
+            }) &&
+            selectedClasses.some(
+              (item) =>
+                item.school === record.Skola &&
+                item.schoolYear === record.Läsår &&
+                item.class === record.Klass
+            );
+
+          return meetOtherOptionRequests;
+        });
+      } else {
+        return data.some((record) => {
+          // Check exceptionOption first
+          if (
+            record["Skola"] !== exceptionValue["school"] ||
+            record["Läsår"] !== exceptionValue["schoolYear"] ||
+            record["Klass"] !== exceptionValue["class"]
+          ) {
+            return false; // Skip this record if it does not match the exceptionOption
+          }
+
+          // Check other options
+          const meetOtherOptionRequests = Object.entries(checkedOptions).every(
+            ([key, value]) => {
+              return value.includes(record[key]);
+            }
+          );
+
+          return meetOtherOptionRequests;
+        });
+      }
     }
 
     // Iterate through each label and its options
     Object.entries(labelsWithOptions).forEach(([label, options]) => {
       options.forEach((option) => {
         // Check if there's no record in shownData with the current label and option
-        const hasMatchingRecord = findRecordWithExceptionAndOthersChecked(
-          dataToProcess,
-          checkedOptions,
-          { [label]: option }
-        );
+        const hasRecordInfluencedByThisOption =
+          findRecordWithExceptionAndOthersChecked(
+            dataToProcess,
+            label,
+            option
+            // { [label]: option }
+          );
 
-        const isOptionWithEmptyRecords = !hasMatchingRecord;
+        const isOptionWithEmptyRecords = !hasRecordInfluencedByThisOption;
 
         if (isOptionWithEmptyRecords) {
           // If the option is missing, add it to the respective label in newEmptyOptions
@@ -307,6 +341,7 @@ const ScatterPage = (props) => {
     });
 
     // Update the emptyOptions state with newEmptyOptions
+    console.log("newEmptyOptions", newEmptyOptions);
     setEmptyFilterOptions(newEmptyOptions);
   }, [
     dataToShow,
@@ -315,6 +350,7 @@ const ScatterPage = (props) => {
     selectedClasses,
     checkedOptions,
     rangeFilteredData,
+    allClasses,
   ]);
 
   return (
