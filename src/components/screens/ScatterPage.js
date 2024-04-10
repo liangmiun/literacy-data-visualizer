@@ -148,6 +148,7 @@ const ScatterPage = (props) => {
 
   const checkedFilteredData = useCallback(
     (data) => {
+      // filterList is the filters that are not disabled by 'x' button.
       return data.filter((record) => {
         for (let key in checkedOptions) {
           if (
@@ -199,7 +200,44 @@ const ScatterPage = (props) => {
     rangeFilteredData,
   ]);
 
+  // useEffect(() => {
+  //   // Decide which filter options are made empty based on the shownData
+  //   // Define the labels and their options
+  //   const labelsWithOptions = {
+  //     Årskurs: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  //     Läsår: ["18/19", "19/20", "20/21", "21/22", "22/23"],
+  //     Stanine: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  //   };
+
+  //   // Initialize emptyOptions with labels as keys and empty arrays as values
+  //   let newEmptyOptions = Object.keys(labelsWithOptions).reduce(
+  //     (acc, label) => {
+  //       acc[label] = [];
+  //       return acc;
+  //     },
+  //     {}
+  //   );
+
+  //   // Iterate through each label and its options
+  //   Object.entries(labelsWithOptions).forEach(([label, options]) => {
+  //     options.forEach((option) => {
+  //       // Check if there's no record in shownData with the current label and option
+  //       const isOptionMissing = !shownData.some(
+  //         (recordX) => recordX[label] === option
+  //       );
+  //       if (isOptionMissing) {
+  //         // If the option is missing, add it to the respective label in newEmptyOptions
+  //         newEmptyOptions[label].push(option);
+  //       }
+  //     });
+  //   });
+
+  //   // Update the emptyOptions state with newEmptyOptions
+  //   setEmptyFilterOptions(newEmptyOptions);
+  // }, [shownData]);
+
   useEffect(() => {
+    // Decide which filter options are made empty based on the shownData
     // Define the labels and their options
     const labelsWithOptions = {
       Årskurs: [1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -216,14 +254,52 @@ const ScatterPage = (props) => {
       {}
     );
 
+    const nonNullData = dataToShow.filter(
+      (d) => d[xField] !== null && d[yField] !== null
+    );
+    const dataToProcess = rangeFilteredData(
+      schoolClassFilteredData(nonNullData, selectedClasses)
+    );
+
+    function findRecordWithExceptionAndOthersChecked(
+      data,
+      checkedOptions,
+      exceptionOption
+    ) {
+      const exceptionKey = Object.keys(exceptionOption)[0]; // Assuming only one key-value pair in exceptionOption
+      return data.some((record) => {
+        // Check exceptionOption first
+        if (record[exceptionKey] !== exceptionOption[exceptionKey]) {
+          return false; // Skip this record if it does not match the exceptionOption
+        }
+
+        // Check other options
+        const meetOtherOptions = Object.entries(checkedOptions).every(
+          ([key, value]) => {
+            // Skip checking for exceptionOption's key
+            if (key === exceptionKey) return true;
+            // Check if record's value for the key is within the checked options
+            return value.includes(record[key]);
+          }
+        );
+
+        return meetOtherOptions;
+      });
+    }
+
     // Iterate through each label and its options
     Object.entries(labelsWithOptions).forEach(([label, options]) => {
       options.forEach((option) => {
         // Check if there's no record in shownData with the current label and option
-        const isOptionMissing = !shownData.some(
-          (recordX) => recordX[label] === option
+        const hasMatchingRecord = findRecordWithExceptionAndOthersChecked(
+          dataToProcess,
+          checkedOptions,
+          { [label]: option }
         );
-        if (isOptionMissing) {
+
+        const isOptionWithEmptyRecords = !hasMatchingRecord;
+
+        if (isOptionWithEmptyRecords) {
           // If the option is missing, add it to the respective label in newEmptyOptions
           newEmptyOptions[label].push(option);
         }
@@ -232,7 +308,14 @@ const ScatterPage = (props) => {
 
     // Update the emptyOptions state with newEmptyOptions
     setEmptyFilterOptions(newEmptyOptions);
-  }, [shownData]);
+  }, [
+    dataToShow,
+    xField,
+    yField,
+    selectedClasses,
+    checkedOptions,
+    rangeFilteredData,
+  ]);
 
   return (
     <div className="app">
