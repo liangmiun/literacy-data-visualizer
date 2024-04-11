@@ -1,13 +1,14 @@
 import { createTheme } from "@mui/material/styles";
 import { grey, brown } from "@mui/material/colors";
+import SvgIcon from "@mui/material/SvgIcon";
 
-export const greyTheme = createTheme({
+export const grayTheme = createTheme({
   palette: {
     primary: {
-      light: grey[500],
+      light: grey[300],
       main: grey[500],
-      dark: grey[500],
-      darker: grey[500],
+      dark: grey[700],
+      darker: grey[900],
     },
     secondary: {
       light: brown[500],
@@ -18,20 +19,16 @@ export const greyTheme = createTheme({
   },
 });
 
-export const oldGreyTheme = createTheme({
-  components: {
-    // Override styles for MUI Checkbox
-    MuiCheckbox: {
-      styleOverrides: {
-        root: {
-          // Apply grey color for unchecked state
-          color: brown[500],
-          "&.Mui-checked": {
-            // Keep or enhance grey color for checked state
-            color: brown[500],
-          },
-        },
-      },
-    },
-  },
-});
+export const EmptyCheckBoxBlankIcon = ({ fontSize }) => {
+  //console.log(sizeTag);
+  return (
+    <SvgIcon fontSize={fontSize}>
+      <svg focusable="false" aria-hidden="true" data-testid="CheckBoxBlankIcon">
+        <path
+          d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5"
+          fill={grayTheme.palette.primary.main}
+        ></path>
+      </svg>
+    </SvgIcon>
+  );
+};

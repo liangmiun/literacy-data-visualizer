@@ -1,6 +1,6 @@
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { TreeView } from "@mui/x-tree-view/TreeView";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Checkbox } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -15,7 +15,9 @@ import "assets/App.css";
 import * as d3 from "d3";
 import Tooltip from "@mui/material/Tooltip";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { greyTheme } from "assets/themes.js";
+import { grayTheme } from "assets/themes.js";
+import { EmptyCheckBoxBlankIcon } from "assets/themes.js";
+import { useOptionEmptied } from "utils/optionEmptiedContext.js";
 
 function SchoolTreeView(props) {
   const {
@@ -29,6 +31,18 @@ function SchoolTreeView(props) {
     groupOption,
     setGroupOption,
   } = props;
+
+  const { emptiedStates, updateEmptiedState } = useOptionEmptied();
+
+  const isEmptiedByChildren = useMemo(() => {
+    return Object.keys(school_class_map).every(
+      (school) => emptiedStates[school]
+    );
+  }, [school_class_map, emptiedStates]);
+
+  useEffect(() => {
+    updateEmptiedState("school-tree-view", isEmptiedByChildren);
+  }, [isEmptiedByChildren, updateEmptiedState]);
 
   const [areAllSchoolSelected, setAreAllSchoolSelected] = useState(true);
   const [paletteID, setPaletteID] = useState("");
@@ -71,6 +85,22 @@ function SchoolTreeView(props) {
     setPaletteID("");
     onColorPaletteClick(school, sequenceID, newColor);
   };
+
+  function sortedSequences(classesMap) {
+    return Object.entries(classesMap).sort((a, b) => {
+      // Extract sequenceIDs from the entries
+      const sequenceID_A = a[0];
+      const sequenceID_B = b[0];
+
+      const valueA = startToEndYearInSequence(sequenceID_A, groupOption);
+      const valueB = startToEndYearInSequence(sequenceID_B, groupOption);
+
+      // For numerical or string comparison
+      if (valueA < valueB) return -1;
+      if (valueA > valueB) return 1;
+      return 0;
+    });
+  }
 
   return (
     <div className="school-tree-view" style={{ margin: "0px 3px" }}>
@@ -146,7 +176,7 @@ function SchoolTreeView(props) {
                     allClassesInSchool: allClasses.filter(
                       (c) => c.school === school
                     ),
-                    classesMap,
+                    sortedSequenceEntries: sortedSequences(classesMap),
                     idx,
                     setPaletteID,
                     paletteID,
@@ -172,8 +202,7 @@ function SchoolComponent({ props }) {
     selectedClasses,
     setSelectedClasses,
     allClassesInSchool,
-    classesMap,
-    idx,
+    sortedSequenceEntries,
     setPaletteID,
     paletteID,
     handleColorChange,
@@ -181,6 +210,18 @@ function SchoolComponent({ props }) {
     classColors,
     groupOption,
   } = props;
+
+  const { emptiedStates, updateEmptiedState } = useOptionEmptied();
+
+  const isEmptiedByChildren = useMemo(() => {
+    return Object.keys(sortedSequenceEntries).every(
+      (sequenceID) => emptiedStates[sequenceID]
+    );
+  }, [sortedSequenceEntries, emptiedStates]);
+
+  useEffect(() => {
+    updateEmptiedState(school, isEmptiedByChildren);
+  }, [isEmptiedByChildren, school, updateEmptiedState]);
 
   const [areAllClassesInSchoolSelected, setAreAllClassesInSchoolSelected] =
     useState(false);
@@ -227,23 +268,8 @@ function SchoolComponent({ props }) {
     }
   }
 
-  const sortedSequenceEntries = Object.entries(classesMap).sort((a, b) => {
-    // Extract sequenceIDs from the entries
-    const sequenceID_A = a[0];
-    const sequenceID_B = b[0];
-
-    // Apply functionAAA to get values to compare
-    const valueA = startToEndYearInSequence(sequenceID_A, groupOption);
-    const valueB = startToEndYearInSequence(sequenceID_B, groupOption);
-
-    // For numerical or string comparison
-    if (valueA < valueB) return -1;
-    if (valueA > valueB) return 1;
-    return 0;
-  });
-
   return (
-    <div style={{ display: "flex", alignItems: "flex-start" }}>
+    <div id={school} style={{ display: "flex", alignItems: "flex-start" }}>
       <Checkbox
         style={{ padding: "1px" }}
         checked={areAllClassesInSchoolSelected}
@@ -255,7 +281,7 @@ function SchoolComponent({ props }) {
       {/* Render classes and other UI elements here */}
 
       <TreeItem
-        nodeId={`school-${idx}`}
+        nodeId={school}
         label={
           <div style={{ display: "flex", alignItems: "center" }}>{school}</div>
         }
@@ -264,11 +290,10 @@ function SchoolComponent({ props }) {
         {sortedSequenceEntries.map(([sequenceID, classes], cIdx) => (
           <ClassSequenceComponent
             key={sequenceID}
+            id={sequenceID}
             props={{
               school,
               sequenceID,
-              idx,
-              cIdx,
               selectedClasses,
               setSelectedClasses,
               allClassesInSequence: classes.classes.map((item) => ({
@@ -276,7 +301,9 @@ function SchoolComponent({ props }) {
                 schoolYear: item.Läsår,
                 class: item.Klass,
               })),
-              classesMap,
+              classesInSequence: classes.classes.map(
+                (item) => item.Läsår + "-" + item.Klass
+              ),
               setPaletteID,
               paletteID,
               handleColorChange,
@@ -299,9 +326,7 @@ function ClassSequenceComponent({ props }) {
     selectedClasses,
     setSelectedClasses,
     allClassesInSequence,
-    classesMap,
-    idx,
-    cIdx,
+    classesInSequence,
     setPaletteID,
     paletteID,
     handleColorChange,
@@ -311,9 +336,17 @@ function ClassSequenceComponent({ props }) {
     groupOption,
   } = props;
 
-  const classesInSequence = classesMap[sequenceID].classes.map(
-    (item) => item.Läsår + "-" + item.Klass
-  );
+  const { emptiedStates, updateEmptiedState } = useOptionEmptied();
+
+  const isEmptiedByChildren = useMemo(() => {
+    return Object.values(classesInSequence).every(
+      (yearlyClass) => emptiedStates[school + "-" + yearlyClass]
+    );
+  }, [school, classesInSequence, emptiedStates]);
+
+  useEffect(() => {
+    updateEmptiedState(sequenceID, isEmptiedByChildren);
+  }, [isEmptiedByChildren, sequenceID, updateEmptiedState]);
 
   const [areAllClassesInSequenceSelected, setAreAllClassesInSequenceSelected] =
     useState(false);
@@ -401,7 +434,11 @@ function ClassSequenceComponent({ props }) {
   }
 
   return (
-    <div key={sequenceID} style={{ display: "flex", alignItems: "flex-start" }}>
+    <div
+      key={sequenceID}
+      id={sequenceID}
+      style={{ display: "flex", alignItems: "flex-start" }}
+    >
       {/* //  style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }} */}
       <Checkbox
         checked={areAllClassesInSequenceSelected}
@@ -415,7 +452,7 @@ function ClassSequenceComponent({ props }) {
         }
       />
       <TreeItem
-        nodeId={`classSequence-${idx}-${cIdx}`}
+        nodeId={`classSequence-${sequenceID}`}
         label={
           <div style={{ display: "flex", alignItems: "center" }}>
             {startToEndYearInSequence(sequenceID, groupOption)}
@@ -424,28 +461,25 @@ function ClassSequenceComponent({ props }) {
         key={sequenceID}
       >
         {groupOption !== "school-year" &&
-          Object.entries(classesInSequence).map(
-            ([yearlyIdx, yearlyClass], cIdx) => (
-              <SingleYearClassComponent
-                key={yearlyClass}
-                props={{
-                  school,
-                  selectedClasses,
-                  setSelectedClasses,
-                  handleYearlyClassCheckChange,
-                  yearlyClass,
-                  idx,
-                  cIdx,
-                  setPaletteID,
-                  paletteID,
-                  handleColorChange,
-                  isClassView,
-                  classColors,
-                  emptyFilterOptions: props.emptyFilterOptions,
-                }}
-              />
-            )
-          )}
+          Object.values(classesInSequence).map((yearlyClass) => (
+            <SingleYearClassComponent
+              key={`${school}-${yearlyClass}`}
+              id={`${school}-${yearlyClass}`}
+              props={{
+                school,
+                selectedClasses,
+                setSelectedClasses,
+                handleYearlyClassCheckChange,
+                yearlyClass,
+                setPaletteID,
+                paletteID,
+                handleColorChange,
+                isClassView,
+                classColors,
+                emptyFilterOptions: props.emptyFilterOptions,
+              }}
+            />
+          ))}
       </TreeItem>
       <div>
         <div
@@ -493,28 +527,55 @@ function SingleYearClassComponent({ props }) {
   const {
     school,
     setSelectedClasses,
+    selectedClasses,
     yearlyClass,
-    idx,
-    cIdx,
     setPaletteID,
     paletteID,
     handleColorChange,
     isClassView,
     classColors,
+    emptyFilterOptions,
   } = props;
 
   const [isClassChecked, setIsClassChecked] = useState(false);
+  const [isOptionMissing, setIsOptionMissing] = useState(false);
+  const { updateEmptiedState } = useOptionEmptied();
 
   useEffect(() => {
     setIsClassChecked(
-      props.selectedClasses.some(
+      selectedClasses.some(
         (c) =>
           c.school === school &&
           c.schoolYear === yearlyClass.split("-")[0] &&
           c.class === yearlyClass.split("-")[1]
       )
     );
-  }, [props.selectedClasses, school, yearlyClass]);
+  }, [selectedClasses, school, yearlyClass]);
+
+  useEffect(() => {
+    const classObj = {
+      school: school,
+      schoolYear: yearlyClass.split("-")[0],
+      class: yearlyClass.split("-")[1],
+    };
+
+    setIsOptionMissing(
+      emptyFilterOptions["Klasses"] &&
+        emptyFilterOptions["Klasses"].some(
+          (item) =>
+            item.school === classObj.school &&
+            item.schoolYear === classObj.schoolYear &&
+            item.class === classObj.class
+        )
+    );
+    updateEmptiedState(school + "-" + yearlyClass, isOptionMissing);
+  }, [
+    emptyFilterOptions,
+    school,
+    yearlyClass,
+    updateEmptiedState,
+    isOptionMissing,
+  ]);
 
   function handleYearlyClassCheckChange(isChecked) {
     const schoolYear = yearlyClass.split("-")[0];
@@ -545,49 +606,45 @@ function SingleYearClassComponent({ props }) {
     }
   }
 
-  const classObj = {
-    school: school,
-    schoolYear: yearlyClass.split("-")[0],
-    class: yearlyClass.split("-")[1],
-  };
-
-  const isOptionMissing =
-    props.emptyFilterOptions["Klasses"] &&
-    props.emptyFilterOptions["Klasses"].some(
-      (item) =>
-        item.school === classObj.school &&
-        item.schoolYear === classObj.schoolYear &&
-        item.class === classObj.class
-    );
-
-  console.log(
-    "isOptionMissing",
-    isOptionMissing,
-    classObj,
-    props.emptyFilterOptions["Klasses"]
-  );
-
   const defaultTheme = createTheme();
 
   return (
     <div
-      key={yearlyClass}
       style={{ display: "flex", alignItems: "center", flexDirection: "row" }}
     >
       <TreeItem
-        nodeId={`classByYear-${idx}-${cIdx}`}
+        nodeId={`classByYear-${school}-${yearlyClass}`}
         label={
           <div style={{ display: "flex", alignItems: "center" }}>
             <ThemeProvider
-              key={`Theme-${idx}-${cIdx}`}
-              theme={isOptionMissing ? greyTheme : defaultTheme}
+              key={`Theme-${school}-${yearlyClass}`}
+              theme={isOptionMissing ? grayTheme : defaultTheme}
             >
               <Checkbox
+                icon={isOptionMissing ? <EmptyCheckBoxBlankIcon /> : undefined}
                 checked={isClassChecked}
                 onChange={(event) =>
                   handleYearlyClassCheckChange(event.target.checked)
                 }
               />
+              {/* {isOptionMissing ? (
+                <Checkbox
+                  icon={
+                    isOptionMissing ? <EmptyCheckBoxBlankIcon /> : undefined
+                  }
+                  checked={isClassChecked}
+                  onChange={(event) =>
+                    handleYearlyClassCheckChange(event.target.checked)
+                  }
+                />
+              ) : (
+                <Checkbox
+                  checked={isClassChecked}
+                  onChange={(event) =>
+                    handleYearlyClassCheckChange(event.target.checked)
+                  }
+                />
+              )} */}
             </ThemeProvider>
             {/* <Tooltip title={transformClassTooltip(yearlyClass)} followCursor>        */}
             <label>{yearlyClass}</label>

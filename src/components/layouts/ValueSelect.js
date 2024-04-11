@@ -1,14 +1,13 @@
 import { Box, FormControlLabel, Slider, FormGroup } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
-import { styled } from "@mui/material/styles";
 import React, { useState, useEffect, useRef } from "react";
 import Button from "@mui/material/Button";
 import * as d3 from "d3";
 import "assets/App.css";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { greyTheme } from "assets/themes.js";
+import { grayTheme } from "assets/themes.js";
 import Tooltip from "@mui/material/Tooltip";
-import SvgIcon from "@mui/material/SvgIcon";
+import { EmptyCheckBoxBlankIcon } from "assets/themes.js";
 
 export function OptionSelectGroup({
   data,
@@ -168,17 +167,6 @@ function OptionCheckBoxes({
     .filter((option) => option !== null)
     .sort((a, b) => a.toString().localeCompare(b.toString()));
 
-  const EmptyCheckBoxBlankIcon = () => (
-    <SvgIcon fontSize="small">
-      <svg focusable="false" aria-hidden="true" data-testid="CheckBoxBlankIcon">
-        <path
-          d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5"
-          fill="gray"
-        ></path>
-      </svg>
-    </SvgIcon>
-  );
-
   return (
     <div style={{ margin: "5px 5px", width: "95%" }}>
       <div
@@ -207,7 +195,7 @@ function OptionCheckBoxes({
           return (
             <ThemeProvider
               key={option}
-              theme={isOptionMissing ? greyTheme : defaultTheme}
+              theme={isOptionMissing ? grayTheme : defaultTheme}
             >
               <Tooltip
                 title={
@@ -222,7 +210,7 @@ function OptionCheckBoxes({
                   control={
                     isOptionMissing ? (
                       <Checkbox
-                        icon={<EmptyCheckBoxBlankIcon />} // or your custom icon for when isOptionMissing is true
+                        icon={<EmptyCheckBoxBlankIcon fontSize="small" />}
                         checked={checkedOptions.includes(option)}
                         onChange={(event) =>
                           handleCheckChange(option, event.target.checked)
