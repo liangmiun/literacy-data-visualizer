@@ -214,8 +214,15 @@ function SchoolComponent({ props }) {
   const { emptiedStates, updateEmptiedState } = useOptionEmptied();
 
   const isEmptiedByChildren = useMemo(() => {
-    return Object.keys(sortedSequenceEntries).every(
-      (sequenceID) => emptiedStates[sequenceID]
+    console.log(
+      "check school component ",
+      sortedSequenceEntries.map(([sequenceID, _]) => [
+        sequenceID,
+        emptiedStates[sequenceID],
+      ])
+    );
+    return sortedSequenceEntries.every(
+      ([sequenceID, _]) => emptiedStates[sequenceID]
     );
   }, [sortedSequenceEntries, emptiedStates]);
 
@@ -270,14 +277,20 @@ function SchoolComponent({ props }) {
 
   return (
     <div id={school} style={{ display: "flex", alignItems: "flex-start" }}>
-      <Checkbox
-        style={{ padding: "1px" }}
-        checked={areAllClassesInSchoolSelected}
-        indeterminate={
-          !areAllClassesInSchoolSelected && selectedClassesInSchool.length > 0
-        }
-        onChange={(event) => handleSchoolCheckChange(event.target.checked)}
-      />
+      <ThemeProvider
+        key={`Theme-${school}`}
+        theme={isEmptiedByChildren ? grayTheme : createTheme()}
+      >
+        <Checkbox
+          icon={isEmptiedByChildren ? <EmptyCheckBoxBlankIcon /> : undefined}
+          style={{ padding: "1px" }}
+          checked={areAllClassesInSchoolSelected}
+          indeterminate={
+            !areAllClassesInSchoolSelected && selectedClassesInSchool.length > 0
+          }
+          onChange={(event) => handleSchoolCheckChange(event.target.checked)}
+        />
+      </ThemeProvider>
       {/* Render classes and other UI elements here */}
 
       <TreeItem
@@ -339,10 +352,17 @@ function ClassSequenceComponent({ props }) {
   const { emptiedStates, updateEmptiedState } = useOptionEmptied();
 
   const isEmptiedByChildren = useMemo(() => {
+    console.log(
+      "sequence is empty by children:",
+      sequenceID,
+      Object.values(classesInSequence).map(
+        (yearlyClass) => emptiedStates[school + "-" + yearlyClass]
+      )
+    );
     return Object.values(classesInSequence).every(
       (yearlyClass) => emptiedStates[school + "-" + yearlyClass]
     );
-  }, [school, classesInSequence, emptiedStates]);
+  }, [school, sequenceID, classesInSequence, emptiedStates]);
 
   useEffect(() => {
     updateEmptiedState(sequenceID, isEmptiedByChildren);
@@ -440,17 +460,23 @@ function ClassSequenceComponent({ props }) {
       style={{ display: "flex", alignItems: "flex-start" }}
     >
       {/* //  style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }} */}
-      <Checkbox
-        checked={areAllClassesInSequenceSelected}
-        style={{ padding: "1px" }}
-        indeterminate={
-          !areAllClassesInSequenceSelected &&
-          selectedClassesInSequence.length > 0
-        }
-        onChange={(event) =>
-          handleClassSequenceCheckChange(event.target.checked)
-        }
-      />
+      <ThemeProvider
+        key={`Theme-${sequenceID}`}
+        theme={isEmptiedByChildren ? grayTheme : createTheme()}
+      >
+        <Checkbox
+          icon={isEmptiedByChildren ? <EmptyCheckBoxBlankIcon /> : undefined}
+          checked={areAllClassesInSequenceSelected}
+          style={{ padding: "1px" }}
+          indeterminate={
+            !areAllClassesInSequenceSelected &&
+            selectedClassesInSequence.length > 0
+          }
+          onChange={(event) =>
+            handleClassSequenceCheckChange(event.target.checked)
+          }
+        />
+      </ThemeProvider>
       <TreeItem
         nodeId={`classSequence-${sequenceID}`}
         label={
@@ -538,8 +564,27 @@ function SingleYearClassComponent({ props }) {
   } = props;
 
   const [isClassChecked, setIsClassChecked] = useState(false);
-  const [isOptionMissing, setIsOptionMissing] = useState(false);
+  //const [isOptionMissing, setIsOptionMissing] = useState(false);
   const { updateEmptiedState } = useOptionEmptied();
+
+  const isOptionEmptiedByOthers = useMemo(() => {
+    return emptyFilterOptions["Klasses"]?.some(
+      (item) =>
+        item.school === school &&
+        item.schoolYear === yearlyClass.split("-")[0] &&
+        item.class === yearlyClass.split("-")[1]
+    );
+  }, [emptyFilterOptions, school, yearlyClass]);
+
+  useEffect(() => {
+    updateEmptiedState(school + "-" + yearlyClass, isOptionEmptiedByOthers);
+  }, [
+    emptyFilterOptions,
+    school,
+    yearlyClass,
+    updateEmptiedState,
+    isOptionEmptiedByOthers,
+  ]);
 
   useEffect(() => {
     setIsClassChecked(
@@ -551,31 +596,6 @@ function SingleYearClassComponent({ props }) {
       )
     );
   }, [selectedClasses, school, yearlyClass]);
-
-  useEffect(() => {
-    const classObj = {
-      school: school,
-      schoolYear: yearlyClass.split("-")[0],
-      class: yearlyClass.split("-")[1],
-    };
-
-    setIsOptionMissing(
-      emptyFilterOptions["Klasses"] &&
-        emptyFilterOptions["Klasses"].some(
-          (item) =>
-            item.school === classObj.school &&
-            item.schoolYear === classObj.schoolYear &&
-            item.class === classObj.class
-        )
-    );
-    updateEmptiedState(school + "-" + yearlyClass, isOptionMissing);
-  }, [
-    emptyFilterOptions,
-    school,
-    yearlyClass,
-    updateEmptiedState,
-    isOptionMissing,
-  ]);
 
   function handleYearlyClassCheckChange(isChecked) {
     const schoolYear = yearlyClass.split("-")[0];
@@ -618,33 +638,19 @@ function SingleYearClassComponent({ props }) {
           <div style={{ display: "flex", alignItems: "center" }}>
             <ThemeProvider
               key={`Theme-${school}-${yearlyClass}`}
-              theme={isOptionMissing ? grayTheme : defaultTheme}
+              theme={isOptionEmptiedByOthers ? grayTheme : defaultTheme}
             >
               <Checkbox
-                icon={isOptionMissing ? <EmptyCheckBoxBlankIcon /> : undefined}
+                icon={
+                  isOptionEmptiedByOthers ? (
+                    <EmptyCheckBoxBlankIcon />
+                  ) : undefined
+                }
                 checked={isClassChecked}
                 onChange={(event) =>
                   handleYearlyClassCheckChange(event.target.checked)
                 }
               />
-              {/* {isOptionMissing ? (
-                <Checkbox
-                  icon={
-                    isOptionMissing ? <EmptyCheckBoxBlankIcon /> : undefined
-                  }
-                  checked={isClassChecked}
-                  onChange={(event) =>
-                    handleYearlyClassCheckChange(event.target.checked)
-                  }
-                />
-              ) : (
-                <Checkbox
-                  checked={isClassChecked}
-                  onChange={(event) =>
-                    handleYearlyClassCheckChange(event.target.checked)
-                  }
-                />
-              )} */}
             </ThemeProvider>
             {/* <Tooltip title={transformClassTooltip(yearlyClass)} followCursor>        */}
             <label>{yearlyClass}</label>

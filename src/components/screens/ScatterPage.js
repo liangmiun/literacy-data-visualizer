@@ -95,7 +95,6 @@ const ScatterPage = (props) => {
   }, [logicFilteredData]);
 
   const triggerRenderByConfigChange = () => {
-    console.log("triggerRenderByConfigChange");
     setTriggerRenderByConfig(!triggerRenderByConfig);
   };
 
@@ -255,8 +254,6 @@ const ScatterPage = (props) => {
       {}
     );
 
-    console.log("newEmptyOptions initially:", newEmptyOptions);
-
     const nonNullData = dataToShow.filter(
       (d) => d[xField] !== null && d[yField] !== null
     );
@@ -341,7 +338,6 @@ const ScatterPage = (props) => {
     });
 
     // Update the emptyOptions state with newEmptyOptions
-    console.log("newEmptyOptions", newEmptyOptions);
     setEmptyFilterOptions(newEmptyOptions);
   }, [
     dataToShow,
