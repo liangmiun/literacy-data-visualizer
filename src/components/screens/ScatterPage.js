@@ -50,7 +50,7 @@ const ScatterPage = (props) => {
   const [minDeclineThreshold, setMinDeclineThreshold] = useState(-1);
   const [filterList, setFilterList] = useState([]);
   const [emptyFilterOptions, setEmptyFilterOptions] = useState({});
-  const [groupOption, setGroupOption] = useState("9-year tenure");
+  const [tenureGroupOption, setTenureGroupOption] = useState("9-year tenure");
   const [triggerRenderByConfig, setTriggerRenderByConfig] = useState(false);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ const ScatterPage = (props) => {
       );
       const newSchoolClasses = generateSchoolLastingClassMap(
         nonNullLexploreData,
-        groupOption
+        tenureGroupOption
       );
       const newClassColorScale =
         generateSchoolClassColorScale(newSchoolClasses).classColor;
@@ -69,7 +69,7 @@ const ScatterPage = (props) => {
         colorScale: newClassColorScale,
       });
     }
-  }, [data, groupOption]);
+  }, [data, tenureGroupOption]);
 
   useEffect(() => {
     let allClassesList = [];
@@ -86,7 +86,6 @@ const ScatterPage = (props) => {
         }
       }
     }
-    console.log("allClassesList", allClassesList);
     setAllClasses(allClassesList);
   }, [schoolClassesAndColorScale]);
 
@@ -201,10 +200,9 @@ const ScatterPage = (props) => {
     rangeFilteredData,
   ]);
 
-  useEffect(() => {
-    // Decide which filter options are made empty based on the shownData
-    // Define the labels and their options
-    const labelsWithOptions = {
+  //examine options with empty impact for each label
+  const labelsWithOptions = useMemo(() => {
+    return {
       Årskurs: [1, 2, 3, 4, 5, 6, 7, 8, 9],
       Läsår: ["18/19", "19/20", "20/21", "21/22", "22/23"],
       Stanine: [1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -217,13 +215,15 @@ const ScatterPage = (props) => {
               parseInt(item.schoolYear.split("/")[0]),
               item.school,
               item.class,
-              groupOption
+              tenureGroupOption
             )
           )
         )
       ),
     };
+  }, [allClasses, tenureGroupOption]);
 
+  useEffect(() => {
     // Initialize emptyOptions with labels as keys and empty arrays as values
     let newEmptyOptions = Object.keys(labelsWithOptions).reduce(
       (acc, label) => {
@@ -236,9 +236,6 @@ const ScatterPage = (props) => {
     const nonNullData = dataToShow.filter(
       (d) => d[xField] !== null && d[yField] !== null
     );
-    // const dataToProcess = rangeFilteredData(
-    //   schoolClassFilteredData(nonNullData, selectedClasses)
-    // );
 
     const dataToProcess = rangeFilteredData(nonNullData);
 
@@ -314,7 +311,7 @@ const ScatterPage = (props) => {
             parseInt(record["Läsår"].split("/")[0]),
             record["Skola"],
             record["Klass"],
-            groupOption
+            tenureGroupOption
           );
 
           if (recordSequenceID !== exceptionValue) {
@@ -358,9 +355,19 @@ const ScatterPage = (props) => {
     selectedClasses,
     checkedOptions,
     rangeFilteredData,
-    allClasses,
-    groupOption,
+    labelsWithOptions,
+    tenureGroupOption,
   ]);
+
+  const disableIndiLinesUnderMultipleSchools = useMemo(() => {
+    const schoolCount = new Set(selectedClasses.map((item) => item.school))
+      .size;
+    if (schoolCount > 2) {
+      setConnectIndividual(false);
+      return true;
+    }
+    return false;
+  }, [selectedClasses]);
 
   return (
     <div className="app">
@@ -402,6 +409,7 @@ const ScatterPage = (props) => {
         handleResetToOnboarding={props.handleResetToOnboarding}
         handleResetToLatest={props.handleResetToLatest}
         triggerRenderByConfigChange={triggerRenderByConfigChange}
+        disableIndiLines={disableIndiLinesUnderMultipleSchools}
       />
 
       {isClassView ? (
@@ -417,7 +425,7 @@ const ScatterPage = (props) => {
           aggregateType={aggregateType}
           classColors={schoolClassesAndColorScale.colorScale}
           showLines={props.showLines}
-          groupOption={groupOption}
+          groupOption={tenureGroupOption}
           triggerRenderByConfig={triggerRenderByConfig}
         />
       ) : (
@@ -452,8 +460,8 @@ const ScatterPage = (props) => {
         onColorPaletteClick={handleClassColorPaletteClick}
         classColors={schoolClassesAndColorScale.colorScale}
         emptyFilterOptions={emptyFilterOptions}
-        groupOption={groupOption}
-        setGroupOption={setGroupOption}
+        groupOption={tenureGroupOption}
+        setGroupOption={setTenureGroupOption}
       />
 
       <LogicCanvas

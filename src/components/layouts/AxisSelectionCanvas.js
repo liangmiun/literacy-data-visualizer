@@ -32,23 +32,6 @@ const AxisSelectionCanvas = (props) => {
     label: value,
   }));
 
-  // const ImportDataButton = ({ handleFileUpload }) => (
-  //   <button className="btn">
-  //     <input
-  //       type="file"
-  //       accept=".csv"
-  //       onChange={handleFileUpload}
-  //       style={{ display: "none" }}
-  //       id="fileUpload"
-  //     />
-  //     <label htmlFor="fileUpload" className="import-button">
-  //       <Tooltip title="Import csv-format source data" followCursor>
-  //         <label>Import Data</label>
-  //       </Tooltip>
-  //     </label>
-  //   </button>
-  // );
-
   const ImportDataButton = ({ handleFileUpload }) => {
     // Create a reference to the hidden file input
     const fileInputRef = useRef(null);
@@ -417,12 +400,13 @@ function ClassViewBar({ props }) {
               <input
                 type="checkbox"
                 checked={props.connectIndividual}
+                disabled={props.disableIndiLines}
                 onChange={() =>
                   props.setConnectIndividual(!props.connectIndividual)
                 }
               />
               <Tooltip
-                title="Whether to show lines connecting individual dots on the class view"
+                title="Switch whether to show lines connecting individual dots on aggregation view; Unavailable when more than 2 schools selected ."
                 followCursor
               >
                 <label>Connect individuals </label>

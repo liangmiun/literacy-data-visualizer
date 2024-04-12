@@ -97,27 +97,30 @@ export function PresentIndividuals(
     });
 
   const groupedPositions = d3.group(positions, (d) => d.ElevID);
-  groupedPositions.forEach((value, key) => {
-    const points = value;
 
-    for (let i = 0; i < points.length - 1; i++) {
-      g.append("line")
-        .attr("class", "indvLines")
-        .attr("x1", points[i].cx)
-        .attr("y1", points[i].cy)
-        .attr("x2", points[i + 1].cx)
-        .attr("y2", points[i + 1].cy)
-        .attr("stroke", () => {
-          const d = points[i];
-          return classColors[d.Skola][d.sequenceID];
-        })
-        .attr("stroke-width", 0.5)
-        .attr("stroke-opacity", 0.5)
-        .attr("start_record_id", points[i].record_id)
-        .attr("end_record_id", points[i + 1].record_id)
-        .style("visibility", connectIndividual ? "visible" : "hidden");
-    }
-  });
+  if (connectIndividual) {
+    groupedPositions.forEach((value, key) => {
+      const points = value;
+
+      for (let i = 0; i < points.length - 1; i++) {
+        g.append("line")
+          .attr("class", "indvLines")
+          .attr("x1", points[i].cx)
+          .attr("y1", points[i].cy)
+          .attr("x2", points[i + 1].cx)
+          .attr("y2", points[i + 1].cy)
+          .attr("stroke", () => {
+            const d = points[i];
+            return classColors[d.Skola][d.sequenceID];
+          })
+          .attr("stroke-width", 0.5)
+          .attr("stroke-opacity", 0.5)
+          .attr("start_record_id", points[i].record_id)
+          .attr("end_record_id", points[i + 1].record_id);
+        //.style("visibility", connectIndividual ? "visible" : "hidden");
+      }
+    });
+  }
 }
 
 function getSemesterFromDate(dateObject) {
@@ -827,7 +830,6 @@ export function zoomIndividualJitter(
   getSubBandScale,
   connectIndividual
 ) {
-  console.log("zoomIndividualJitter");
   g.selectAll(".indvPoints").attr("cx", function () {
     const season = d3.select(this).attr("indv_season");
     const sequenceID = d3.select(this).attr("indv_sequenceID");
@@ -840,27 +842,27 @@ export function zoomIndividualJitter(
     );
   });
 
-  g.selectAll(".indvLines").each(function () {
-    // Current line element
-    var line = d3.select(this);
+  if (connectIndividual) {
+    g.selectAll(".indvLines").each(function () {
+      // Current line element
+      var line = d3.select(this);
 
-    // Read the start_record_id and end_record_id from the line
-    var startRecordId = line.attr("start_record_id");
-    var endRecordId = line.attr("end_record_id");
+      // Read the start_record_id and end_record_id from the line
+      var startRecordId = line.attr("start_record_id");
+      var endRecordId = line.attr("end_record_id");
 
-    // Find the start and end circle elements based on record_id
-    var dStart = g.select(`.indvPoints[record_id="${startRecordId}"]`);
-    var dEnd = g.select(`.indvPoints[record_id="${endRecordId}"]`);
+      // Find the start and end circle elements based on record_id
+      var dStart = g.select(`.indvPoints[record_id="${startRecordId}"]`);
+      var dEnd = g.select(`.indvPoints[record_id="${endRecordId}"]`);
 
-    // Ensure elements were found before attempting to read attributes
-    if (!dStart.empty() && !dEnd.empty()) {
-      // Set the line's x1 and x2 attributes based on the found circles' cx attributes
-      line
-        .attr("x1", dStart.attr("cx"))
-        .attr("x2", dEnd.attr("cx"))
-        .style("visibility", connectIndividual ? "visible" : "hidden");
-    }
-  });
+      // Ensure elements were found before attempting to read attributes
+      if (!dStart.empty() && !dEnd.empty()) {
+        // Set the line's x1 and x2 attributes based on the found circles' cx attributes
+        line.attr("x1", dStart.attr("cx")).attr("x2", dEnd.attr("cx"));
+        //.style("visibility", connectIndividual ? "visible" : "hidden");
+      }
+    });
+  }
 }
 
 export function presentLines(
