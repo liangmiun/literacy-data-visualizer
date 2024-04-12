@@ -17,7 +17,6 @@ import Tooltip from "@mui/material/Tooltip";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { grayTheme } from "assets/themes.js";
 import { EmptyCheckBoxBlankIcon } from "assets/themes.js";
-import { useOptionEmptied } from "utils/optionEmptiedContext.js";
 
 function SchoolTreeView(props) {
   const {
@@ -31,18 +30,6 @@ function SchoolTreeView(props) {
     groupOption,
     setGroupOption,
   } = props;
-
-  const { emptiedStates, updateEmptiedState } = useOptionEmptied();
-
-  const isEmptiedByChildren = useMemo(() => {
-    return Object.keys(school_class_map).every(
-      (school) => emptiedStates[school]
-    );
-  }, [school_class_map, emptiedStates]);
-
-  useEffect(() => {
-    updateEmptiedState("school-tree-view", isEmptiedByChildren);
-  }, [isEmptiedByChildren, updateEmptiedState]);
 
   const [areAllSchoolSelected, setAreAllSchoolSelected] = useState(true);
   const [paletteID, setPaletteID] = useState("");
@@ -212,28 +199,9 @@ function SchoolComponent({ props }) {
     emptyFilterOptions,
   } = props;
 
-  const { emptiedStates, updateEmptiedState } = useOptionEmptied();
-
-  // const isEmptiedByChildren = useMemo(() => {
-  //   console.log(
-  //     "check school component ",
-  //     sortedSequenceEntries.map(([sequenceID, _]) => [
-  //       sequenceID,
-  //       emptiedStates[sequenceID],
-  //     ])
-  //   );
-  //   return sortedSequenceEntries.every(
-  //     ([sequenceID, _]) => emptiedStates[sequenceID]
-  //   );
-  // }, [sortedSequenceEntries, emptiedStates]);
-
   const isEmptiedByChildren = useMemo(() => {
     return emptyFilterOptions["schools"]?.some((item) => item === school);
   }, [school, emptyFilterOptions]);
-
-  useEffect(() => {
-    updateEmptiedState(school, isEmptiedByChildren);
-  }, [isEmptiedByChildren, school, updateEmptiedState]);
 
   const [areAllClassesInSchoolSelected, setAreAllClassesInSchoolSelected] =
     useState(false);
@@ -355,15 +323,9 @@ function ClassSequenceComponent({ props }) {
     emptyFilterOptions,
   } = props;
 
-  const { emptiedStates, updateEmptiedState } = useOptionEmptied();
-
   const isEmptiedByChildren = useMemo(() => {
     return emptyFilterOptions["sequences"]?.some((item) => item === sequenceID);
   }, [sequenceID, emptyFilterOptions]);
-
-  useEffect(() => {
-    updateEmptiedState(sequenceID, isEmptiedByChildren);
-  }, [isEmptiedByChildren, sequenceID, updateEmptiedState]);
 
   const [areAllClassesInSequenceSelected, setAreAllClassesInSequenceSelected] =
     useState(false);
@@ -561,7 +523,6 @@ function SingleYearClassComponent({ props }) {
   } = props;
 
   const [isClassChecked, setIsClassChecked] = useState(false);
-  const { updateEmptiedState } = useOptionEmptied();
 
   const isOptionEmptiedByOthers = useMemo(() => {
     return emptyFilterOptions["classes"]?.some(
@@ -571,16 +532,6 @@ function SingleYearClassComponent({ props }) {
         item.class === yearlyClass.split("-")[1]
     );
   }, [emptyFilterOptions, school, yearlyClass]);
-
-  useEffect(() => {
-    updateEmptiedState(school + "-" + yearlyClass, isOptionEmptiedByOthers);
-  }, [
-    emptyFilterOptions,
-    school,
-    yearlyClass,
-    updateEmptiedState,
-    isOptionEmptiedByOthers,
-  ]);
 
   useEffect(() => {
     setIsClassChecked(

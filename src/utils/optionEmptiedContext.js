@@ -1,3 +1,7 @@
+// This is a context to keep track of whether the school/tenure/class and grade/schoolyear/stanine options have empty impact or not.
+// It is currently not in use because MUI treeview makes collapsed nodes unrendered and their state are not updated with the context.
+// The gray-out-empty-impact functionality is now implemented in each hiearchical components.
+
 import React, { createContext, useContext, useState, useCallback } from "react";
 
 const OptionEmptiedContext = createContext();
