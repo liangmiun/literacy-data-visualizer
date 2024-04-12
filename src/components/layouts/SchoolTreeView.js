@@ -46,7 +46,7 @@ function SchoolTreeView(props) {
 
   const [areAllSchoolSelected, setAreAllSchoolSelected] = useState(true);
   const [paletteID, setPaletteID] = useState("");
-  const [expandedSchools] = useState(["root"]);
+  const [expandedSchools] = useState(["root"]); // "Bodals skola"
   const [classesGroupOptions] = useState([
     "9-year tenure",
     "3-year tenure",
@@ -209,22 +209,27 @@ function SchoolComponent({ props }) {
     isClassView,
     classColors,
     groupOption,
+    emptyFilterOptions,
   } = props;
 
   const { emptiedStates, updateEmptiedState } = useOptionEmptied();
 
+  // const isEmptiedByChildren = useMemo(() => {
+  //   console.log(
+  //     "check school component ",
+  //     sortedSequenceEntries.map(([sequenceID, _]) => [
+  //       sequenceID,
+  //       emptiedStates[sequenceID],
+  //     ])
+  //   );
+  //   return sortedSequenceEntries.every(
+  //     ([sequenceID, _]) => emptiedStates[sequenceID]
+  //   );
+  // }, [sortedSequenceEntries, emptiedStates]);
+
   const isEmptiedByChildren = useMemo(() => {
-    console.log(
-      "check school component ",
-      sortedSequenceEntries.map(([sequenceID, _]) => [
-        sequenceID,
-        emptiedStates[sequenceID],
-      ])
-    );
-    return sortedSequenceEntries.every(
-      ([sequenceID, _]) => emptiedStates[sequenceID]
-    );
-  }, [sortedSequenceEntries, emptiedStates]);
+    return emptyFilterOptions["schools"]?.some((item) => item === school);
+  }, [school, emptyFilterOptions]);
 
   useEffect(() => {
     updateEmptiedState(school, isEmptiedByChildren);
@@ -347,22 +352,14 @@ function ClassSequenceComponent({ props }) {
     classColors,
     handleYearlyClassCheckChange,
     groupOption,
+    emptyFilterOptions,
   } = props;
 
   const { emptiedStates, updateEmptiedState } = useOptionEmptied();
 
   const isEmptiedByChildren = useMemo(() => {
-    console.log(
-      "sequence is empty by children:",
-      sequenceID,
-      Object.values(classesInSequence).map(
-        (yearlyClass) => emptiedStates[school + "-" + yearlyClass]
-      )
-    );
-    return Object.values(classesInSequence).every(
-      (yearlyClass) => emptiedStates[school + "-" + yearlyClass]
-    );
-  }, [school, sequenceID, classesInSequence, emptiedStates]);
+    return emptyFilterOptions["sequences"]?.some((item) => item === sequenceID);
+  }, [sequenceID, emptyFilterOptions]);
 
   useEffect(() => {
     updateEmptiedState(sequenceID, isEmptiedByChildren);
@@ -564,11 +561,10 @@ function SingleYearClassComponent({ props }) {
   } = props;
 
   const [isClassChecked, setIsClassChecked] = useState(false);
-  //const [isOptionMissing, setIsOptionMissing] = useState(false);
   const { updateEmptiedState } = useOptionEmptied();
 
   const isOptionEmptiedByOthers = useMemo(() => {
-    return emptyFilterOptions["Klasses"]?.some(
+    return emptyFilterOptions["classes"]?.some(
       (item) =>
         item.school === school &&
         item.schoolYear === yearlyClass.split("-")[0] &&

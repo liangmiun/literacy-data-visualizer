@@ -6,6 +6,7 @@ import ScatterCanvas from "../layouts/ScatterCanvas";
 import DetailCanvas from "../layouts/DetailCanvas";
 import FilterCanvas from "../layouts/FilterCanvas";
 import LogicCanvas from "../layouts/LogicCanvas";
+import { sequenceIDfromYearSchoolClass } from "../../utils/AggregateUtils";
 import {
   generateSchoolLastingClassMap,
   generateSchoolClassColorScale,
@@ -85,6 +86,7 @@ const ScatterPage = (props) => {
         }
       }
     }
+    console.log("allClassesList", allClassesList);
     setAllClasses(allClassesList);
   }, [schoolClassesAndColorScale]);
 
@@ -199,42 +201,6 @@ const ScatterPage = (props) => {
     rangeFilteredData,
   ]);
 
-  // useEffect(() => {
-  //   // Decide which filter options are made empty based on the shownData
-  //   // Define the labels and their options
-  //   const labelsWithOptions = {
-  //     Årskurs: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-  //     Läsår: ["18/19", "19/20", "20/21", "21/22", "22/23"],
-  //     Stanine: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-  //   };
-
-  //   // Initialize emptyOptions with labels as keys and empty arrays as values
-  //   let newEmptyOptions = Object.keys(labelsWithOptions).reduce(
-  //     (acc, label) => {
-  //       acc[label] = [];
-  //       return acc;
-  //     },
-  //     {}
-  //   );
-
-  //   // Iterate through each label and its options
-  //   Object.entries(labelsWithOptions).forEach(([label, options]) => {
-  //     options.forEach((option) => {
-  //       // Check if there's no record in shownData with the current label and option
-  //       const isOptionMissing = !shownData.some(
-  //         (recordX) => recordX[label] === option
-  //       );
-  //       if (isOptionMissing) {
-  //         // If the option is missing, add it to the respective label in newEmptyOptions
-  //         newEmptyOptions[label].push(option);
-  //       }
-  //     });
-  //   });
-
-  //   // Update the emptyOptions state with newEmptyOptions
-  //   setEmptyFilterOptions(newEmptyOptions);
-  // }, [shownData]);
-
   useEffect(() => {
     // Decide which filter options are made empty based on the shownData
     // Define the labels and their options
@@ -242,7 +208,20 @@ const ScatterPage = (props) => {
       Årskurs: [1, 2, 3, 4, 5, 6, 7, 8, 9],
       Läsår: ["18/19", "19/20", "20/21", "21/22", "22/23"],
       Stanine: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-      Klasses: allClasses,
+      classes: allClasses,
+      schools: Array.from(new Set(allClasses.map((item) => item.school))),
+      sequences: Array.from(
+        new Set(
+          allClasses.map((item) =>
+            sequenceIDfromYearSchoolClass(
+              parseInt(item.schoolYear.split("/")[0]),
+              item.school,
+              item.class,
+              groupOption
+            )
+          )
+        )
+      ),
     };
 
     // Initialize emptyOptions with labels as keys and empty arrays as values
@@ -268,8 +247,7 @@ const ScatterPage = (props) => {
       exceptionKey,
       exceptionValue
     ) {
-      //const exceptionKey = Object.keys(exceptionOption)[0]; // Assuming only one key-value pair in exceptionOption
-      if (exceptionKey !== "Klasses") {
+      if (["Årskurs", "Läsår", "Stanine"].includes(exceptionKey)) {
         return data.some((record) => {
           // Check exceptionOption first
           if (record[exceptionKey] !== exceptionValue) {
@@ -293,7 +271,7 @@ const ScatterPage = (props) => {
 
           return meetOtherOptionRequests;
         });
-      } else {
+      } else if (exceptionKey === "classes") {
         return data.some((record) => {
           // Check exceptionOption first
           if (
@@ -301,6 +279,45 @@ const ScatterPage = (props) => {
             record["Läsår"] !== exceptionValue["schoolYear"] ||
             record["Klass"] !== exceptionValue["class"]
           ) {
+            return false; // Skip this record if it does not match the exceptionOption
+          }
+
+          // Check other options
+          const meetOtherOptionRequests = Object.entries(checkedOptions).every(
+            ([key, value]) => {
+              return value.includes(record[key]);
+            }
+          );
+
+          return meetOtherOptionRequests;
+        });
+      } else if (exceptionKey === "schools") {
+        return data.some((record) => {
+          // Check exceptionOption first
+          if (record["Skola"] !== exceptionValue) {
+            return false; // Skip this record if it does not match the exceptionOption
+          }
+
+          // Check other options
+          const meetOtherOptionRequests = Object.entries(checkedOptions).every(
+            ([key, value]) => {
+              return value.includes(record[key]);
+            }
+          );
+
+          return meetOtherOptionRequests;
+        });
+      } else if (exceptionKey === "sequences") {
+        return data.some((record) => {
+          // Check exceptionOption first
+          const recordSequenceID = sequenceIDfromYearSchoolClass(
+            parseInt(record["Läsår"].split("/")[0]),
+            record["Skola"],
+            record["Klass"],
+            groupOption
+          );
+
+          if (recordSequenceID !== exceptionValue) {
             return false; // Skip this record if it does not match the exceptionOption
           }
 
@@ -321,16 +338,11 @@ const ScatterPage = (props) => {
       options.forEach((option) => {
         // Check if there's no record in shownData with the current label and option
         const hasRecordInfluencedByThisOption =
-          findRecordWithExceptionAndOthersChecked(
-            dataToProcess,
-            label,
-            option
-            // { [label]: option }
-          );
+          findRecordWithExceptionAndOthersChecked(dataToProcess, label, option);
 
-        const isOptionWithEmptyRecords = !hasRecordInfluencedByThisOption;
+        const isOptionWithEmptyImpact = !hasRecordInfluencedByThisOption;
 
-        if (isOptionWithEmptyRecords) {
+        if (isOptionWithEmptyImpact) {
           // If the option is missing, add it to the respective label in newEmptyOptions
           newEmptyOptions[label].push(option);
         }
@@ -347,6 +359,7 @@ const ScatterPage = (props) => {
     checkedOptions,
     rangeFilteredData,
     allClasses,
+    groupOption,
   ]);
 
   return (
