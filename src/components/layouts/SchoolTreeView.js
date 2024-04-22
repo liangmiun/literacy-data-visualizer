@@ -79,8 +79,8 @@ function SchoolTreeView(props) {
       const sequenceID_A = a[0];
       const sequenceID_B = b[0];
 
-      const valueA = startToEndYearInSequence(sequenceID_A, groupOption);
-      const valueB = startToEndYearInSequence(sequenceID_B, groupOption);
+      const valueA = tenureSequenceTag(sequenceID_A, groupOption);
+      const valueB = tenureSequenceTag(sequenceID_B, groupOption);
 
       // For numerical or string comparison
       if (valueA < valueB) return -1;
@@ -440,7 +440,7 @@ function ClassSequenceComponent({ props }) {
         nodeId={`classSequence-${sequenceID}`}
         label={
           <div style={{ display: "flex", alignItems: "center" }}>
-            {startToEndYearInSequence(sequenceID, groupOption)}
+            {tenureSequenceTag(sequenceID, groupOption)}
           </div>
         }
         key={sequenceID}
@@ -648,30 +648,62 @@ function SingleYearClassComponent({ props }) {
   );
 }
 
-function startToEndYearInSequence(sequenceID, groupOption) {
-  const endYearClass = sequenceID.split(":")[1];
-  //22/23-9A
-  const classNum = endYearClass.split("-")[1].replace(/\D/g, "");
-  const classLetter = endYearClass.split("-")[1].replace(/\d/g, "");
+function tenureSequenceTag(sequenceID, groupOption) {
+  //console.log("sequenceID", sequenceID);
+  const latestYearClass = sequenceID.split(":")[1];
+  const latestYear = parseInt(latestYearClass.split("-")[0].split("/")[0]);
+  const latestGrade = latestYearClass.split("-")[1].replace(/\D/g, "");
+  const classLetter = latestYearClass.split("-")[1].replace(/\d/g, "");
 
-  var startClassNum;
+  var tenureInitialGrade, tenureInitialYear, tenureFinalGrade, tenureFinalYear;
   if (groupOption === "9-year tenure") {
-    startClassNum = 1;
+    tenureInitialGrade = 1;
+    tenureInitialYear = latestYear + tenureInitialGrade - latestGrade;
+    tenureFinalGrade = 9;
+    tenureFinalYear = tenureInitialYear + 8;
   } else if (groupOption === "3-year tenure") {
-    startClassNum = 3 * (Math.ceil(classNum / 3) - 1) + 1;
+    tenureInitialGrade = 3 * (Math.ceil(latestGrade / 3) - 1) + 1;
+    tenureInitialYear = latestYear + tenureInitialGrade - latestGrade;
+    tenureFinalGrade = tenureInitialGrade + 2;
+    tenureFinalGrade = tenureInitialGrade + 2;
   } else if (groupOption === "school-year") {
-    return endYearClass;
+    return latestYearClass;
   }
 
-  const startYear =
-    parseInt(endYearClass.split("-")[0].split("/")[0]) +
-    startClassNum -
-    classNum;
-  const startYearClass = `${startYear}/${
-    startYear + 1
-  }-${startClassNum}${classLetter}`;
+  const schoolEntryYear = latestYear - latestGrade + 1;
+  const schoolGraduationYear = 9 + schoolEntryYear - 1;
 
-  return `${startYearClass} to ${endYearClass}`;
+  const tenureInitialYearClass = `${tenureInitialYear}/${
+    tenureInitialYear + 1
+  }-${tenureInitialGrade}${classLetter}`;
+
+  const params = [
+    classLetter,
+    latestYear,
+    latestGrade,
+    tenureInitialYear,
+    tenureInitialGrade,
+    tenureFinalYear,
+    tenureFinalGrade,
+    schoolEntryYear,
+    schoolGraduationYear,
+  ];
+
+  const result = sequenceTagFormatter(
+    params,
+    `${tenureInitialYear}-${tenureInitialGrade}${classLetter} to ${latestYear}-${latestGrade}${classLetter}`
+  );
+
+  return result;
+
+  //return `${tenureInitialYearClass} to ${latestYearClass}`;
+}
+
+function sequenceTagFormatter(params, formatString) {
+  return formatString.replace(/\${(\w+)}/g, (match, paramName) => {
+    const index = params.findIndex((param) => param === paramName);
+    return params[index];
+  });
 }
 
 export default SchoolTreeView;
