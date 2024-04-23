@@ -17,6 +17,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { grayTheme } from "assets/themes.js";
 import { EmptyCheckBoxBlankIcon } from "assets/themes.js";
+import { schoolTreeViewConfigs } from "utils/configEditor.js";
 
 function SchoolTreeView(props) {
   const {
@@ -29,6 +30,7 @@ function SchoolTreeView(props) {
     onColorPaletteClick,
     groupOption,
     setGroupOption,
+    triggerRenderByConfig,
   } = props;
 
   const [areAllSchoolSelected, setAreAllSchoolSelected] = useState(true);
@@ -172,6 +174,7 @@ function SchoolTreeView(props) {
                     classColors,
                     groupOption,
                     emptyFilterOptions: props.emptyFilterOptions,
+                    triggerRenderByConfig,
                   }}
                 />
               )
@@ -197,6 +200,7 @@ function SchoolComponent({ props }) {
     classColors,
     groupOption,
     emptyFilterOptions,
+    triggerRenderByConfig,
   } = props;
 
   const isEmptiedByChildren = useMemo(() => {
@@ -297,6 +301,7 @@ function SchoolComponent({ props }) {
               classColors,
               groupOption,
               emptyFilterOptions: props.emptyFilterOptions,
+              triggerRenderByConfig,
             }}
           />
         ))}
@@ -321,6 +326,7 @@ function ClassSequenceComponent({ props }) {
     handleYearlyClassCheckChange,
     groupOption,
     emptyFilterOptions,
+    triggerRenderByConfig,
   } = props;
 
   const isEmptiedByChildren = useMemo(() => {
@@ -378,6 +384,14 @@ function ClassSequenceComponent({ props }) {
       )
     );
   }, [selectedClasses, sequenceID, school, groupOption]);
+
+  const [sequenceTag, setSequenceTag] = useState(
+    tenureSequenceTag(sequenceID, groupOption)
+  );
+
+  useEffect(() => {
+    setSequenceTag(tenureSequenceTag(sequenceID, groupOption));
+  }, [sequenceID, groupOption, triggerRenderByConfig]);
 
   function handleClassSequenceCheckChange(isChecked) {
     if (isChecked) {
@@ -440,7 +454,7 @@ function ClassSequenceComponent({ props }) {
         nodeId={`classSequence-${sequenceID}`}
         label={
           <div style={{ display: "flex", alignItems: "center" }}>
-            {tenureSequenceTag(sequenceID, groupOption)}
+            {sequenceTag}
           </div>
         }
         key={sequenceID}
@@ -677,7 +691,7 @@ function tenureSequenceTag(sequenceID, groupOption) {
     tenureInitialYear + 1
   }-${tenureInitialGrade}${classLetter}`;
 
-  const params = [
+  const params = {
     classLetter,
     latestYear,
     latestGrade,
@@ -687,11 +701,17 @@ function tenureSequenceTag(sequenceID, groupOption) {
     tenureFinalGrade,
     schoolEntryYear,
     schoolGraduationYear,
-  ];
+  };
+
+  const formatTemplate = convertToTemplate(
+    schoolTreeViewConfigs().tenureTagFormat.tenureTemplate,
+    params
+  );
 
   const result = sequenceTagFormatter(
     params,
-    `${tenureInitialYear}-${tenureInitialGrade}${classLetter} to ${latestYear}-${latestGrade}${classLetter}`
+    formatTemplate
+    //`${tenureInitialYear}-${tenureInitialGrade}${classLetter} to ${latestYear}-${latestGrade}${classLetter}`
   );
 
   return result;
@@ -704,6 +724,24 @@ function sequenceTagFormatter(params, formatString) {
     const index = params.findIndex((param) => param === paramName);
     return params[index];
   });
+}
+
+function convertToTemplate(templateStr, params) {
+  // Evaluate the template string within the current scope
+  // Use new Function to create a sandboxed function that evaluates the template with local variables
+  const {
+    classLetter,
+    latestYear,
+    latestGrade,
+    tenureInitialYear,
+    tenureInitialGrade,
+    tenureFinalYear,
+    tenureFinalGrade,
+    schoolEntryYear,
+    schoolGraduationYear,
+  } = params;
+
+  return eval("`" + templateStr + "`");
 }
 
 export default SchoolTreeView;

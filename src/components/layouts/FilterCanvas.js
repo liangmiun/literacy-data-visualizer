@@ -20,6 +20,7 @@ const FilterCanvas = (props) => {
         groupOption={props.groupOption}
         setGroupOption={props.setGroupOption}
         emptyFilterOptions={props.emptyFilterOptions}
+        triggerRenderByConfig={props.triggerRenderByConfig}
       />
 
       <OptionSelectGroup

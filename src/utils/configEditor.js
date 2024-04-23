@@ -1,18 +1,38 @@
 import React, { useState } from "react";
 
-export let editorConfigs = {
+let editorConfigs = {
   seasonBoundaries: {
+    $comment: "",
     springEnd: "03-15",
     summerEnd: "06-30",
     autumnEnd: "10-15",
   },
   removeAggrOfSizeLowerThan: 0,
+  tenureTagFormat: {
+    tenureTemplate:
+      "${tenureInitialYear}-${tenureInitialGrade}${classLetter} to ${latestYear}-${latestGrade}${classLetter}",
+    $comment:
+      "Variables for formatting include: classLetter,latestYear, latestGrade,tenureInitialYear, tenureInitialGrade,tenureFinalYear,tenureFinalGrade, schoolEntryYear, schoolGraduationYear, ",
+  },
 };
+
+export function aggregationConfigs() {
+  const seasonBoundaries = editorConfigs.seasonBoundaries;
+  const removeAggrOfSizeLowerThan = editorConfigs.removeAggrOfSizeLowerThan;
+
+  return { seasonBoundaries, removeAggrOfSizeLowerThan };
+}
+
+export function schoolTreeViewConfigs() {
+  const tenureTagFormat = editorConfigs.tenureTagFormat;
+  return { tenureTagFormat };
+}
 
 function setEditorConfigs(newConfigs) {
   editorConfigs.seasonBoundaries = newConfigs.seasonBoundaries;
   editorConfigs.removeAggrOfSizeLowerThan =
     newConfigs.removeAggrOfSizeLowerThan;
+  editorConfigs.tenureTagFormat = newConfigs.tenureTagFormat;
 }
 
 export function Editor({ triggerRenderByConfigChange }) {
@@ -32,7 +52,7 @@ export function Editor({ triggerRenderByConfigChange }) {
       triggerRenderByConfigChange();
     } catch (e) {
       console.error(e);
-      alert("Invalid JSON format. Please correct and try again.");
+      //alert("Invalid JSON format. Please correct and try again.");
     }
   };
 
@@ -49,17 +69,18 @@ export function Editor({ triggerRenderByConfigChange }) {
             backgroundColor: "lightgrey", // Set a background color
             padding: "20px", // Add some padding
             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Optional: Add a shadow for better visibility
-            width: "auto", // Adjust width as necessary
-            height: "auto", // Adjust height as necessary
+            width: "800px", // Adjust width as necessary
+            height: "400px", // Adjust height as necessary
             display: "flex", // Use flex to organize children
             flexDirection: "column", // Stack children vertically
             gap: "10px", // Add gap between children
           }}
         >
           <textarea
+            height="100%"
             value={editorContent}
             onChange={(e) => setEditorContent(e.target.value)}
-            rows={10}
+            rows={20}
             cols={50}
           />
           <button onClick={handleSave}>Save Config</button>

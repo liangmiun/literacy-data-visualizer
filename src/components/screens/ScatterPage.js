@@ -51,7 +51,7 @@ const ScatterPage = (props) => {
   const [filterList, setFilterList] = useState([]);
   const [emptyFilterOptions, setEmptyFilterOptions] = useState({});
   const [tenureGroupOption, setTenureGroupOption] = useState("9-year tenure");
-  const [triggerRenderByConfig, setTriggerRenderByConfig] = useState(false);
+  const [wouldRenderByConfig, setWouldRenderByConfig] = useState(false);
 
   useEffect(() => {
     if (Object.keys(data).length > 0) {
@@ -96,7 +96,7 @@ const ScatterPage = (props) => {
   }, [logicFilteredData]);
 
   const triggerRenderByConfigChange = () => {
-    setTriggerRenderByConfig(!triggerRenderByConfig);
+    setWouldRenderByConfig(!wouldRenderByConfig);
   };
 
   const handleClassColorPaletteClick = (school, sequenceID, newColor) => {
@@ -426,7 +426,7 @@ const ScatterPage = (props) => {
           classColors={schoolClassesAndColorScale.colorScale}
           showLines={props.showLines}
           groupOption={tenureGroupOption}
-          triggerRenderByConfig={triggerRenderByConfig}
+          triggerRenderByConfig={wouldRenderByConfig}
         />
       ) : (
         <ScatterCanvas
@@ -462,6 +462,7 @@ const ScatterPage = (props) => {
         emptyFilterOptions={emptyFilterOptions}
         groupOption={tenureGroupOption}
         setGroupOption={setTenureGroupOption}
+        triggerRenderByConfig={wouldRenderByConfig}
       />
 
       <LogicCanvas

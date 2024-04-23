@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { rescale, translateExtentStartEnd, formatDate } from "utils/Utils";
-import { editorConfigs } from "utils/configEditor.js";
+import { aggregationConfigs } from "utils/configEditor.js";
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 5;
@@ -134,7 +134,8 @@ function getBoundaryDate(boundary, year) {
 }
 
 function getQuarterFromDate(dateObject) {
-  const { springEnd, summerEnd, autumnEnd } = editorConfigs.seasonBoundaries;
+  const { springEnd, summerEnd, autumnEnd } =
+    aggregationConfigs().seasonBoundaries;
   const year = dateObject.getFullYear();
   const date = new Date(year, dateObject.getMonth(), dateObject.getDate()); // Normalize time to avoid hour differences affecting comparison
 
@@ -294,7 +295,9 @@ export function PreparePlotStructure(
     yField,
     aggregateType,
     sequenceType
-  ).filter((d) => d.value.count >= editorConfigs.removeAggrOfSizeLowerThan);
+  ).filter(
+    (d) => d.value.count >= aggregationConfigs().removeAggrOfSizeLowerThan
+  );
 
   // Sort the sumstat by key to ensure boxes layout horizontally within each season:
   // Here sumstat is in a flat structure.
