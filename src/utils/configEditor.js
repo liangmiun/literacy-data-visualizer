@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
 let editorConfigs = {
+  _comments: "Keep all comments within this pair of quotes.",
   seasonBoundaries: {
-    $comment: "",
     springEnd: "03-15",
     summerEnd: "06-30",
     autumnEnd: "10-15",
@@ -11,7 +11,7 @@ let editorConfigs = {
   tenureTagFormat: {
     tenureTemplate:
       "${tenureInitialYear}-${tenureInitialGrade}${classLetter} to ${latestYear}-${latestGrade}${classLetter}",
-    $comment:
+    _description:
       "Variables for formatting include: classLetter,latestYear, latestGrade,tenureInitialYear, tenureInitialGrade,tenureFinalYear,tenureFinalGrade, schoolEntryYear, schoolGraduationYear, ",
   },
 };
@@ -39,7 +39,7 @@ export function Editor({ triggerRenderByConfigChange }) {
   // Initial state set to the stringified JSON
   const [editorContent, setEditorContent] = useState(
     JSON.stringify(editorConfigs, null, 2)
-  ); // Pretty print the JSON for easier editing
+  );
 
   // State to control the visibility of the text area
   const [isEditing, setIsEditing] = useState(false);

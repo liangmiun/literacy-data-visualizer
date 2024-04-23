@@ -289,7 +289,8 @@ const ViolinPlots = (props) => {
       classColors,
       svg,
       dimensions.width - plotMargin.right,
-      plotMargin
+      plotMargin,
+      groupOption
     );
   }, [
     shownData,
@@ -507,7 +508,8 @@ const BoxPlots = (props) => {
       classColors,
       svg,
       dimensions.width - plotMargin.right,
-      plotMargin
+      plotMargin,
+      groupOption
     );
   }, [
     shownData,
@@ -680,7 +682,8 @@ const CirclePlots = (props) => {
       classColors,
       svg,
       dimensions.width - plotMargin.right,
-      plotMargin
+      plotMargin,
+      groupOption
     );
   }, [
     shownData,
