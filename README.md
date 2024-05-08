@@ -2,6 +2,9 @@
 
 A data visualizer framework for the Lexplore literacy research project.
 
+## Updates
+
+
 ## Webpage login/logout
 
 - This project is deployed as static server website in https://liangmiun.github.io/literacy-data-visualizer
