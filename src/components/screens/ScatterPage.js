@@ -417,8 +417,7 @@ const ScatterPage = (props) => {
           shownData={shownData}
           selectedClasses={selectedClasses}
           seasonField={props.seasonField}
-          yField={props.yField}
-          colorField={props.colorField}
+          yField={"Lexplore Score"}
           onPartClick={setSelectedClassDetail}
           studentsChecked={studentsChecked}
           connectIndividual={connectIndividual}

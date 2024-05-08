@@ -40,10 +40,7 @@ export const data_fields = [
 
 export const y_data_fields = [
   "Lexplore Score",
-  "Percentil",
   "Läsnivå (5 = hög)",
-  "Stanine",
-  "Standardpoäng",
   "Antal korrekta svar",
   "Antal fel svar",
   "Antal frågor",

@@ -56,7 +56,6 @@ const AggregateCanvas = (props) => {
               shownData={props.shownData}
               seasonField={props.seasonField}
               yField={props.yField}
-              colorField={props.colorField}
               onViolinClick={props.onPartClick}
               dimensions={dimensions}
               checkedClasses={checkedClasses}
@@ -74,7 +73,6 @@ const AggregateCanvas = (props) => {
               shownData={props.shownData}
               seasonField={props.seasonField}
               yField={props.yField}
-              colorField={props.colorField}
               onBoxClick={props.onPartClick}
               dimensions={dimensions}
               checkedClasses={checkedClasses}
@@ -92,7 +90,6 @@ const AggregateCanvas = (props) => {
               shownData={props.shownData}
               seasonField={props.seasonField}
               yField={props.yField}
-              colorField={props.colorField}
               onCircleClick={props.onPartClick}
               dimensions={dimensions}
               checkedClasses={checkedClasses}
@@ -120,7 +117,6 @@ const ViolinPlots = (props) => {
     yField,
     checkedClasses,
     seasonField,
-    colorField,
     onViolinClick,
     studentsChecked,
     showLines,
@@ -297,7 +293,6 @@ const ViolinPlots = (props) => {
     groupOption,
     seasonField,
     yField,
-    colorField,
     studentsChecked,
     onViolinClick,
     showLines,
@@ -326,7 +321,6 @@ const BoxPlots = (props) => {
     groupOption,
     seasonField,
     yField,
-    colorField,
     onBoxClick,
     studentsChecked,
     classColors,
@@ -516,7 +510,6 @@ const BoxPlots = (props) => {
     groupOption,
     seasonField,
     yField,
-    colorField,
     studentsChecked,
     onBoxClick,
     classColors,
@@ -545,7 +538,6 @@ const CirclePlots = (props) => {
     groupOption,
     seasonField,
     yField,
-    colorField,
     onCircleClick,
     studentsChecked,
     classColors,
@@ -690,7 +682,6 @@ const CirclePlots = (props) => {
     groupOption,
     seasonField,
     yField,
-    colorField,
     studentsChecked,
     classColors,
     onCircleClick,

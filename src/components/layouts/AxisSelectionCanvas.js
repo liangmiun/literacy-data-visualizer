@@ -10,6 +10,12 @@ import "assets/AxisSelectionCanvas.css";
 import { Editor } from "utils/configEditor.js";
 
 const AxisSelectionCanvas = (props) => {
+  console.log(
+    "AxisSelectionCanvas yField",
+    props.yField,
+    "colorField",
+    props.colorField
+  );
   const x_options = props.fields_x.map((field) => ({
     value: field,
     label: field,
@@ -142,20 +148,31 @@ function Axes({ props, x_options, y_options, colorOptions }) {
           <Tooltip title="Select variable on vertical axis" followCursor>
             <InputLabel id="y-field-label">Y-field</InputLabel>
           </Tooltip>
-          <MuiSelect
-            labelId="y-field-label"
-            id="y-field"
-            sx={{ width: "9vw" }}
-            value={props.yField}
-            onChange={(event) => props.onYFieldChange(event.target.value)}
-            label="Y-field"
+
+          <Tooltip
+            title={
+              props.isClassView
+                ? "Y-field is locked to Lexplore Score in Class/Tenure View"
+                : ""
+            }
+            followCursor
           >
-            {y_options.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </MuiSelect>
+            <MuiSelect
+              labelId="y-field-label"
+              disabled={props.isClassView}
+              id="y-field"
+              sx={{ width: "9vw" }}
+              value={props.isClassView ? "Lexplore Score" : props.yField}
+              onChange={(event) => props.onYFieldChange(event.target.value)}
+              label="Y-field"
+            >
+              {y_options.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </MuiSelect>
+          </Tooltip>
         </FormControl>
       </div>
 
