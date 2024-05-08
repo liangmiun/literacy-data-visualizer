@@ -12,12 +12,12 @@ import {
   Select as MuiSelect,
 } from "@mui/material";
 import "assets/App.css";
-import * as d3 from "d3";
 import Tooltip from "@mui/material/Tooltip";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { grayTheme } from "assets/themes.js";
 import { EmptyCheckBoxBlankIcon } from "assets/themes.js";
 import { tenureSequenceTag } from "utils/tenureFormat.js";
+import { colors20 } from "utils/Utils";
 
 function SchoolTreeView(props) {
   const {
@@ -494,9 +494,9 @@ function ClassSequenceComponent({ props }) {
         />
         {paletteID === sequenceID && props.isClassView && (
           <div style={{ marginTop: "5px" }}>
-            {[0, 1].map((row) => (
+            {[0, 1, 2, 3].map((row) => (
               <div key={row} style={{ display: "flex" }}>
-                {d3.schemeCategory10
+                {colors20()
                   .slice(row * 5, (row + 1) * 5)
                   .map((paletteColor, index) => (
                     <div
@@ -634,9 +634,9 @@ function SingleYearClassComponent({ props }) {
         />
         {paletteID === yearlyClass && isClassView && (
           <div style={{ marginTop: "5px" }}>
-            {[0, 1].map((row) => (
+            {[0, 1, 2, 3].map((row) => (
               <div key={row} style={{ display: "flex" }}>
-                {d3.schemeCategory10
+                {colors20()
                   .slice(row * 5, (row + 1) * 5)
                   .map((paletteColor, index) => (
                     <div
