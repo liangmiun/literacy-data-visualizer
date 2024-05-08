@@ -1,6 +1,10 @@
 import React, { useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
-import { formatTickValue, aggrColorLegend } from "utils/Utils";
+import {
+  formatTickValue,
+  aggrColorLegend,
+  drawAverageReference,
+} from "utils/Utils";
 import * as AggregateUtils from "utils/AggregateUtils";
 import { plotMargin } from "utils/constants";
 
@@ -65,6 +69,7 @@ const AggregateCanvas = (props) => {
               showLines={props.showLines}
               connectIndividual={props.connectIndividual}
               triggerRenderByConfig={triggerRenderByConfig}
+              showAverageLine={props.showAverageLine}
             />
           )}
 
@@ -82,6 +87,7 @@ const AggregateCanvas = (props) => {
               showLines={props.showLines}
               connectIndividual={props.connectIndividual}
               triggerRenderByConfig={triggerRenderByConfig}
+              showAverageLine={props.showAverageLine}
             />
           )}
 
@@ -99,6 +105,7 @@ const AggregateCanvas = (props) => {
               showLines={props.showLines}
               connectIndividual={props.connectIndividual}
               triggerRenderByConfig={triggerRenderByConfig}
+              showAverageLine={props.showAverageLine}
             />
           )}
         </>
@@ -124,6 +131,7 @@ const ViolinPlots = (props) => {
     connectIndividual,
     dimensions,
     triggerRenderByConfig,
+    showAverageLine,
   } = props;
 
   useEffect(() => {
@@ -155,6 +163,8 @@ const ViolinPlots = (props) => {
       .append("g")
       .attr("id", "aggregate")
       .attr("clip-path", "url(#clip)");
+
+    if (showAverageLine) drawAverageReference(g, aggregate, yScale, dimensions);
 
     const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
 
@@ -301,6 +311,7 @@ const ViolinPlots = (props) => {
     connectIndividual,
     dimensions,
     triggerRenderByConfig,
+    showAverageLine,
   ]);
   return (
     <svg
@@ -329,6 +340,7 @@ const BoxPlots = (props) => {
     connectIndividual,
     dimensions,
     triggerRenderByConfig,
+    showAverageLine,
   } = props;
 
   // In your useEffect:
@@ -361,6 +373,8 @@ const BoxPlots = (props) => {
       .append("g")
       .attr("id", "aggregate")
       .attr("clip-path", "url(#clip)");
+
+    if (showAverageLine) drawAverageReference(g, aggregate, yScale, dimensions);
 
     const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
 
@@ -518,6 +532,7 @@ const BoxPlots = (props) => {
     connectIndividual,
     dimensions,
     triggerRenderByConfig,
+    showAverageLine,
   ]);
   return (
     <svg
@@ -546,6 +561,7 @@ const CirclePlots = (props) => {
     connectIndividual,
     dimensions,
     triggerRenderByConfig,
+    showAverageLine,
   } = props;
 
   useEffect(() => {
@@ -578,6 +594,8 @@ const CirclePlots = (props) => {
       .attr("id", "aggregate")
       .attr("clip-path", "url(#clip)");
 
+    if (showAverageLine) drawAverageReference(g, aggregate, yScale, dimensions);
+
     const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
 
     const bandedX = (d) => getBandedX(d, xMainBandScale, getSubBandScale);
@@ -605,8 +623,6 @@ const CirclePlots = (props) => {
       .on("click", function (event, d) {
         d3.selectAll(".circles").attr("stroke-width", 0);
         d3.select(this).attr("stroke", "black").attr("stroke-width", 3);
-
-        console.log("circle clicked", d.value.lastingclass);
 
         onCircleClick([
           {
@@ -690,7 +706,8 @@ const CirclePlots = (props) => {
     connectIndividual,
     dimensions,
     triggerRenderByConfig,
-  ]); //onBoxClick,
+    showAverageLine,
+  ]);
 
   return (
     <svg

@@ -10,12 +10,6 @@ import "assets/AxisSelectionCanvas.css";
 import { Editor } from "utils/configEditor.js";
 
 const AxisSelectionCanvas = (props) => {
-  console.log(
-    "AxisSelectionCanvas yField",
-    props.yField,
-    "colorField",
-    props.colorField
-  );
   const x_options = props.fields_x.map((field) => ({
     value: field,
     label: field,
@@ -277,18 +271,58 @@ function TrendBar({ props, trendOptions, handleTrendChange, trendToLabel }) {
 function ShowLinesToggle({ props }) {
   return (
     <div className="show-lines">
-      <input
-        type="checkbox"
-        checked={props.showLines}
-        onChange={() => props.setShowLines(!props.showLines)}
-      />
-
-      <Tooltip
-        title="Line-connect records from identical individuals"
-        followCursor
+      <div
+        style={{
+          width: "50%",
+          fontSize: 12,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          marginLeft: "0%",
+        }}
       >
-        <label> Show lines </label>
-      </Tooltip>
+        <div
+          style={{
+            display: "inline-flex",
+            margin: "10% 10%",
+            alignItems: "center",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={props.showLines}
+            onChange={(event) => props.setShowLines(event.target.checked)}
+          />
+
+          <Tooltip
+            title="Line-connect records from identical individuals"
+            followCursor
+          >
+            <label> Show lines </label>
+          </Tooltip>
+        </div>
+
+        <div
+          style={{
+            display: "inline-flex",
+            margin: "10% 10%",
+            alignItems: "center",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={props.showAverageLine}
+            onChange={(event) => props.setShowAverageLine(event.target.checked)}
+          />
+
+          <Tooltip
+            title="Show average Lexplore Score of all individuals in this municipality as reference line"
+            followCursor
+          >
+            <label> Show Municipal Average </label>
+          </Tooltip>
+        </div>
+      </div>
     </div>
   );
 }
@@ -337,7 +371,7 @@ function ClassViewBar({ props }) {
         <div
           className="aggregate-buttons-row"
           style={{
-            width: "70%",
+            width: "60%",
             display: "inline-flex",
             alignItems: "center",
             marginRight: "20px",

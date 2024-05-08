@@ -10,6 +10,7 @@ import { sequenceIDfromYearSchoolClass } from "../../utils/AggregateUtils";
 import {
   generateSchoolLastingClassMap,
   generateSchoolClassColorScale,
+  updateReferenceLexploreScore,
 } from "../../utils/Utils.js";
 import "assets/App.css";
 
@@ -52,6 +53,22 @@ const ScatterPage = (props) => {
   const [emptyFilterOptions, setEmptyFilterOptions] = useState({});
   const [tenureGroupOption, setTenureGroupOption] = useState("9-year tenure");
   const [wouldRenderByConfig, setWouldRenderByConfig] = useState(false);
+  const [showAverageLine, setShowAverageLine] = useState(false);
+
+  useEffect(() => {
+    const calculateMunicipalAverage = () => {
+      const nonNullLexploreData = data.filter(
+        (d) => d["Lexplore Score"] !== null
+      );
+      const averageLexplore = d3.mean(
+        nonNullLexploreData.map((d) => d["Lexplore Score"])
+      );
+      return averageLexplore;
+    };
+
+    const value = parseInt(calculateMunicipalAverage(), 10);
+    updateReferenceLexploreScore(value);
+  }, [data]);
 
   useEffect(() => {
     if (Object.keys(data).length > 0) {
@@ -410,6 +427,8 @@ const ScatterPage = (props) => {
         handleResetToLatest={props.handleResetToLatest}
         triggerRenderByConfigChange={triggerRenderByConfigChange}
         disableIndiLines={disableIndiLinesUnderMultipleSchools}
+        showAverageLine={showAverageLine}
+        setShowAverageLine={setShowAverageLine}
       />
 
       {isClassView ? (
@@ -426,6 +445,7 @@ const ScatterPage = (props) => {
           showLines={props.showLines}
           groupOption={tenureGroupOption}
           triggerRenderByConfig={wouldRenderByConfig}
+          showAverageLine={showAverageLine}
         />
       ) : (
         <ScatterCanvas
@@ -435,6 +455,7 @@ const ScatterPage = (props) => {
           colorField={props.colorField}
           setSelectedRecords={setClickedRecords}
           showLines={props.showLines}
+          showAverageLine={showAverageLine}
         />
       )}
 
