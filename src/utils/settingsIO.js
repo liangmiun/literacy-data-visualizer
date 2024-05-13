@@ -1,6 +1,7 @@
 import { csvParse } from "d3";
 import {
-  initial_preset,
+  initial_principal_preset,
+  initial_teacher_preset,
   latest_preset,
   updateLatestPreset,
 } from "../contents/InitialPreset.js";
@@ -109,9 +110,16 @@ export const handleFileUpload = (event, setters) => {
   }
 };
 
-export const handleResetToOnboarding = (configSetters) => {
+export const handleResetToOnboarding = (configSetters, userType) => {
   return () => {
-    handleResetToTarget(initial_preset, configSetters);
+    console.log("handleReset userType ", userType);
+    handleResetToTarget(
+      userType === "principal"
+        ? initial_principal_preset
+        : initial_teacher_preset,
+      configSetters
+    );
+    //handleResetToTarget(initial_preset, configSetters);
   };
 };
 
