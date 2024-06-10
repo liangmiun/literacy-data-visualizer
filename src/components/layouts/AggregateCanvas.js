@@ -749,7 +749,7 @@ function drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions) {
     .attr("x", innerAggrWidth / 2)
     .attr("dy", "1em")
     .style("text-anchor", "middle")
-    .text("Months of Testdatum");
+    .text("Periods of Testdatum");
 
   // Add the x-axis to the group element
   g.append("g")
