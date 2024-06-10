@@ -311,21 +311,12 @@ export function PreparePlotStructure(
   // Create an array of unique seasons
   const seasons = Array.from(
     new Set(sumstat.map((d) => d.value.season.toString()))
-  ); // d => d.key.split('-')[1]  d => d.value.season.toString()
+  );
 
   // Create a mapping of each season to its classes
-  const seasonToClasses = {};
-
-  seasons.forEach((season) => {
-    let classesForSeason = sumstat
-      .filter((d) => d.value.season === season)
-      .map((d) => d.value.lastingclass); // .class
-    classesForSeason.sort((a, b) => a.toString().localeCompare(b.toString()));
-    seasonToClasses[season] = classesForSeason;
-  });
-
   // Create a function to get the sub-band scale for classes within a given season
   function getSubBandScale(season) {
+    const seasonToClasses = getSeasonToClasses(seasons, sumstat);
     return d3
       .scaleBand()
       .padding(0.05) //0.05
@@ -336,7 +327,7 @@ export function PreparePlotStructure(
   // Create main band scale for seasons
   const xMainBandScale = d3
     .scaleBand()
-    .domain(seasons)
+    .domain(seasons) //seasons
     .range([0, dimensions.width - margin.left - margin.right])
     .paddingInner(0.2)
     .paddingOuter(0.2);
@@ -367,6 +358,54 @@ export function PreparePlotStructure(
     getSubBandScale,
     lastingClassGroups,
   };
+}
+
+export function PrepareTrajectoryData(
+  allData,
+  seasons,
+  yScale,
+  yField,
+  seasonField,
+  aggregateType,
+  sequenceType
+) {
+  const trajectoryData = setTrajectoryData(
+    allData,
+    "Bodals skola",
+    "6A",
+    "20/21"
+  );
+
+  const trajectorySumstat = setTrajectorySumStat(
+    trajectoryData,
+    yScale,
+    seasonField,
+    yField,
+    aggregateType,
+    sequenceType
+  );
+
+  const trajectorySeasons = Array.from(
+    new Set([
+      ...trajectorySumstat.map((d) => d.value.season.toString()),
+      ...seasons,
+    ])
+  );
+  trajectorySeasons.sort((a, b) => a.toString().localeCompare(b.toString()));
+
+  return { trajectorySumstat, trajectorySeasons };
+}
+
+export function getSeasonToClasses(seasons, sumstatIn) {
+  const seasonToClasses = {};
+  seasons.forEach((season) => {
+    let classesForSeason = sumstatIn
+      .filter((d) => d.value.season === season)
+      .map((d) => d.value.lastingclass); // .class
+    classesForSeason.sort((a, b) => a.toString().localeCompare(b.toString()));
+    seasonToClasses[season] = classesForSeason;
+  });
+  return seasonToClasses;
 }
 
 function setSumStat(
@@ -475,6 +514,149 @@ function setSumStat(
     });
   }
   return sumstat;
+}
+
+function setTrajectorySumStat(
+  trajectoryData,
+  yScale,
+  seasonField,
+  yField,
+  aggregateType,
+  sequenceType
+) {
+  const sumstat = [];
+  if (aggregateType === "violin") {
+    const histogram = d3
+      .bin()
+      .domain(yScale.domain())
+      .thresholds(yScale.ticks(30))
+      .value((d) => d);
+    const grouped = d3.group(
+      trajectoryData,
+      (d) => Season(d.Testdatum, seasonField),
+      (d) => d.Skola,
+      (d) => d.Klass
+    );
+    grouped.forEach((seasonGroup, seasonKey) => {
+      seasonGroup.forEach((schoolGroup, schoolKey) => {
+        schoolGroup.forEach((values, klassKey) => {
+          const input = values.map((g) => g[yField]);
+          const bins = histogram(input);
+          const bin_values = bins.flatMap((bin) => bin.slice(0, bin.length));
+          const sortedValues = bin_values.sort(d3.ascending);
+          const q1 = d3.quantile(sortedValues, 0.25);
+          const median = d3.quantile(sortedValues, 0.5);
+          const q3 = d3.quantile(sortedValues, 0.75);
+          const interQuantileRange = q3 - q1;
+          const min = q1 - 1.5 * interQuantileRange;
+          const max = q3 + 1.5 * interQuantileRange;
+
+          sumstat.push({
+            key: `${klassKey}-${seasonKey}`,
+            value: {
+              lastingclass: getLastingSequenceID(
+                schoolKey,
+                seasonKey,
+                klassKey,
+                sequenceType
+              ),
+              season: seasonKey,
+              school: schoolKey,
+              class: klassKey,
+              bins: bins,
+              q1: q1,
+              median: median,
+              q3: q3,
+              interQuantileRange: interQuantileRange,
+              min: min,
+              max: max,
+              count: sortedValues.length,
+            },
+          });
+        });
+      });
+    });
+  } else {
+    const grouped = d3.group(
+      trajectoryData.data,
+      function (d) {
+        //console.log("build trajectorySumStat d.Testdatum", d.Testdatum, d);
+        return Season(d.Testdatum, seasonField);
+      }
+      // (d) => d.Skola,
+      // (d) => d.Klass
+    ); //d => Season(d.Testdatum)
+    grouped.forEach((values, seasonKey) => {
+      // seasonGroup.forEach((schoolGroup, schoolKey) => {
+      //   schoolGroup.forEach((values, classKey) => {
+      const sortedValues = values.map((g) => g[yField]).sort(d3.ascending);
+      const q1 = d3.quantile(sortedValues, 0.25);
+      const median = d3.quantile(sortedValues, 0.5);
+      const q3 = d3.quantile(sortedValues, 0.75);
+      const interQuantileRange = q3 - q1;
+      const min = q1 - 1.5 * interQuantileRange;
+      const max = q3 + 1.5 * interQuantileRange;
+
+      const trajectoryClass = `${trajectoryData.className}-${trajectoryData.schoolYear}-trajectory`;
+
+      console.log("trajectoryClass", trajectoryClass);
+
+      sumstat.push({
+        key: `${trajectoryData.className}-${seasonKey}`,
+        value: {
+          lastingclass: getLastingSequenceID(
+            trajectoryData.school,
+            seasonKey,
+            trajectoryData.className,
+            sequenceType
+          ),
+          school: trajectoryData.school,
+          class: trajectoryClass,
+          season: seasonKey,
+          q1: q1,
+          median: median,
+          q3: q3,
+          interQuantileRange: interQuantileRange,
+          min: min,
+          max: max,
+          count: sortedValues.length,
+        },
+      });
+      //   });
+      // });
+    });
+  }
+  return sumstat;
+}
+
+function setTrajectoryData(data, school, className, schoolYear) {
+  const mappedIDs = data
+    .filter((d) => {
+      // Log the schoolYear of the current item being processed
+      //console.log("schoolYear", d.Läsår, schoolYear);
+
+      // Continue with the existing filter condition
+      return (
+        d.Skola === school && d.Klass === className && d.Läsår === schoolYear
+      );
+    })
+    .map((d) => d.ElevID);
+
+  const trajectoryIDs = Array.from(new Set(mappedIDs));
+  console.log("trajectoryIDs", trajectoryIDs.length, trajectoryIDs);
+
+  const trajectoryData = data.filter(
+    (d) =>
+      trajectoryIDs.includes(d.ElevID) &&
+      d.Läsår !== schoolYear &&
+      d.Testdatum !== null
+  );
+  return {
+    data: trajectoryData,
+    school: school,
+    className: className,
+    schoolYear: schoolYear,
+  };
 }
 
 export function createAggrZoomBehavior(
@@ -788,7 +970,8 @@ export function init_ZoomSetting(
   newXScaleRef,
   newYScaleRef,
   getSubBandScale,
-  subBandCount
+  subBandCount,
+  sumstat
 ) {
   //const zoomState = event.transform;
   const zoomXScale = rescale(xScale, zoomState, xType, "x");
@@ -801,7 +984,7 @@ export function init_ZoomSetting(
   function zoomedX(d) {
     const season = d.value.season.toString();
     const clazz = d.value.lastingclass.toString();
-    const x1 = getSubBandScale(season); // Get x1 scale for the current season
+    const x1 = getSubBandScale(season, sumstat); // Get x1 scale for the current season
     const value = zoomXScale(season) + x1(clazz) * zoomState.k; //zoomXScale(season) + x1(clazz)
     return isNaN(value) ? 0 : value;
   }
@@ -877,7 +1060,8 @@ export function presentLines(
   y,
   subBandWidth,
   classColors,
-  sequenceType
+  sequenceType,
+  sumstat
 ) {
   if (showLines) {
     lastingClassGroups.forEach((values, lastingClassKey) => {
@@ -889,13 +1073,13 @@ export function presentLines(
           .attr("x1", () => {
             const season = startPoint.value.season.toString();
             const clazz = startPoint.value.lastingclass.toString();
-            const x1 = getSubBandScale(season);
+            const x1 = getSubBandScale(season, sumstat);
             return x0(season) + x1(clazz) + subBandWidth / 2;
           })
           .attr("x2", () => {
             const season = endPoint.value.season.toString();
             const clazz = endPoint.value.lastingclass.toString();
-            const x1 = getSubBandScale(season);
+            const x1 = getSubBandScale(season, sumstat);
             return x0(season) + x1(clazz) + subBandWidth / 2;
           })
           .attr("y1", y(startPoint.value.median))

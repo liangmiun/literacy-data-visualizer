@@ -433,6 +433,7 @@ const ScatterPage = (props) => {
 
       {isClassView ? (
         <AggregateCanvas
+          allData={data}
           shownData={shownData}
           selectedClasses={selectedClasses}
           seasonField={props.seasonField}

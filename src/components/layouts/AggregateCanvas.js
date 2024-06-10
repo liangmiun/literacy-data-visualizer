@@ -57,6 +57,7 @@ const AggregateCanvas = (props) => {
         <>
           {props.aggregateType === "violin" && (
             <ViolinPlots
+              allData={props.allData}
               shownData={props.shownData}
               seasonField={props.seasonField}
               yField={props.yField}
@@ -75,6 +76,7 @@ const AggregateCanvas = (props) => {
 
           {props.aggregateType === "box" && (
             <BoxPlots
+              allData={props.allData}
               shownData={props.shownData}
               seasonField={props.seasonField}
               yField={props.yField}
@@ -93,6 +95,7 @@ const AggregateCanvas = (props) => {
 
           {props.aggregateType === "circle" && (
             <CirclePlots
+              allData={props.allData}
               shownData={props.shownData}
               seasonField={props.seasonField}
               yField={props.yField}
@@ -106,6 +109,7 @@ const AggregateCanvas = (props) => {
               connectIndividual={props.connectIndividual}
               triggerRenderByConfig={triggerRenderByConfig}
               showAverageLine={props.showAverageLine}
+              selectedClasses={selectedClasses}
             />
           )}
         </>
@@ -545,10 +549,12 @@ const BoxPlots = (props) => {
 };
 
 const CirclePlots = (props) => {
+  const [shownDataLoaded, setShownDataLoaded] = useState(false);
   const svgRef = useRef();
   const newXScaleRef = useRef(null);
   const newYScaleRef = useRef(null);
   const {
+    allData,
     shownData,
     groupOption,
     seasonField,
@@ -565,134 +571,239 @@ const CirclePlots = (props) => {
   } = props;
 
   useEffect(() => {
-    const subBandCount = checkedClasses.length > 0 ? checkedClasses.length : 1;
+    if (shownData.length > 0) {
+      setShownDataLoaded(true);
+    }
+  }, [shownData]);
 
-    const {
-      svg,
-      g,
-      sumstat,
-      yScale,
-      xMainBandScale,
-      xAxis,
-      getSubBandScale,
-      lastingClassGroups,
-    } = AggregateUtils.PreparePlotStructure(
-      svgRef,
-      shownData,
-      seasonField,
-      yField,
-      "box",
-      plotMargin,
-      dimensions,
-      groupOption
-    );
+  useEffect(() => {
+    if (shownDataLoaded) {
+      const subBandCount =
+        checkedClasses.length > 0 ? checkedClasses.length : 1;
 
-    drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions);
-
-    const aggregate = g
-      .append("g")
-      .attr("id", "aggregate")
-      .attr("clip-path", "url(#clip)");
-
-    if (showAverageLine) drawAverageReference(g, aggregate, yScale, dimensions);
-
-    const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
-
-    const bandedX = (d) => getBandedX(d, xMainBandScale, getSubBandScale);
-
-    aggregate
-      .selectAll(".circles") //'.circles'
-      .data(sumstat)
-      .enter()
-      .append("circle")
-      .attr("class", "circles")
-      .attr("cx", function (d) {
-        return bandedX(d) + subBandWidth / 2;
-      })
-      .attr("cy", (d) => yScale(d.value.median))
-      .attr("r", 6)
-      .attr("fill", (d) => {
-        const sequenceID = AggregateUtils.getLastingSequenceID(
-          d.value.school,
-          d.value.season,
-          d.value.class,
-          groupOption
-        );
-        return classColors[d.value.school][sequenceID];
-      })
-      .on("click", function (event, d) {
-        d3.selectAll(".circles").attr("stroke-width", 0);
-        d3.select(this).attr("stroke", "black").attr("stroke-width", 3);
-
-        onCircleClick([
-          {
-            // lastingclass: d.value.lastingclass,
-            school: d.value.school,
-            class: d.value.class,
-            season: d.value.season,
-            min: parseInt(d.value.min, 10),
-            max: parseInt(d.value.max, 10),
-            median: parseInt(d.value.median, 10),
-            q1: parseInt(d.value.q1, 10),
-            q3: parseInt(d.value.q3, 10),
-            count: parseInt(d.value.count, 10),
-          },
-        ]);
-      });
-
-    AggregateUtils.presentLines(
-      showLines,
-      lastingClassGroups,
-      aggregate,
-      xMainBandScale,
-      getSubBandScale,
-      yScale,
-      subBandWidth,
-      classColors,
-      groupOption
-    );
-
-    if (studentsChecked) {
-      AggregateUtils.PresentIndividuals(
+      const {
+        svg,
+        g,
+        sumstat,
+        yScale,
+        xMainBandScale,
+        xAxis,
+        getSubBandScale,
+        lastingClassGroups,
+        seasons,
+      } = AggregateUtils.PreparePlotStructure(
+        svgRef,
         shownData,
         seasonField,
         yField,
+        "circle",
+        plotMargin,
+        dimensions,
+        groupOption
+      );
+
+      const { trajectorySumstat, trajectorySeasons } =
+        AggregateUtils.PrepareTrajectoryData(
+          allData,
+          seasons,
+          yScale,
+          yField,
+          seasonField,
+          "circle",
+          groupOption
+        );
+
+      xMainBandScale.domain(trajectorySeasons);
+
+      drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions);
+
+      const aggregate = g
+        .append("g")
+        .attr("id", "aggregate")
+        .attr("clip-path", "url(#clip)");
+
+      if (showAverageLine)
+        drawAverageReference(g, aggregate, yScale, dimensions);
+
+      const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
+
+      const bandedX = (d) => getBandedX(d, xMainBandScale, getSubBandScale);
+
+      aggregate
+        .selectAll(".circles")
+        .data(sumstat)
+        .enter()
+        .append("circle")
+        .attr("class", "circles")
+        .attr("cx", function (d) {
+          return bandedX(d) + subBandWidth / 2;
+        })
+        .attr("cy", (d) => yScale(d.value.median))
+        .attr("r", 6)
+        .attr("fill", (d) => {
+          const sequenceID = AggregateUtils.getLastingSequenceID(
+            d.value.school,
+            d.value.season,
+            d.value.class,
+            groupOption
+          );
+          return classColors[d.value.school][sequenceID];
+        })
+        .attr("stroke", (d) => {
+          const sequenceID = AggregateUtils.getLastingSequenceID(
+            d.value.school,
+            d.value.season,
+            d.value.class,
+            groupOption
+          );
+          return classColors[d.value.school][sequenceID];
+        }) // Setting the stroke color to black
+        .attr("stroke-width", 2) // Setting the stroke width to 2 pixels
+        .on("click", function (event, d) {
+          d3.selectAll(".circles").attr("stroke-width", 0);
+          d3.select(this).attr("stroke", "black").attr("stroke-width", 3);
+          console.log(d.value.lastingclass, d.value.class);
+          onCircleClick([
+            {
+              // lastingclass: d.value.lastingclass,
+              school: d.value.school,
+              class: d.value.class,
+              season: d.value.season,
+              min: parseInt(d.value.min, 10),
+              max: parseInt(d.value.max, 10),
+              median: parseInt(d.value.median, 10),
+              q1: parseInt(d.value.q1, 10),
+              q3: parseInt(d.value.q3, 10),
+              count: parseInt(d.value.count, 10),
+            },
+          ]);
+        });
+
+      if (groupOption === "school-year") {
+        const trajectoryBandedX = (d, sumstatInput) => {
+          function getTrajectorySubBandScale(season, sumstatInput) {
+            const seasons = Array.from(
+              new Set(sumstatInput.map((d) => d.value.season.toString()))
+            );
+            const seasonToClasses = AggregateUtils.getSeasonToClasses(
+              seasons,
+              sumstatInput
+            );
+            return d3
+              .scaleBand()
+              .padding(0.05) //0.05
+              .domain(seasonToClasses[season])
+              .range([0, xMainBandScale.bandwidth()]);
+          }
+
+          function getTrajectoryBandedX(d, xMain, sumstatInput) {
+            const season = d.value.season.toString();
+            const clazz = d.value.lastingclass.toString(); //.class
+            const xSub = getTrajectorySubBandScale(season, sumstatInput); // Get x1 scale for the current season
+            return xMain(season) + xSub(clazz);
+          }
+
+          return getTrajectoryBandedX(d, xMainBandScale, sumstatInput);
+        };
+
+        aggregate
+          .selectAll(".hollow-circles")
+          .data(trajectorySumstat)
+          .enter()
+          .append("circle")
+          .attr("class", "hollow-circles")
+          .attr("cx", function (d) {
+            return trajectoryBandedX(d, trajectorySumstat) + subBandWidth / 2;
+          })
+          .attr("cy", (d) => yScale(d.value.median))
+          .attr("r", 6)
+          .attr("fill", "white")
+          .attr("stroke", (d) => {
+            const sequenceID = AggregateUtils.getLastingSequenceID(
+              d.value.school,
+              d.value.season,
+              d.value.class,
+              groupOption
+            );
+            return classColors[d.value.school][sequenceID];
+            //return "black";
+          }) // Setting the stroke color to black
+          .attr("stroke-width", 2) // Setting the stroke width to 2 pixels
+          .on("click", function (event, d) {
+            d3.selectAll(".hollow-circles").attr("stroke-width", 2);
+            d3.select(this).attr("stroke", "black").attr("stroke-width", 3);
+            console.log(d.value.lastingclass, d.value.class);
+            onCircleClick([
+              {
+                // lastingclass: d.value.lastingclass,
+                school: d.value.school,
+                class: d.value.class,
+                season: d.value.season,
+                min: parseInt(d.value.min, 10),
+                max: parseInt(d.value.max, 10),
+                median: parseInt(d.value.median, 10),
+                q1: parseInt(d.value.q1, 10),
+                q3: parseInt(d.value.q3, 10),
+                count: parseInt(d.value.count, 10),
+              },
+            ]);
+          });
+      }
+
+      AggregateUtils.presentLines(
+        showLines,
+        lastingClassGroups,
         aggregate,
         xMainBandScale,
         getSubBandScale,
         yScale,
         subBandWidth,
-        connectIndividual,
         classColors,
         groupOption
       );
+
+      if (studentsChecked) {
+        AggregateUtils.PresentIndividuals(
+          shownData,
+          seasonField,
+          yField,
+          aggregate,
+          xMainBandScale,
+          getSubBandScale,
+          yScale,
+          subBandWidth,
+          connectIndividual,
+          classColors,
+          groupOption
+        );
+      }
+
+      setAggregationZoom(
+        "circle",
+        svg,
+        g,
+        xMainBandScale,
+        yScale,
+        yField,
+        xAxis,
+        getSubBandScale,
+        newXScaleRef,
+        newYScaleRef,
+        studentsChecked,
+        subBandCount,
+        connectIndividual,
+        null
+      );
+
+      aggrColorLegend(
+        checkedClasses,
+        classColors,
+        svg,
+        dimensions.width - plotMargin.right,
+        plotMargin,
+        groupOption
+      );
     }
-
-    setAggregationZoom(
-      "circle",
-      svg,
-      g,
-      xMainBandScale,
-      yScale,
-      yField,
-      xAxis,
-      getSubBandScale,
-      newXScaleRef,
-      newYScaleRef,
-      studentsChecked,
-      subBandCount,
-      connectIndividual,
-      null
-    );
-
-    aggrColorLegend(
-      checkedClasses,
-      classColors,
-      svg,
-      dimensions.width - plotMargin.right,
-      plotMargin,
-      groupOption
-    );
   }, [
     shownData,
     groupOption,
@@ -707,6 +818,8 @@ const CirclePlots = (props) => {
     dimensions,
     triggerRenderByConfig,
     showAverageLine,
+    allData,
+    shownDataLoaded,
   ]);
 
   return (
