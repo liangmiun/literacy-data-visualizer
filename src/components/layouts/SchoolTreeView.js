@@ -258,6 +258,8 @@ function SchoolComponent({ props }) {
     }
   }
 
+  //console.log("sortedSequenceEntries ", sortedSequenceEntries);
+
   return (
     <div id={school} style={{ display: "flex", alignItems: "flex-start" }}>
       <ThemeProvider
@@ -278,7 +280,19 @@ function SchoolComponent({ props }) {
 
       <TreeItem
         nodeId={school}
-        label={<div className="school-tree-label">{school}</div>}
+        label={
+          <div className="school-tree-label">
+            {`${school}\t${sortedSequenceEntries.reduce(
+              (acc, entry) =>
+                acc +
+                entry[1].classes.reduce(
+                  (innerAcc, classItem) => innerAcc + classItem.studentIDs.size,
+                  0
+                ),
+              0
+            )}`}
+          </div>
+        }
         key={school}
       >
         {sortedSequenceEntries.map(([sequenceID, classes], cIdx) => (
@@ -295,9 +309,10 @@ function SchoolComponent({ props }) {
                 schoolYear: item.Läsår,
                 class: item.Klass,
               })),
-              classesInSequence: classes.classes.map(
-                (item) => item.Läsår + "-" + item.Klass
-              ),
+              classesInSequence: classes.classes.map((item) => ({
+                classID: item.Läsår + "-" + item.Klass,
+                studentIDCount: item.studentIDs.size,
+              })),
               setPaletteID,
               paletteID,
               handleColorChange,
@@ -456,26 +471,34 @@ function ClassSequenceComponent({ props }) {
       </ThemeProvider>
       <TreeItem
         nodeId={`classSequence-${sequenceID}`}
-        label={<div className="school-tree-label">{sequenceTag}</div>}
+        label={
+          <div className="school-tree-label">
+            {`${sequenceTag}\t${Object.values(classesInSequence).reduce(
+              (acc, item) => acc + item.studentIDCount,
+              0
+            )}`}
+          </div>
+        }
         key={sequenceID}
       >
         {!["school-year", "trajectory"].includes(groupOption) &&
-          Object.values(classesInSequence).map((yearlyClass) => (
+          Object.values(classesInSequence).map((item) => (
             <SingleYearClassComponent
-              key={`${school}-${yearlyClass}`}
-              id={`${school}-${yearlyClass}`}
+              key={`${school}-${item.classID}`}
+              id={`${school}-${item.classID}`}
               props={{
                 school,
                 selectedClasses,
                 setSelectedClasses,
                 handleYearlyClassCheckChange,
-                yearlyClass,
+                yearlyClass: item.classID,
                 setPaletteID,
                 paletteID,
                 handleColorChange,
                 isClassView,
                 classColors,
                 emptyFilterOptions: props.emptyFilterOptions,
+                classIDCount: item.studentIDCount,
               }}
             />
           ))}
@@ -534,6 +557,7 @@ function SingleYearClassComponent({ props }) {
     isClassView,
     classColors,
     emptyFilterOptions,
+    classIDCount,
   } = props;
 
   const [isClassChecked, setIsClassChecked] = useState(false);
@@ -614,7 +638,7 @@ function SingleYearClassComponent({ props }) {
               />
             </ThemeProvider>
             {/* <Tooltip title={transformClassTooltip(yearlyClass)} followCursor>        */}
-            <label>{yearlyClass}</label>
+            <label>{yearlyClass + " " + classIDCount}</label>
             {/* </Tooltip> */}
           </div>
         }

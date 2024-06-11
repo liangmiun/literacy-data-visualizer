@@ -172,7 +172,15 @@ export function generateSchoolLastingClassMap(litData, sequenceType) {
       schoolMap[school][sequenceID].classes.push({
         Läsår: entry.Läsår,
         Klass: entry.Klass,
+        studentIDs: new Set([entry.ElevID]),
       });
+    } else {
+      const thisClassIndex = schoolMap[school][sequenceID].classes.findIndex(
+        (klass) => klass.Klass === entry.Klass
+      );
+      schoolMap[school][sequenceID].classes[thisClassIndex].studentIDs.add(
+        entry.ElevID
+      );
     }
   });
 
