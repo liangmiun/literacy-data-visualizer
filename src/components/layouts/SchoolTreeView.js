@@ -40,6 +40,7 @@ function SchoolTreeView(props) {
     "9-year tenure",
     "3-year tenure",
     "school-year",
+    "trajectory",
   ]);
   //const [ groupOption, setGroupOption] = useState('9-year tenure');
 
@@ -458,7 +459,7 @@ function ClassSequenceComponent({ props }) {
         label={<div className="school-tree-label">{sequenceTag}</div>}
         key={sequenceID}
       >
-        {groupOption !== "school-year" &&
+        {!["school-year", "trajectory"].includes(groupOption) &&
           Object.values(classesInSequence).map((yearlyClass) => (
             <SingleYearClassComponent
               key={`${school}-${yearlyClass}`}

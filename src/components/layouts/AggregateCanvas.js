@@ -568,6 +568,7 @@ const CirclePlots = (props) => {
     dimensions,
     triggerRenderByConfig,
     showAverageLine,
+    selectedClasses,
   } = props;
 
   useEffect(() => {
@@ -602,18 +603,23 @@ const CirclePlots = (props) => {
         groupOption
       );
 
-      const { trajectorySumstat, trajectorySeasons } =
-        AggregateUtils.PrepareTrajectoryData(
-          allData,
-          seasons,
-          yScale,
-          yField,
-          seasonField,
-          "circle",
-          groupOption
-        );
+      const toTrackTrajectory =
+        groupOption === "trajectory" && selectedClasses.length > 0;
 
-      xMainBandScale.domain(trajectorySeasons);
+      const { trajectorySumstat, trajectorySeasons } = toTrackTrajectory
+        ? AggregateUtils.PrepareTrajectoryData(
+            allData,
+            seasons,
+            yScale,
+            yField,
+            seasonField,
+            "circle",
+            groupOption,
+            selectedClasses[0]
+          )
+        : { trajectorySumstat: [], trajectorySeasons: [] };
+
+      xMainBandScale.domain(toTrackTrajectory ? trajectorySeasons : seasons);
 
       drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions);
 
@@ -679,7 +685,7 @@ const CirclePlots = (props) => {
           ]);
         });
 
-      if (groupOption === "school-year") {
+      if (toTrackTrajectory) {
         const trajectoryBandedX = (d, sumstatInput) => {
           function getTrajectorySubBandScale(season, sumstatInput) {
             const seasons = Array.from(
@@ -718,14 +724,21 @@ const CirclePlots = (props) => {
           .attr("cy", (d) => yScale(d.value.median))
           .attr("r", 6)
           .attr("fill", "white")
-          .attr("stroke", (d) => {
-            const sequenceID = AggregateUtils.getLastingSequenceID(
-              d.value.school,
-              d.value.season,
-              d.value.class,
+          .attr("stroke", () => {
+            // const sequenceID = AggregateUtils.getLastingSequenceID(
+            //   d.value.school,
+            //   d.value.season,
+            //   d.value.class,
+            //   groupOption
+            // );
+            const item = selectedClasses[0];
+            const sequenceID = AggregateUtils.sequenceIDfromYearSchoolClass(
+              parseInt(item.schoolYear.split("/")[0]),
+              item.school,
+              item.class,
               groupOption
             );
-            return classColors[d.value.school][sequenceID];
+            return classColors[item.school][sequenceID];
             //return "black";
           }) // Setting the stroke color to black
           .attr("stroke-width", 2) // Setting the stroke width to 2 pixels
@@ -820,6 +833,7 @@ const CirclePlots = (props) => {
     showAverageLine,
     allData,
     shownDataLoaded,
+    selectedClasses,
   ]);
 
   return (

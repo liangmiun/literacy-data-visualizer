@@ -367,13 +367,14 @@ export function PrepareTrajectoryData(
   yField,
   seasonField,
   aggregateType,
-  sequenceType
+  sequenceType,
+  anchorClass
 ) {
   const trajectoryData = setTrajectoryData(
     allData,
-    "Bodals skola",
-    "6A",
-    "20/21"
+    anchorClass.school,
+    anchorClass.class,
+    anchorClass.schoolYear
   );
 
   const trajectorySumstat = setTrajectorySumStat(
@@ -384,6 +385,15 @@ export function PrepareTrajectoryData(
     aggregateType,
     sequenceType
   );
+
+  // console.log(
+  //   "trajectorySumstat",
+  //   trajectorySumstat,
+  //   "trajectoryData",
+  //   trajectoryData,
+  //   "anchorClass",
+  //   anchorClass
+  // );
 
   const trajectorySeasons = Array.from(
     new Set([

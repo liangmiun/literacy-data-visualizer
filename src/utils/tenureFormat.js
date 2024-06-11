@@ -20,6 +20,8 @@ export function tenureSequenceTag(sequenceID, groupOption) {
     tenureFinalGrade = tenureInitialGrade + 2;
   } else if (groupOption === "school-year") {
     return latestYearClass;
+  } else if (groupOption === "trajectory") {
+    return latestYearClass;
   }
 
   const schoolEntryYear = latestYear - latestGrade + 1;
