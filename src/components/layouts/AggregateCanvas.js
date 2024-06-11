@@ -725,12 +725,6 @@ const CirclePlots = (props) => {
           .attr("r", 6)
           .attr("fill", "white")
           .attr("stroke", () => {
-            // const sequenceID = AggregateUtils.getLastingSequenceID(
-            //   d.value.school,
-            //   d.value.season,
-            //   d.value.class,
-            //   groupOption
-            // );
             const item = selectedClasses[0];
             const sequenceID = AggregateUtils.sequenceIDfromYearSchoolClass(
               parseInt(item.schoolYear.split("/")[0]),
