@@ -6,7 +6,10 @@ import ScatterCanvas from "../layouts/ScatterCanvas";
 import DetailCanvas from "../layouts/DetailCanvas";
 import FilterCanvas from "../layouts/FilterCanvas";
 import LogicCanvas from "../layouts/LogicCanvas";
-import { sequenceIDfromYearSchoolClass } from "../../utils/AggregateUtils";
+import {
+  sequenceIDfromYearSchoolClass,
+  getMonthFromDate,
+} from "../../utils/AggregateUtils";
 import {
   generateSchoolLastingClassMap,
   generateSchoolClassColorScale,
@@ -63,11 +66,27 @@ const ScatterPage = (props) => {
       const averageLexplore = d3.mean(
         nonNullLexploreData.map((d) => d["Lexplore Score"])
       );
-      return averageLexplore;
+
+      const monthlyGroups = d3.group(
+        nonNullLexploreData,
+        (d) => d.Testdatum.getFullYear() + "-" + d.Testdatum.getMonth()
+      );
+
+      const meanScores = Array.from(monthlyGroups, ([key, values]) => {
+        const mean = parseInt(d3.mean(values, (d) => d["Lexplore Score"], 10));
+        return {
+          date: new Date(key.split("-")[0], key.split("-")[1], 1),
+          meanScore: mean,
+        };
+      });
+      console.log("meanScores", meanScores, monthlyGroups);
+      //return averageLexplore;
+      return meanScores;
     };
 
     const value = parseInt(calculateMunicipalAverage(), 10);
-    updateReferenceLexploreScore(value);
+    //updateReferenceLexploreScore(value);
+    updateReferenceLexploreScore(calculateMunicipalAverage());
   }, [data]);
 
   useEffect(() => {

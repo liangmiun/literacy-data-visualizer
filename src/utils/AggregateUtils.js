@@ -150,7 +150,7 @@ function getQuarterFromDate(dateObject) {
   }
 }
 
-function getMonthFromDate(dateObject) {
+export function getMonthFromDate(dateObject) {
   return dateObject.getMonth() + 1;
 }
 

@@ -6,10 +6,13 @@ export const parseDate = (rawDateInput) =>
   d3.timeParse("%y%m%d")(parseInt(rawDateInput));
 
 export function updateReferenceLexploreScore(newReference) {
-  referenceLexploreScore = newReference;
+  //referenceLexploreScore = newReference;
+  meanScores = newReference;
 }
 
 var referenceLexploreScore = 350;
+
+var meanScores = [];
 
 export function drawAverageReference(g, collection, yScale, dimensions) {
   // After setting up scales and axes, draw the reference line
@@ -34,6 +37,43 @@ export function drawAverageReference(g, collection, yScale, dimensions) {
     .attr("stroke-dasharray", "5,5"); // Optional: makes the line dashed (5 pixels filled, 5 pixels empty)
 }
 
+export function drawAverageTemporalLines(
+  g,
+  collection,
+  xScale,
+  yScale,
+  dimensions
+) {
+  const line = d3
+    .line()
+    .x((d) => xScale(getStrValue(d.date, "time")))
+    .y((d) => yScale(getStrValue(d.meanScore, "linear")));
+
+  g.append("text") // Adding the text to the main group element
+    .attr("x", dimensions.width - 120) // Position the text at the right edge of the plot area
+    .attr("y", yScale(referenceLexploreScore)) // Align the text vertically with the reference line
+    .attr("dy", "0.35em") // Slightly adjust the text position for better visual alignment with the line
+    .attr("text-anchor", "end") // Anchor text at the end to align it properly at the right edge
+    .text("Municipal Average") // Text content
+    .attr("fill", "gray") // Text color
+    .attr("font-size", "12px"); // Text size
+
+  console.log("draw temporal, meanScores", meanScores);
+
+  collection
+    .selectAll(".reference-line-path")
+    .data([Array.from(meanScores)]) //.values()
+    .enter()
+    .append("path")
+    .attr("class", "reference-line-path")
+    .attr("d", (d) => {
+      return line(d);
+    })
+    .attr("fill", "none")
+    .attr("stroke", "rgba(128, 128, 128, 0.6)")
+    .attr("stroke-width", 8);
+}
+
 export const formatDate = d3.timeFormat("%y-%m-%d");
 
 export function formatTickValue(d, field) {
@@ -46,6 +86,14 @@ export function formatTickValue(d, field) {
 
 export function isDateFieldString(field) {
   return field === "Födelsedatum" || field === "Testdatum";
+}
+
+export function getStrValue(value, type) {
+  if (type === "point") {
+    // point type is categorical and numeric value is converted to string
+    return value + "";
+  }
+  return value;
 }
 
 export const data_fields = [

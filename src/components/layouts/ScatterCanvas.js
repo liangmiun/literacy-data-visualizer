@@ -10,6 +10,8 @@ import {
   setColorOption,
   fieldDomainTocolorScale,
   drawAverageReference,
+  drawAverageTemporalLines,
+  getStrValue,
 } from "utils/Utils";
 import { plotMargin } from "utils/constants";
 
@@ -99,7 +101,9 @@ const ScatterCanvas = React.memo(
         .attr("id", "scatter")
         .attr("clip-path", "url(#clip)");
 
-      drawAverageReference(g, scatter, yScale, dimensions);
+      //drawAverageReference(g, scatter, yScale, dimensions);
+
+      drawAverageTemporalLines(g, scatter, xScale, yScale, dimensions);
 
       const xAxis = d3.axisBottom(xScale);
       const yAxis = d3.axisLeft(yScale);
@@ -167,6 +171,12 @@ const ScatterCanvas = React.memo(
         //  Sort data in each group by xField
         elevIDGroups.forEach((values) =>
           values.sort((a, b) => d3.ascending(a[xField], b[xField]))
+        );
+
+        console.log(
+          "elevIDGroups",
+          Array.from(elevIDGroups.values()),
+          elevIDGroups
         );
 
         //Draw lines
@@ -565,14 +575,6 @@ function zoomRender(
   } else {
     yAxisGroup.call(yAxis.scale(zoomYScale));
   }
-}
-
-function getStrValue(value, type) {
-  if (type === "point") {
-    // point type is categorical and numeric value is converted to string
-    return value + "";
-  }
-  return value;
 }
 
 export default ScatterCanvas;
