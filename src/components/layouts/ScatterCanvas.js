@@ -7,7 +7,8 @@ import {
   categoricals,
   translateExtentStartEnd,
   isDateFieldString,
-  colors20,
+  setColorOption,
+  fieldDomainTocolorScale,
   drawAverageReference,
 } from "utils/Utils";
 import { plotMargin } from "utils/constants";
@@ -81,10 +82,12 @@ const ScatterCanvas = React.memo(
         true
       );
       const colorDomain = Array.from(
-        new Set(shownData.map((d) => d[colorField]))
+        new Set(shownData.map((d) => setColorOption(d, colorField)))
       );
+
       colorDomain.sort();
-      const colorScale = d3.scaleOrdinal(colors20()).domain(colorDomain);
+
+      const colorScale = fieldDomainTocolorScale(colorField, colorDomain);
 
       const g = svg
         .append("g")
@@ -195,7 +198,7 @@ const ScatterCanvas = React.memo(
           .attr("cy", (d) => yScale(getStrValue(d[yField], yType)))
           .attr("r", 3) //d => selectedCircles.includes(d) ? 9 : 3
           .attr("fill", (d) => {
-            return colorScale(d[colorField]);
+            return colorScale(setColorOption(d, colorField));
           })
           .on("click", function (event, d) {
             if (!brushing) {

@@ -128,6 +128,12 @@ const App = () => {
         const bytes = CryptoJS.AES.decrypt(encryptedData, encryptKey); // Replace with encryptKey
         const originalData = bytes.toString(CryptoJS.enc.Utf8);
         const parsedData = csvParse(originalData, rowParser);
+        console.log(
+          "parsedData length: ",
+          parsedData.length,
+          "encryptedData length: ",
+          encryptedData.length
+        );
         setData(parsedData);
         setLogicFilteredtData(parsedData);
         onResetToOnboardingRef.current();

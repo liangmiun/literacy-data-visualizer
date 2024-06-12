@@ -18,9 +18,16 @@ const AxisSelectionCanvas = (props) => {
     value: field,
     label: field,
   }));
-  const colorOptions = ["Skola", "Årskurs", "Klass", "Läsår", "Stanine"].map(
-    (field) => ({ value: field, label: field })
-  );
+  const colorOptions = [
+    "Skola",
+    "Årskurs",
+    "Klass",
+    "Läsår",
+    "Stanine",
+    "Läsnivå (5 = hög)",
+    "Invandringsdatum",
+    "Kön",
+  ].map((field) => ({ value: field, label: field }));
   const onSavePreset = () => {
     props.save();
   };

@@ -2,7 +2,8 @@ import * as d3 from "d3";
 import { sequenceIDfromYearSchoolClass } from "./AggregateUtils.js";
 import { tenureSequenceTag } from "./tenureFormat";
 
-export const parseDate = d3.timeParse("%y%m%d");
+export const parseDate = (rawDateInput) =>
+  d3.timeParse("%y%m%d")(parseInt(rawDateInput));
 
 export function updateReferenceLexploreScore(newReference) {
   referenceLexploreScore = newReference;
@@ -86,8 +87,9 @@ export function rowParser(d) {
 
   // Manually parse each field
   for (let field in d) {
-    if (field === "Skola" || field === "Klass" || field === "Läsår") {
-      parsedRow[field] = String(d[field]);
+    const key = field.trim();
+    if (key === "Skola" || key === "Klass" || key === "Läsår") {
+      parsedRow[key] = String(d[field]);
     } else if (isDateFieldString(field)) {
       parsedRow[field] = parseDate(d[field]);
     } else if (field === "Årskurs" || field === "Läsnivå (5 = hög)") {
@@ -217,6 +219,30 @@ export function colors20() {
   return colors.concat(brighterColors);
 }
 
+export function fieldDomainTocolorScale(colorField, colorDomain) {
+  var colorScale;
+  console.log("colorField", colorField);
+  if (colorField === "Kön") {
+    colorScale = d3
+      .scaleOrdinal(d3.schemeCategory10.slice(1, 3))
+      .domain(colorDomain);
+  } else if (colorField === "Invandringsdatum") {
+    colorScale = d3
+      .scaleOrdinal(d3.schemeCategory10.slice(3, 5))
+      .domain(colorDomain);
+  } else {
+    colorScale = d3.scaleOrdinal(colors20()).domain(colorDomain);
+  }
+  return colorScale;
+}
+
+export function setColorOption(d, colorField) {
+  if (colorField === "Invandringsdatum") {
+    return d[colorField] !== null ? "ja" : "nej";
+  }
+  return d[colorField];
+}
+
 export function generateSchoolClassColorScale(schoolClasses) {
   const classColorScaleMap = {};
 
@@ -297,11 +323,16 @@ export function aggrColorLegend(
 
 export function colorLegend(data, colorField, svg, width, margin) {
   const colorDomain = Array.from(
-    new Set(data.map((d) => d[colorField]).filter((value) => value != null))
+    new Set(
+      data
+        .map((d) => setColorOption(d, colorField))
+        .filter((value) => value != null)
+    )
   );
 
   colorDomain.sort();
-  const colorScale = d3.scaleOrdinal(colors20()).domain(colorDomain); // d3.schemeCategory10
+  //const colorScale = d3.scaleOrdinal(colors20()).domain(colorDomain); // d3.schemeCategory10
+  const colorScale = fieldDomainTocolorScale(colorField, colorDomain);
 
   // Add a group for the legend
   const legend = svg
