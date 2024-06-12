@@ -525,6 +525,7 @@ const studentKeyList = [
   "Testdatum",
   "Standardpoäng",
   "Lexplore Score",
+  "Non-anonymised field",
 ];
 
 const classKeyList = [
