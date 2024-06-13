@@ -9,7 +9,7 @@ import {
   isDateFieldString,
   setColorOption,
   fieldDomainTocolorScale,
-  drawAverageReference,
+  //drawAverageReference,
   drawAverageTemporalLines,
   getStrValue,
 } from "utils/Utils";
@@ -23,6 +23,7 @@ const ScatterCanvas = React.memo(
     colorField,
     setSelectedRecords,
     showLines,
+    showAverageLine,
   }) => {
     const svgRef = useRef();
     const [brushing, setBrushing] = useState(false);
@@ -103,7 +104,9 @@ const ScatterCanvas = React.memo(
 
       //drawAverageReference(g, scatter, yScale, dimensions);
 
-      drawAverageTemporalLines(g, scatter, xScale, yScale, dimensions);
+      if (showAverageLine) {
+        drawAverageTemporalLines(g, scatter, xScale, yScale, dimensions);
+      }
 
       const xAxis = d3.axisBottom(xScale);
       const yAxis = d3.axisLeft(yScale);
@@ -190,8 +193,8 @@ const ScatterCanvas = React.memo(
             return line(d);
           })
           .attr("fill", "none")
-          .attr("stroke", "rgba(128, 128, 128, 0.2)")
-          .attr("stroke-width", 0.5)
+          .attr("stroke", "rgba(128, 128, 128, 0.6)")
+          .attr("stroke-width", 1)
           .style("visibility", showLines ? "visible" : "hidden");
       }
 
@@ -288,12 +291,12 @@ const ScatterCanvas = React.memo(
           .attr("stroke-width", (d) =>
             combinedCircleSelection.some((item) => item.ElevID === d[0].ElevID)
               ? 2
-              : 0.5
+              : 1
           )
           .attr("stroke", (d) =>
             combinedCircleSelection.some((item) => item.ElevID === d[0].ElevID)
               ? "rgba(0, 0, 0, 0.7)"
-              : "rgba(128, 128, 128, 0.2)"
+              : "rgba(128, 128, 128, 0.6)"
           )
           .style("visibility", (d) =>
             showLines ||
@@ -403,6 +406,7 @@ const ScatterCanvas = React.memo(
       newYScaleRef,
       setSelectedRecords,
       dimensions,
+      showAverageLine,
     ]);
 
     return (

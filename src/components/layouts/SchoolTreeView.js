@@ -445,6 +445,8 @@ function ClassSequenceComponent({ props }) {
     }
   }
 
+  console.log("classInSequence ", classesInSequence);
+
   return (
     <div
       key={sequenceID}

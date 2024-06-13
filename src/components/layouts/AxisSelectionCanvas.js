@@ -39,6 +39,13 @@ const AxisSelectionCanvas = (props) => {
     label: value,
   }));
 
+  // const averageOptions = Object.entries(props.averageSet).map(
+  //   ([key, value]) => ({
+  //     value: value,
+  //     label: value,
+  //   })
+  // );
+
   const ImportDataButton = ({ handleFileUpload }) => {
     // Create a reference to the hidden file input
     const fileInputRef = useRef(null);
@@ -280,7 +287,7 @@ function ShowLinesToggle({ props }) {
     <div className="show-lines">
       <div
         style={{
-          width: "50%",
+          width: "100%",
           fontSize: 12,
           display: "flex",
           flexDirection: "column",
@@ -291,7 +298,8 @@ function ShowLinesToggle({ props }) {
         <div
           style={{
             display: "inline-flex",
-            margin: "10% 10%",
+            height: "50%",
+            margin: "5% 5%",
             alignItems: "center",
           }}
         >
@@ -312,22 +320,56 @@ function ShowLinesToggle({ props }) {
         <div
           style={{
             display: "inline-flex",
-            margin: "10% 10%",
-            alignItems: "center",
+            height: "50%",
+            margin: "5% 5%",
+            alignItems: "flex-start",
           }}
         >
-          <input
-            type="checkbox"
-            checked={props.showAverageLine}
-            onChange={(event) => props.setShowAverageLine(event.target.checked)}
-          />
+          <div style={{ width: "100%" }}>
+            <input
+              type="checkbox"
+              checked={props.showAverageLine}
+              onChange={(event) =>
+                props.setShowAverageLine(event.target.checked)
+              }
+            />
 
-          <Tooltip
-            title="Show average Lexplore Score of all individuals in this municipality as reference line"
-            followCursor
-          >
-            <label> Show Municipal Average </label>
-          </Tooltip>
+            <Tooltip
+              title="Show average Lexplore Score of all individuals in this municipality as reference line"
+              followCursor
+            >
+              <label> Show Municipal Average </label>
+            </Tooltip>
+          </div>
+
+          {/* <div className="average-div" style={{ width: "50%" }}>
+            <FormControl fullWidth size="small" className="form_average">
+              <Tooltip
+                title={"Select an option to show the average reference line(s)"}
+                followCursor
+              >
+                <InputLabel id="average-label">Average</InputLabel>
+              </Tooltip>
+
+              <div>
+                <MuiSelect
+                  disabled={!props.showAverageLine}
+                  labelId="average-label"
+                  id="average"
+                  value={props.averageOption}
+                  // onChange={handleTrendChange}
+                  label="Average"
+                  style={{ width: "80%" }}
+                >
+                  {averageOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </MuiSelect>
+              </div>
+            </FormControl>
+          </div> */}
         </div>
       </div>
     </div>

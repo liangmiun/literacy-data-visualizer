@@ -6,10 +6,7 @@ import ScatterCanvas from "../layouts/ScatterCanvas";
 import DetailCanvas from "../layouts/DetailCanvas";
 import FilterCanvas from "../layouts/FilterCanvas";
 import LogicCanvas from "../layouts/LogicCanvas";
-import {
-  sequenceIDfromYearSchoolClass,
-  getMonthFromDate,
-} from "../../utils/AggregateUtils";
+import { sequenceIDfromYearSchoolClass } from "../../utils/AggregateUtils";
 import {
   generateSchoolLastingClassMap,
   generateSchoolClassColorScale,
@@ -32,6 +29,7 @@ const ScatterPage = (props) => {
     rangeOptions,
     checkedOptions,
   } = props;
+
   const trends = {
     all: "all",
     overall_decline: "overall decline",
@@ -40,6 +38,7 @@ const ScatterPage = (props) => {
   };
   const [clickedRecords, setClickedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);
+
   const [selectedClassDetail, setSelectedClassDetail] = useState([]);
   const [studentsChecked, setStudentsChecked] = useState(false);
   const [connectIndividual, setConnectIndividual] = useState(false);
@@ -59,13 +58,38 @@ const ScatterPage = (props) => {
   const [showAverageLine, setShowAverageLine] = useState(false);
 
   useEffect(() => {
+    const treeViewSelectedGrades = new Set(
+      selectedClasses.map((item) => parseInt(item.class.replace(/\D/g, ""), 10))
+    );
+
+    const checkedGrades = checkedOptions["Årskurs"] || [];
+
+    const intersectGrades = Array.from(
+      new Set(
+        [...treeViewSelectedGrades].filter((x) => checkedGrades.includes(x))
+      )
+    );
+
+    console.log(
+      "for average, selectedClasses",
+      selectedClasses,
+      "checkedOptions",
+      checkedOptions,
+      "intersectGrades",
+      intersectGrades,
+      checkedGrades,
+      treeViewSelectedGrades
+    );
+
     const calculateMunicipalAverage = () => {
       const nonNullLexploreData = data.filter(
-        (d) => d["Lexplore Score"] !== null
+        (d) =>
+          d["Lexplore Score"] !== null &&
+          intersectGrades.includes(parseInt(d["Årskurs"], 10))
       );
-      const averageLexplore = d3.mean(
-        nonNullLexploreData.map((d) => d["Lexplore Score"])
-      );
+      // const averageLexplore = d3.mean(
+      //   nonNullLexploreData.map((d) => d["Lexplore Score"])
+      // );
 
       const monthlyGroups = d3.group(
         nonNullLexploreData,
@@ -84,10 +108,10 @@ const ScatterPage = (props) => {
       return meanScores;
     };
 
-    const value = parseInt(calculateMunicipalAverage(), 10);
+    //const value = parseInt(calculateMunicipalAverage(), 10);
     //updateReferenceLexploreScore(value);
     updateReferenceLexploreScore(calculateMunicipalAverage());
-  }, [data]);
+  }, [data, checkedOptions, selectedClasses]);
 
   useEffect(() => {
     if (Object.keys(data).length > 0) {
