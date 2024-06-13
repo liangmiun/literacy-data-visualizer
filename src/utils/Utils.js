@@ -51,19 +51,25 @@ export function drawAverageTemporalLines(
     .x((d) => xScale(getStrValue(d.date, "time")))
     .y((d) => yScale(getStrValue(d.meanScore, "linear")));
 
-  g.append("text") // Adding the text to the main group element
-    .attr("x", dimensions.width - 120) // Position the text at the right edge of the plot area
-    .attr("y", yScale(referenceLexploreScore)) // Align the text vertically with the reference line
-    .attr("dy", "0.35em") // Slightly adjust the text position for better visual alignment with the line
-    .attr("text-anchor", "end") // Anchor text at the end to align it properly at the right edge
-    .text("Municipal Average") // Text content
-    .attr("fill", "gray") // Text color
-    .attr("font-size", "12px"); // Text size
-
-  // If meanScores is a Map or converted to an array of entries:
   const meanScoresEntries = Array.from(meanScoresIn);
 
-  console.log("meanScoresEntries: ", meanScoresEntries);
+  // Append text to the 'g' instead of to each line
+  // g.selectAll(".line-label")
+  //   .data(meanScoresEntries)
+  //   .enter()
+  //   .append("text")
+  //   .attr("class", "line-label")
+  //   .attr("x", dimensions.width - 120)
+  //   .attr("y", function (d) {
+  //     // Get the last data point
+  //     const lastDataPoint = d[1][d[1].length - 1];
+  //     return yScale(getStrValue(lastDataPoint.meanScore, "linear"));
+  //   })
+  //   .attr("dy", "0.35em")
+  //   .attr("text-anchor", "end")
+  //   .text("Average") // or dynamically determine text
+  //   .attr("fill", "gray")
+  //   .attr("font-size", "12px");
 
   // Bind data and create a group for each colorValue
   const lines = collection
@@ -72,8 +78,6 @@ export function drawAverageTemporalLines(
     .enter()
     .append("g")
     .attr("class", "ref-line-group");
-
-  console.log("ref lines: ", lines);
 
   lines
     .append("path")
