@@ -10,7 +10,7 @@ import { sequenceIDfromYearSchoolClass } from "../../utils/AggregateUtils";
 import {
   generateSchoolLastingClassMap,
   generateSchoolClassColorScale,
-  updateReferenceLexploreScore,
+  convertFieldDataType,
 } from "../../utils/Utils.js";
 import "assets/App.css";
 
@@ -26,6 +26,7 @@ const ScatterPage = (props) => {
     setSelectedClasses,
     xField,
     yField,
+    colorField,
     rangeOptions,
     checkedOptions,
   } = props;
@@ -56,11 +57,14 @@ const ScatterPage = (props) => {
   const [tenureGroupOption, setTenureGroupOption] = useState("3-year tenure");
   const [wouldRenderByConfig, setWouldRenderByConfig] = useState(false);
   const [showAverageLine, setShowAverageLine] = useState(false);
+  const [meanScores, setMeanScores] = useState(new Map());
 
   useEffect(() => {
     const treeViewSelectedGrades = new Set(
       selectedClasses.map((item) => parseInt(item.class.replace(/\D/g, ""), 10))
     );
+
+    const treeViewSelectedSchools = selectedClasses.map((item) => item.school);
 
     const checkedGrades = checkedOptions["Årskurs"] || [];
 
@@ -70,48 +74,46 @@ const ScatterPage = (props) => {
       )
     );
 
-    console.log(
-      "for average, selectedClasses",
-      selectedClasses,
-      "checkedOptions",
-      checkedOptions,
-      "intersectGrades",
-      intersectGrades,
-      checkedGrades,
-      treeViewSelectedGrades
-    );
+    const groupingList = ["Skola", "Årskurs", "Invandringsdatum", "Kön"];
+    const groupingPattern = groupingList.includes(colorField)
+      ? (d) => convertFieldDataType(d, colorField)
+      : () => 0;
 
     const calculateMunicipalAverage = () => {
-      const nonNullLexploreData = data.filter(
+      const nonNullGradedData = data.filter(
         (d) =>
           d["Lexplore Score"] !== null &&
-          intersectGrades.includes(parseInt(d["Årskurs"], 10))
+          intersectGrades.includes(parseInt(d["Årskurs"], 10)) &&
+          (colorField !== "Skola" ||
+            treeViewSelectedSchools.includes(d["Skola"]))
       );
-      // const averageLexplore = d3.mean(
-      //   nonNullLexploreData.map((d) => d["Lexplore Score"])
-      // );
 
       const monthlyGroups = d3.group(
-        nonNullLexploreData,
+        nonNullGradedData,
+        groupingPattern,
         (d) => d.Testdatum.getFullYear() + "-" + d.Testdatum.getMonth()
       );
 
-      const meanScores = Array.from(monthlyGroups, ([key, values]) => {
-        const mean = parseInt(d3.mean(values, (d) => d["Lexplore Score"], 10));
-        return {
-          date: new Date(key.split("-")[0], key.split("-")[1], 1),
-          meanScore: mean,
-        };
+      const meanScores = new Map();
+
+      // Iterate over each colorField group
+      monthlyGroups.forEach((yearMonthMap, colorValue) => {
+        const scores = Array.from(yearMonthMap, ([key, values]) => {
+          const mean = d3.mean(values, (d) => d["Lexplore Score"]);
+          return {
+            date: new Date(key.split("-")[0], key.split("-")[1], 1),
+            meanScore: mean,
+          };
+        });
+        meanScores.set(colorValue, scores);
       });
-      console.log("meanScores", meanScores, monthlyGroups);
-      //return averageLexplore;
+
       return meanScores;
     };
 
-    //const value = parseInt(calculateMunicipalAverage(), 10);
-    //updateReferenceLexploreScore(value);
-    updateReferenceLexploreScore(calculateMunicipalAverage());
-  }, [data, checkedOptions, selectedClasses]);
+    //updateReferenceLexploreScore(calculateMunicipalAverage());
+    setMeanScores(calculateMunicipalAverage());
+  }, [data, checkedOptions, selectedClasses, colorField]);
 
   useEffect(() => {
     if (Object.keys(data).length > 0) {
@@ -500,6 +502,7 @@ const ScatterPage = (props) => {
           setSelectedRecords={setClickedRecords}
           showLines={props.showLines}
           showAverageLine={showAverageLine}
+          meanScores={meanScores}
         />
       )}
 

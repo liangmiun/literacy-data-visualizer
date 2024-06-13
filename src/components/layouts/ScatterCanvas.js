@@ -7,7 +7,7 @@ import {
   categoricals,
   translateExtentStartEnd,
   isDateFieldString,
-  setColorOption,
+  convertFieldDataType,
   fieldDomainTocolorScale,
   //drawAverageReference,
   drawAverageTemporalLines,
@@ -24,6 +24,7 @@ const ScatterCanvas = React.memo(
     setSelectedRecords,
     showLines,
     showAverageLine,
+    meanScores,
   }) => {
     const svgRef = useRef();
     const [brushing, setBrushing] = useState(false);
@@ -85,7 +86,7 @@ const ScatterCanvas = React.memo(
         true
       );
       const colorDomain = Array.from(
-        new Set(shownData.map((d) => setColorOption(d, colorField)))
+        new Set(shownData.map((d) => convertFieldDataType(d, colorField)))
       );
 
       colorDomain.sort();
@@ -101,12 +102,6 @@ const ScatterCanvas = React.memo(
         .append("g")
         .attr("id", "scatter")
         .attr("clip-path", "url(#clip)");
-
-      //drawAverageReference(g, scatter, yScale, dimensions);
-
-      if (showAverageLine) {
-        drawAverageTemporalLines(g, scatter, xScale, yScale, dimensions);
-      }
 
       const xAxis = d3.axisBottom(xScale);
       const yAxis = d3.axisLeft(yScale);
@@ -124,6 +119,18 @@ const ScatterCanvas = React.memo(
       dots_plot();
 
       connecting_lines_plot();
+
+      if (showAverageLine) {
+        drawAverageTemporalLines(
+          g,
+          scatter,
+          xScale,
+          yScale,
+          dimensions,
+          colorScale,
+          meanScores
+        );
+      }
 
       process_zooming();
 
@@ -176,12 +183,6 @@ const ScatterCanvas = React.memo(
           values.sort((a, b) => d3.ascending(a[xField], b[xField]))
         );
 
-        console.log(
-          "elevIDGroups",
-          Array.from(elevIDGroups.values()),
-          elevIDGroups
-        );
-
         //Draw lines
         scatter
           .selectAll(".line-path")
@@ -209,9 +210,9 @@ const ScatterCanvas = React.memo(
             return xScale(getStrValue(d[xField], xType));
           })
           .attr("cy", (d) => yScale(getStrValue(d[yField], yType)))
-          .attr("r", 3) //d => selectedCircles.includes(d) ? 9 : 3
+          .attr("r", 3)
           .attr("fill", (d) => {
-            return colorScale(setColorOption(d, colorField));
+            return colorScale(convertFieldDataType(d, colorField));
           })
           .on("click", function (event, d) {
             if (!brushing) {
@@ -407,6 +408,7 @@ const ScatterCanvas = React.memo(
       setSelectedRecords,
       dimensions,
       showAverageLine,
+      meanScores,
     ]);
 
     return (

@@ -42,9 +42,11 @@ export function drawAverageTemporalLines(
   collection,
   xScale,
   yScale,
-  dimensions
+  dimensions,
+  colorScale,
+  meanScoresIn
 ) {
-  const line = d3
+  const lineGenerator = d3
     .line()
     .x((d) => xScale(getStrValue(d.date, "time")))
     .y((d) => yScale(getStrValue(d.meanScore, "linear")));
@@ -58,20 +60,28 @@ export function drawAverageTemporalLines(
     .attr("fill", "gray") // Text color
     .attr("font-size", "12px"); // Text size
 
-  console.log("draw temporal, meanScores", meanScores);
+  // If meanScores is a Map or converted to an array of entries:
+  const meanScoresEntries = Array.from(meanScoresIn);
 
-  collection
-    .selectAll(".reference-line-path")
-    .data([Array.from(meanScores)]) //.values()
+  console.log("meanScoresEntries: ", meanScoresEntries);
+
+  // Bind data and create a group for each colorValue
+  const lines = collection
+    .selectAll(".ref-line-group")
+    .data(meanScoresEntries)
     .enter()
+    .append("g")
+    .attr("class", "ref-line-group");
+
+  console.log("ref lines: ", lines);
+
+  lines
     .append("path")
     .attr("class", "reference-line-path")
-    .attr("d", (d) => {
-      return line(d);
-    })
+    .attr("d", (d) => lineGenerator(d[1])) // d[1] because d is an entry [colorValue, data]
     .attr("fill", "none")
-    .attr("stroke", "rgba(128, 128, 128, 0.6)")
-    .attr("stroke-width", 8);
+    .attr("stroke", (d) => colorScale(d[0])) // "rgba(128, 128, 128, 0.6)", Assuming colorScale is a d3.scaleOrdinal for color mapping //(d, i) => colorScale(d[0])
+    .attr("stroke-width", 4);
 }
 
 export const formatDate = d3.timeFormat("%y-%m-%d");
@@ -269,7 +279,6 @@ export function colors20() {
 
 export function fieldDomainTocolorScale(colorField, colorDomain) {
   var colorScale;
-  console.log("colorField", colorField);
   if (colorField === "Kön") {
     colorScale = d3
       .scaleOrdinal(d3.schemeCategory10.slice(1, 3))
@@ -284,7 +293,7 @@ export function fieldDomainTocolorScale(colorField, colorDomain) {
   return colorScale;
 }
 
-export function setColorOption(d, colorField) {
+export function convertFieldDataType(d, colorField) {
   if (colorField === "Invandringsdatum") {
     return d[colorField] !== null ? "ja" : "nej";
   }
@@ -373,7 +382,7 @@ export function colorLegend(data, colorField, svg, width, margin) {
   const colorDomain = Array.from(
     new Set(
       data
-        .map((d) => setColorOption(d, colorField))
+        .map((d) => convertFieldDataType(d, colorField))
         .filter((value) => value != null)
     )
   );

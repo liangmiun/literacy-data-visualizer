@@ -39,13 +39,6 @@ const AxisSelectionCanvas = (props) => {
     label: value,
   }));
 
-  // const averageOptions = Object.entries(props.averageSet).map(
-  //   ([key, value]) => ({
-  //     value: value,
-  //     label: value,
-  //   })
-  // );
-
   const ImportDataButton = ({ handleFileUpload }) => {
     // Create a reference to the hidden file input
     const fileInputRef = useRef(null);
@@ -341,35 +334,6 @@ function ShowLinesToggle({ props }) {
               <label> Show Municipal Average </label>
             </Tooltip>
           </div>
-
-          {/* <div className="average-div" style={{ width: "50%" }}>
-            <FormControl fullWidth size="small" className="form_average">
-              <Tooltip
-                title={"Select an option to show the average reference line(s)"}
-                followCursor
-              >
-                <InputLabel id="average-label">Average</InputLabel>
-              </Tooltip>
-
-              <div>
-                <MuiSelect
-                  disabled={!props.showAverageLine}
-                  labelId="average-label"
-                  id="average"
-                  value={props.averageOption}
-                  // onChange={handleTrendChange}
-                  label="Average"
-                  style={{ width: "80%" }}
-                >
-                  {averageOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </MuiSelect>
-              </div>
-            </FormControl>
-          </div> */}
         </div>
       </div>
     </div>
