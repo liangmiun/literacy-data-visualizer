@@ -10,7 +10,7 @@ import {
   convertFieldDataType,
   fieldDomainTocolorScale,
   //drawAverageReference,
-  drawAverageTemporalLines,
+  drawIndividualAverageTemporalLines,
   getStrValue,
 } from "utils/Utils";
 import { plotMargin } from "utils/constants";
@@ -121,12 +121,10 @@ const ScatterCanvas = React.memo(
       connecting_lines_plot();
 
       if (showAverageLine) {
-        drawAverageTemporalLines(
-          g,
+        drawIndividualAverageTemporalLines(
           scatter,
           xScale,
           yScale,
-          dimensions,
           colorScale,
           meanScores
         );
