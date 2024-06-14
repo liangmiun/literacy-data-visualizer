@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { sequenceIDfromYearSchoolClass, Season } from "./AggregateUtils.js";
+import { sequenceIDfromYearSchoolClass } from "./AggregateUtils.js";
 import { tenureSequenceTag } from "./tenureFormat";
 
 export const parseDate = (rawDateInput) =>
@@ -16,7 +16,6 @@ var meanScores = [];
 
 export function drawAverageReference(g, collection, yScale, dimensions) {
   // After setting up scales and axes, draw the reference line
-
   // Adding a text label for the reference line
   g.append("text") // Adding the text to the main group element
     .attr("x", dimensions.width - 120) // Position the text at the right edge of the plot area
@@ -38,10 +37,12 @@ export function drawAverageReference(g, collection, yScale, dimensions) {
     .attr("stroke-dasharray", "5,5"); // Optional: makes the line dashed (5 pixels filled, 5 pixels empty)
 }
 
-export function drawIndividualAverageTemporalLines(
+export function drawAverageTemporalLines(
+  g,
   collection,
   xScale,
   yScale,
+  dimensions,
   colorScale,
   meanScoresIn
 ) {
@@ -52,57 +53,23 @@ export function drawIndividualAverageTemporalLines(
 
   const meanScoresEntries = Array.from(meanScoresIn);
 
-  // Bind data and create a group for each colorValue
-  const lines = collection
-    .selectAll(".ref-line-group")
-    .data(meanScoresEntries)
-    .enter()
-    .append("g")
-    .attr("class", "ref-line-group");
-
-  lines
-    .append("path")
-    .attr("class", "reference-line-path")
-    .attr("d", (d) => lineGenerator(d[1]))
-    .attr("fill", "none")
-    .attr(
-      "stroke",
-      (d) => colorScale(d[0]) //: "rgba(128, 128, 128, 0.6)"
-    )
-    .attr("stroke-width", 4);
-}
-
-export function drawAggregateAverageTemporalLines(
-  collection,
-  xScale,
-  yScale,
-  meanScoresIn,
-  subBandWidth,
-  seasonField
-) {
-  console.log("start making line average");
-  const lineGenerator = d3
-    .line()
-    .x((d) => {
-      return (
-        xScale(Season(getStrValue(d.date, "time"), seasonField)) +
-        subBandWidth / 2
-      );
-    }) //season needed here.
-    .y((d) => yScale(getStrValue(d.meanScore, "linear")));
-
-  const meanScoresWithinDomain = new Map();
-
-  meanScoresIn.forEach((group, key) => {
-    const filteredGroup = group.filter((item) =>
-      xScale
-        .domain()
-        .includes(Season(getStrValue(item.date, "time"), seasonField))
-    );
-    meanScoresWithinDomain.set(key, filteredGroup);
-  });
-
-  const meanScoresEntries = Array.from(meanScoresWithinDomain);
+  // Append text to the 'g' instead of to each line
+  // g.selectAll(".line-label")
+  //   .data(meanScoresEntries)
+  //   .enter()
+  //   .append("text")
+  //   .attr("class", "line-label")
+  //   .attr("x", dimensions.width - 120)
+  //   .attr("y", function (d) {
+  //     // Get the last data point
+  //     const lastDataPoint = d[1][d[1].length - 1];
+  //     return yScale(getStrValue(lastDataPoint.meanScore, "linear"));
+  //   })
+  //   .attr("dy", "0.35em")
+  //   .attr("text-anchor", "end")
+  //   .text("Average") // or dynamically determine text
+  //   .attr("fill", "gray")
+  //   .attr("font-size", "12px");
 
   // Bind data and create a group for each colorValue
   const lines = collection
@@ -115,19 +82,9 @@ export function drawAggregateAverageTemporalLines(
   lines
     .append("path")
     .attr("class", "reference-line-path")
-    .attr("d", (d) => {
-      // console.log(
-      //   "d in lines: ",
-      //   d,
-      //   "d1: ",
-      //   d[1],
-      //   "result: ",
-      //   lineGenerator(d[1])
-      // );
-      return lineGenerator(d[1]);
-    })
+    .attr("d", (d) => lineGenerator(d[1])) // d[1] because d is an entry [colorValue, data]
     .attr("fill", "none")
-    .attr("stroke", "rgba(128, 128, 128, 0.6)")
+    .attr("stroke", (d) => colorScale(d[0])) // "rgba(128, 128, 128, 0.6)", Assuming colorScale is a d3.scaleOrdinal for color mapping //(d, i) => colorScale(d[0])
     .attr("stroke-width", 4);
 }
 
@@ -415,6 +372,7 @@ export function aggrColorLegend(
     });
 
     if (checkedClasses.length > 20) {
+      console.log("classes more than 20: ", checkedClasses.length);
       legend
         .append("text")
         .attr("x", 0)

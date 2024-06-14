@@ -4,7 +4,6 @@ import {
   formatTickValue,
   aggrColorLegend,
   drawAverageReference,
-  drawAggregateAverageTemporalLines,
 } from "utils/Utils";
 import * as AggregateUtils from "utils/AggregateUtils";
 import { plotMargin } from "utils/constants";
@@ -72,7 +71,6 @@ const AggregateCanvas = (props) => {
               connectIndividual={props.connectIndividual}
               triggerRenderByConfig={triggerRenderByConfig}
               showAverageLine={props.showAverageLine}
-              meanScores={props.meanScores}
             />
           )}
 
@@ -92,7 +90,6 @@ const AggregateCanvas = (props) => {
               connectIndividual={props.connectIndividual}
               triggerRenderByConfig={triggerRenderByConfig}
               showAverageLine={props.showAverageLine}
-              meanScores={props.meanScores}
             />
           )}
 
@@ -113,7 +110,6 @@ const AggregateCanvas = (props) => {
               triggerRenderByConfig={triggerRenderByConfig}
               showAverageLine={props.showAverageLine}
               selectedClasses={selectedClasses}
-              meanScores={props.meanScores}
             />
           )}
         </>
@@ -573,7 +569,6 @@ const CirclePlots = (props) => {
     triggerRenderByConfig,
     showAverageLine,
     selectedClasses,
-    meanScores,
   } = props;
 
   useEffect(() => {
@@ -632,6 +627,9 @@ const CirclePlots = (props) => {
         .append("g")
         .attr("id", "aggregate")
         .attr("clip-path", "url(#clip)");
+
+      if (showAverageLine)
+        drawAverageReference(g, aggregate, yScale, dimensions);
 
       const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
 
@@ -787,20 +785,6 @@ const CirclePlots = (props) => {
         );
       }
 
-      if (showAverageLine)
-        drawAverageReference(g, aggregate, yScale, dimensions);
-
-      if (showAverageLine) {
-        drawAggregateAverageTemporalLines(
-          aggregate,
-          xMainBandScale,
-          yScale,
-          meanScores,
-          subBandWidth,
-          seasonField
-        );
-      }
-
       setAggregationZoom(
         "circle",
         svg,
@@ -844,7 +828,6 @@ const CirclePlots = (props) => {
     allData,
     shownDataLoaded,
     selectedClasses,
-    meanScores,
   ]);
 
   return (
