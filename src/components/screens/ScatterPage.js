@@ -80,9 +80,10 @@ const ScatterPage = (props) => {
 
     const groupingList = ["Skola", "Årskurs", "Invandringsdatum", "Kön"];
     //Make multiple groups when colorField is in groupingList, otherwise make one group
-    const groupingPattern = groupingList.includes(colorField)
-      ? (d) => convertFieldDataType(d, colorField)
-      : () => 0;
+    const groupingPattern =
+      groupingList.includes(colorField) && !isClassView
+        ? (d) => convertFieldDataType(d, colorField)
+        : () => 0;
 
     const calculateMunicipalAverage = () => {
       const nonNullGradedData = data.filter(
@@ -122,7 +123,14 @@ const ScatterPage = (props) => {
 
     //updateReferenceLexploreScore(calculateMunicipalAverage());
     setMeanScores(calculateMunicipalAverage());
-  }, [data, checkedOptions, selectedClasses, colorField, seasonField]);
+  }, [
+    data,
+    checkedOptions,
+    selectedClasses,
+    colorField,
+    seasonField,
+    isClassView,
+  ]);
 
   useEffect(() => {
     if (Object.keys(data).length > 0) {
