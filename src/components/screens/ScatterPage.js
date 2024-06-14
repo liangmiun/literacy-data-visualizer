@@ -6,7 +6,10 @@ import ScatterCanvas from "../layouts/ScatterCanvas";
 import DetailCanvas from "../layouts/DetailCanvas";
 import FilterCanvas from "../layouts/FilterCanvas";
 import LogicCanvas from "../layouts/LogicCanvas";
-import { sequenceIDfromYearSchoolClass } from "../../utils/AggregateUtils";
+import {
+  sequenceIDfromYearSchoolClass,
+  Season,
+} from "../../utils/AggregateUtils";
 import {
   generateSchoolLastingClassMap,
   generateSchoolClassColorScale,
@@ -88,25 +91,30 @@ const ScatterPage = (props) => {
             treeViewSelectedSchools.includes(d["Skola"]))
       );
 
-      const monthlyGroups = d3.group(
+      const seasonlyGroups = d3.group(
         nonNullGradedData,
         groupingPattern,
-        (d) => d.Testdatum.getFullYear() + "-" + d.Testdatum.getMonth()
+        (d) => d.Testdatum.getFullYear() + "-" + d.Testdatum.getMonth() //## Season[(d.Testdatum, props.seasonField)] //
       );
 
-      const meanScores = new Map();
+      console.log("seasonlyGroups: ", seasonlyGroups);
 
       // Iterate over each colorField group
-      monthlyGroups.forEach((yearMonthMap, colorValue) => {
+      seasonlyGroups.forEach((yearMonthMap, colorValue) => {
         const scores = Array.from(yearMonthMap, ([key, values]) => {
           const mean = d3.mean(values, (d) => d["Lexplore Score"]);
+          const meanDate = new Date(
+            d3.mean(values, (d) => d["Testdatum"].getTime())
+          );
           return {
-            date: new Date(key.split("-")[0], key.split("-")[1], 1),
+            date: new Date(key.split("-")[0], key.split("-")[1], 15), //##meanDate, //
             meanScore: mean,
           };
         });
         meanScores.set(colorValue, scores);
       });
+
+      console.log("meanScores: ", meanScores);
 
       return meanScores;
     };
@@ -492,6 +500,7 @@ const ScatterPage = (props) => {
           groupOption={tenureGroupOption}
           triggerRenderByConfig={wouldRenderByConfig}
           showAverageLine={showAverageLine}
+          meanScores={meanScores}
         />
       ) : (
         <ScatterCanvas
