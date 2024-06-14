@@ -5,39 +5,6 @@ import { tenureSequenceTag } from "./tenureFormat";
 export const parseDate = (rawDateInput) =>
   d3.timeParse("%y%m%d")(parseInt(rawDateInput));
 
-export function updateReferenceLexploreScore(newReference) {
-  //referenceLexploreScore = newReference;
-  meanScores = newReference;
-}
-
-var referenceLexploreScore = 350;
-
-var meanScores = [];
-
-export function drawAverageReference(g, collection, yScale, dimensions) {
-  // After setting up scales and axes, draw the reference line
-
-  // Adding a text label for the reference line
-  g.append("text") // Adding the text to the main group element
-    .attr("x", dimensions.width - 120) // Position the text at the right edge of the plot area
-    .attr("y", yScale(referenceLexploreScore)) // Align the text vertically with the reference line
-    .attr("dy", "0.35em") // Slightly adjust the text position for better visual alignment with the line
-    .attr("text-anchor", "end") // Anchor text at the end to align it properly at the right edge
-    .text("Municipal Average") // Text content
-    .attr("fill", "gray") // Text color
-    .attr("font-size", "12px"); // Text size
-
-  collection
-    .append("line") // Adding the line to the main group element
-    .attr("x1", 0) // Starting point on the x-axis
-    .attr("x2", dimensions.width) // End point on the x-axis, stretching across the width of the plot
-    .attr("y1", yScale(referenceLexploreScore)) // yScale to translate the value 450 to the corresponding pixel value
-    .attr("y2", yScale(referenceLexploreScore)) // Same as y1 to make the line horizontal
-    .attr("stroke", "gray") // Color of the line
-    .attr("stroke-width", 2) // Thickness of the line
-    .attr("stroke-dasharray", "5,5"); // Optional: makes the line dashed (5 pixels filled, 5 pixels empty)
-}
-
 export function drawIndividualAverageTemporalLines(
   collection,
   xScale,
@@ -102,6 +69,13 @@ export function drawAggregateAverageTemporalLines(
     meanScoresWithinDomain.set(key, filteredGroup);
   });
 
+  console.log(
+    "xScale.domain",
+    xScale.domain(),
+    "meanScoresWithinDomain",
+    meanScoresWithinDomain
+  );
+
   const meanScoresEntries = Array.from(meanScoresWithinDomain);
 
   // Bind data and create a group for each colorValue
@@ -116,14 +90,6 @@ export function drawAggregateAverageTemporalLines(
     .append("path")
     .attr("class", "reference-line-path")
     .attr("d", (d) => {
-      // console.log(
-      //   "d in lines: ",
-      //   d,
-      //   "d1: ",
-      //   d[1],
-      //   "result: ",
-      //   lineGenerator(d[1])
-      // );
       return lineGenerator(d[1]);
     })
     .attr("fill", "none")

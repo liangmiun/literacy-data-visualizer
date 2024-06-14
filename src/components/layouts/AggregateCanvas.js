@@ -3,7 +3,6 @@ import * as d3 from "d3";
 import {
   formatTickValue,
   aggrColorLegend,
-  drawAverageReference,
   drawAggregateAverageTemporalLines,
 } from "utils/Utils";
 import * as AggregateUtils from "utils/AggregateUtils";
@@ -140,6 +139,7 @@ const ViolinPlots = (props) => {
     dimensions,
     triggerRenderByConfig,
     showAverageLine,
+    meanScores,
   } = props;
 
   useEffect(() => {
@@ -171,8 +171,6 @@ const ViolinPlots = (props) => {
       .append("g")
       .attr("id", "aggregate")
       .attr("clip-path", "url(#clip)");
-
-    if (showAverageLine) drawAverageReference(g, aggregate, yScale, dimensions);
 
     const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
 
@@ -281,6 +279,17 @@ const ViolinPlots = (props) => {
       );
     }
 
+    if (showAverageLine) {
+      drawAggregateAverageTemporalLines(
+        aggregate,
+        xMainBandScale,
+        yScale,
+        meanScores,
+        subBandWidth,
+        seasonField
+      );
+    }
+
     setAggregationZoom(
       "violin",
       svg,
@@ -320,6 +329,7 @@ const ViolinPlots = (props) => {
     dimensions,
     triggerRenderByConfig,
     showAverageLine,
+    meanScores,
   ]);
   return (
     <svg
@@ -349,6 +359,7 @@ const BoxPlots = (props) => {
     dimensions,
     triggerRenderByConfig,
     showAverageLine,
+    meanScores,
   } = props;
 
   // In your useEffect:
@@ -381,8 +392,6 @@ const BoxPlots = (props) => {
       .append("g")
       .attr("id", "aggregate")
       .attr("clip-path", "url(#clip)");
-
-    if (showAverageLine) drawAverageReference(g, aggregate, yScale, dimensions);
 
     const subBandWidth = xMainBandScale.bandwidth() / subBandCount;
 
@@ -502,6 +511,17 @@ const BoxPlots = (props) => {
       );
     }
 
+    if (showAverageLine) {
+      drawAggregateAverageTemporalLines(
+        aggregate,
+        xMainBandScale,
+        yScale,
+        meanScores,
+        subBandWidth,
+        seasonField
+      );
+    }
+
     setAggregationZoom(
       "box",
       svg,
@@ -541,6 +561,7 @@ const BoxPlots = (props) => {
     dimensions,
     triggerRenderByConfig,
     showAverageLine,
+    meanScores,
   ]);
   return (
     <svg
@@ -786,9 +807,6 @@ const CirclePlots = (props) => {
           groupOption
         );
       }
-
-      if (showAverageLine)
-        drawAverageReference(g, aggregate, yScale, dimensions);
 
       if (showAverageLine) {
         drawAggregateAverageTemporalLines(

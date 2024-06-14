@@ -116,7 +116,13 @@ const ScatterPage = (props) => {
         means.set(colorValue, scores);
       });
 
-      console.log("meanScores: ", means);
+      console.log(
+        "meanScores: ",
+        means,
+        "xField: ",
+        "seasonField",
+        seasonField
+      );
 
       return means;
     };
