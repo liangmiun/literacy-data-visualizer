@@ -32,6 +32,7 @@ const ScatterPage = (props) => {
     colorField,
     rangeOptions,
     checkedOptions,
+    seasonField,
   } = props;
 
   const trends = {
@@ -78,6 +79,7 @@ const ScatterPage = (props) => {
     );
 
     const groupingList = ["Skola", "Årskurs", "Invandringsdatum", "Kön"];
+    //Make multiple groups when colorField is in groupingList, otherwise make one group
     const groupingPattern = groupingList.includes(colorField)
       ? (d) => convertFieldDataType(d, colorField)
       : () => 0;
@@ -94,12 +96,11 @@ const ScatterPage = (props) => {
       const seasonlyGroups = d3.group(
         nonNullGradedData,
         groupingPattern,
-        (d) => d.Testdatum.getFullYear() + "-" + d.Testdatum.getMonth() //## Season[(d.Testdatum, props.seasonField)] //
+        (d) => Season(d.Testdatum, seasonField) //d.Testdatum.getFullYear() + "-" + d.Testdatum.getMonth() //Season[(d.Testdatum, seasonField)] //##
       );
 
-      console.log("seasonlyGroups: ", seasonlyGroups);
-
       // Iterate over each colorField group
+      const means = new Map();
       seasonlyGroups.forEach((yearMonthMap, colorValue) => {
         const scores = Array.from(yearMonthMap, ([key, values]) => {
           const mean = d3.mean(values, (d) => d["Lexplore Score"]);
@@ -107,21 +108,21 @@ const ScatterPage = (props) => {
             d3.mean(values, (d) => d["Testdatum"].getTime())
           );
           return {
-            date: new Date(key.split("-")[0], key.split("-")[1], 15), //##meanDate, //
+            date: meanDate, //new Date(key.split("-")[0], key.split("-")[1], 15), //##
             meanScore: mean,
           };
         });
-        meanScores.set(colorValue, scores);
+        means.set(colorValue, scores);
       });
 
-      console.log("meanScores: ", meanScores);
+      console.log("meanScores: ", means);
 
-      return meanScores;
+      return means;
     };
 
     //updateReferenceLexploreScore(calculateMunicipalAverage());
     setMeanScores(calculateMunicipalAverage());
-  }, [data, checkedOptions, selectedClasses, colorField]);
+  }, [data, checkedOptions, selectedClasses, colorField, seasonField]);
 
   useEffect(() => {
     if (Object.keys(data).length > 0) {
