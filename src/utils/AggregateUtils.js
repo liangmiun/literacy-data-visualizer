@@ -119,7 +119,7 @@ export function PresentIndividuals(
             return classColors[d.Skola][d.sequenceID];
           })
           .attr("stroke-width", 0.5)
-          .attr("stroke-opacity", 0.5)
+          .attr("stroke-opacity", 1)
           .attr("start_record_id", points[i].record_id)
           .attr("end_record_id", points[i + 1].record_id);
         //.style("visibility", connectIndividual ? "visible" : "hidden");
