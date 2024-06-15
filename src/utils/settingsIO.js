@@ -110,16 +110,39 @@ export const handleFileUpload = (event, setters) => {
   }
 };
 
-export const handleResetToOnboarding = (configSetters, userType) => {
+export const handleResetToOnboarding = (
+  configSetters,
+  userType,
+  teacherChoice
+) => {
   return () => {
     console.log("handleReset userType ", userType);
-    handleResetToTarget(
-      userType === "principal"
-        ? initial_principal_preset
-        : initial_teacher_preset,
-      configSetters
-    );
-    //handleResetToTarget(initial_preset, configSetters);
+
+    var initial_preset;
+
+    if (userType === "principal") {
+      initial_preset = initial_principal_preset;
+    } else {
+      // Parsing the initial preset to make it mutable and to use its structure
+      const parsedPreset = JSON.parse(initial_teacher_preset);
+
+      // Creating a new preset based on the initial one but with modified selectedClasses
+      const newPreset = {
+        ...parsedPreset, // Spread the existing properties to retain them (e.g., xField)
+        selectedClasses: [
+          {
+            school: teacherChoice.school,
+            schoolYear: teacherChoice.year,
+            class: teacherChoice.class,
+          },
+        ],
+      };
+
+      // Convert the new preset object back to a JSON string if needed
+      initial_preset = JSON.stringify(newPreset);
+    }
+
+    handleResetToTarget(initial_preset, configSetters);
   };
 };
 

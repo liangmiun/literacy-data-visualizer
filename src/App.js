@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { csvParse } from "d3";
 import CryptoJS from "crypto-js";
 import {
@@ -51,13 +51,15 @@ const App = () => {
   });
   const [isClassView, setIsClassView] = useState(true);
   const [aggregateType, setAggregateType] = useState("circle");
-
   const fields = data_fields;
   const fields_x = isClassView
     ? season_choice_fields
     : data_fields.filter((element) => !y_data_fields.includes(element));
   const fields_y = y_data_fields;
   const [userType, setUserType] = useState("principal");
+  const [schoolClassMapForTeacher, setSchoolClassMapForTeacher] = useState({});
+  //const [isTeacherMapLoaded, setIsTeacherMapLoaded] = useState(false);
+  const [teacherChoice, setTeacherChoice] = useState({});
 
   const savePresetSetters = {
     xField,
@@ -73,28 +75,27 @@ const App = () => {
     aggregateType,
   };
 
-  const configSetters = {
-    setXField,
-    setYField,
-    setColorField,
-    setSelectedClasses,
-    setCheckedOptions,
-    setRangeOptions,
-    setQuery,
-    setExpression,
-    setIsClassView,
-    setShowLines,
-    setAggregateType,
-  };
+  const configSetters = useMemo(
+    () => ({
+      setXField,
+      setYField,
+      setColorField,
+      setSelectedClasses,
+      setCheckedOptions,
+      setRangeOptions,
+      setQuery,
+      setExpression,
+      setIsClassView,
+      setShowLines,
+      setAggregateType,
+    }),
+    []
+  );
 
   const fileUploadSetters = {
     setData,
     setLogicFilteredtData,
   };
-
-  // const onResetToOnboardingRef = useRef(
-  //   settingsIO.handleResetToOnboarding(configSetters, userType)
-  // );
 
   const onResetToOnboardingRef = useRef();
 
@@ -102,9 +103,10 @@ const App = () => {
     // Update the ref's current value whenever userType changes
     onResetToOnboardingRef.current = settingsIO.handleResetToOnboarding(
       configSetters,
-      userType
+      userType,
+      teacherChoice
     );
-  }, [userType]); // Dependency array includes userType to react to its changes
+  }, [configSetters, userType, teacherChoice]); // Dependency array includes userType to react to its changes
 
   const onResetToLatest = settingsIO.handleResetToLatest(configSetters);
   const onSavePreset = settingsIO.saveConfig(savePresetSetters);
@@ -112,12 +114,6 @@ const App = () => {
   const onFileUpload = (event) => {
     settingsIO.handleFileUpload(event, fileUploadSetters);
   };
-
-  useEffect(() => {
-    queryTeachOrPrincipal();
-  }, []);
-
-  console.log("userType after choose teacher: ", userType);
 
   useEffect(() => {
     if (!isLogin) return;
@@ -142,54 +138,175 @@ const App = () => {
         console.error("Error fetching or parsing data:", error);
       });
     console.log("data parsed");
+    //queryTeachOrPrincipal();
   }, [isLogin, encryptKey, userType]);
 
-  function queryTeachOrPrincipal() {
-    // Create the modal container
-    const modal = document.createElement("div");
-    modal.style.position = "fixed";
-    modal.style.top = "50%";
-    modal.style.left = "50%";
-    modal.style.width = "400px";
-    modal.style.height = "auto"; // Adjusted for content size
-    modal.style.transform = "translate(-50%, -50%)";
-    modal.style.backgroundColor = "#EFEFEF";
-    //modal.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
-    modal.style.display = "flex";
-    modal.style.justifyContent = "center";
-    modal.style.alignItems = "center";
-    modal.style.flexDirection = "column";
-    modal.style.padding = "20px";
-    modal.style.zIndex = "1000"; // Make sure it's on top
+  useEffect(() => {
+    if (
+      isLogin &&
+      Object.keys(teacherChoice).length === 0 &&
+      Object.keys(schoolClassMapForTeacher).length > 0
+    ) {
+      const schoolYearClassMap = {};
+      Object.keys(schoolClassMapForTeacher).forEach((school) => {
+        schoolYearClassMap[school] = Object.keys(
+          schoolClassMapForTeacher[school]
+        ).reduce((acc, key) => {
+          const [, yearClass] = key.split(":"); // Ignore the school part, split by ':'
+          const [year, classTag] = yearClass.split("-"); // Split by '-' to get year and class tag
+          if (!acc[year]) {
+            acc[year] = [];
+          }
+          acc[year].push(classTag);
+          return acc;
+        }, {});
+      });
+      queryTeachOrPrincipal(schoolYearClassMap);
+      //setIsTeacherMapLoaded(true);
+    }
 
-    // Create title element
-    const title = document.createElement("h2");
-    title.textContent = "Choose your onboarding view";
-    title.style.marginBottom = "20px"; // Space below the title
-    modal.appendChild(title);
+    function queryTeachOrPrincipal(schoolYearClassMap) {
+      // Create the modal container
+      const modal = document.createElement("div");
+      modal.style.position = "fixed";
+      modal.style.top = "50%";
+      modal.style.left = "50%";
+      modal.style.width = "400px";
+      modal.style.height = "auto"; // Adjusted for content size
+      modal.style.transform = "translate(-50%, -50%)";
+      modal.style.backgroundColor = "#EFEFEF";
+      //modal.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+      modal.style.display = "flex";
+      modal.style.justifyContent = "center";
+      modal.style.alignItems = "center";
+      modal.style.flexDirection = "column";
+      modal.style.padding = "20px";
+      modal.style.zIndex = "1000"; // Make sure it's on top
 
-    // Create Teacher's button
-    const teacherButton = document.createElement("button");
-    teacherButton.textContent = "Teacher's Onboarding View";
-    teacherButton.style.marginBottom = "10px"; // Space between buttons
-    teacherButton.onclick = function () {
-      setUserType("teacher");
-      document.body.removeChild(modal); // Remove the modal on click
-    };
-    modal.appendChild(teacherButton);
+      // Create title element
+      const title = document.createElement("h2");
+      title.textContent = "Choose your onboarding view";
+      title.style.marginBottom = "20px"; // Space below the title
+      modal.appendChild(title);
 
-    // Create Principal's button
-    const principalButton = document.createElement("button");
-    principalButton.textContent = "Principal's Onboarding View";
-    principalButton.onclick = function () {
-      setUserType("principal");
-      document.body.removeChild(modal); // Remove the modal on click
-    };
-    modal.appendChild(principalButton);
+      // Create the dropdowns
+      const schoolSelect = document.createElement("select");
+      const yearSelect = document.createElement("select");
+      const classSelect = document.createElement("select");
 
-    // Append modal to the body
-    document.body.appendChild(modal);
-  }
+      // Function to update Year options based on selected School
+      function updateYearOptions(selectedSchool) {
+        yearSelect.innerHTML = ""; // Clear previous options
+        Object.keys(schoolYearClassMap[selectedSchool]).forEach((year) => {
+          const option = document.createElement("option");
+          option.value = year;
+          option.textContent = year;
+          yearSelect.appendChild(option);
+        });
+        updateClassOptions(selectedSchool, yearSelect.value); // Update class options for the initial year
+      }
+
+      // Function to update Class options based on selected School and Year
+      function updateClassOptions(selectedSchool, selectedYear) {
+        classSelect.innerHTML = ""; // Clear previous options
+        schoolYearClassMap[selectedSchool][selectedYear].forEach((cls) => {
+          const option = document.createElement("option");
+          option.value = cls;
+          option.textContent = cls;
+          classSelect.appendChild(option);
+        });
+      }
+
+      // Populate School dropdown and initial cascading options
+      Object.keys(schoolYearClassMap).forEach((school) => {
+        const option = document.createElement("option");
+        option.value = school;
+        option.textContent = school;
+        schoolSelect.appendChild(option);
+      });
+      updateYearOptions(schoolSelect.value); // Initially populate year and class based on first school
+
+      // Event listener to update Year and Class dropdowns when School changes
+      schoolSelect.addEventListener("change", () => {
+        updateYearOptions(schoolSelect.value);
+      });
+
+      // Event listener to update Class dropdown when Year changes
+      yearSelect.addEventListener("change", () => {
+        updateClassOptions(schoolSelect.value, yearSelect.value);
+      });
+
+      // Create Teacher's button
+      const teacherButton = document.createElement("button");
+      teacherButton.textContent = "Teacher's Onboarding View";
+      teacherButton.style.marginBottom = "10px"; // Space between buttons
+      teacherButton.onclick = function () {
+        setUserType("teacher");
+        setTeacherChoice({
+          school: schoolSelect.value,
+          year: yearSelect.value,
+          class: classSelect.value,
+        });
+        document.body.removeChild(modal); // Remove the modal on click
+      };
+      // Append dropdowns to modal before the buttons
+      // Container for selects and button
+      const selectionContainer = document.createElement("div");
+      selectionContainer.style.border = "1px solid #ccc";
+      selectionContainer.style.padding = "10px";
+      selectionContainer.style.marginBottom = "20px"; // Space between container and button
+
+      // Create and append labels and selects with style adjustments
+      function createSelectWithLabel(labelText, selectElement) {
+        const container = document.createElement("div");
+        container.style.display = "flex";
+        container.style.alignItems = "center";
+        container.style.marginBottom = "10px"; // Space between rows
+
+        const label = document.createElement("label");
+        label.textContent = labelText;
+        label.style.marginRight = "10px"; // Space between label and select
+
+        container.appendChild(label);
+        container.appendChild(selectElement);
+        selectionContainer.appendChild(container);
+      }
+
+      // Adjust styles for selects for better appearance
+      [schoolSelect, yearSelect, classSelect].forEach((select) => {
+        select.style.width = "40%";
+        //select.style.marginBottom = "10px";
+      });
+
+      // Create and append each select with its label
+      createSelectWithLabel("School:", schoolSelect);
+      createSelectWithLabel("Year:", yearSelect);
+      createSelectWithLabel("Class:", classSelect);
+
+      // Append the selection container before the buttons in the modal
+      modal.appendChild(selectionContainer);
+
+      // Modify teacherButton style to be within the container
+      teacherButton.style.width = "100%";
+      selectionContainer.appendChild(teacherButton);
+
+      //modal.appendChild(teacherButton);
+
+      // Create Principal's button
+      const principalButton = document.createElement("button");
+      principalButton.textContent = "Principal's Onboarding View";
+      principalButton.onclick = function () {
+        setUserType("principal");
+        document.body.removeChild(modal);
+      };
+      modal.appendChild(principalButton);
+
+      // Append modal to the body
+      document.body.appendChild(modal);
+    }
+  }, [isLogin, schoolClassMapForTeacher, teacherChoice]);
+
+  console.log("userType after choose teacher: ", userType);
 
   return (
     <Router basename="literacy-data-visualizer">
@@ -227,6 +344,7 @@ const App = () => {
                   element={
                     <ScatterPage
                       data={data}
+                      setSchoolClassMapForTeacher={setSchoolClassMapForTeacher}
                       logicFilteredData={logicFilteredData}
                       setLogicFilteredData={setLogicFilteredtData}
                       xField={xField}

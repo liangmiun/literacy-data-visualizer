@@ -33,6 +33,7 @@ const ScatterPage = (props) => {
     rangeOptions,
     checkedOptions,
     seasonField,
+    setSchoolClassMapForTeacher,
   } = props;
 
   const trends = {
@@ -63,6 +64,7 @@ const ScatterPage = (props) => {
   const [showAverageLine, setShowAverageLine] = useState(false);
   const [meanScores, setMeanScores] = useState(new Map());
 
+  // Set average line data
   useEffect(() => {
     const treeViewSelectedGrades = new Set(
       selectedClasses.map((item) => parseInt(item.class.replace(/\D/g, ""), 10))
@@ -130,6 +132,7 @@ const ScatterPage = (props) => {
     isClassView,
   ]);
 
+  //set school-classes map and color scale
   useEffect(() => {
     if (Object.keys(data).length > 0) {
       const nonNullLexploreData = data.filter(
@@ -147,6 +150,20 @@ const ScatterPage = (props) => {
       });
     }
   }, [data, tenureGroupOption]);
+
+  useEffect(() => {
+    if (Object.keys(data).length > 0) {
+      const nonNullLexploreData = data.filter(
+        (d) => d["Lexplore Score"] !== null
+      );
+      const flatSchoolClasses = generateSchoolLastingClassMap(
+        nonNullLexploreData,
+        "school-year"
+      );
+      console.log("flatSchoolClasses", flatSchoolClasses);
+      setSchoolClassMapForTeacher(flatSchoolClasses);
+    }
+  }, [data, setSchoolClassMapForTeacher]);
 
   useEffect(() => {
     let allClassesList = [];
