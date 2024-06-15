@@ -35,7 +35,8 @@ export function drawIndividualAverageTemporalLines(
       "stroke",
       (d) => colorScale(d[0]) //: "rgba(128, 128, 128, 0.6)"
     )
-    .attr("stroke-width", 4);
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "10,10");
 }
 
 export function drawAggregateAverageTemporalLines(
@@ -85,7 +86,8 @@ export function drawAggregateAverageTemporalLines(
     })
     .attr("fill", "none")
     .attr("stroke", "rgba(128, 128, 128, 0.6)")
-    .attr("stroke-width", 4);
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "10,10");
 }
 
 export const formatDate = d3.timeFormat("%y-%m-%d");
