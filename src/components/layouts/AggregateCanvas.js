@@ -297,6 +297,7 @@ const ViolinPlots = (props) => {
       xMainBandScale,
       yScale,
       yField,
+      seasonField,
       xAxis,
       getSubBandScale,
       newXScaleRef,
@@ -529,6 +530,7 @@ const BoxPlots = (props) => {
       xMainBandScale,
       yScale,
       yField,
+      seasonField,
       xAxis,
       getSubBandScale,
       newXScaleRef,
@@ -826,6 +828,7 @@ const CirclePlots = (props) => {
         xMainBandScale,
         yScale,
         yField,
+        seasonField,
         xAxis,
         getSubBandScale,
         newXScaleRef,
@@ -946,6 +949,7 @@ function setAggregationZoom(
   xMainBandScale,
   yScale,
   yField,
+  seasonField,
   xAxis,
   getSubBandScale,
   newXScaleRef,
@@ -971,6 +975,7 @@ function setAggregationZoom(
     d3.zoomTransform(svg.node()) !== d3.zoomIdentity
   ) {
     const zoomState = d3.zoomTransform(svg.node()); // Get the current zoom state
+
     renderer(
       zoomState,
       xMainBandScale,
@@ -979,6 +984,7 @@ function setAggregationZoom(
       "linear",
       "season",
       yField,
+      seasonField,
       null,
       connectIndividual,
       g,
@@ -1000,6 +1006,7 @@ function setAggregationZoom(
     "linear",
     "season",
     yField,
+    seasonField,
     null,
     connectIndividual,
     svg,

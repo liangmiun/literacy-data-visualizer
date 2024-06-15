@@ -7,15 +7,14 @@ export const parseDate = (rawDateInput) =>
 
 export function drawIndividualAverageTemporalLines(
   collection,
-  xScale,
-  yScale,
   colorScale,
-  meanScoresIn
+  meanScoresIn,
+  lineGenerator
 ) {
-  const lineGenerator = d3
-    .line()
-    .x((d) => xScale(getStrValue(d.date, "time")))
-    .y((d) => yScale(getStrValue(d.meanScore, "linear")));
+  // const lineGenerator = d3
+  //   .line()
+  //   .x((d) => xScale(getStrValue(d.date, "time")))
+  //   .y((d) => yScale(getStrValue(d.meanScore, "linear")));
 
   const meanScoresEntries = Array.from(meanScoresIn);
 
@@ -47,7 +46,6 @@ export function drawAggregateAverageTemporalLines(
   subBandWidth,
   seasonField
 ) {
-  console.log("start making line average");
   const lineGenerator = d3
     .line()
     .x((d) => {
@@ -55,7 +53,7 @@ export function drawAggregateAverageTemporalLines(
         xScale(Season(getStrValue(d.date, "time"), seasonField)) +
         subBandWidth / 2
       );
-    }) //season needed here.
+    })
     .y((d) => yScale(getStrValue(d.meanScore, "linear")));
 
   const meanScoresWithinDomain = new Map();
@@ -68,13 +66,6 @@ export function drawAggregateAverageTemporalLines(
     );
     meanScoresWithinDomain.set(key, filteredGroup);
   });
-
-  console.log(
-    "xScale.domain",
-    xScale.domain(),
-    "meanScoresWithinDomain",
-    meanScoresWithinDomain
-  );
 
   const meanScoresEntries = Array.from(meanScoresWithinDomain);
 

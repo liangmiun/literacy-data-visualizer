@@ -1,5 +1,10 @@
 import * as d3 from "d3";
-import { rescale, translateExtentStartEnd, formatDate } from "utils/Utils";
+import {
+  rescale,
+  translateExtentStartEnd,
+  formatDate,
+  getStrValue,
+} from "utils/Utils";
 import { aggregationConfigs } from "utils/configEditor.js";
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
@@ -677,6 +682,7 @@ export function createAggrZoomBehavior(
   yType,
   xField,
   yField,
+  seasonField,
   line,
   connectIndividual,
   svg,
@@ -704,6 +710,7 @@ export function createAggrZoomBehavior(
         yType,
         xField,
         yField,
+        seasonField,
         line,
         connectIndividual,
         g,
@@ -727,6 +734,7 @@ export function boxZoomRender(
   yType,
   xField,
   yField,
+  seasonField,
   line,
   connectIndividual,
   g,
@@ -787,6 +795,7 @@ export function boxZoomRender(
     connectIndividual,
     xField,
     yField,
+    seasonField,
     line,
     studentsChecked
   );
@@ -800,6 +809,7 @@ export function circleZoomRender(
   yType,
   xField,
   yField,
+  seasonField,
   line,
   connectIndividual,
   g,
@@ -841,6 +851,7 @@ export function circleZoomRender(
     connectIndividual,
     xField,
     yField,
+    seasonField,
     line,
     studentsChecked
   );
@@ -854,6 +865,7 @@ export function violinZoomRender(
   yType,
   xField,
   yField,
+  seasonField,
   line,
   connectIndividual,
   g,
@@ -906,6 +918,7 @@ export function violinZoomRender(
     connectIndividual,
     xField,
     yField,
+    seasonField,
     line,
     studentsChecked
   );
@@ -921,6 +934,7 @@ function commonPartRender(
   connectIndividual,
   xField,
   yField,
+  seasonField,
   line,
   studentsChecked
 ) {
@@ -966,6 +980,18 @@ function commonPartRender(
       connectIndividual
     );
   }
+
+  g.selectAll(".reference-line-path").attr("d", (d) => {
+    return d3
+      .line()
+      .x((data) => {
+        return (
+          zoomXScale(Season(getStrValue(data.date, "time"), seasonField)) +
+          subBandWidth / 2
+        );
+      })
+      .y((data) => zoomYScale(getStrValue(data.meanScore, "linear")))(d[1]);
+  });
 }
 
 export function init_ZoomSetting(

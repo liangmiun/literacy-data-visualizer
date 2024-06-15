@@ -106,10 +106,15 @@ const ScatterCanvas = React.memo(
       const xAxis = d3.axisBottom(xScale);
       const yAxis = d3.axisLeft(yScale);
 
-      const line = d3
+      const individualLineGenerator = d3
         .line()
         .x((d) => xScale(getStrValue(d[xField], xType)))
         .y((d) => yScale(getStrValue(d[yField], yType)));
+
+      const averageLineGenerator = d3
+        .line()
+        .x((d) => xScale(getStrValue(d.date, "time")))
+        .y((d) => yScale(getStrValue(d.meanScore, "linear")));
 
       let combinedCircleSelection = [];
       let selectedCircles = [];
@@ -123,10 +128,9 @@ const ScatterCanvas = React.memo(
       if (showAverageLine) {
         drawIndividualAverageTemporalLines(
           scatter,
-          xScale,
-          yScale,
           colorScale,
-          meanScores
+          meanScores,
+          averageLineGenerator
         );
       }
 
@@ -189,7 +193,7 @@ const ScatterCanvas = React.memo(
           .append("path")
           .attr("class", "line-path")
           .attr("d", (d) => {
-            return line(d);
+            return individualLineGenerator(d);
           })
           .attr("fill", "none")
           .attr("stroke", "rgba(128, 128, 128, 0.6)")
@@ -248,7 +252,8 @@ const ScatterCanvas = React.memo(
             yType,
             xField,
             yField,
-            line,
+            individualLineGenerator,
+            averageLineGenerator,
             xAxis,
             yAxis,
             newXScaleRef,
@@ -264,7 +269,8 @@ const ScatterCanvas = React.memo(
           yType,
           xField,
           yField,
-          line,
+          individualLineGenerator,
+          averageLineGenerator,
           xAxis,
           yAxis,
           newXScaleRef,
@@ -385,7 +391,7 @@ const ScatterCanvas = React.memo(
 
             g.selectAll(".line-path").attr(
               "d",
-              line
+              individualLineGenerator
                 .x((d) => newXScaleRef.current(d[xField]))
                 .y((d) => newYScaleRef.current(d[yField]))
             );
@@ -493,7 +499,8 @@ function createZoomBehavior(
   yType,
   xField,
   yField,
-  line,
+  indivLine,
+  avrLine,
   xAxis,
   yAxis,
   newXScaleRef,
@@ -513,7 +520,8 @@ function createZoomBehavior(
         yType,
         xField,
         yField,
-        line,
+        indivLine,
+        avrLine,
         xAxis,
         yAxis,
         newXScaleRef,
@@ -531,7 +539,8 @@ function zoomRender(
   yType,
   xField,
   yField,
-  line,
+  indivLine,
+  avrLine,
   xAxis,
   yAxis,
   newXScaleRef,
@@ -557,12 +566,19 @@ function zoomRender(
 
   g.selectAll(".line-path").attr(
     "d",
-    line
+    indivLine
       .x((d) => {
         return zoomXScale(getStrValue(d[xField], xType));
       })
       .y((d) => zoomYScale(getStrValue(d[yField], yType)))
   );
+
+  g.selectAll(".reference-line-path").attr("d", (d) => {
+    return d3
+      .line()
+      .x((data) => zoomXScale(getStrValue(data.date, "time")))
+      .y((data) => zoomYScale(getStrValue(data.meanScore, "linear")))(d[1]); // Ensure that d[1] is used correctly for both x and y mappings
+  });
 
   // Update the axes with the new scales
   const xAxisGroup = g.select(".x-axis");
