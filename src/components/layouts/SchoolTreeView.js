@@ -18,6 +18,7 @@ import { grayTheme } from "assets/themes.js";
 import { EmptyCheckBoxBlankIcon } from "assets/themes.js";
 import { tenureSequenceTag } from "utils/tenureFormat.js";
 import { colors20 } from "utils/Utils";
+import { labels } from "utils/constants";
 
 function SchoolTreeView(props) {
   const {
@@ -99,14 +100,14 @@ function SchoolTreeView(props) {
           title="Select schools and classes: ☑ for all, ☐ for none and ▣ for some."
           followCursor
         >
-          <label>Filter by School and Class </label>
+          <label>{labels.filterBySchoolandClass} </label>
         </Tooltip>
       </h4>
 
       <div style={{ display: "flex", justifyContent: "center" }}>
         <FormControl size="small">
           <Tooltip title="Select variable on vertical axis" followCursor>
-            <InputLabel>Group classes by</InputLabel>
+            <InputLabel>{labels.groupClassBy}</InputLabel>
           </Tooltip>
           <MuiSelect
             sx={{ width: "8vw", height: "1.5vw" }}
@@ -155,8 +156,7 @@ function SchoolTreeView(props) {
             nodeId="root"
             label={
               <div className="school-tree-label">
-                Schools
-                {/* 2. Add a clear button beside the "Schools" label */}
+                {labels.schoolTreeTopLevelTag}
               </div>
             }
           >

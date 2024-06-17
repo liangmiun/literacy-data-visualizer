@@ -3,6 +3,7 @@ import AppLevelContext from "context/AppLevelContext";
 import "react-filter-box/lib/react-filter-box.css";
 import * as React from "react";
 import Tooltip from "@mui/material/Tooltip";
+import { labels } from "utils/constants";
 
 const LogicCanvas = ({}) => {
   const {
@@ -47,10 +48,7 @@ const LogicCanvas = ({}) => {
           title='Filter data using logical expressions  with "( , ) , == , != , contains , !contains , > , <" operators.'
           followCursor
         >
-          <label>
-            Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt;
-            500"{" "}
-          </label>
+          <label>{labels.symbolicFilterTag} </label>
         </Tooltip>
       </h4>
       <FilterDemo

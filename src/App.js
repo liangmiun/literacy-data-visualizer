@@ -12,7 +12,9 @@ import {
 import { rowParser, load } from "./utils/Utils";
 import {
   data_fields,
+  x_data_fields,
   y_data_fields,
+  labels,
   season_choice_fields,
   teacher_choice_preset,
 } from "./utils/constants";
@@ -53,9 +55,8 @@ const App = () => {
   const [isClassView, setIsClassView] = useState(true);
   const [aggregateType, setAggregateType] = useState("circle");
   const fields = data_fields;
-  const fields_x = isClassView
-    ? season_choice_fields
-    : data_fields.filter((element) => !y_data_fields.includes(element));
+  const fields_x = isClassView ? season_choice_fields : x_data_fields;
+  console.log("fields x: ", fields_x);
   const fields_y = y_data_fields;
   const [userType, setUserType] = useState("principal");
   const [schoolClassMapForTeacher, setSchoolClassMapForTeacher] = useState({});
@@ -405,17 +406,17 @@ function Navigation({ currentUser }) {
         {currentUser ? (
           <>
             <li className="header-li-style">
-              <Link to="/">Plot</Link>
+              <Link to="/">{labels.plotPage}</Link>
             </li>
             <li className="header-li-style">
-              <Link to="/help">Help</Link>
+              <Link to="/help">{labels.helpPage}</Link>
             </li>
             <li className="header-li-style">
-              <Link to="/about">About</Link>
+              <Link to="/about">{labels.aboutPage}</Link>
             </li>
             {location.pathname !== "/" && (
               <li className="header-li-style">
-                <Link to="/logout">Logout</Link>
+                <Link to="/logout">{labels.logoutPage}</Link>
               </li>
             )}
           </>

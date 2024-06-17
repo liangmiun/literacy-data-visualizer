@@ -10,6 +10,7 @@ import Tooltip from "@mui/material/Tooltip";
 import "assets/AxisSelectionCanvas.css";
 import { Editor } from "utils/configEditor.js";
 import { ShowHelp } from "components/screens/Help";
+import { labels, color_fields } from "utils/constants.js";
 
 const AxisSelectionCanvas = (props) => {
   const appContextValue = useContext(AppLevelContext);
@@ -21,16 +22,10 @@ const AxisSelectionCanvas = (props) => {
     value: field,
     label: field,
   }));
-  const colorOptions = [
-    "Skola",
-    "Årskurs",
-    "Klass",
-    "Läsår",
-    "Stanine",
-    "Läsnivå (5 = hög)",
-    "Invandringsdatum",
-    "Kön",
-  ].map((field) => ({ value: field, label: field }));
+  const colorOptions = color_fields.map((field) => ({
+    value: field,
+    label: field,
+  }));
   const onSavePreset = () => {
     appContextValue.save();
   };
@@ -64,7 +59,7 @@ const AxisSelectionCanvas = (props) => {
         <button className="btn import-button" onClick={handleClick}>
           {/* Assuming Tooltip is a component from a library like Material-UI; adjust as needed */}
           <Tooltip title="Import csv-format source data" followCursor>
-            <span>Import Data</span>
+            <span>{labels.importData}</span>
           </Tooltip>
         </button>
       </div>
@@ -78,10 +73,9 @@ const AxisSelectionCanvas = (props) => {
   // Define the trend-to-string mapping dictionary
   const trendToLabel = {
     [props.trendSet.all]: "  ", // Assuming props.trendSet.all is a constant value
-    [props.trendSet.overall_decline]: "with slope <", // Assuming props.trendSet.overall_decline is a constant value
-    [props.trendSet.logarithmic_decline]: "with coeff <", // Assuming props.trendSet.individual_decline is a constant value
-    [props.trendSet.last_time_decline]: "with value <", // Assuming props.trendSet.individual_decline is a constant value
-    // Add other mappings as necessary
+    [props.trendSet.overall_decline]: labels.trendOverallSlope,
+    [props.trendSet.logarithmic_decline]: labels.trendLogSlope,
+    [props.trendSet.last_time_decline]: labels.trendLastTimeValue,
   };
 
   return (
@@ -122,7 +116,7 @@ function Axes({ x_options, y_options, colorOptions }) {
       <div className="field-pair">
         <FormControl fullWidth size="small">
           <Tooltip title="Select variable on horizontal axis" followCursor>
-            <InputLabel id="x-field-label">X-field</InputLabel>
+            <InputLabel id="x-field-label">{labels.xFieldLabel}</InputLabel>
           </Tooltip>
           <div>
             <MuiSelect
@@ -139,7 +133,7 @@ function Axes({ x_options, y_options, colorOptions }) {
                   ? appContextValue.setSeasonField(event.target.value)
                   : appContextValue.setXField(event.target.value);
               }}
-              label="X-field"
+              label={labels.xFieldLabel}
             >
               {x_options.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -154,7 +148,7 @@ function Axes({ x_options, y_options, colorOptions }) {
       <div className="field-pair">
         <FormControl fullWidth size="small">
           <Tooltip title="Select variable on vertical axis" followCursor>
-            <InputLabel id="y-field-label">Y-field</InputLabel>
+            <InputLabel id="y-field-label">{labels.yFieldLabel}</InputLabel>
           </Tooltip>
 
           <Tooltip
@@ -178,7 +172,7 @@ function Axes({ x_options, y_options, colorOptions }) {
               onChange={(event) =>
                 appContextValue.setYField(event.target.value)
               }
-              label="Y-field"
+              label={labels.yFieldLabel}
             >
               {y_options.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -193,7 +187,9 @@ function Axes({ x_options, y_options, colorOptions }) {
       <div className="field-pair">
         <FormControl fullWidth size="small">
           <Tooltip title="Select variable for color coded data" followCursor>
-            <InputLabel id="color-field-label">Color</InputLabel>
+            <InputLabel id="color-field-label">
+              {labels.colorFieldLabel}
+            </InputLabel>
           </Tooltip>
 
           <Tooltip
@@ -218,7 +214,7 @@ function Axes({ x_options, y_options, colorOptions }) {
                 onChange={(event) =>
                   appContextValue.setColorField(event.target.value)
                 }
-                label="Color-field"
+                label={labels.colorFieldLabel}
               >
                 {colorOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -244,7 +240,7 @@ function TrendBar({ props, trendOptions, handleTrendChange, trendToLabel }) {
             title="show all records or only declining records"
             followCursor
           >
-            <InputLabel id="trend-label">Trend</InputLabel>
+            <InputLabel id="trend-label">{labels.trendFieldLabel}</InputLabel>
           </Tooltip>
 
           <Tooltip
@@ -262,7 +258,7 @@ function TrendBar({ props, trendOptions, handleTrendChange, trendToLabel }) {
                 id="trend"
                 value={props.trend}
                 onChange={handleTrendChange}
-                label="Trend"
+                label={labels.trendFieldLabel}
               >
                 {trendOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -325,7 +321,7 @@ function ShowLinesToggle({ props }) {
             title="Line-connect records from identical individuals"
             followCursor
           >
-            <label> Show lines </label>
+            <label> {labels.showLine} </label>
           </Tooltip>
         </div>
 
@@ -350,7 +346,7 @@ function ShowLinesToggle({ props }) {
               title="Show average Lexplore Score of all individuals in this municipality as reference line"
               followCursor
             >
-              <label> Show Municipal Average </label>
+              <label> {labels.showAverage} </label>
             </Tooltip>
           </div>
         </div>
@@ -396,7 +392,7 @@ function ClassViewBar({ props }) {
             }}
           >
             {" "}
-            Class/ Tenure View{" "}
+            {labels.tenureCheckbox}{" "}
           </label>
         </Tooltip>
       </div>
@@ -424,21 +420,25 @@ function ClassViewBar({ props }) {
                 control={
                   <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 12 } }} />
                 }
-                label={<div style={{ fontSize: 12 }}> Box </div>}
+                label={<div style={{ fontSize: 12 }}> {labels.boxToggle} </div>}
               />
               <FormControlLabel
                 value="violin"
                 control={
                   <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 12 } }} />
                 }
-                label={<div style={{ fontSize: 12 }}> Violin </div>}
+                label={
+                  <div style={{ fontSize: 12 }}> {labels.violinToggle} </div>
+                }
               />
               <FormControlLabel
                 value="circle"
                 control={
                   <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 12 } }} />
                 }
-                label={<div style={{ fontSize: 12 }}> Circle </div>}
+                label={
+                  <div style={{ fontSize: 12 }}> {labels.circleToggle} </div>
+                }
               />
             </RadioGroup>
           </FormControl>
@@ -471,7 +471,7 @@ function ClassViewBar({ props }) {
                 title="Whether to show individual dots on the class view"
                 followCursor
               >
-                <label> Present Individuals </label>
+                <label> {labels.presentIndividual} </label>
               </Tooltip>
             </div>
 
@@ -494,7 +494,7 @@ function ClassViewBar({ props }) {
                 title="Switch whether to show lines connecting individual dots on aggregation view; Unavailable when more than 2 schools selected ."
                 followCursor
               >
-                <label>Connect individuals </label>
+                <label>{labels.connectIndividual} </label>
               </Tooltip>
             </div>
           </div>
@@ -515,7 +515,7 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
         onClick={() => handleResetToOnboarding()} // function to reset the state to the initial state
       >
         <Tooltip title="Reset to on-boarding view" followCursor>
-          <label>Reset</label>
+          <label>{labels.reset}</label>
         </Tooltip>
       </button>
 
@@ -525,7 +525,7 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
         onClick={() => handleResetToLatest()} // function to reset the state to the initial state
       >
         <Tooltip title="Reset to view of the last saved preset" followCursor>
-          <label>Reset to latest saved</label>
+          <label>{labels.resetLatest}</label>
         </Tooltip>
       </button>
 
@@ -538,7 +538,7 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
           title="Save current filters, axis fields and view mode settings to a preset file"
           followCursor
         >
-          <label>Save Preset</label>
+          <label>{labels.savePreset}</label>
         </Tooltip>
       </button>
 
@@ -551,7 +551,7 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
           title="Load filters, axis fields and view mode settings from a preset"
           followCursor
         >
-          <label>Load Preset</label>
+          <label>{labels.loadPreset}</label>
         </Tooltip>
       </button>
 

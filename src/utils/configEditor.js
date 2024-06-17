@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "assets/AxisSelectionCanvas.css";
+import { labels } from "utils/constants";
 
 let editorConfigs = {
   _comments: "Keep all comments within this pair of quotes.",
@@ -84,7 +85,7 @@ export function Editor({ triggerRenderByConfigChange }) {
             rows={20}
             cols={50}
           />
-          <button onClick={handleSave}>Save Config</button>
+          <button onClick={handleSave}>{labels.saveConfig}</button>
         </div>
       ) : (
         <button
@@ -92,7 +93,7 @@ export function Editor({ triggerRenderByConfigChange }) {
           onClick={() => setIsEditing(true)}
           style={{ marginLeft: "5px" }}
         >
-          Edit Config
+          {labels.editConfig}
         </button>
       )}
     </div>

@@ -8,6 +8,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { grayTheme } from "assets/themes.js";
 import Tooltip from "@mui/material/Tooltip";
 import { EmptyCheckBoxBlankIcon } from "assets/themes.js";
+import { labels } from "utils/constants";
 
 export function OptionSelectGroup({
   data,
@@ -62,7 +63,7 @@ export function OptionSelectGroup({
 
   return (
     <div className="option-select-group" style={{ margin: "0px 3px" }}>
-      <h4 style={{ textAlign: "center" }}>Filter by option/range </h4>
+      <h4 style={{ textAlign: "center" }}> {labels.filterByOptionRange} </h4>
 
       <div
         style={{

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import { labels } from "utils/constants";
 import "assets/AxisSelectionCanvas.css";
 
 const Help = () => {
   const [markdown, setMarkdown] = useState("");
-  const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
     fetch(process.env.PUBLIC_URL + "/HELP.md")
@@ -13,16 +13,11 @@ const Help = () => {
   }, []);
 
   return (
-    // <>
-    //     <div>
-    //         <ReactMarkdown>{markdown}</ReactMarkdown>
-    //     </div>
-    // </>
-    <HelpWindow
-      isOpen={showHelp}
-      markdown={markdown}
-      onClose={() => setShowHelp(false)}
-    />
+    <>
+      <div>
+        <ReactMarkdown>{markdown}</ReactMarkdown>
+      </div>
+    </>
   );
 };
 
@@ -79,7 +74,7 @@ export const ShowHelp = () => {
   return (
     <div className="btn">
       <button className="btn" onClick={() => setShowHelp(true)}>
-        Help
+        {labels.help}
       </button>
       <HelpWindow
         isOpen={showHelp}

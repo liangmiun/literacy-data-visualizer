@@ -6,18 +6,8 @@ import { OptionSelectGroup } from "./ValueSelect";
 import "assets/App.css";
 
 const FilterCanvas = (props) => {
-  // data={data}
-  // fields={props.fields}
-  // selectedClasses={selectedClasses}
-  // setSelectedClasses={setSelectedClasses}
-  // rangeOptions={props.rangeOptions}
-  // setRangeOptions={props.setRangeOptions}
-  // checkedOptions={props.checkedOptions}
-  // setCheckedOptions={props.setCheckedOptions}
-  // isClassView={isClassView}
   const {
     data,
-    fields,
     selectedClasses,
     setSelectedClasses,
     rangeOptions,

@@ -12,7 +12,7 @@ import {
   drawIndividualAverageTemporalLines,
   getStrValue,
 } from "utils/Utils";
-import { plotMargin, categoricals } from "utils/constants";
+import { plotMargin, categoricals, labels } from "utils/constants";
 
 const ScatterCanvas = React.memo(
   ({ shownData, setSelectedRecords, showAverageLine, meanScores }) => {
@@ -431,7 +431,7 @@ const ScatterCanvas = React.memo(
             margin: "10px",
           }}
         >
-          {brushing ? "de-brush" : "brush"}
+          {brushing ? labels.deBrushTag : labels.brushTag}
         </button>
       </div>
     );

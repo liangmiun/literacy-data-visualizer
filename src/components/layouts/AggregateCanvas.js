@@ -8,6 +8,7 @@ import {
 } from "utils/Utils";
 import * as AggregateUtils from "utils/AggregateUtils";
 import { plotMargin } from "utils/constants";
+import { labels } from "utils/constants";
 
 const AggregateCanvas = (props) => {
   const {
@@ -887,7 +888,7 @@ function drawCommonAggrParts(svg, g, xAxis, yField, yScale, dimensions) {
     .attr("x", innerAggrWidth / 2)
     .attr("dy", "1em")
     .style("text-anchor", "middle")
-    .text("Periods of Testdatum");
+    .text(labels.aggregateView_X_tag);
 
   // Add the x-axis to the group element
   g.append("g")
