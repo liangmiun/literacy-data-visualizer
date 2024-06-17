@@ -11,11 +11,6 @@ export function drawIndividualAverageTemporalLines(
   meanScoresIn,
   lineGenerator
 ) {
-  // const lineGenerator = d3
-  //   .line()
-  //   .x((d) => xScale(getStrValue(d.date, "time")))
-  //   .y((d) => yScale(getStrValue(d.meanScore, "linear")));
-
   const meanScoresEntries = Array.from(meanScoresIn);
 
   // Bind data and create a group for each colorValue
@@ -111,39 +106,6 @@ export function getStrValue(value, type) {
   }
   return value;
 }
-
-export const data_fields = [
-  "Testdatum",
-  "Lexplore Score",
-  "Skola",
-  "Årskurs",
-  "Klass",
-  "Födelsedatum",
-  "Läsår",
-  "Percentil",
-  "Läsnivå (5 = hög)",
-  "Stanine",
-  "Standardpoäng",
-  "Antal korrekta svar",
-  "Antal fel svar",
-  "Antal frågor",
-  "Läshastighet medelvärde",
-  "Läshastighet högläsning",
-  "Läshastighet tystläsning",
-];
-
-export const y_data_fields = [
-  "Lexplore Score",
-  "Läsnivå (5 = hög)",
-  "Antal korrekta svar",
-  "Antal fel svar",
-  "Antal frågor",
-  "Läshastighet medelvärde",
-  "Läshastighet högläsning",
-  "Läshastighet tystläsning",
-];
-
-export const season_choice_fields = ["Month", "Quarter", "Semester"];
 
 export function rowParser(d) {
   // Initialize an empty object to hold the parsed fields
@@ -507,19 +469,6 @@ export function rescale(scale, zoomState, scaleType, dimension) {
       : zoomState.rescaleY(scale);
   }
 }
-
-export const categoricals = [
-  "Skola",
-  "Klass",
-  "Läsår",
-  "Årskurs",
-  "Läsnivå (5 = hög)",
-  "Stanine",
-  "Antal korrekta svar",
-  "Antal fel svar",
-  "Antal frågor",
-  "ElevID",
-];
 
 export function translateExtentStartEnd(coeffX, coeffY, svg) {
   var svgNode = svg.node();

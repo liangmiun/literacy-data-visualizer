@@ -9,13 +9,12 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
+import { rowParser, load } from "./utils/Utils";
 import {
-  rowParser,
-  load,
   data_fields,
   y_data_fields,
   season_choice_fields,
-} from "./utils/Utils";
+} from "./utils/constants";
 import { useAuth } from "./authentications/AuthContext";
 import ProtectedWrapper from "./authentications/ProtectedWrapper";
 import Login from "./authentications/Login";

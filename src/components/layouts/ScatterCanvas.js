@@ -5,16 +5,14 @@ import { set } from "d3-collection";
 import {
   colorLegend,
   rescale,
-  categoricals,
   translateExtentStartEnd,
   isDateFieldString,
   convertFieldDataType,
   fieldDomainTocolorScale,
-  //drawAverageReference,
   drawIndividualAverageTemporalLines,
   getStrValue,
 } from "utils/Utils";
-import { plotMargin } from "utils/constants";
+import { plotMargin, categoricals } from "utils/constants";
 
 const ScatterCanvas = React.memo(
   ({ shownData, setSelectedRecords, showAverageLine, meanScores }) => {
