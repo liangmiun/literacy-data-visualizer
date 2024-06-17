@@ -350,8 +350,9 @@ const App = () => {
   return (
     <Router basename="literacy-data-visualizer">
       <div className="grid-container">
-        <Navigation currentUser={currentUser} />
-        {/* Define routes */}
+        <div className="navigation-container">
+          <Navigation currentUser={currentUser} />
+        </div>
         <div className="content">
           <Routes>
             <Route
@@ -382,47 +383,7 @@ const App = () => {
                 <ProtectedWrapper
                   element={
                     <AppContextProvider value={appContextValue}>
-                      <ScatterPage
-                      // data={data}
-                      // setSchoolClassMapForTeacher={
-                      //   setSchoolClassMapForTeacher
-                      // }
-                      // logicFilteredData={logicFilteredData}
-                      // setLogicFilteredData={setLogicFilteredData}
-                      // xField={xField}
-                      // setXField={setXField}
-                      // yField={yField}
-                      // setYField={setYField}
-                      // seasonField={seasonField}
-                      // setSeasonField={setSeasonField}
-                      // colorField={colorField}
-                      // setColorField={setColorField}
-                      // fields={fields}
-                      // fields_x={fields_x}
-                      // fields_y={fields_y}
-                      // save={onSavePreset} //savePresetSetters
-                      // load={load}
-                      // query={query}
-                      // setQuery={setQuery}
-                      // expression={expression}
-                      // setExpression={setExpression}
-                      // selectedClasses={selectedClasses}
-                      // setSelectedClasses={setSelectedClasses}
-                      // checkedOptions={checkedOptions}
-                      // setCheckedOptions={setCheckedOptions}
-                      // rangeOptions={rangeOptions}
-                      // setRangeOptions={setRangeOptions}
-                      // handleFileUpload={onFileUpload}
-                      // setConfigFromPreset={onSetConfigFromPreset}
-                      // showLines={showLines}
-                      // setShowLines={setShowLines}
-                      // handleResetToOnboarding={onResetToOnboardingRef.current}
-                      // handleResetToLatest={onResetToLatest}
-                      // isClassView={isClassView}
-                      // setIsClassView={setIsClassView}
-                      // aggregateType={aggregateType}
-                      // setAggregateType={setAggregateType}
-                      />
+                      <ScatterPage />
                     </AppContextProvider>
                   }
                 />

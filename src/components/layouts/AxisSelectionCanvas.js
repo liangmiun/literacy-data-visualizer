@@ -9,6 +9,7 @@ import FormControl from "@mui/material/FormControl";
 import Tooltip from "@mui/material/Tooltip";
 import "assets/AxisSelectionCanvas.css";
 import { Editor } from "utils/configEditor.js";
+import { ShowHelp } from "components/screens/Help";
 
 const AxisSelectionCanvas = (props) => {
   const appContextValue = useContext(AppLevelContext);
@@ -557,6 +558,8 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
       <ImportDataButton handleFileUpload={handleFileUpload} />
 
       <Editor triggerRenderByConfigChange={props.triggerRenderByConfigChange} />
+
+      <ShowHelp />
     </div>
   );
 }

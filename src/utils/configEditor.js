@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "assets/AxisSelectionCanvas.css";
 
 let editorConfigs = {
   _comments: "Keep all comments within this pair of quotes.",
@@ -87,6 +88,7 @@ export function Editor({ triggerRenderByConfigChange }) {
         </div>
       ) : (
         <button
+          className="btn"
           onClick={() => setIsEditing(true)}
           style={{ marginLeft: "5px" }}
         >
