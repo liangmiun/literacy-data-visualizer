@@ -45,3 +45,9 @@ export const categoricals = [
   "Antal frågor",
   "ElevID",
 ];
+
+export const teacher_choice_preset = {
+  school: "Bodals skola",
+  class: "5A",
+  year: "21/22",
+};

@@ -14,6 +14,7 @@ import {
   data_fields,
   y_data_fields,
   season_choice_fields,
+  teacher_choice_preset,
 } from "./utils/constants";
 import { useAuth } from "./authentications/AuthContext";
 import ProtectedWrapper from "./authentications/ProtectedWrapper";
@@ -153,7 +154,6 @@ const App = () => {
         }, {});
       });
       queryTeachOrPrincipal(schoolYearClassMap);
-      //setIsTeacherMapLoaded(true);
     }
 
     function queryTeachOrPrincipal(schoolYearClassMap) {
@@ -215,7 +215,19 @@ const App = () => {
         option.textContent = school;
         schoolSelect.appendChild(option);
       });
+
+      schoolSelect.value = teacher_choice_preset.school;
       updateYearOptions(schoolSelect.value); // Initially populate year and class based on first school
+
+      setTimeout(() => {
+        // Use setTimeout to ensure DOM updates have been processed
+        yearSelect.value = teacher_choice_preset.year;
+        updateClassOptions(schoolSelect.value, yearSelect.value); // Populate classes based on the selected year and school
+      }, 0);
+
+      setTimeout(() => {
+        classSelect.value = teacher_choice_preset.class;
+      }, 0);
 
       // Event listener to update Year and Class dropdowns when School changes
       schoolSelect.addEventListener("change", () => {
@@ -280,8 +292,6 @@ const App = () => {
       // Modify teacherButton style to be within the container
       teacherButton.style.width = "100%";
       selectionContainer.appendChild(teacherButton);
-
-      //modal.appendChild(teacherButton);
 
       // Create Principal's button
       const principalButton = document.createElement("button");
