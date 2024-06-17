@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useContext } from "react";
+import AppLevelContext from "context/AppLevelContext";
 import * as d3 from "d3";
 import {
   formatTickValue,
@@ -9,7 +10,15 @@ import * as AggregateUtils from "utils/AggregateUtils";
 import { plotMargin } from "utils/constants";
 
 const AggregateCanvas = (props) => {
-  const { selectedClasses, groupOption, triggerRenderByConfig } = props;
+  const {
+    data: allData,
+    selectedClasses,
+    seasonField,
+    aggregateType,
+    showLines,
+  } = useContext(AppLevelContext);
+
+  const { groupOption, triggerRenderByConfig } = props;
   const [dimensions, setDimensions] = useState({
     width: 0.6 * window.innerWidth,
     height: 0.85 * window.innerHeight,
@@ -50,69 +59,40 @@ const AggregateCanvas = (props) => {
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
+  const commonProps = {
+    allData: allData,
+    shownData: props.shownData,
+    seasonField: seasonField,
+    yField: props.yField,
+    dimensions: dimensions,
+    checkedClasses: checkedClasses,
+    studentsChecked: props.studentsChecked,
+    classColors: props.classColors,
+    groupOption: groupOption,
+    showLines: showLines,
+    connectIndividual: props.connectIndividual,
+    triggerRenderByConfig: triggerRenderByConfig,
+    showAverageLine: props.showAverageLine,
+    meanScores: props.meanScores,
+  };
+
   return (
     <div ref={gridRef} className="scatter-canvas">
       {
-        // filteredData.length > 0 &&
         <>
-          {props.aggregateType === "violin" && (
-            <ViolinPlots
-              allData={props.allData}
-              shownData={props.shownData}
-              seasonField={props.seasonField}
-              yField={props.yField}
-              onViolinClick={props.onPartClick}
-              dimensions={dimensions}
-              checkedClasses={checkedClasses}
-              studentsChecked={props.studentsChecked}
-              classColors={props.classColors}
-              groupOption={groupOption}
-              showLines={props.showLines}
-              connectIndividual={props.connectIndividual}
-              triggerRenderByConfig={triggerRenderByConfig}
-              showAverageLine={props.showAverageLine}
-              meanScores={props.meanScores}
-            />
+          {aggregateType === "violin" && (
+            <ViolinPlots {...commonProps} onViolinClick={props.onPartClick} />
           )}
 
-          {props.aggregateType === "box" && (
-            <BoxPlots
-              allData={props.allData}
-              shownData={props.shownData}
-              seasonField={props.seasonField}
-              yField={props.yField}
-              onBoxClick={props.onPartClick}
-              dimensions={dimensions}
-              checkedClasses={checkedClasses}
-              studentsChecked={props.studentsChecked}
-              classColors={props.classColors}
-              groupOption={groupOption}
-              showLines={props.showLines}
-              connectIndividual={props.connectIndividual}
-              triggerRenderByConfig={triggerRenderByConfig}
-              showAverageLine={props.showAverageLine}
-              meanScores={props.meanScores}
-            />
+          {aggregateType === "box" && (
+            <BoxPlots {...commonProps} onBoxClick={props.onPartClick} />
           )}
 
-          {props.aggregateType === "circle" && (
+          {aggregateType === "circle" && (
             <CirclePlots
-              allData={props.allData}
-              shownData={props.shownData}
-              seasonField={props.seasonField}
-              yField={props.yField}
+              {...commonProps}
               onCircleClick={props.onPartClick}
-              dimensions={dimensions}
-              checkedClasses={checkedClasses}
-              studentsChecked={props.studentsChecked}
-              classColors={props.classColors}
-              groupOption={groupOption}
-              showLines={props.showLines}
-              connectIndividual={props.connectIndividual}
-              triggerRenderByConfig={triggerRenderByConfig}
-              showAverageLine={props.showAverageLine}
               selectedClasses={selectedClasses}
-              meanScores={props.meanScores}
             />
           )}
         </>
@@ -758,9 +738,8 @@ const CirclePlots = (props) => {
               groupOption
             );
             return classColors[item.school][sequenceID];
-            //return "black";
-          }) // Setting the stroke color to black
-          .attr("stroke-width", 2) // Setting the stroke width to 2 pixels
+          })
+          .attr("stroke-width", 2)
           .on("click", function (event, d) {
             d3.selectAll(".hollow-circles").attr("stroke-width", 2);
             d3.select(this).attr("stroke", "black").attr("stroke-width", 3);

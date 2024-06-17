@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+import React, { useContext, useRef } from "react";
+import AppLevelContext from "context/AppLevelContext";
 import { InputLabel, Select as MuiSelect, MenuItem } from "@mui/material";
 import { Slider } from "@mui/material";
 import Radio from "@mui/material/Radio";
@@ -10,11 +11,12 @@ import "assets/AxisSelectionCanvas.css";
 import { Editor } from "utils/configEditor.js";
 
 const AxisSelectionCanvas = (props) => {
-  const x_options = props.fields_x.map((field) => ({
+  const appContextValue = useContext(AppLevelContext);
+  const x_options = appContextValue.fields_x.map((field) => ({
     value: field,
     label: field,
   }));
-  const y_options = props.fields_y.map((field) => ({
+  const y_options = appContextValue.fields_y.map((field) => ({
     value: field,
     label: field,
   }));
@@ -29,10 +31,10 @@ const AxisSelectionCanvas = (props) => {
     "Kön",
   ].map((field) => ({ value: field, label: field }));
   const onSavePreset = () => {
-    props.save();
+    appContextValue.save();
   };
   const onLoadPreset = () => {
-    props.load(props.setConfig);
+    appContextValue.load(appContextValue.setConfig);
   };
   const trendOptions = Object.entries(props.trendSet).map(([key, value]) => ({
     value: value,
@@ -85,7 +87,6 @@ const AxisSelectionCanvas = (props) => {
     <div className="axis-selection-canvas">
       <div className="axis-canvas-row" style={{ display: "flex" }}>
         <Axes
-          props={props}
           x_options={x_options}
           y_options={y_options}
           colorOptions={colorOptions}
@@ -113,7 +114,8 @@ const AxisSelectionCanvas = (props) => {
   );
 };
 
-function Axes({ props, x_options, y_options, colorOptions }) {
+function Axes({ x_options, y_options, colorOptions }) {
+  const appContextValue = useContext(AppLevelContext);
   return (
     <div className="axes">
       <div className="field-pair">
@@ -126,11 +128,15 @@ function Axes({ props, x_options, y_options, colorOptions }) {
               labelId="x-field-label"
               id="x-field"
               sx={{ width: "7vw" }}
-              value={props.isClassView ? props.seasonField : props.xField} //props.isClassView? 'Testdatum': props.xField
+              value={
+                appContextValue.isClassView
+                  ? appContextValue.seasonField
+                  : appContextValue.xField
+              } //props.isClassView? 'Testdatum': props.xField
               onChange={(event) => {
-                props.isClassView
-                  ? props.onSeasonFieldChange(event.target.value)
-                  : props.onXFieldChange(event.target.value);
+                appContextValue.isClassView
+                  ? appContextValue.setSeasonField(event.target.value)
+                  : appContextValue.setXField(event.target.value);
               }}
               label="X-field"
             >
@@ -152,7 +158,7 @@ function Axes({ props, x_options, y_options, colorOptions }) {
 
           <Tooltip
             title={
-              props.isClassView
+              appContextValue.isClassView
                 ? "Y-field is locked to Lexplore Score in Class/Tenure View"
                 : ""
             }
@@ -160,11 +166,17 @@ function Axes({ props, x_options, y_options, colorOptions }) {
           >
             <MuiSelect
               labelId="y-field-label"
-              disabled={props.isClassView}
+              disabled={appContextValue.isClassView}
               id="y-field"
               sx={{ width: "9vw" }}
-              value={props.isClassView ? "Lexplore Score" : props.yField}
-              onChange={(event) => props.onYFieldChange(event.target.value)}
+              value={
+                appContextValue.isClassView
+                  ? "Lexplore Score"
+                  : appContextValue.yField
+              }
+              onChange={(event) =>
+                appContextValue.setYField(event.target.value)
+              }
               label="Y-field"
             >
               {y_options.map((option) => (
@@ -185,7 +197,7 @@ function Axes({ props, x_options, y_options, colorOptions }) {
 
           <Tooltip
             title={
-              props.isClassView
+              appContextValue.isClassView
                 ? "Color is locked to class names in Class View"
                 : ""
             }
@@ -193,13 +205,17 @@ function Axes({ props, x_options, y_options, colorOptions }) {
           >
             <div>
               <MuiSelect
-                disabled={props.isClassView}
+                disabled={appContextValue.isClassView}
                 labelId="color-label"
                 id="color-field"
-                value={props.isClassView ? "Klass" : props.colorField}
+                value={
+                  appContextValue.isClassView
+                    ? "Klass"
+                    : appContextValue.colorField
+                }
                 sx={{ width: "6vw" }}
                 onChange={(event) =>
-                  props.onColorFieldChange(event.target.value)
+                  appContextValue.setColorField(event.target.value)
                 }
                 label="Color-field"
               >
@@ -218,6 +234,7 @@ function Axes({ props, x_options, y_options, colorOptions }) {
 }
 
 function TrendBar({ props, trendOptions, handleTrendChange, trendToLabel }) {
+  const { isClassView } = useContext(AppLevelContext);
   return (
     <div className="trend-bar">
       <div style={{ width: "50%" }}>
@@ -231,7 +248,7 @@ function TrendBar({ props, trendOptions, handleTrendChange, trendToLabel }) {
 
           <Tooltip
             title={
-              props.isClassView
+              isClassView
                 ? "Trend for individual students is disabled Class View"
                 : ""
             }
@@ -239,7 +256,7 @@ function TrendBar({ props, trendOptions, handleTrendChange, trendToLabel }) {
           >
             <div>
               <MuiSelect
-                disabled={props.isClassView}
+                disabled={isClassView}
                 labelId="trend-label"
                 id="trend"
                 value={props.trend}
@@ -260,7 +277,7 @@ function TrendBar({ props, trendOptions, handleTrendChange, trendToLabel }) {
       <div style={{ width: "50%" }}>
         <DeclineThresholdSlider
           trend={props.trend}
-          isDisabled={props.trend === props.trendSet.all || props.isClassView}
+          isDisabled={props.trend === props.trendSet.all || isClassView}
           setThreshold={
             props.trend === props.trendSet.overall_decline
               ? props.setDeclineSlope
@@ -276,6 +293,7 @@ function TrendBar({ props, trendOptions, handleTrendChange, trendToLabel }) {
 }
 
 function ShowLinesToggle({ props }) {
+  const { showLines, setShowLines } = useContext(AppLevelContext);
   return (
     <div className="show-lines">
       <div
@@ -298,8 +316,8 @@ function ShowLinesToggle({ props }) {
         >
           <input
             type="checkbox"
-            checked={props.showLines}
-            onChange={(event) => props.setShowLines(event.target.checked)}
+            checked={showLines}
+            onChange={(event) => setShowLines(event.target.checked)}
           />
 
           <Tooltip
@@ -341,6 +359,8 @@ function ShowLinesToggle({ props }) {
 }
 
 function ClassViewBar({ props }) {
+  const { isClassView, setIsClassView, aggregateType, setAggregateType } =
+    useContext(AppLevelContext);
   return (
     <div className="show-class-view">
       <div
@@ -354,9 +374,9 @@ function ClassViewBar({ props }) {
       >
         <input
           type="checkbox"
-          checked={props.isClassView}
+          checked={isClassView}
           onChange={() => {
-            props.setIsClassView(!props.isClassView);
+            setIsClassView(!isClassView);
           }}
           style={{ marginLeft: "5%" }}
         />
@@ -380,7 +400,7 @@ function ClassViewBar({ props }) {
         </Tooltip>
       </div>
 
-      {props.isClassView && (
+      {isClassView && (
         <div
           className="aggregate-buttons-row"
           style={{
@@ -395,8 +415,8 @@ function ClassViewBar({ props }) {
             <RadioGroup
               aria-labelledby="demo-controlled-radio-buttons-group"
               name="controlled-radio-buttons-group"
-              value={props.aggregateType}
-              onChange={(event) => props.setAggregateType(event.target.value)}
+              value={aggregateType}
+              onChange={(event) => setAggregateType(event.target.value)}
             >
               <FormControlLabel
                 value="box"
@@ -484,12 +504,14 @@ function ClassViewBar({ props }) {
 }
 
 function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
+  const { handleFileUpload, handleResetToOnboarding, handleResetToLatest } =
+    useContext(AppLevelContext);
   return (
     <div className="preset-buttons-row">
       <button
         className="btn"
         id="reset-btn"
-        onClick={() => props.handleResetToOnboarding()} // function to reset the state to the initial state
+        onClick={() => handleResetToOnboarding()} // function to reset the state to the initial state
       >
         <Tooltip title="Reset to on-boarding view" followCursor>
           <label>Reset</label>
@@ -499,7 +521,7 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
       <button
         className="btn"
         id="reset-latest-btn"
-        onClick={() => props.handleResetToLatest()} // function to reset the state to the initial state
+        onClick={() => handleResetToLatest()} // function to reset the state to the initial state
       >
         <Tooltip title="Reset to view of the last saved preset" followCursor>
           <label>Reset to latest saved</label>
@@ -532,7 +554,7 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
         </Tooltip>
       </button>
 
-      <ImportDataButton handleFileUpload={props.handleFileUpload} />
+      <ImportDataButton handleFileUpload={handleFileUpload} />
 
       <Editor triggerRenderByConfigChange={props.triggerRenderByConfigChange} />
     </div>

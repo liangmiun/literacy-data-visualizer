@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { AppContextProvider } from "./context/AppLevelContext";
 import { csvParse } from "d3";
 import CryptoJS from "crypto-js";
 import {
@@ -28,7 +29,7 @@ import ScatterPage from "./components/screens/ScatterPage";
 const App = () => {
   const { currentUser } = useAuth();
   const [data, setData] = useState([]);
-  const [logicFilteredData, setLogicFilteredtData] = useState(data);
+  const [logicFilteredData, setLogicFilteredData] = useState(data);
   const [encryptKey, setEncryptKey] = useState("");
   const [isLogin, setIsLogin] = useState(false); //  set as true for test purpose without login;
   const [showLines, setShowLines] = useState(false);
@@ -58,7 +59,6 @@ const App = () => {
   const fields_y = y_data_fields;
   const [userType, setUserType] = useState("principal");
   const [schoolClassMapForTeacher, setSchoolClassMapForTeacher] = useState({});
-  //const [isTeacherMapLoaded, setIsTeacherMapLoaded] = useState(false);
   const [teacherChoice, setTeacherChoice] = useState({});
 
   const savePresetSetters = {
@@ -94,7 +94,7 @@ const App = () => {
 
   const fileUploadSetters = {
     setData,
-    setLogicFilteredtData,
+    setLogicFilteredtData: setLogicFilteredData,
   };
 
   const onResetToOnboardingRef = useRef();
@@ -124,21 +124,13 @@ const App = () => {
         const bytes = CryptoJS.AES.decrypt(encryptedData, encryptKey); // Replace with encryptKey
         const originalData = bytes.toString(CryptoJS.enc.Utf8);
         const parsedData = csvParse(originalData, rowParser);
-        console.log(
-          "parsedData length: ",
-          parsedData.length,
-          "encryptedData length: ",
-          encryptedData.length
-        );
         setData(parsedData);
-        setLogicFilteredtData(parsedData);
+        setLogicFilteredData(parsedData);
         onResetToOnboardingRef.current();
       })
       .catch((error) => {
         console.error("Error fetching or parsing data:", error);
       });
-    console.log("data parsed");
-    //queryTeachOrPrincipal();
   }, [isLogin, encryptKey, userType]);
 
   useEffect(() => {
@@ -306,7 +298,45 @@ const App = () => {
     }
   }, [isLogin, schoolClassMapForTeacher, teacherChoice]);
 
-  console.log("userType after choose teacher: ", userType);
+  const appContextValue = {
+    data,
+    setSchoolClassMapForTeacher,
+    logicFilteredData,
+    setLogicFilteredData,
+    xField,
+    setXField,
+    yField,
+    setYField,
+    seasonField,
+    setSeasonField,
+    colorField,
+    setColorField,
+    fields,
+    fields_x,
+    fields_y,
+    save: onSavePreset,
+    load,
+    query,
+    setQuery,
+    expression,
+    setExpression,
+    selectedClasses,
+    setSelectedClasses,
+    checkedOptions,
+    setCheckedOptions,
+    rangeOptions,
+    setRangeOptions,
+    handleFileUpload: onFileUpload,
+    setConfigFromPreset: onSetConfigFromPreset,
+    showLines,
+    setShowLines,
+    handleResetToOnboarding: onResetToOnboardingRef.current,
+    handleResetToLatest: onResetToLatest,
+    isClassView,
+    setIsClassView,
+    aggregateType,
+    setAggregateType,
+  };
 
   return (
     <Router basename="literacy-data-visualizer">
@@ -342,45 +372,49 @@ const App = () => {
               element={
                 <ProtectedWrapper
                   element={
-                    <ScatterPage
-                      data={data}
-                      setSchoolClassMapForTeacher={setSchoolClassMapForTeacher}
-                      logicFilteredData={logicFilteredData}
-                      setLogicFilteredData={setLogicFilteredtData}
-                      xField={xField}
-                      setXField={setXField}
-                      yField={yField}
-                      setYField={setYField}
-                      seasonField={seasonField}
-                      setSeasonField={setSeasonField}
-                      colorField={colorField}
-                      setColorField={setColorField}
-                      fields={fields}
-                      fields_x={fields_x}
-                      fields_y={fields_y}
-                      save={onSavePreset} //savePresetSetters
-                      load={load}
-                      query={query}
-                      setQuery={setQuery}
-                      expression={expression}
-                      setExpression={setExpression}
-                      selectedClasses={selectedClasses}
-                      setSelectedClasses={setSelectedClasses}
-                      checkedOptions={checkedOptions}
-                      setCheckedOptions={setCheckedOptions}
-                      rangeOptions={rangeOptions}
-                      setRangeOptions={setRangeOptions}
-                      handleFileUpload={onFileUpload}
-                      setConfigFromPreset={onSetConfigFromPreset}
-                      showLines={showLines}
-                      setShowLines={setShowLines}
-                      handleResetToOnboarding={onResetToOnboardingRef.current}
-                      handleResetToLatest={onResetToLatest}
-                      isClassView={isClassView}
-                      setIsClassView={setIsClassView}
-                      aggregateType={aggregateType}
-                      setAggregateType={setAggregateType}
-                    />
+                    <AppContextProvider value={appContextValue}>
+                      <ScatterPage
+                      // data={data}
+                      // setSchoolClassMapForTeacher={
+                      //   setSchoolClassMapForTeacher
+                      // }
+                      // logicFilteredData={logicFilteredData}
+                      // setLogicFilteredData={setLogicFilteredData}
+                      // xField={xField}
+                      // setXField={setXField}
+                      // yField={yField}
+                      // setYField={setYField}
+                      // seasonField={seasonField}
+                      // setSeasonField={setSeasonField}
+                      // colorField={colorField}
+                      // setColorField={setColorField}
+                      // fields={fields}
+                      // fields_x={fields_x}
+                      // fields_y={fields_y}
+                      // save={onSavePreset} //savePresetSetters
+                      // load={load}
+                      // query={query}
+                      // setQuery={setQuery}
+                      // expression={expression}
+                      // setExpression={setExpression}
+                      // selectedClasses={selectedClasses}
+                      // setSelectedClasses={setSelectedClasses}
+                      // checkedOptions={checkedOptions}
+                      // setCheckedOptions={setCheckedOptions}
+                      // rangeOptions={rangeOptions}
+                      // setRangeOptions={setRangeOptions}
+                      // handleFileUpload={onFileUpload}
+                      // setConfigFromPreset={onSetConfigFromPreset}
+                      // showLines={showLines}
+                      // setShowLines={setShowLines}
+                      // handleResetToOnboarding={onResetToOnboardingRef.current}
+                      // handleResetToLatest={onResetToLatest}
+                      // isClassView={isClassView}
+                      // setIsClassView={setIsClassView}
+                      // aggregateType={aggregateType}
+                      // setAggregateType={setAggregateType}
+                      />
+                    </AppContextProvider>
                   }
                 />
               }

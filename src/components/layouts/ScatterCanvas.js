@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
+import AppLevelContext from "context/AppLevelContext";
 import * as d3 from "d3";
 import { set } from "d3-collection";
 import {
@@ -16,16 +17,9 @@ import {
 import { plotMargin } from "utils/constants";
 
 const ScatterCanvas = React.memo(
-  ({
-    shownData,
-    xField,
-    yField,
-    colorField,
-    setSelectedRecords,
-    showLines,
-    showAverageLine,
-    meanScores,
-  }) => {
+  ({ shownData, setSelectedRecords, showAverageLine, meanScores }) => {
+    const { xField, yField, showLines, colorField } =
+      useContext(AppLevelContext);
     const svgRef = useRef();
     const [brushing, setBrushing] = useState(false);
     const prevBrushingRef = useRef();

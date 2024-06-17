@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
+import AppLevelContext from "context/AppLevelContext";
 import AxisSelectionCanvas from "../layouts/AxisSelectionCanvas";
 import AggregateCanvas from "../layouts/AggregateCanvas";
 import ScatterCanvas from "../layouts/ScatterCanvas";
@@ -16,17 +17,14 @@ import {
   convertFieldDataType,
 } from "../../utils/Utils.js";
 import "assets/App.css";
+import { useContext } from "react";
 
-const ScatterPage = (props) => {
+const ScatterPage = () => {
   const {
     data,
     logicFilteredData,
     isClassView,
-    setIsClassView,
-    aggregateType,
-    setAggregateType,
     selectedClasses,
-    setSelectedClasses,
     xField,
     yField,
     colorField,
@@ -34,7 +32,7 @@ const ScatterPage = (props) => {
     checkedOptions,
     seasonField,
     setSchoolClassMapForTeacher,
-  } = props;
+  } = useContext(AppLevelContext);
 
   const trends = {
     all: "all",
@@ -160,7 +158,6 @@ const ScatterPage = (props) => {
         nonNullLexploreData,
         "school-year"
       );
-      console.log("flatSchoolClasses", flatSchoolClasses);
       setSchoolClassMapForTeacher(flatSchoolClasses);
     }
   }, [data, setSchoolClassMapForTeacher]);
@@ -277,7 +274,7 @@ const ScatterPage = (props) => {
   );
 
   const shownData = useMemo(() => {
-    console.log("run shownData,   ");
+    console.log("run shownData");
 
     const nonNullData = dataToShow.filter(
       (d) => d[xField] !== null && d[yField] !== null
@@ -466,42 +463,19 @@ const ScatterPage = (props) => {
   return (
     <div className="app">
       <AxisSelectionCanvas
-        data={data}
-        fields_x={props.fields_x}
-        fields_y={props.fields_y}
-        xField={props.xField}
-        yField={props.yField}
-        seasonField={props.seasonField}
-        colorField={props.colorField}
-        onXFieldChange={props.setXField}
-        onYFieldChange={props.setYField}
-        onSeasonFieldChange={props.setSeasonField}
-        onColorFieldChange={props.setColorField}
-        save={props.save}
-        load={props.load}
-        setConfig={props.setConfigFromPreset}
         studentsChecked={studentsChecked}
         setStudentsChecked={setStudentsChecked}
         connectIndividual={connectIndividual}
         setConnectIndividual={setConnectIndividual}
-        aggregateType={aggregateType}
-        setAggregateType={setAggregateType}
         trendSet={trends}
         trend={trend}
         onTrendChange={handleTrendOptionChange}
-        handleFileUpload={props.handleFileUpload}
-        showLines={props.showLines}
-        setShowLines={props.setShowLines}
-        isClassView={isClassView}
-        setIsClassView={setIsClassView}
         declineSlope={declineSlopeThreshold}
         setDeclineSlope={setDeclineSlopeThreshold}
         minDeclineThreshold={minDeclineThreshold}
         diffThreshold={diffThreshold}
         setDiffThreshold={setDiffThreshold}
         filterWithTrendThreshold={filterWithTrendThreshold}
-        handleResetToOnboarding={props.handleResetToOnboarding}
-        handleResetToLatest={props.handleResetToLatest}
         triggerRenderByConfigChange={triggerRenderByConfigChange}
         disableIndiLines={disableIndiLinesUnderMultipleSchools}
         showAverageLine={showAverageLine}
@@ -510,17 +484,12 @@ const ScatterPage = (props) => {
 
       {isClassView ? (
         <AggregateCanvas
-          allData={data}
           shownData={shownData}
-          selectedClasses={selectedClasses}
-          seasonField={props.seasonField}
           yField={"Lexplore Score"}
           onPartClick={setSelectedClassDetail}
           studentsChecked={studentsChecked}
           connectIndividual={connectIndividual}
-          aggregateType={aggregateType}
           classColors={schoolClassesAndColorScale.colorScale}
-          showLines={props.showLines}
           groupOption={tenureGroupOption}
           triggerRenderByConfig={wouldRenderByConfig}
           showAverageLine={showAverageLine}
@@ -529,11 +498,7 @@ const ScatterPage = (props) => {
       ) : (
         <ScatterCanvas
           shownData={shownData}
-          xField={props.xField}
-          yField={props.yField}
-          colorField={props.colorField}
           setSelectedRecords={setClickedRecords}
-          showLines={props.showLines}
           showAverageLine={showAverageLine}
           meanScores={meanScores}
         />
@@ -545,17 +510,8 @@ const ScatterPage = (props) => {
       />
 
       <FilterCanvas
-        data={data}
-        fields={props.fields}
-        allClasses={allClasses}
-        selectedClasses={selectedClasses}
-        setSelectedClasses={setSelectedClasses}
-        rangeOptions={props.rangeOptions}
-        setRangeOptions={props.setRangeOptions}
-        checkedOptions={props.checkedOptions}
-        setCheckedOptions={props.setCheckedOptions}
         setFilterList={setFilterList}
-        isClassView={isClassView}
+        allClasses={allClasses}
         school_class_map={schoolClassesAndColorScale.schoolClasses}
         onColorPaletteClick={handleClassColorPaletteClick}
         classColors={schoolClassesAndColorScale.colorScale}
@@ -565,15 +521,7 @@ const ScatterPage = (props) => {
         triggerRenderByConfig={wouldRenderByConfig}
       />
 
-      <LogicCanvas
-        fields={props.fields}
-        data={data}
-        setLogicFilteredData={props.setLogicFilteredData}
-        expression={props.expression}
-        setExpression={props.setExpression}
-        query={props.query}
-        setQuery={props.setQuery}
-      />
+      <LogicCanvas />
     </div>
   );
 };
