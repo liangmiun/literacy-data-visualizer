@@ -96,7 +96,7 @@ function SchoolTreeView(props) {
     <div className="school-tree-view" style={{ margin: "0px 3px" }}>
       <h4 style={{ textAlign: "center" }}>
         <Tooltip
-          title="Select schools and classes: ☑ for all, ☐ for none and ▣ for some."
+          title="Välj skolor och klasser: ☑ för alla, ☐ för inga, och ▣ för några"
           followCursor
         >
           <label>Filter by School and Class </label>
@@ -105,8 +105,8 @@ function SchoolTreeView(props) {
 
       <div style={{ display: "flex", justifyContent: "center" }}>
         <FormControl size="small">
-          <Tooltip title="Select variable on vertical axis" followCursor>
-            <InputLabel>Group classes by</InputLabel>
+          <Tooltip title="" followCursor>
+            <InputLabel>Aggregera klasser som</InputLabel>
           </Tooltip>
           <MuiSelect
             sx={{ width: "8vw", height: "1.5vw" }}
