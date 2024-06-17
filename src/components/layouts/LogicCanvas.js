@@ -45,10 +45,13 @@ const LogicCanvas = ({}) => {
         style={{ height: "50%", gridRow: "1 / 2", margin: "1%", padding: "0%" }}
       >
         <Tooltip
-          title='Filter data using logical expressions  with "( , ) , == , != , contains , !contains , > , <" operators.'
+          title="Filtrera inom datan med logiska uttryck. Läs mer i instruktionerna för detaljer och exempel."
           followCursor
         >
-          <label>{labels.symbolicFilterTag} </label>
+          <label>
+            Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score &gt;
+            500"{" "}
+          </label>
         </Tooltip>
       </h4>
       <FilterDemo

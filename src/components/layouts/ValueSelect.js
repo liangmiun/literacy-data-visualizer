@@ -63,7 +63,7 @@ export function OptionSelectGroup({
 
   return (
     <div className="option-select-group" style={{ margin: "0px 3px" }}>
-      <h4 style={{ textAlign: "center" }}> {labels.filterByOptionRange} </h4>
+      <h4 style={{ textAlign: "center" }}>Filtreringsval</h4>
 
       <div
         style={{
@@ -201,7 +201,7 @@ function OptionCheckBoxes({
               <Tooltip
                 title={
                   isOptionMissing
-                    ? "No filtered record has this option value."
+                    ? "Det saknas datapunkter i det nuvarande urvalet som påverkas av denna filtrering."
                     : ""
                 }
                 followCursor

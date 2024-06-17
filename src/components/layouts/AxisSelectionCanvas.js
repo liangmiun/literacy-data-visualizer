@@ -58,8 +58,8 @@ const AxisSelectionCanvas = (props) => {
         />
         <button className="btn import-button" onClick={handleClick}>
           {/* Assuming Tooltip is a component from a library like Material-UI; adjust as needed */}
-          <Tooltip title="Import csv-format source data" followCursor>
-            <span>{labels.importData}</span>
+          <Tooltip title="Importera data från en .csv-fil" followCursor>
+            <span>Importera Data</span>
           </Tooltip>
         </button>
       </div>
@@ -73,9 +73,10 @@ const AxisSelectionCanvas = (props) => {
   // Define the trend-to-string mapping dictionary
   const trendToLabel = {
     [props.trendSet.all]: "  ", // Assuming props.trendSet.all is a constant value
-    [props.trendSet.overall_decline]: labels.trendOverallSlope,
-    [props.trendSet.logarithmic_decline]: labels.trendLogSlope,
-    [props.trendSet.last_time_decline]: labels.trendLastTimeValue,
+    [props.trendSet.overall_decline]: "med lutning <", // Assuming props.trendSet.overall_decline is a constant value
+    [props.trendSet.logarithmic_decline]: "med koefficient <", // Assuming props.trendSet.individual_decline is a constant value
+    [props.trendSet.last_time_decline]: "med värde <", // Assuming props.trendSet.individual_decline is a constant value
+    // Add other mappings as necessary
   };
 
   return (
@@ -115,8 +116,8 @@ function Axes({ x_options, y_options, colorOptions }) {
     <div className="axes">
       <div className="field-pair">
         <FormControl fullWidth size="small">
-          <Tooltip title="Select variable on horizontal axis" followCursor>
-            <InputLabel id="x-field-label">{labels.xFieldLabel}</InputLabel>
+          <Tooltip title="Välj en attribut att visa över x-axeln" followCursor>
+            <InputLabel id="x-field-label">X-axel</InputLabel>
           </Tooltip>
           <div>
             <MuiSelect
@@ -147,14 +148,14 @@ function Axes({ x_options, y_options, colorOptions }) {
 
       <div className="field-pair">
         <FormControl fullWidth size="small">
-          <Tooltip title="Select variable on vertical axis" followCursor>
-            <InputLabel id="y-field-label">{labels.yFieldLabel}</InputLabel>
+          <Tooltip title="Välj en attribut att visa över x-axeln" followCursor>
+            <InputLabel id="y-field-label">Y-axel</InputLabel>
           </Tooltip>
 
           <Tooltip
             title={
               appContextValue.isClassView
-                ? "Y-field is locked to Lexplore Score in Class/Tenure View"
+                ? "Valet för Y-axeln är låst när individer är aggregerade."
                 : ""
             }
             followCursor
@@ -186,16 +187,17 @@ function Axes({ x_options, y_options, colorOptions }) {
 
       <div className="field-pair">
         <FormControl fullWidth size="small">
-          <Tooltip title="Select variable for color coded data" followCursor>
-            <InputLabel id="color-field-label">
-              {labels.colorFieldLabel}
-            </InputLabel>
+          <Tooltip
+            title="Välj en attribut att visa olika färger för"
+            followCursor
+          >
+            <InputLabel id="color-field-label">Färgläggning</InputLabel>
           </Tooltip>
 
           <Tooltip
             title={
               appContextValue.isClassView
-                ? "Color is locked to class names in Class View"
+                ? "Färgval är låst till bara klasser och grupperingar inom aggregerade vyer"
                 : ""
             }
             followCursor
@@ -237,7 +239,7 @@ function TrendBar({ props, trendOptions, handleTrendChange, trendToLabel }) {
       <div style={{ width: "50%" }}>
         <FormControl fullWidth size="small">
           <Tooltip
-            title="show all records or only declining records"
+            title="Välj att filtrera om att bara visa individer vars trend har försämrats."
             followCursor
           >
             <InputLabel id="trend-label">{labels.trendFieldLabel}</InputLabel>
@@ -245,9 +247,7 @@ function TrendBar({ props, trendOptions, handleTrendChange, trendToLabel }) {
 
           <Tooltip
             title={
-              isClassView
-                ? "Trend for individual students is disabled Class View"
-                : ""
+              props.isClassView ? "Trender kan bara visas för individer" : ""
             }
             followCursor
           >
@@ -318,10 +318,10 @@ function ShowLinesToggle({ props }) {
           />
 
           <Tooltip
-            title="Line-connect records from identical individuals"
+            title="Visa linjer mellan samma individs olika resultat"
             followCursor
           >
-            <label> {labels.showLine} </label>
+            <label> Visa linjer </label>
           </Tooltip>
         </div>
 
@@ -343,10 +343,10 @@ function ShowLinesToggle({ props }) {
             />
 
             <Tooltip
-              title="Show average Lexplore Score of all individuals in this municipality as reference line"
+              title="Visa genomsnittslinjer från datasamlingens alla individer"
               followCursor
             >
-              <label> {labels.showAverage} </label>
+              <label> Visa genomsnittslinjer </label>
             </Tooltip>
           </div>
         </div>
@@ -379,7 +379,7 @@ function ClassViewBar({ props }) {
         />
 
         <Tooltip
-          title="Switch between class-aggregation view and individual view"
+          title="Byt mellan att visa individer och aggregationer"
           followCursor
         >
           <label
@@ -392,7 +392,7 @@ function ClassViewBar({ props }) {
             }}
           >
             {" "}
-            {labels.tenureCheckbox}{" "}
+            Aggregera datan{" "}
           </label>
         </Tooltip>
       </div>
@@ -468,10 +468,10 @@ function ClassViewBar({ props }) {
                 }
               />
               <Tooltip
-                title="Whether to show individual dots on the class view"
+                title="Visa individerna inom varje aggregation"
                 followCursor
               >
-                <label> {labels.presentIndividual} </label>
+                <label> Visa individer </label>
               </Tooltip>
             </div>
 
@@ -491,10 +491,10 @@ function ClassViewBar({ props }) {
                 }
               />
               <Tooltip
-                title="Switch whether to show lines connecting individual dots on aggregation view; Unavailable when more than 2 schools selected ."
+                title="Drar linjer mellan de framställda individerna"
                 followCursor
               >
-                <label>{labels.connectIndividual} </label>
+                <label> Koppla samman individer </label>
               </Tooltip>
             </div>
           </div>
@@ -514,8 +514,8 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
         id="reset-btn"
         onClick={() => handleResetToOnboarding()} // function to reset the state to the initial state
       >
-        <Tooltip title="Reset to on-boarding view" followCursor>
-          <label>{labels.reset}</label>
+        <Tooltip title="Nollställ till startvyn" followCursor>
+          <label>Nollställ</label>
         </Tooltip>
       </button>
 
@@ -524,8 +524,8 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
         id="reset-latest-btn"
         onClick={() => handleResetToLatest()} // function to reset the state to the initial state
       >
-        <Tooltip title="Reset to view of the last saved preset" followCursor>
-          <label>{labels.resetLatest}</label>
+        <Tooltip title="Nollställ till den senast sparade vyn" followCursor>
+          <label>Nollställ till senaste sparad</label>
         </Tooltip>
       </button>
 
@@ -535,10 +535,10 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
         onClick={() => onSavePreset()} // function to save current state as a preset
       >
         <Tooltip
-          title="Save current filters, axis fields and view mode settings to a preset file"
+          title="Spara och exportera din nuvarande vy till en nedladdningsfil"
           followCursor
         >
-          <label>{labels.savePreset}</label>
+          <label>Spara vy</label>
         </Tooltip>
       </button>
 
@@ -548,10 +548,10 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
         onClick={() => onLoadPreset()} // function to load a saved preset
       >
         <Tooltip
-          title="Load filters, axis fields and view mode settings from a preset"
+          title="Importera och ladda en tidigare sparad vy från en fil"
           followCursor
         >
-          <label>{labels.loadPreset}</label>
+          <label>Ladda vy</label>
         </Tooltip>
       </button>
 
@@ -583,7 +583,7 @@ function DeclineThresholdSlider({
     <div style={{ margin: "5px 10px", width: "80%" }}>
       <div style={{ whiteSpace: "pre" }}>
         <Tooltip
-          title="Set a threshold so the filtered data are declining under the thresthold."
+          title="Sätt ett tröskelvärde för vad som ska betraktar som en negativ trend"
           followCursor
         >
           <label> {label} </label>

@@ -177,7 +177,7 @@ const App = () => {
 
       // Create title element
       const title = document.createElement("h2");
-      title.textContent = "Choose your onboarding view";
+      title.textContent = "Välj din startvy av datan";
       title.style.marginBottom = "20px"; // Space below the title
       modal.appendChild(title);
 
@@ -242,7 +242,7 @@ const App = () => {
 
       // Create Teacher's button
       const teacherButton = document.createElement("button");
-      teacherButton.textContent = "Teacher's Onboarding View";
+      teacherButton.textContent = "Lärares Startvy";
       teacherButton.style.marginBottom = "10px"; // Space between buttons
       teacherButton.onclick = function () {
         setUserType("teacher");
@@ -296,7 +296,7 @@ const App = () => {
 
       // Create Principal's button
       const principalButton = document.createElement("button");
-      principalButton.textContent = "Principal's Onboarding View";
+      principalButton.textContent = "Rektors/Skolchefs Startvy";
       principalButton.onclick = function () {
         setUserType("principal");
         document.body.removeChild(modal);

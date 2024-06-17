@@ -4,7 +4,7 @@ import "assets/App.css";
 import { isDateFieldString } from "utils/Utils";
 
 const DetailCanvas = ({ data, keyList }) => {
-  const formatDetailPanelDate = d3.timeFormat("%Y.%m.%d");
+  const formatDetailPanelDate = d3.timeFormat("%Y-%m-%d");
 
   const DetailValue = (key, value) => {
     if (isDateFieldString(key)) {
