@@ -18,7 +18,7 @@ import { grayTheme } from "assets/themes.js";
 import { EmptyCheckBoxBlankIcon } from "assets/themes.js";
 import { tenureSequenceTag } from "utils/tenureFormat.js";
 import { colors20 } from "utils/Utils";
-import { labels } from "utils/constants";
+import { labels, GROUPING_OPTIONS } from "utils/constants";
 
 function SchoolTreeView(props) {
   const {
@@ -37,13 +37,7 @@ function SchoolTreeView(props) {
   const [areAllSchoolSelected, setAreAllSchoolSelected] = useState(true);
   const [paletteID, setPaletteID] = useState("");
   const [expandedSchools] = useState(["root"]); // "Bodals skola"
-  const [classesGroupOptions] = useState([
-    "9-year tenure",
-    "3-year tenure",
-    "school-year",
-    "trajectory",
-  ]);
-  //const [ groupOption, setGroupOption] = useState('9-year tenure');
+  const [classesGroupOptions] = useState(GROUPING_OPTIONS);
 
   useEffect(() => {
     const createComparableString = (obj) =>

@@ -15,6 +15,7 @@ import {
   x_data_fields,
   y_data_fields,
   labels,
+  USER_TYPE,
   season_choice_fields,
   teacher_choice_preset,
 } from "./utils/constants";
@@ -37,7 +38,7 @@ const App = () => {
   const [showLines, setShowLines] = useState(false);
   const [xField, setXField] = useState("Testdatum");
   const [yField, setYField] = useState("Lexplore Score");
-  const [seasonField, setSeasonField] = useState("Quarter");
+  const [seasonField, setSeasonField] = useState(labels.seasonByQuarter);
   const [colorField, setColorField] = useState("Årskurs");
   const [selectedClasses, setSelectedClasses] = useState([]);
   const [query, setQuery] = useState("");
@@ -58,7 +59,7 @@ const App = () => {
   const fields_x = isClassView ? season_choice_fields : x_data_fields;
   console.log("fields x: ", fields_x);
   const fields_y = y_data_fields;
-  const [userType, setUserType] = useState("principal");
+  const [userType, setUserType] = useState(USER_TYPE.principal);
   const [schoolClassMapForTeacher, setSchoolClassMapForTeacher] = useState({});
   const [teacherChoice, setTeacherChoice] = useState({});
 
@@ -245,7 +246,7 @@ const App = () => {
       teacherButton.textContent = "Lärares Startvy";
       teacherButton.style.marginBottom = "10px"; // Space between buttons
       teacherButton.onclick = function () {
-        setUserType("teacher");
+        setUserType(USER_TYPE.teacher);
         setTeacherChoice({
           school: schoolSelect.value,
           year: yearSelect.value,
@@ -298,7 +299,7 @@ const App = () => {
       const principalButton = document.createElement("button");
       principalButton.textContent = "Rektors/Skolchefs Startvy";
       principalButton.onclick = function () {
-        setUserType("principal");
+        setUserType(USER_TYPE.principal);
         document.body.removeChild(modal);
       };
       modal.appendChild(principalButton);

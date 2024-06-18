@@ -11,6 +11,7 @@ import {
   sequenceIDfromYearSchoolClass,
   Season,
 } from "../../utils/AggregateUtils";
+import { labels } from "../../utils/constants";
 import {
   generateSchoolLastingClassMap,
   generateSchoolClassColorScale,
@@ -35,10 +36,10 @@ const ScatterPage = () => {
   } = useContext(AppLevelContext);
 
   const trends = {
-    all: "all",
-    overall_decline: "overall decline",
-    logarithmic_decline: "logarithmicly decline",
-    last_time_decline: "last time decline",
+    all: labels.trendOptionAll,
+    overall_decline: labels.trendOptionDecline,
+    logarithmic_decline: labels.trendOptionLogDecline,
+    last_time_decline: labels.trendOptionLastDecline,
   };
   const [clickedRecords, setClickedRecords] = useState([]);
   const [trend, setTrend] = useState(trends.all);

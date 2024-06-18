@@ -5,6 +5,7 @@ import {
   latest_preset,
   updateLatestPreset,
 } from "../contents/InitialPreset.js";
+import { userType } from "/constants.js";
 import { rowParser, preset_dict, isDateFieldString } from "./Utils.js";
 
 // Function to update the preset configuration based on current state values
@@ -120,7 +121,7 @@ export const handleResetToOnboarding = (
 
     var initial_preset;
 
-    if (userType === "principal") {
+    if (userType === userType.principal) {
       initial_preset = initial_principal_preset;
     } else {
       // Parsing the initial preset to make it mutable and to use its structure

@@ -6,6 +6,7 @@ import {
   getStrValue,
 } from "utils/Utils";
 import { aggregationConfigs } from "utils/configEditor.js";
+import { labels } from "./constants";
 
 export const singleViolinWidthRatio = 1; // The width of a single violin relative to the sub-band width
 const indv_jitterWidth = 5;
@@ -163,9 +164,9 @@ export function Season(dateObject, type) {
   const year = dateObject.getFullYear();
 
   var season = "";
-  if (type === "Quarter") {
+  if (type === labels.seasonByQuarter) {
     season = getQuarterFromDate(dateObject);
-  } else if (type === "Semester") {
+  } else if (type === labels.seasonBySemester) {
     season = getSemesterFromDate(dateObject);
   } else {
     season = getMonthFromDate(dateObject);
