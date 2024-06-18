@@ -39,15 +39,14 @@ export const labels = {
   seasonByQuarter: "Kvartal",
   seasonByMonth: "Månad",
   seasonBySemester: "Termin",
-  // untranslated part:
-  trendOptionAll: "all",
-  trendOptionDecline: "overall decline",
-  trendOptionLogDecline: "logarithmicly decline",
-  trendOptionLastDecline: "last time decline",
-  groupByNineYear: "9-year tenure",
-  groupByThreeYear: "3-year tenure",
-  groupBySchoolYear: "school-year",
-  groupByTrajectory: "trajectory",
+  trendOptionAll: "Alla",
+  trendOptionDecline: "Översiktlig försämring",
+  trendOptionLogDecline: "Logaritmisk försämring",
+  trendOptionLastDecline: "Försämring nyligen",
+  groupByNineYear: "Hel Skolgång",
+  groupByThreeYear: "Stadie",
+  groupBySchoolYear: "Läsår",
+  groupByTrajectory: "Skolgång från en klass",
 };
 
 const english_labels = {
