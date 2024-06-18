@@ -1,6 +1,56 @@
 // === START of fields that directly relate to English-Swedish translation ===
 
 export const labels = {
+  xFieldLabel: "X-axel",
+  yFieldLabel: "Y-axel",
+  colorFieldLabel: "Färgläggning",
+  trendFieldLabel: "Trend",
+  trendOverallSlope: "med lutning <",
+  trendLogSlope: "med koefficient <",
+  trendLastTimeValue: "med värde <",
+  showLine: "Visa Linjer",
+  showAverage: "Visa Genomsnittslinjer",
+  tenureCheckbox: "Aggregera datan",
+  boxToggle: "Box",
+  violinToggle: "Violin",
+  circleToggle: "Punkt",
+  presentIndividual: "Visa individer",
+  connectIndividual: "Koppla samman individer",
+  reset: "Nollställ",
+  resetLatest: "Nollställ till senast sparad",
+  savePreset: "Spara vy",
+  loadPreset: "Ladda vy",
+  importData: "Importera data",
+  editConfig: "Ändra inställningar",
+  saveConfig: "Spara inställningar",
+  help: "Instruktioner",
+  plotPage: "Visualisering",
+  helpPage: "Instruktioner",
+  aboutPage: "Omnämningar",
+  logoutPage: "Stäng ner",
+  filterBySchoolandClass: "Filtrera över skola och klasser.",
+  filterByOptionRange: "Filtreringsval",
+  schoolTreeTopLevelTag: "Skolor",
+  groupClassBy: "Aggregera klasser som",
+  symbolicFilterTag: "Symboliskt filter",
+  aggregateView_X_tag: "Testperioder",
+  brushTag: "Markera",
+  deBrushTag: "Avmarkera",
+  seasonByQuarter: "Kvartal",
+  seasonByMonth: "Månad",
+  seasonBySemester: "Termin",
+  // untranslated part:
+  trendOptionAll: "all",
+  trendOptionDecline: "overall decline",
+  trendOptionLogDecline: "logarithmicly decline",
+  trendOptionLastDecline: "last time decline",
+  groupByNineYear: "9-year tenure",
+  groupByThreeYear: "3-year tenure",
+  groupBySchoolYear: "school-year",
+  groupByTrajectory: "trajectory",
+};
+
+const english_labels = {
   xFieldLabel: "X-field",
   yFieldLabel: "Y-field",
   colorFieldLabel: "Color",
@@ -107,49 +157,6 @@ export const color_fields = [
   "Kön",
 ];
 
-export const season_choice_fields = ["Månad", "Kvartal", "Termin"];
-
-export const labels = {
-  xFieldLabel: "X-axel",
-  yFieldLabel: "Y-axel",
-  colorFieldLabel: "Färgläggning",
-  trendFieldLabel: "Trend",
-  // all the four above dropdowns
-  trendOverallSlope: "med lutning <",
-  trendLogSlope: "med koefficient <",
-  trendLastTimeValue: "med värde <",
-  showLine: "Visa Linjer",
-  showAverage: "Visa Genomsnittslinjer",
-  tenureCheckbox: "Aggregera datan",
-  boxToggle: "Box",
-  violinToggle: "Violin",
-  circleToggle: "Punkt",
-  presentIndividual: "Visa individer",
-  connectIndividual: "Koppla samman individer",
-  reset: "Nollställ",
-  resetLatest: "Nollställ till senast sparad",
-  savePreset: "Spara vy",
-  loadPreset: "Ladda vy",
-  importData: "Importera data",
-  editConfig: "Ändra inställningar",
-  saveConfig: "Spara inställningar",
-  help: "Instruktioner",
-  plotPage: "Visualisering",
-  helpPage: "Instruktioner",
-  aboutPage: "Omnämningar",
-  logoutPage: "Stäng ner",
-  filterBySchoolandClass: "Filtrera över skola och klasser.",
-  filterByOptionRange: "Filtreringsval",
-  schoolTreeTopLevelTag: "Skolor",
-  groupClassBy: "Aggregera klasser som",
-  symbolicFilterTag: "Symboliskt filter",
-  aggregateView_X_tag: "Testperioder",
-  brushTag: "Markera",
-  deBrushTag: "Avmarkera",
-};
-
-// ===End of fields that relate to English-Swedish translation===
-
 export const plotMargin = { top: 20, right: 160, bottom: 80, left: 80 };
 
 export const categoricals = [
@@ -181,4 +188,10 @@ export const GROUPING_OPTIONS = [
   labels.groupByThreeYear,
   labels.groupBySchoolYear,
   labels.groupByTrajectory,
+];
+
+export const season_choice_fields = [
+  labels.seasonByMonth,
+  labels.seasonByQuarter,
+  labels.seasonBySemester,
 ];
