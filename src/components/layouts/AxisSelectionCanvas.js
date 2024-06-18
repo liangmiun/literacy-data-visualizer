@@ -271,7 +271,7 @@ function TrendBar({ props, trendOptions, handleTrendChange, trendToLabel }) {
         </FormControl>
       </div>
 
-      <div style={{ width: "50%" }}>
+      <div style={{ width: "50%", marginLeft: 30 }}>
         <DeclineThresholdSlider
           trend={props.trend}
           isDisabled={props.trend === props.trendSet.all || isClassView}
@@ -397,109 +397,123 @@ function ClassViewBar({ props }) {
         </Tooltip>
       </div>
 
-      {isClassView && (
+      <div
+        className="aggregate-buttons-row"
+        style={{
+          width: "60%",
+          display: "inline-flex",
+          alignItems: "center",
+          marginRight: "20px",
+          padding: "2px",
+        }}
+      >
+        <FormControl style={{ width: "50%", fontSize: "12px" }}>
+          <RadioGroup
+            aria-labelledby="demo-controlled-radio-buttons-group"
+            name="controlled-radio-buttons-group"
+            value={aggregateType}
+            onChange={(event) => setAggregateType(event.target.value)}
+          >
+            <FormControlLabel
+              value="box"
+              control={
+                <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 12 } }} />
+              }
+              label={<div style={{ fontSize: 12 }}> {labels.boxToggle} </div>}
+              disabled={!isClassView}
+            />
+            <FormControlLabel
+              value="violin"
+              control={
+                <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 12 } }} />
+              }
+              label={
+                <div style={{ fontSize: 12 }}> {labels.violinToggle} </div>
+              }
+              disabled={!isClassView}
+            />
+            <FormControlLabel
+              value="circle"
+              control={
+                <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 12 } }} />
+              }
+              label={
+                <div style={{ fontSize: 12 }}> {labels.circleToggle} </div>
+              }
+              disabled={!isClassView}
+            />
+          </RadioGroup>
+        </FormControl>
+
         <div
-          className="aggregate-buttons-row"
           style={{
-            width: "60%",
-            display: "inline-flex",
-            alignItems: "center",
-            marginRight: "20px",
-            padding: "2px",
+            width: "50%",
+            fontSize: 12,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            marginLeft: "10%",
           }}
         >
-          <FormControl style={{ width: "50%", fontSize: "12px" }}>
-            <RadioGroup
-              aria-labelledby="demo-controlled-radio-buttons-group"
-              name="controlled-radio-buttons-group"
-              value={aggregateType}
-              onChange={(event) => setAggregateType(event.target.value)}
+          <div
+            style={{
+              display: "inline-flex",
+              margin: "10% 10%",
+              alignItems: "center",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={props.studentsChecked}
+              onChange={() => props.setStudentsChecked(!props.studentsChecked)}
+              disabled={!isClassView}
+            />
+            <Tooltip
+              title="Visa individerna inom varje aggregation"
+              followCursor
             >
-              <FormControlLabel
-                value="box"
-                control={
-                  <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 12 } }} />
-                }
-                label={<div style={{ fontSize: 12 }}> {labels.boxToggle} </div>}
-              />
-              <FormControlLabel
-                value="violin"
-                control={
-                  <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 12 } }} />
-                }
-                label={
-                  <div style={{ fontSize: 12 }}> {labels.violinToggle} </div>
-                }
-              />
-              <FormControlLabel
-                value="circle"
-                control={
-                  <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 12 } }} />
-                }
-                label={
-                  <div style={{ fontSize: 12 }}> {labels.circleToggle} </div>
-                }
-              />
-            </RadioGroup>
-          </FormControl>
+              <label
+                style={{
+                  opacity: isClassView ? 1 : 0.5,
+                }}
+              >
+                {" "}
+                Visa individer{" "}
+              </label>
+            </Tooltip>
+          </div>
 
           <div
             style={{
-              width: "50%",
-              fontSize: 12,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              marginLeft: "10%",
+              display: "inline-flex",
+              margin: "10% 10%",
+              alignItems: "center",
             }}
           >
-            <div
-              style={{
-                display: "inline-flex",
-                margin: "10% 10%",
-                alignItems: "center",
-              }}
+            <input
+              type="checkbox"
+              checked={props.connectIndividual}
+              disabled={props.disableIndiLines || !isClassView}
+              onChange={() =>
+                props.setConnectIndividual(!props.connectIndividual)
+              }
+            />
+            <Tooltip
+              title="Drar linjer mellan de framställda individerna"
+              followCursor
             >
-              <input
-                type="checkbox"
-                checked={props.studentsChecked}
-                onChange={() =>
-                  props.setStudentsChecked(!props.studentsChecked)
-                }
-              />
-              <Tooltip
-                title="Visa individerna inom varje aggregation"
-                followCursor
+              <label
+                style={{
+                  opacity: isClassView ? 1 : 0.5,
+                }}
               >
-                <label> Visa individer </label>
-              </Tooltip>
-            </div>
-
-            <div
-              style={{
-                display: "inline-flex",
-                margin: "10% 10%",
-                alignItems: "center",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={props.connectIndividual}
-                disabled={props.disableIndiLines}
-                onChange={() =>
-                  props.setConnectIndividual(!props.connectIndividual)
-                }
-              />
-              <Tooltip
-                title="Drar linjer mellan de framställda individerna"
-                followCursor
-              >
-                <label> Koppla samman individer </label>
-              </Tooltip>
-            </div>
+                {" "}
+                Koppla samman individer{" "}
+              </label>
+            </Tooltip>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -508,58 +522,85 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
   const { handleFileUpload, handleResetToOnboarding, handleResetToLatest } =
     useContext(AppLevelContext);
   return (
-    <div className="preset-buttons-row">
-      <button
-        className="btn"
-        id="reset-btn"
-        onClick={() => handleResetToOnboarding()} // function to reset the state to the initial state
+    <div
+      className="preset-buttons-row"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-evenly",
+          width: "100%",
+          marginBottom: "2px",
+        }}
       >
-        <Tooltip title="Nollställ till startvyn" followCursor>
-          <label>Nollställ</label>
-        </Tooltip>
-      </button>
-
-      <button
-        className="btn"
-        id="reset-latest-btn"
-        onClick={() => handleResetToLatest()} // function to reset the state to the initial state
-      >
-        <Tooltip title="Nollställ till den senast sparade vyn" followCursor>
-          <label>Nollställ till senaste sparad</label>
-        </Tooltip>
-      </button>
-
-      <button
-        className="btn"
-        id="save-preset-btn"
-        onClick={() => onSavePreset()} // function to save current state as a preset
-      >
-        <Tooltip
-          title="Spara och exportera din nuvarande vy till en nedladdningsfil"
-          followCursor
+        <button
+          className="btn"
+          id="reset-btn"
+          onClick={() => handleResetToOnboarding()} // function to reset the state to the initial state
         >
-          <label>Spara vy</label>
-        </Tooltip>
-      </button>
+          <Tooltip title="Nollställ till startvyn" followCursor>
+            <label>Nollställ</label>
+          </Tooltip>
+        </button>
 
-      <button
-        className="btn"
-        id="load-preset-btn"
-        onClick={() => onLoadPreset()} // function to load a saved preset
-      >
-        <Tooltip
-          title="Importera och ladda en tidigare sparad vy från en fil"
-          followCursor
+        <button
+          className="btn"
+          id="reset-latest-btn"
+          onClick={() => handleResetToLatest()} // function to reset the state to the initial state
         >
-          <label>Ladda vy</label>
-        </Tooltip>
-      </button>
+          <Tooltip title="Nollställ till den senast sparade vyn" followCursor>
+            <label>Nollställ till senaste sparad</label>
+          </Tooltip>
+        </button>
 
-      <ImportDataButton handleFileUpload={handleFileUpload} />
+        <button
+          className="btn"
+          id="save-preset-btn"
+          onClick={() => onSavePreset()} // function to save current state as a preset
+        >
+          <Tooltip
+            title="Spara och exportera din nuvarande vy till en nedladdningsfil"
+            followCursor
+          >
+            <label>Spara vy</label>
+          </Tooltip>
+        </button>
 
-      <Editor triggerRenderByConfigChange={props.triggerRenderByConfigChange} />
+        <button
+          className="btn"
+          id="load-preset-btn"
+          onClick={() => onLoadPreset()} // function to load a saved preset
+        >
+          <Tooltip
+            title="Importera och ladda en tidigare sparad vy från en fil"
+            followCursor
+          >
+            <label>Ladda vy</label>
+          </Tooltip>
+        </button>
+      </div>
 
-      <ShowHelp />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-evenly",
+          width: "100%",
+        }}
+      >
+        <ImportDataButton handleFileUpload={handleFileUpload} />
+
+        <Editor
+          triggerRenderByConfigChange={props.triggerRenderByConfigChange}
+        />
+
+        <ShowHelp />
+      </div>
     </div>
   );
 }
@@ -580,7 +621,7 @@ function DeclineThresholdSlider({
   };
 
   return (
-    <div style={{ margin: "5px 10px", width: "80%" }}>
+    <div style={{ margin: "5px 10px", width: "60%" }}>
       <div style={{ whiteSpace: "pre" }}>
         <Tooltip
           title="Sätt ett tröskelvärde för vad som ska betraktar som en negativ trend"

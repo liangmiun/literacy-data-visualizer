@@ -54,7 +54,7 @@ export const ShowHelp = () => {
   }, []);
 
   return (
-    <div className="btn">
+    <div>
       <button className="btn" onClick={() => setShowHelp(true)}>
         {labels.help}
       </button>
