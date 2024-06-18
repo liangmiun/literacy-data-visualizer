@@ -194,3 +194,29 @@ export const season_choice_fields = [
   labels.seasonByQuarter,
   labels.seasonBySemester,
 ];
+
+export const studentKeyList = [
+  "Skola",
+  "Årskurs",
+  "Klass",
+  "ElevID",
+  "Födelsedatum",
+  "Läsår",
+  "Testdatum",
+  "Standardpoäng",
+  "Lexplore Score",
+  "Persondetaljer",
+];
+
+export const classKeyList = [
+  // 'lastingclass',
+  "school",
+  "class",
+  "season",
+  "min",
+  "q1",
+  "median",
+  "q3",
+  "max",
+  "count",
+];

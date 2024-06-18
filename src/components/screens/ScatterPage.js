@@ -11,7 +11,7 @@ import {
   sequenceIDfromYearSchoolClass,
   Season,
 } from "../../utils/AggregateUtils";
-import { labels } from "../../utils/constants";
+import { labels, studentKeyList, classKeyList } from "../../utils/constants";
 import {
   generateSchoolLastingClassMap,
   generateSchoolClassColorScale,
@@ -544,32 +544,6 @@ function schoolClassFilteredData(data, selectedClasses) {
     return false;
   });
 }
-
-const studentKeyList = [
-  "Skola",
-  "Årskurs",
-  "Klass",
-  "ElevID",
-  "Födelsedatum",
-  "Läsår",
-  "Testdatum",
-  "Standardpoäng",
-  "Lexplore Score",
-  "Non-anonymised field",
-];
-
-const classKeyList = [
-  // 'lastingclass',
-  "school",
-  "class",
-  "season",
-  "min",
-  "q1",
-  "median",
-  "q3",
-  "max",
-  "count",
-];
 
 function linearDeclinedData(data, declineSlopeThreshold) {
   // 1. Parse Testdatum to a numeric format (e.g., timestamp) if it's not already numeric

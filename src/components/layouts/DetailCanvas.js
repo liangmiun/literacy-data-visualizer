@@ -2,6 +2,7 @@ import React from "react";
 import * as d3 from "d3";
 import "assets/App.css";
 import { isDateFieldString } from "utils/Utils";
+import { personalFields } from "utils/personalFields";
 
 const DetailCanvas = ({ data, keyList }) => {
   const formatDetailPanelDate = d3.timeFormat("%Y-%m-%d");
@@ -9,13 +10,40 @@ const DetailCanvas = ({ data, keyList }) => {
   const DetailValue = (key, value) => {
     if (isDateFieldString(key)) {
       value = formatDetailPanelDate(value);
+    } else if (key === "Persondetaljer") {
+      {
+        value = parseInt(value, 10);
+      }
+      return value;
     }
-    return value;
+  };
+
+  // const personalValues = (d) => {
+  //   const values = {};
+  //   personalFields.forEach((key) => {
+  //     if (d[key] !== undefined) {
+  //       values[key] = d[key];
+  //     }
+  //   });
+  //   return values.join(", ");
+  // };
+
+  const personalValues = (d) => {
+    const entries = [];
+    personalFields.forEach((key) => {
+      if (d[key] !== undefined) {
+        entries.push(`${key}: ${d[key]}`);
+      }
+    });
+    return `{${entries.join(", ")}}`;
   };
 
   const aggregateData = (key) => {
     if (data.length === 1) {
       console.log("detail data 0", data[0]);
+      if (key === "Persondetaljer") {
+        return personalValues(data[0]);
+      }
       return DetailValue(key, data[0][key]);
     }
 
