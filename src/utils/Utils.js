@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { sequenceIDfromYearSchoolClass, Season } from "./AggregateUtils.js";
 import { tenureSequenceTag } from "./tenureFormat";
+import { labels } from "./constants";
 
 export const parseDate = (rawDateInput) =>
   d3.timeParse("%y%m%d")(parseInt(rawDateInput));
@@ -309,7 +310,7 @@ export function aggrColorLegend(
       .attr("x", 0)
       .attr("y", -5) // Position the title a bit above the colored rectangles
       .style("font-weight", "bold") // Make the title bold (optional)
-      .text("Classes");
+      .text(labels.aggregateLegendTag);
 
     const first20CheckedClasses = checkedClasses.slice(0, 20);
 

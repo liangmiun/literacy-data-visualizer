@@ -283,9 +283,9 @@ const App = () => {
       });
 
       // Create and append each select with its label
-      createSelectWithLabel("School:", schoolSelect);
-      createSelectWithLabel("Year:", yearSelect);
-      createSelectWithLabel("Class:", classSelect);
+      createSelectWithLabel("Skola:", schoolSelect);
+      createSelectWithLabel("Läsår:", yearSelect);
+      createSelectWithLabel("Klass:", classSelect);
 
       // Append the selection container before the buttons in the modal
       modal.appendChild(selectionContainer);

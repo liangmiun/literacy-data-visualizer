@@ -12,7 +12,7 @@ let editorConfigs = {
   removeAggrOfSizeLowerThan: 0,
   tenureTagFormat: {
     tenureTemplate:
-      "${tenureInitialYear}-${tenureInitialGrade}${classLetter} to ${latestYear}-${latestGrade}${classLetter}",
+      "${tenureInitialYear}-${tenureInitialGrade}${classLetter} till ${latestYear}-${latestGrade}${classLetter}",
     _description:
       "Variables for formatting include: classLetter,latestYear, latestGrade,tenureInitialYear, tenureInitialGrade,tenureFinalYear,tenureFinalGrade, schoolEntryYear, schoolGraduationYear, ",
   },

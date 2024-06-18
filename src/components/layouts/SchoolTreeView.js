@@ -99,12 +99,18 @@ function SchoolTreeView(props) {
       </h4>
 
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <FormControl size="small">
-          <Tooltip title="" followCursor>
-            <InputLabel>Aggregera klasser som</InputLabel>
-          </Tooltip>
+        <FormControl size="small" variant="outlined">
+          <InputLabel
+            sx={{
+              backgroundColor: "white",
+              paddingRight: "4px",
+              paddingLeft: "4px", // Ensuring there's background padding
+            }}
+          >
+            Aggregera klasser som
+          </InputLabel>
           <MuiSelect
-            sx={{ width: "8vw", height: "1.5vw" }}
+            sx={{ width: "10vw", height: "1.5vw" }}
             value={groupOption}
             onChange={(event) => setGroupOption(event.target.value)}
             label="class-group-field"

@@ -47,6 +47,7 @@ export const labels = {
   groupByThreeYear: "Stadie",
   groupBySchoolYear: "Läsår",
   groupByTrajectory: "Skolgång från en klass",
+  aggregateLegendTag: "Klass",
 };
 
 const english_labels = {

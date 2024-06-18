@@ -2,7 +2,6 @@ import { schoolTreeViewConfigs } from "utils/configEditor.js";
 import { labels } from "utils/constants";
 
 export function tenureSequenceTag(sequenceID, groupOption) {
-  //console.log("sequenceID", sequenceID);
   const latestYearClass = sequenceID.split(":")[1];
   const latestYear = parseInt(latestYearClass.split("-")[0].split("/")[0]);
   const latestGrade = latestYearClass.split("-")[1].replace(/\D/g, "");
@@ -45,15 +44,9 @@ export function tenureSequenceTag(sequenceID, groupOption) {
     params
   );
 
-  const result = sequenceTagFormatter(
-    params,
-    formatTemplate
-    //`${tenureInitialYear}-${tenureInitialGrade}${classLetter} to ${latestYear}-${latestGrade}${classLetter}`
-  );
+  const result = sequenceTagFormatter(params, formatTemplate);
 
   return result;
-
-  //return `${tenureInitialYearClass} to ${latestYearClass}`;
 }
 
 function sequenceTagFormatter(params, formatString) {
