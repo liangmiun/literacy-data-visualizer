@@ -58,7 +58,9 @@ const ScatterPage = () => {
   const [minDeclineThreshold, setMinDeclineThreshold] = useState(-1);
   const [filterList, setFilterList] = useState([]);
   const [emptyFilterOptions, setEmptyFilterOptions] = useState({});
-  const [tenureGroupOption, setTenureGroupOption] = useState("3-year tenure");
+  const [tenureGroupOption, setTenureGroupOption] = useState(
+    labels.groupByThreeYear
+  );
   const [wouldRenderByConfig, setWouldRenderByConfig] = useState(false);
   const [showAverageLine, setShowAverageLine] = useState(false);
   const [meanScores, setMeanScores] = useState(new Map());

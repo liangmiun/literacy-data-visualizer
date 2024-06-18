@@ -237,9 +237,9 @@ function classNumAndYearForSequence(
   var newSchoolYear;
   var endClassNum;
 
-  if (sequenceType === "9-year tenure") {
+  if (sequenceType === labels.groupByNineYear) {
     endClassNum = 9;
-  } else if (sequenceType === "3-year tenure") {
+  } else if (sequenceType === labels.groupByThreeYear) {
     endClassNum = 3 * (Math.ceil(classNum / 3) - 1) + 3;
   } else {
     endClassNum = classNum;
