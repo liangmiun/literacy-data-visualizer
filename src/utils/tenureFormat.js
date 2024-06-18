@@ -1,4 +1,5 @@
 import { schoolTreeViewConfigs } from "utils/configEditor.js";
+import { labels } from "utils/constants";
 
 export function tenureSequenceTag(sequenceID, groupOption) {
   //console.log("sequenceID", sequenceID);
@@ -8,19 +9,19 @@ export function tenureSequenceTag(sequenceID, groupOption) {
   const classLetter = latestYearClass.split("-")[1].replace(/\d/g, "");
 
   var tenureInitialGrade, tenureInitialYear, tenureFinalGrade, tenureFinalYear;
-  if (groupOption === "9-year tenure") {
+  if (groupOption === labels.groupByNineYear) {
     tenureInitialGrade = 1;
     tenureInitialYear = latestYear + tenureInitialGrade - latestGrade;
     tenureFinalGrade = 9;
     tenureFinalYear = tenureInitialYear + 8;
-  } else if (groupOption === "3-year tenure") {
+  } else if (groupOption === labels.groupByThreeYear) {
     tenureInitialGrade = 3 * (Math.ceil(latestGrade / 3) - 1) + 1;
     tenureInitialYear = latestYear + tenureInitialGrade - latestGrade;
     tenureFinalGrade = tenureInitialGrade + 2;
     tenureFinalGrade = tenureInitialGrade + 2;
-  } else if (groupOption === "school-year") {
+  } else if (groupOption === labels.groupBySchoolYear) {
     return latestYearClass;
-  } else if (groupOption === "trajectory") {
+  } else if (groupOption === labels.groupByTrajectory) {
     return latestYearClass;
   }
 
