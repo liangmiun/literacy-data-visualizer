@@ -26,7 +26,6 @@ import Logout from "./authentications/Logout";
 import * as settingsIO from "./utils/settingsIO";
 import "./assets/App.css";
 import About from "./components/screens/About";
-import Help from "./components/screens/Help";
 import ScatterPage from "./components/screens/ScatterPage";
 
 const App = () => {
@@ -372,10 +371,6 @@ const App = () => {
               }
             />
             <Route
-              path="/help"
-              element={<ProtectedWrapper element={<Help />} />}
-            />
-            <Route
               path="/about"
               element={<ProtectedWrapper element={<About />} />}
             />
@@ -408,9 +403,6 @@ function Navigation({ currentUser }) {
           <>
             <li className="header-li-style">
               <Link to="/">{labels.plotPage}</Link>
-            </li>
-            <li className="header-li-style">
-              <Link to="/help">{labels.helpPage}</Link>
             </li>
             <li className="header-li-style">
               <Link to="/about">{labels.aboutPage}</Link>
