@@ -43,7 +43,7 @@ Det finns även en knapp i nedre högra hörnet av grafen, som tillåter en att 
 ##### Aggregationer
 För denna framställning är y-axeln låst till att visa Lexplore score, och färgerna låst till att visa vilken aggregation man har valt (mer om att välja aggregationer senare). X-axeln är inte låst, men har bara tidsrelaterade enheter att välja mellan.
 
-I samma ruta som för att sätta på aggregation av datan, går det att byta ut punkterna mot 'box' och 'violin', som är olika framställningar för att visa statistiska sanningar kring de plural av datapunkter som har gett upphov till denna aggregerade punkt. Läs mer om dessa här: [Box](https://sv.wikipedia.org/wiki/L%C3%A5dagram)
+I samma ruta som för att sätta på aggregation av datan, går det att byta ut punkterna mot 'box' och 'violin', som är olika framställningar för att visa statistiska sanningar kring de plural av datapunkter som har gett upphov till denna aggregerade punkt. Läs mer om dessa här: [Box](https://sv.wikipedia.org/wiki/L%C3%A5dagram), [Violin (Tyvärr bara på engelska)](https://en.wikipedia.org/wiki/Violin_plot). Det går även att visa bakomliggande individer för de aggregerade punktern, samt koppla samman dem, från denna ruta. Observera att p.g.a. prestandaskäl, går det inte att visa individer och koppla ihop dem, om det är väldigt mycket data att visa.
 
 ### Filtrera över skolor och klasser
 
