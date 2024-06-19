@@ -188,17 +188,22 @@ const App = () => {
         schoolSelect.appendChild(option);
       });
 
-      schoolSelect.value = teacher_choice_preset.school;
+      schoolSelect.value = Object.keys(schoolYearClassMap)[0]; // Initially select the first school
+      //schoolSelect.value = teacher_choice_preset.school;
       updateYearOptions(schoolSelect.value); // Initially populate year and class based on first school
 
       setTimeout(() => {
         // Use setTimeout to ensure DOM updates have been processed
-        yearSelect.value = teacher_choice_preset.year;
+        yearSelect.value = Object.keys(
+          schoolYearClassMap[schoolSelect.value]
+        )[0]; // Initially select the first year
+        //yearSelect.value = teacher_choice_preset.year;
         updateClassOptions(schoolSelect.value, yearSelect.value); // Populate classes based on the selected year and school
       }, 0);
 
       setTimeout(() => {
-        classSelect.value = teacher_choice_preset.class;
+        classSelect.value =
+          schoolYearClassMap[schoolSelect.value][yearSelect.value][0]; // Initially select the first class
       }, 0);
 
       // Event listener to update Year and Class dropdowns when School changes

@@ -123,10 +123,6 @@ function OptionSlider({ label, min, max, setRangeOptions }) {
     }));
   };
 
-  // if (label.includes("Födelsedatum")) {
-  //   console.log("OptionSlider", label, min, max, new Date(min), new Date(max));
-  // }
-
   return (
     <div style={{ margin: "5px 10px", width: "80%" }}>
       {label}:
