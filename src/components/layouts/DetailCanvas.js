@@ -14,8 +14,8 @@ const DetailCanvas = ({ data, keyList }) => {
       value = formatDetailPanelDate(value);
     } else if (key === "Persondetaljer") {
       value = parseInt(value, 10);
-      return value;
     }
+    return value;
   };
 
   const personalValues = (d) => {
