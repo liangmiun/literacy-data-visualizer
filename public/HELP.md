@@ -4,14 +4,8 @@ Välkommen till IMPRESS-visualiseringen. Kortfattat tar den rådata som beskrive
 ## Kom igång
 Innan man har någon som helst möjlighet att börja utforska sin data, behöver applikationen data. Högst upp till höger, i samma ruta med knappen för instruktionerna, finns det en knapp där det står "Importera Data". Därifrån laddar du en .csv fil, som enkelt går att exportera från Excel.
 Notera att ev. konfidentialitet kring datan är helt och hållet bevarad och utan risk att äventyras. Kortfattat är denna visualiseringsupplevelse levererad till din webbläsare, och sedan är datan endast lokalt laddad till din webbläsare; den skickas inte vidare på något vis överhuvudtaget. Detta går att bekräfta (och även försäkra sig om) genom att ladda upplevelsen, bryta internet anslutningen, och sedan ladda upp datan; det funkar eftersom allt från internet är redan hämtat och ingen vidare koppling till internet behövs vid det laget.
-
-
-
-- Click on "Import Data" button on the top of webpage to import a .csv data. The .csv would stay at the user's client-side browser and be visualized.
-- The user-imported .csv is expected to include fields as below, so that the fields-based tree/option/range filters would operate at their full capacity.
+Datan bör ha dessa kolumner från Lexplore för att kunda laddas:
   > " Skola, Årskurs, Klass, ElevID, Födelsedatum, Läsår, Testdatum, Percentil, Läsnivå (5 = hög), Stanine, Standardpoäng, Lexplore Score "
-
-- If no data is imported by user, the webpage would present a sample data from the server-side which is AES-encrypted by Firebase key.
 
 ## The scatterplot view
 
