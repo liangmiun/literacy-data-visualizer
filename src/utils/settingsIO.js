@@ -1,7 +1,6 @@
 import { csvParse } from "d3";
 import {
   initial_principal_preset,
-  initial_teacher_preset,
   latest_preset,
   updateLatestPreset,
 } from "../contents/InitialPreset.js";
@@ -110,16 +109,26 @@ export const handleFileUpload = (event, fileUploadSetters) => {
   }
 };
 
-export const handleResetOnboard = (configSetters, userType, teacherChoice) => {
+export const handleResetOnboard = (
+  configSetters,
+  userType,
+  teacherChoice,
+  firstSchoolChoices
+) => {
   return () => {
     var initial_preset;
 
-    if (userType === USER_TYPE.principal) {
-      initial_preset = initial_principal_preset;
-    } else {
-      // Parsing the initial preset to make it mutable and to use its structure
-      const parsedPreset = JSON.parse(initial_teacher_preset);
+    const parsedPreset = JSON.parse(initial_principal_preset);
 
+    if (userType === USER_TYPE.principal) {
+      //initial_preset = initial_principal_preset;
+      const newPreset = {
+        ...parsedPreset, // Spread the existing properties to retain them (e.g., xField)
+        selectedClasses: firstSchoolChoices,
+      };
+      // Convert the new preset object back to a JSON string if needed
+      initial_preset = JSON.stringify(newPreset);
+    } else {
       // Creating a new preset based on the initial one but with modified selectedClasses
       const newPreset = {
         ...parsedPreset, // Spread the existing properties to retain them (e.g., xField)
@@ -131,7 +140,6 @@ export const handleResetOnboard = (configSetters, userType, teacherChoice) => {
           },
         ],
       };
-
       // Convert the new preset object back to a JSON string if needed
       initial_preset = JSON.stringify(newPreset);
     }

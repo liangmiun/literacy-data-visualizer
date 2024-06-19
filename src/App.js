@@ -10,7 +10,6 @@ import {
   labels,
   USER_TYPE,
   season_choice_fields,
-  teacher_choice_preset,
 } from "./utils/constants";
 
 import ProtectedWrapper from "./authentications/ProtectedWrapper";
@@ -48,6 +47,7 @@ const App = () => {
   const [userType, setUserType] = useState(USER_TYPE.principal);
   const [schoolClassMapForTeacher, setSchoolClassMapForTeacher] = useState({});
   const [teacherChoice, setTeacherChoice] = useState({});
+  const [firstSchoolChoices, setFirstSchoolChoices] = useState([]);
   const [isOnBoarding, setIsOnBoarding] = useState(false);
 
   const savePresetSetters = {
@@ -87,22 +87,6 @@ const App = () => {
   };
 
   const onResetToOnboardingRef = useRef();
-
-  useEffect(() => {
-    // Update the ref's current value whenever userType changes
-    onResetToOnboardingRef.current = settingsIO.handleResetOnboard(
-      configSetters,
-      userType,
-      teacherChoice
-    );
-  }, [configSetters, userType, teacherChoice]);
-
-  const onResetToLatest = settingsIO.handleResetToLatest(configSetters);
-  const onSavePreset = settingsIO.saveConfig(savePresetSetters);
-  const onSetConfigFromPreset = settingsIO.setConfigFromPreset(configSetters);
-  const onFileUpload = (event) => {
-    settingsIO.handleFileUpload(event, fileUploadSetters);
-  };
 
   useEffect(() => {
     if (
@@ -188,8 +172,8 @@ const App = () => {
         schoolSelect.appendChild(option);
       });
 
-      schoolSelect.value = Object.keys(schoolYearClassMap)[0]; // Initially select the first school
-      //schoolSelect.value = teacher_choice_preset.school;
+      const firstSchool = Object.keys(schoolYearClassMap)[0];
+      schoolSelect.value = firstSchool; // Initially select the first school
       updateYearOptions(schoolSelect.value); // Initially populate year and class based on first school
 
       setTimeout(() => {
@@ -270,11 +254,24 @@ const App = () => {
       teacherButton.style.width = "100%";
       selectionContainer.appendChild(teacherButton);
 
+      const firstSchoolClasses = [];
+      // Iterate over each school year
+      Object.keys(schoolYearClassMap[firstSchool]).forEach((year) => {
+        schoolYearClassMap[firstSchool][year].forEach((className) => {
+          firstSchoolClasses.push({
+            school: firstSchool,
+            schoolYear: year,
+            class: className,
+          });
+        });
+      });
+
       // Create Principal's button
       const principalButton = document.createElement("button");
       principalButton.textContent = "Rektors/Skolchefs Startvy";
       principalButton.onclick = function () {
         setUserType(USER_TYPE.principal);
+        setFirstSchoolChoices(firstSchoolClasses);
         document.body.removeChild(modal);
       };
       modal.appendChild(principalButton);
@@ -282,18 +279,30 @@ const App = () => {
       // Append modal to the body
       document.body.appendChild(modal);
     }
-  }, [
-    isOnBoarding,
-    setIsOnBoarding,
-    data,
-    schoolClassMapForTeacher,
-    teacherChoice,
-    userType,
-  ]);
+  }, [isOnBoarding, setIsOnBoarding, data, schoolClassMapForTeacher, userType]);
+
+  useEffect(() => {
+    // Update the ref's current value whenever userType changes
+    console.log("firstSchoolChoices", firstSchoolChoices);
+
+    onResetToOnboardingRef.current = settingsIO.handleResetOnboard(
+      configSetters,
+      userType,
+      teacherChoice,
+      firstSchoolChoices
+    );
+  }, [configSetters, userType, teacherChoice, firstSchoolChoices]);
+
+  const onResetToLatest = settingsIO.handleResetToLatest(configSetters);
+  const onSavePreset = settingsIO.saveConfig(savePresetSetters);
+  const onSetConfigFromPreset = settingsIO.setConfigFromPreset(configSetters);
+  const onFileUpload = (event) => {
+    settingsIO.handleFileUpload(event, fileUploadSetters);
+  };
 
   useEffect(() => {
     onResetToOnboardingRef.current();
-  }, [userType]);
+  }, [teacherChoice, firstSchoolChoices]);
 
   const appContextValue = {
     data,
