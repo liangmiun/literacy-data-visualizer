@@ -1,12 +1,9 @@
-import App from './App';
-import { AuthProvider } from './authentications/AuthContext';
+import App from "./App";
 
 const AppWrapper = () => {
   return (
-    // Wrap the App component with the AuthProvider
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    // If login/auchentication needed, wrap the App component with the AuthProvider from the AuthContext.js file
+    <App />
   );
 };
 
