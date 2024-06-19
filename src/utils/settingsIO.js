@@ -112,7 +112,6 @@ export const handleFileUpload = (event, fileUploadSetters) => {
         parsedData,
         (d) => d["Födelsedatum"]
       );
-      console.log("initially parsed minValue", minValue, "maxValue", maxValue);
     };
     reader.readAsText(file);
   }
@@ -120,8 +119,6 @@ export const handleFileUpload = (event, fileUploadSetters) => {
 
 export const handleResetOnboard = (configSetters, userType, teacherChoice) => {
   return () => {
-    console.log("handleReset userType ", userType);
-
     var initial_preset;
 
     if (userType === USER_TYPE.principal) {

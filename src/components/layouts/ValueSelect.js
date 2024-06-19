@@ -89,21 +89,7 @@ export function OptionSelectGroup({
             );
           } else if (rangeOptions.hasOwnProperty(option)) {
             const [minValue, maxValue] = d3.extent(data, (d) => d[option]);
-            const dmin = data.find((d) => d[option] === minValue);
-            const dmax = data.find((d) => d[option] === maxValue);
 
-            if (option === "Födelsedatum") {
-              console.log(
-                "OptionSliderGroup",
-                option,
-                +minValue,
-                +maxValue,
-                "dmin",
-                dmin,
-                "dmax",
-                dmax
-              );
-            }
             return (
               <OptionSlider
                 key={option}

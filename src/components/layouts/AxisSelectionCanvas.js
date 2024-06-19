@@ -37,7 +37,7 @@ const AxisSelectionCanvas = (props) => {
     label: value,
   }));
 
-  const ImportDataButton = ({ handleFileUpload }) => {
+  const ImportDataButton = ({ handleFileUpload, setIsOnBoarding }) => {
     // Create a reference to the hidden file input
     const fileInputRef = useRef(null);
 
@@ -46,18 +46,22 @@ const AxisSelectionCanvas = (props) => {
       fileInputRef.current.click();
     };
 
+    const handleChange = (event) => {
+      setIsOnBoarding(true);
+      handleFileUpload(event);
+    };
+
     return (
       <div>
         <input
           type="file"
           accept=".csv"
-          onChange={handleFileUpload}
+          onChange={handleChange}
           style={{ display: "none" }}
           ref={fileInputRef} // Attach the reference to the file input
           id="fileUpload"
         />
         <button className="btn import-button" onClick={handleClick}>
-          {/* Assuming Tooltip is a component from a library like Material-UI; adjust as needed */}
           <Tooltip title="Importera data från en .csv-fil" followCursor>
             <span>Importera Data</span>
           </Tooltip>
@@ -519,8 +523,12 @@ function ClassViewBar({ props }) {
 }
 
 function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
-  const { handleFileUpload, handleResetToOnboarding, handleResetToLatest } =
-    useContext(AppLevelContext);
+  const {
+    handleFileUpload,
+    handleResetToOnboarding,
+    handleResetToLatest,
+    setIsOnBoarding,
+  } = useContext(AppLevelContext);
   return (
     <div
       className="preset-buttons-row"
@@ -593,7 +601,10 @@ function PresetBar({ props, onSavePreset, onLoadPreset, ImportDataButton }) {
           width: "100%",
         }}
       >
-        <ImportDataButton handleFileUpload={handleFileUpload} />
+        <ImportDataButton
+          handleFileUpload={handleFileUpload}
+          setIsOnBoarding={setIsOnBoarding}
+        />
 
         <Editor
           triggerRenderByConfigChange={props.triggerRenderByConfigChange}

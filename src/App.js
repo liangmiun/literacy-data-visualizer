@@ -18,6 +18,7 @@ import * as settingsIO from "./utils/settingsIO";
 import "./assets/App.css";
 import About from "./components/screens/About";
 import ScatterPage from "./components/screens/ScatterPage";
+import { set } from "d3-collection";
 
 const App = () => {
   const [data, setData] = useState([]);
@@ -48,6 +49,7 @@ const App = () => {
   const [userType, setUserType] = useState(USER_TYPE.principal);
   const [schoolClassMapForTeacher, setSchoolClassMapForTeacher] = useState({});
   const [teacherChoice, setTeacherChoice] = useState({});
+  const [isOnBoarding, setIsOnBoarding] = useState(false);
 
   const savePresetSetters = {
     xField,
@@ -100,39 +102,16 @@ const App = () => {
   const onSavePreset = settingsIO.saveConfig(savePresetSetters);
   const onSetConfigFromPreset = settingsIO.setConfigFromPreset(configSetters);
   const onFileUpload = (event) => {
-    settingsIO.handleFileUpload(
-      event,
-      fileUploadSetters
-      // configSetters,
-      // userType,
-      // teacherChoice
-    );
+    settingsIO.handleFileUpload(event, fileUploadSetters);
   };
-
-  // useEffect(() => {
-  //   if (!isLogin) return;
-  //   fetch(process.env.PUBLIC_URL + "/LiteracySampleEncrypt.csv")
-  //     .then((response) => response.text()) // Get as text, not JSON
-  //     .then((encryptedData) => {
-  //       // Decrypt data
-  //       const bytes = CryptoJS.AES.decrypt(encryptedData, encryptKey); // Replace with encryptKey
-  //       const originalData = bytes.toString(CryptoJS.enc.Utf8);
-  //       const parsedData = csvParse(originalData, rowParser);
-  //       setData(parsedData);
-  //       setLogicFilteredData(parsedData);
-  //       onResetToOnboardingRef.current();
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching or parsing data:", error);
-  //     });
-  // }, [isLogin, encryptKey, userType]);
 
   useEffect(() => {
     if (
+      isOnBoarding &&
       data.length > 0 &&
-      Object.keys(teacherChoice).length === 0 &&
       Object.keys(schoolClassMapForTeacher).length > 0
     ) {
+      setIsOnBoarding(false);
       const schoolYearClassMap = {};
       Object.keys(schoolClassMapForTeacher).forEach((school) => {
         schoolYearClassMap[school] = Object.keys(
@@ -148,7 +127,6 @@ const App = () => {
         }, {});
       });
       queryTeachOrPrincipal(schoolYearClassMap);
-      onResetToOnboardingRef.current();
     }
 
     function queryTeachOrPrincipal(schoolYearClassMap) {
@@ -300,7 +278,18 @@ const App = () => {
       // Append modal to the body
       document.body.appendChild(modal);
     }
-  }, [data, schoolClassMapForTeacher, teacherChoice]);
+  }, [
+    isOnBoarding,
+    setIsOnBoarding,
+    data,
+    schoolClassMapForTeacher,
+    teacherChoice,
+    userType,
+  ]);
+
+  useEffect(() => {
+    onResetToOnboardingRef.current();
+  }, [userType]);
 
   const appContextValue = {
     data,
@@ -340,6 +329,7 @@ const App = () => {
     setIsClassView,
     aggregateType,
     setAggregateType,
+    setIsOnBoarding,
   };
 
   return (
