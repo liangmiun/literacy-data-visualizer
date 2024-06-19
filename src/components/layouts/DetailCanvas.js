@@ -7,26 +7,16 @@ import { personalFields } from "utils/personalFields";
 const DetailCanvas = ({ data, keyList }) => {
   const formatDetailPanelDate = d3.timeFormat("%Y-%m-%d");
 
+  console.log("DetailCanvas data: ", data, data.length);
+
   const DetailValue = (key, value) => {
     if (isDateFieldString(key)) {
       value = formatDetailPanelDate(value);
     } else if (key === "Persondetaljer") {
-      {
-        value = parseInt(value, 10);
-      }
+      value = parseInt(value, 10);
       return value;
     }
   };
-
-  // const personalValues = (d) => {
-  //   const values = {};
-  //   personalFields.forEach((key) => {
-  //     if (d[key] !== undefined) {
-  //       values[key] = d[key];
-  //     }
-  //   });
-  //   return values.join(", ");
-  // };
 
   const personalValues = (d) => {
     const entries = [];
@@ -39,8 +29,8 @@ const DetailCanvas = ({ data, keyList }) => {
   };
 
   const aggregateData = (key) => {
+    //console.log("aagr Key: ", key, "Data length: ", data.length);
     if (data.length === 1) {
-      console.log("detail data 0", data[0]);
       if (key === "Persondetaljer") {
         return personalValues(data[0]);
       }
@@ -97,11 +87,26 @@ const DetailCanvas = ({ data, keyList }) => {
     <div className="detail-canvas" style={{ fontSize: "1.0em" }}>
       {data &&
         data.length > 0 &&
-        keyList.map((key) => (
-          <div key={key} className="detail-item">
-            <strong>{detailKey(key)}:</strong> {aggregateData(key)}
-          </div>
-        ))}
+        // keyList.map((key) => (
+        //   <div key={key} className="detail-item">
+        //     <strong>{detailKey(key)}:</strong> {aggregateData(key)}
+        //   </div>
+        // ))
+
+        keyList.map((key) => {
+          const detailKeyValue = detailKey(key);
+          const aggregateDataValue = aggregateData(key);
+
+          console.log(
+            `Key: ${key}, Detail Key: ${detailKeyValue}, Aggregate Data: ${aggregateDataValue}`
+          );
+
+          return (
+            <div key={key} className="detail-item">
+              <strong>{detailKeyValue}:</strong> {aggregateDataValue}
+            </div>
+          );
+        })}
     </div>
   );
 };

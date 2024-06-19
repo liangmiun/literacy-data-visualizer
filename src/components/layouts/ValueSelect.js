@@ -90,6 +90,20 @@ export function OptionSelectGroup({
             );
           } else if (rangeOptions.hasOwnProperty(option)) {
             const [minValue, maxValue] = d3.extent(data, (d) => d[option]);
+            const dmin = data.find((d) => d[option] === minValue);
+            const dmax = data.find((d) => d[option] === maxValue);
+            // console.log(
+            //   "OptionSelectGroup",
+            //   option,
+            //   new Date(minValue),
+            //   new Date(maxValue),
+            //   +minValue,
+            //   +maxValue,
+            //   "dmin",
+            //   dmin,
+            //   "dmax",
+            //   dmax
+            // );
             return (
               <OptionSlider
                 key={option}

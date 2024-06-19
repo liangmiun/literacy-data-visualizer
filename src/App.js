@@ -44,7 +44,6 @@ const App = () => {
   const [aggregateType, setAggregateType] = useState("circle");
   const fields = data_fields;
   const fields_x = isClassView ? season_choice_fields : x_data_fields;
-  console.log("fields x: ", fields_x);
   const fields_y = y_data_fields;
   const [userType, setUserType] = useState(USER_TYPE.principal);
   const [schoolClassMapForTeacher, setSchoolClassMapForTeacher] = useState({});
@@ -83,25 +82,31 @@ const App = () => {
 
   const fileUploadSetters = {
     setData,
-    setLogicFilteredtData: setLogicFilteredData,
+    setLogicFilteredData,
   };
 
   const onResetToOnboardingRef = useRef();
 
   useEffect(() => {
     // Update the ref's current value whenever userType changes
-    onResetToOnboardingRef.current = settingsIO.handleResetToOnboarding(
+    onResetToOnboardingRef.current = settingsIO.handleResetOnboard(
       configSetters,
       userType,
       teacherChoice
     );
-  }, [configSetters, userType, teacherChoice]); // Dependency array includes userType to react to its changes
+  }, [configSetters, userType, teacherChoice]);
 
   const onResetToLatest = settingsIO.handleResetToLatest(configSetters);
   const onSavePreset = settingsIO.saveConfig(savePresetSetters);
   const onSetConfigFromPreset = settingsIO.setConfigFromPreset(configSetters);
   const onFileUpload = (event) => {
-    settingsIO.handleFileUpload(event, fileUploadSetters);
+    settingsIO.handleFileUpload(
+      event,
+      fileUploadSetters
+      // configSetters,
+      // userType,
+      // teacherChoice
+    );
   };
 
   // useEffect(() => {
@@ -124,8 +129,7 @@ const App = () => {
 
   useEffect(() => {
     if (
-      // attention to the placeholder of isDataLoaded
-      "isDataLoaded" &&
+      data.length > 0 &&
       Object.keys(teacherChoice).length === 0 &&
       Object.keys(schoolClassMapForTeacher).length > 0
     ) {
@@ -144,6 +148,7 @@ const App = () => {
         }, {});
       });
       queryTeachOrPrincipal(schoolYearClassMap);
+      onResetToOnboardingRef.current();
     }
 
     function queryTeachOrPrincipal(schoolYearClassMap) {
@@ -295,7 +300,7 @@ const App = () => {
       // Append modal to the body
       document.body.appendChild(modal);
     }
-  }, [schoolClassMapForTeacher, teacherChoice]);
+  }, [data, schoolClassMapForTeacher, teacherChoice]);
 
   const appContextValue = {
     data,

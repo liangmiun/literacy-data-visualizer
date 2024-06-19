@@ -65,6 +65,8 @@ const ScatterPage = () => {
   const [showAverageLine, setShowAverageLine] = useState(false);
   const [meanScores, setMeanScores] = useState(new Map());
 
+  console.log("selectedClassDetail", selectedClassDetail);
+
   // Set average line data
   useEffect(() => {
     const treeViewSelectedGrades = new Set(
@@ -282,6 +284,14 @@ const ScatterPage = () => {
     const nonNullData = dataToShow.filter(
       (d) => d[xField] !== null && d[yField] !== null
     );
+    // console.log(
+    //   "nonNullData",
+    //   nonNullData.length,
+    //   "shownData",
+    //   checkedFilteredData(
+    //     rangeFilteredData(schoolClassFilteredData(nonNullData, selectedClasses))
+    //   ).length
+    // );
     return checkedFilteredData(
       rangeFilteredData(schoolClassFilteredData(nonNullData, selectedClasses))
     );

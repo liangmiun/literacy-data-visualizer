@@ -20,7 +20,6 @@ export const grayTheme = createTheme({
 });
 
 export const EmptyCheckBoxBlankIcon = ({ fontSize }) => {
-  //console.log(sizeTag);
   return (
     <SvgIcon fontSize={fontSize}>
       <svg focusable="false" aria-hidden="true" data-testid="CheckBoxBlankIcon">

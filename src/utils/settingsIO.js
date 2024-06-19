@@ -95,9 +95,8 @@ export const saveConfig = (saveSetters) => {
   };
 };
 
-export const handleFileUpload = (event, setters) => {
-  const { setData, setLogicFilteredtData } = setters;
-  console.log("handleFileUpload");
+export const handleFileUpload = (event, fileUploadSetters) => {
+  const { setData, setLogicFilteredData } = fileUploadSetters;
   const file = event.target.files[0];
   if (file) {
     const reader = new FileReader();
@@ -105,17 +104,14 @@ export const handleFileUpload = (event, setters) => {
       const csvData = e.target.result;
       const parsedData = await csvParse(csvData, rowParser);
       setData(parsedData);
-      setLogicFilteredtData(parsedData);
+      setLogicFilteredData(parsedData);
+      //handleResetOnboard(configSetters, userType, teacherChoice)();
     };
     reader.readAsText(file);
   }
 };
 
-export const handleResetToOnboarding = (
-  configSetters,
-  userType,
-  teacherChoice
-) => {
+export const handleResetOnboard = (configSetters, userType, teacherChoice) => {
   return () => {
     console.log("handleReset userType ", userType);
 
