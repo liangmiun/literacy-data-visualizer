@@ -22,10 +22,16 @@ Nu när datan är laddad och startvy är vald, kan du börja utforska datan. Det
 För frågebesvarning börjar man med en särskild, konkret fråga, och sedan använder man sina verktyg för att ta reda på det. För ett sådant tillvägagångsätt, är det bra att veta vilka verktyg man har till hands, och därför är det nog en rätt dålig tillvägagångsätt för nybörjare. Därför rekommenderas det istället att börja med utforsking medan man lär sig mer om visualiseringsupplevelsens verktyg. Se det som att "leka runt" lite, medan man *kanske* lyckas få någon djupare förståelse under tiden.
 
 ### Att tolka grafen
-Grafen, som befinner sig i nedre vänstra hörnet av sidan, är huvudkomponenten av hela visualiseringsupplevelsen. Den framställer datan efter samtliga inställningar och funktioner som är tillgängliga. Den föreställer en vanlig graf med två axlar, samt punkter som placeras ut i grafen i förhållande till axlarna. Dessa punkter har en färg som beskrivs med en liten hjälpruta till höger i grafen. Punkterna går att klicka på för att få mer information om dem till höger om grafen, i informationsrutan. När en punkt är klickad, visas det tydligt i grafen genom någon form av highlight. Dessa punkter är bundna med linjer mellan sig, som går att stänga av i tredje rutan från vänster ovanför grafen. Dessa linjer binder samman samma enheter från olika tidstillfällen. I samma ruta går det även att visa genomsnittslinjer för datasetet. Det går att byta vilka attributer som representeras av axlarna och färgerna genom att välja attributer i menyerna i första rutan från vänster ovanför grafen. Detta är vad som gäller generellt för grafen, men det finns två olika sätt att framställa datan i grafen: Individuell och aggregerad framställning.
+Grafen, som befinner sig i nedre vänstra hörnet av sidan, är huvudkomponenten av hela visualiseringsupplevelsen. Den framställer datan efter samtliga inställningar och funktioner som är tillgängliga. Den föreställer en vanlig graf med två axlar, samt punkter som placeras ut i grafen i förhållande till axlarna. Dessa punkter har en färg som beskrivs med en liten hjälpruta till höger i grafen. Punkterna går att klicka på för att få mer information om dem till höger om grafen, i informationsrutan. När en punkt är klickad, visas det tydligt i grafen genom någon form av highlight. Det går att zooma in och ut med scroll-hjulet eller scroll-funktionen på en musplatta och flytta runt punkterna i grafen genom att klicka och dra i bakgrunden.
+
+Punkterna är bundna med linjer mellan sig, som går att stänga av i tredje rutan från vänster ovanför grafen. Dessa linjer binder samman samma enheter från olika tidstillfällen. I samma ruta går det även att visa genomsnittslinjer för datasetet.
+
+Det går att byta vilka attributer som representeras av axlarna och färgerna genom att välja attributer i menyerna i första rutan från vänster ovanför grafen.
+
+Allt detta är vad som gäller generellt för grafen, men det finns två olika sätt att framställa datan i grafen: Individuell och aggregerad framställning.
 
 #### Olika framställningar
-I den individuella framställningen visas punkter som förhåller sig till endast en individ. Denna framställning ger en bättre överblick över varje enskild persons läskunnighet och -vana. I den aggregerade framställningen är klasser, stadier, och årsgångar i fokus istället, vilket kan ge en enklare överblick över en hela skolans resultat. Det går fritt att byta mellan varje framställning utan att oberoende inställningar ändras eller nollställs. Vissa inställningar som beror direkt på vilken framställning som visas sparas mellan byten, så du behöver inte göra om dessa inställningar varje gång man går tillbaka. Den aggregerade framställningen är den som upplevelsen normalt börjar med.
+I den individuella framställningen visas punkter som förhåller sig till endast en individ. Denna framställning ger en bättre överblick över varje enskild persons läskunnighet och -vana. I den aggregerade framställningen är klasser, stadier, och årsgångar i fokus istället, vilket kan ge en enklare överblick över en hela skolans resultat. Det går fritt att byta mellan varje framställning utan att oberoende inställningar ändras eller nollställs. Vissa inställningar som beror direkt på vilken framställning som visas sparas mellan byten, så du behöver inte göra om dessa inställningar varje gång man går tillbaka. Den aggregerade framställningen är den som upplevelsen normalt börjar med. Det går att byta mellan framställningarna i fjärde rutan från vänster ovanför grafen, i checkrutan "Aggregera datan".
 
 ##### Individer
 För denna framställning är det fritt att bestämma vad x-axeln, y-axeln, och vad för färg som representerar vilka attributer.
@@ -34,7 +40,10 @@ Till höger om axel- och färgvalen finns det en ruta som filtrerar kring indivi
 
 Det finns även en knapp i nedre högra hörnet av grafen, som tillåter en att markera ett område med punkter. Det går sedan att avmarkera området med samma knapp eller genom att klicka på en ny punkt. Om man istället vill välja fritt flera punkter som inte nödvändigtvis befinner sig på samma område, kan man välja dem individuellt genom att hålla in ctrl-knappen medan man klickar på samtliga intressanta punkter.
 
+##### Aggregationer
+För denna framställning är y-axeln låst till att visa Lexplore score, och färgerna låst till att visa vilken aggregation man har valt (mer om att välja aggregationer senare). X-axeln är inte låst, men har bara tidsrelaterade enheter att välja mellan.
 
+I samma ruta som för att sätta på aggregation av datan, går det att byta ut punkterna mot 'box' och 'violin', som är olika framställningar för att visa statistiska sanningar kring de plural av datapunkter som har gett upphov till denna aggregerade punkt. Läs mer om dessa här: [Box](https://sv.wikipedia.org/wiki/L%C3%A5dagram)
 
 ### Filtrera över skolor och klasser
 
