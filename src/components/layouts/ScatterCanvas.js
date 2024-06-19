@@ -426,7 +426,7 @@ const ScatterCanvas = React.memo(
             position: "absolute",
             bottom: "30px",
             right: "60px",
-            width: "50px",
+            width: "100px",
             height: "30px",
             margin: "10px",
           }}

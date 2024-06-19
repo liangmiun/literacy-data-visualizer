@@ -18,7 +18,6 @@ import * as settingsIO from "./utils/settingsIO";
 import "./assets/App.css";
 import About from "./components/screens/About";
 import ScatterPage from "./components/screens/ScatterPage";
-import { set } from "d3-collection";
 
 const App = () => {
   const [data, setData] = useState([]);

@@ -8,7 +8,6 @@ import {
 } from "utils/Utils";
 import * as AggregateUtils from "utils/AggregateUtils";
 import { plotMargin } from "utils/constants";
-import { labels } from "utils/constants";
 
 const AggregateCanvas = (props) => {
   const {

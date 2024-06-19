@@ -1,5 +1,4 @@
 // === START of fields that directly relate to English-Swedish translation ===
-
 export const labels = {
   xFieldLabel: "X-axel",
   yFieldLabel: "Y-axel",
@@ -48,57 +47,20 @@ export const labels = {
   groupBySchoolYear: "Läsår",
   groupByTrajectory: "Skolgång från en klass",
   aggregateLegendTag: "Klass",
+  symbolicHeader:
+    'Symboliskt filter, t.ex. "Skola.contains Bo AND Lexplore Score > 500"',
 };
 
-const english_labels = {
-  xFieldLabel: "X-field",
-  yFieldLabel: "Y-field",
-  colorFieldLabel: "Color",
-  trendFieldLabel: "Trend",
-  // all the four above dropdowns
-  trendOverallSlope: "with slope <",
-  trendLogSlope: "with coeff <",
-  trendLastTimeValue: "with value <",
-  showLine: "Show Lines",
-  showAverage: "Show Municipal Average",
-  tenureCheckbox: "Class/  Tenure View",
-  boxToggle: "Box",
-  violinToggle: "Violin",
-  circleToggle: "Circle",
-  presentIndividual: "Present Individuals",
-  connectIndividual: "Connect Individuals",
-  reset: "Reset",
-  resetLatest: "Reset to latest saved",
-  savePreset: "Save Preset",
-  loadPreset: "Load Preset",
-  importData: "Import Data",
-  editConfig: "Edit Config",
-  saveConfig: "Save Config",
-  help: "Help",
-  plotPage: "Plot",
-  helpPage: "Help",
-  aboutPage: "About",
-  logoutPage: "Logout",
-  filterBySchoolandClass: "Filter by School and Class",
-  filterByOptionRange: "Filter by Option/Range",
-  schoolTreeTopLevelTag: "Schools",
-  groupClassBy: "Group Classes By",
-  symbolicFilterTag:
-    'Symbolic Filter, e.g., "Skola.contains Bo AND Lexplore Score > 500"',
-  aggregateView_X_tag: "Periods of Testdatum",
-  brushTag: "Brush",
-  deBrushTag: "De-Brush",
-  seasonByQuarter: "Quarter",
-  seasonByMonth: "Month",
-  seasonBySemester: "Semester",
-  trendOptionAll: "all",
-  trendOptionDecline: "overall decline",
-  trendOptionLogDecline: "logarithmicly decline",
-  trendOptionLastDecline: "last time decline",
-  groupByNineYear: "9-year tenure",
-  groupByThreeYear: "3-year tenure",
-  groupBySchoolYear: "school-year",
-  groupByTrajectory: "trajectory",
+export const aggr_panel_labels = {
+  school: "Skola",
+  class: "Klass",
+  season: "Testperiod",
+  min: "min",
+  q1: "Q1",
+  median: "median",
+  q3: "Q3",
+  max: "max",
+  count: "antal",
 };
 
 // ===End of fields that directly relate to English-Swedish translation===

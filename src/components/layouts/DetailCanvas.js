@@ -3,9 +3,11 @@ import * as d3 from "d3";
 import "assets/App.css";
 import { isDateFieldString } from "utils/Utils";
 import { personalFields } from "utils/personalFields";
+import { aggr_panel_labels } from "utils/constants";
 
 const DetailCanvas = ({ data, keyList }) => {
   const formatDetailPanelDate = d3.timeFormat("%Y-%m-%d");
+  const isIndividualList = data.length === 1;
 
   const DetailValue = (key, value) => {
     if (isDateFieldString(key)) {
@@ -27,7 +29,7 @@ const DetailCanvas = ({ data, keyList }) => {
   };
 
   const aggregateData = (key) => {
-    if (data.length === 1) {
+    if (isIndividualList) {
       if (key === "Persondetaljer") {
         return personalValues(data[0]);
       }
@@ -75,9 +77,8 @@ const DetailCanvas = ({ data, keyList }) => {
   };
 
   const detailKey = (key) => {
-    if (key === "season") return "test period";
-    if (key === "lastingclass") return "initial class";
-    else return key;
+    if (isIndividualList) return key;
+    return aggr_panel_labels[key];
   };
 
   return (

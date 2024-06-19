@@ -85,7 +85,7 @@ export function drawAggregateAverageTemporalLines(
     .attr("stroke-dasharray", "10,10");
 }
 
-export const formatDate = d3.timeFormat("%y-%m-%d");
+export const formatDate = d3.timeFormat("%Y-%m-%d");
 
 export function formatTickValue(d, field) {
   if (isDateFieldString(field)) {
