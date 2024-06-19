@@ -596,7 +596,6 @@ function setTrajectorySumStat(
     const grouped = d3.group(
       trajectoryData.data,
       function (d) {
-        //console.log("build trajectorySumStat d.Testdatum", d.Testdatum, d);
         return Season(d.Testdatum, seasonField);
       }
       // (d) => d.Skola,
@@ -614,8 +613,6 @@ function setTrajectorySumStat(
       const max = q3 + 1.5 * interQuantileRange;
 
       const trajectoryClass = `${trajectoryData.className}-${trajectoryData.schoolYear}-trajectory`;
-
-      console.log("trajectoryClass", trajectoryClass);
 
       sumstat.push({
         key: `${trajectoryData.className}-${seasonKey}`,

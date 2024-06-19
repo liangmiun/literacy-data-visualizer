@@ -11,22 +11,10 @@ const DetailCanvas = ({ data, keyList }) => {
     if (isDateFieldString(key)) {
       value = formatDetailPanelDate(value);
     } else if (key === "Persondetaljer") {
-      {
-        value = parseInt(value, 10);
-      }
-      return value;
+      value = parseInt(value, 10);
     }
+    return value;
   };
-
-  // const personalValues = (d) => {
-  //   const values = {};
-  //   personalFields.forEach((key) => {
-  //     if (d[key] !== undefined) {
-  //       values[key] = d[key];
-  //     }
-  //   });
-  //   return values.join(", ");
-  // };
 
   const personalValues = (d) => {
     const entries = [];
@@ -40,7 +28,6 @@ const DetailCanvas = ({ data, keyList }) => {
 
   const aggregateData = (key) => {
     if (data.length === 1) {
-      console.log("detail data 0", data[0]);
       if (key === "Persondetaljer") {
         return personalValues(data[0]);
       }

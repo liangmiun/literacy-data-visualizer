@@ -258,8 +258,6 @@ function SchoolComponent({ props }) {
     }
   }
 
-  //console.log("sortedSequenceEntries ", sortedSequenceEntries);
-
   return (
     <div id={school} style={{ display: "flex", alignItems: "flex-start" }}>
       <ThemeProvider

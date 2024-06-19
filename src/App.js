@@ -1,15 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { AppContextProvider } from "./context/AppLevelContext";
-import { csvParse } from "d3";
-import CryptoJS from "crypto-js";
-import {
-  BrowserRouter as Router,
-  Route,
-  Link,
-  Routes,
-  useLocation,
-} from "react-router-dom";
-import { rowParser, load } from "./utils/Utils";
+
+import { BrowserRouter as Router, Route, Link, Routes } from "react-router-dom";
+import { load } from "./utils/Utils";
 import {
   data_fields,
   x_data_fields,
@@ -19,21 +12,17 @@ import {
   season_choice_fields,
   teacher_choice_preset,
 } from "./utils/constants";
-import { useAuth } from "./authentications/AuthContext";
+
 import ProtectedWrapper from "./authentications/ProtectedWrapper";
-import Login from "./authentications/Login";
-import Logout from "./authentications/Logout";
 import * as settingsIO from "./utils/settingsIO";
 import "./assets/App.css";
 import About from "./components/screens/About";
 import ScatterPage from "./components/screens/ScatterPage";
+import { set } from "d3-collection";
 
 const App = () => {
-  const { currentUser } = useAuth();
   const [data, setData] = useState([]);
   const [logicFilteredData, setLogicFilteredData] = useState(data);
-  const [encryptKey, setEncryptKey] = useState("");
-  const [isLogin, setIsLogin] = useState(false); //  set as true for test purpose without login;
   const [showLines, setShowLines] = useState(false);
   const [xField, setXField] = useState("Testdatum");
   const [yField, setYField] = useState("Lexplore Score");
@@ -56,11 +45,11 @@ const App = () => {
   const [aggregateType, setAggregateType] = useState("circle");
   const fields = data_fields;
   const fields_x = isClassView ? season_choice_fields : x_data_fields;
-  console.log("fields x: ", fields_x);
   const fields_y = y_data_fields;
   const [userType, setUserType] = useState(USER_TYPE.principal);
   const [schoolClassMapForTeacher, setSchoolClassMapForTeacher] = useState({});
   const [teacherChoice, setTeacherChoice] = useState({});
+  const [isOnBoarding, setIsOnBoarding] = useState(false);
 
   const savePresetSetters = {
     xField,
@@ -95,19 +84,19 @@ const App = () => {
 
   const fileUploadSetters = {
     setData,
-    setLogicFilteredtData: setLogicFilteredData,
+    setLogicFilteredData,
   };
 
   const onResetToOnboardingRef = useRef();
 
   useEffect(() => {
     // Update the ref's current value whenever userType changes
-    onResetToOnboardingRef.current = settingsIO.handleResetToOnboarding(
+    onResetToOnboardingRef.current = settingsIO.handleResetOnboard(
       configSetters,
       userType,
       teacherChoice
     );
-  }, [configSetters, userType, teacherChoice]); // Dependency array includes userType to react to its changes
+  }, [configSetters, userType, teacherChoice]);
 
   const onResetToLatest = settingsIO.handleResetToLatest(configSetters);
   const onSavePreset = settingsIO.saveConfig(savePresetSetters);
@@ -117,29 +106,12 @@ const App = () => {
   };
 
   useEffect(() => {
-    if (!isLogin) return;
-    fetch(process.env.PUBLIC_URL + "/LiteracySampleEncrypt.csv")
-      .then((response) => response.text()) // Get as text, not JSON
-      .then((encryptedData) => {
-        // Decrypt data
-        const bytes = CryptoJS.AES.decrypt(encryptedData, encryptKey); // Replace with encryptKey
-        const originalData = bytes.toString(CryptoJS.enc.Utf8);
-        const parsedData = csvParse(originalData, rowParser);
-        setData(parsedData);
-        setLogicFilteredData(parsedData);
-        onResetToOnboardingRef.current();
-      })
-      .catch((error) => {
-        console.error("Error fetching or parsing data:", error);
-      });
-  }, [isLogin, encryptKey, userType]);
-
-  useEffect(() => {
     if (
-      isLogin &&
-      Object.keys(teacherChoice).length === 0 &&
+      isOnBoarding &&
+      data.length > 0 &&
       Object.keys(schoolClassMapForTeacher).length > 0
     ) {
+      setIsOnBoarding(false);
       const schoolYearClassMap = {};
       Object.keys(schoolClassMapForTeacher).forEach((school) => {
         schoolYearClassMap[school] = Object.keys(
@@ -306,7 +278,18 @@ const App = () => {
       // Append modal to the body
       document.body.appendChild(modal);
     }
-  }, [isLogin, schoolClassMapForTeacher, teacherChoice]);
+  }, [
+    isOnBoarding,
+    setIsOnBoarding,
+    data,
+    schoolClassMapForTeacher,
+    teacherChoice,
+    userType,
+  ]);
+
+  useEffect(() => {
+    onResetToOnboardingRef.current();
+  }, [userType]);
 
   const appContextValue = {
     data,
@@ -346,30 +329,17 @@ const App = () => {
     setIsClassView,
     aggregateType,
     setAggregateType,
+    setIsOnBoarding,
   };
 
   return (
     <Router basename="literacy-data-visualizer">
       <div className="grid-container">
         <div className="navigation-container">
-          <Navigation currentUser={currentUser} />
+          <Navigation />
         </div>
         <div className="content">
           <Routes>
-            <Route
-              path="/login"
-              element={
-                <Login setEncryptKey={setEncryptKey} setIsLogin={setIsLogin} />
-              }
-            />
-            <Route
-              path="/logout"
-              element={
-                <ProtectedWrapper
-                  element={<Logout setIsLogin={setIsLogin} />}
-                />
-              }
-            />
             <Route
               path="/about"
               element={<ProtectedWrapper element={<About />} />}
@@ -393,31 +363,18 @@ const App = () => {
   );
 };
 
-function Navigation({ currentUser }) {
-  const location = useLocation(); // Correct use within a functional component
-
+function Navigation() {
   return (
     <nav className="navigation">
       <ul className="headers">
-        {currentUser ? (
-          <>
-            <li className="header-li-style">
-              <Link to="/">{labels.plotPage}</Link>
-            </li>
-            <li className="header-li-style">
-              <Link to="/about">{labels.aboutPage}</Link>
-            </li>
-            {location.pathname !== "/" && (
-              <li className="header-li-style">
-                <Link to="/logout">{labels.logoutPage}</Link>
-              </li>
-            )}
-          </>
-        ) : (
+        <>
           <li className="header-li-style">
-            <Link to="/login">Login</Link>
+            <Link to="/">{labels.plotPage}</Link>
           </li>
-        )}
+          <li className="header-li-style">
+            <Link to="/about">{labels.aboutPage}</Link>
+          </li>
+        </>
       </ul>
     </nav>
   );

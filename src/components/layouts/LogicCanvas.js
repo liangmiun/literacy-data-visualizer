@@ -3,9 +3,8 @@ import AppLevelContext from "context/AppLevelContext";
 import "react-filter-box/lib/react-filter-box.css";
 import * as React from "react";
 import Tooltip from "@mui/material/Tooltip";
-import { labels } from "utils/constants";
 
-const LogicCanvas = ({}) => {
+const LogicCanvas = () => {
   const {
     fields,
     data,
@@ -99,7 +98,6 @@ export class FilterDemo extends React.Component {
     this.props.setQuery(this.state.query);
     this.props.setExpression(expressions);
     this.setLogicData(newData);
-    //console.log('onparseOk : FilterDemo:onParseOk:query:', this.state.query, expressions, this.state.data.length); //, this.state.query, expressions
   }
 
   render() {

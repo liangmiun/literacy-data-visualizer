@@ -3,8 +3,7 @@ import { sequenceIDfromYearSchoolClass, Season } from "./AggregateUtils.js";
 import { tenureSequenceTag } from "./tenureFormat";
 import { labels } from "./constants";
 
-export const parseDate = (rawDateInput) =>
-  d3.timeParse("%y%m%d")(parseInt(rawDateInput));
+export const parseDate = (rawDateInput) => d3.timeParse("%y%m%d")(rawDateInput);
 
 export function drawIndividualAverageTemporalLines(
   collection,

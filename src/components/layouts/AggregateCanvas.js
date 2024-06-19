@@ -674,7 +674,6 @@ const CirclePlots = (props) => {
         .on("click", function (event, d) {
           d3.selectAll(".circles").attr("stroke-width", 0);
           d3.select(this).attr("stroke", "black").attr("stroke-width", 3);
-          console.log(d.value.lastingclass, d.value.class);
           onCircleClick([
             {
               // lastingclass: d.value.lastingclass,
@@ -744,7 +743,6 @@ const CirclePlots = (props) => {
           .on("click", function (event, d) {
             d3.selectAll(".hollow-circles").attr("stroke-width", 2);
             d3.select(this).attr("stroke", "black").attr("stroke-width", 3);
-            console.log(d.value.lastingclass, d.value.class);
             onCircleClick([
               {
                 // lastingclass: d.value.lastingclass,

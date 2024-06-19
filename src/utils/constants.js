@@ -174,8 +174,8 @@ export const categoricals = [
 
 export const teacher_choice_preset = {
   school: "Bodals skola",
-  class: "5A",
-  year: "21/22",
+  class: "4A",
+  year: "18/19",
 };
 
 export const USER_TYPE = {

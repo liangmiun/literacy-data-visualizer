@@ -8,7 +8,6 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { grayTheme } from "assets/themes.js";
 import Tooltip from "@mui/material/Tooltip";
 import { EmptyCheckBoxBlankIcon } from "assets/themes.js";
-import { labels } from "utils/constants";
 
 export function OptionSelectGroup({
   data,
@@ -90,6 +89,7 @@ export function OptionSelectGroup({
             );
           } else if (rangeOptions.hasOwnProperty(option)) {
             const [minValue, maxValue] = d3.extent(data, (d) => d[option]);
+
             return (
               <OptionSlider
                 key={option}
@@ -122,6 +122,10 @@ function OptionSlider({ label, min, max, setRangeOptions }) {
       [label]: [newValue[0], newValue[1]],
     }));
   };
+
+  // if (label.includes("Födelsedatum")) {
+  //   console.log("OptionSlider", label, min, max, new Date(min), new Date(max));
+  // }
 
   return (
     <div style={{ margin: "5px 10px", width: "80%" }}>
