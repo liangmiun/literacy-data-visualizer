@@ -3,9 +3,29 @@ Välkommen till IMPRESS-visualiseringen. Kortfattat tar den rådata som beskrive
 
 ## Kom igång
 Innan man har någon som helst möjlighet att börja utforska sin data, behöver applikationen data. Högst upp till höger, i samma ruta med knappen för instruktionerna, finns det en knapp där det står "Importera Data". Därifrån laddar du en .csv fil, som enkelt går att exportera från Excel.
-Notera att ev. konfidentialitet kring datan är helt och hållet bevarad och utan risk att äventyras. Kortfattat är denna visualiseringsupplevelse levererad till din webbläsare, och sedan är datan endast lokalt laddad till din webbläsare; den skickas inte vidare på något vis överhuvudtaget. Detta går att bekräfta (och även försäkra sig om) genom att ladda upplevelsen, bryta internet anslutningen, och sedan ladda upp datan; det funkar eftersom allt från internet är redan hämtat och ingen vidare koppling till internet behövs vid det laget.
+
+### Ladda in data
+Notera att ev. konfidentialitet kring datan är helt och hållet bevarad och utan risk för att äventyras. Kortfattat är denna visualiseringsupplevelse levererad till din webbläsare, och sedan är datan endast lokalt laddad till din webbläsare; den skickas inte vidare på något vis överhuvudtaget. Detta går att bekräfta (och även försäkra sig om) genom att ladda upplevelsen, bryta internet anslutningen, och sedan ladda upp datan; det funkar eftersom allt från internet är redan hämtat och ingen vidare koppling till internet behövs vid det laget.
+
 Datan bör ha dessa kolumner från Lexplore för att kunda laddas:
   > " Skola, Årskurs, Klass, ElevID, Födelsedatum, Läsår, Testdatum, Percentil, Läsnivå (5 = hög), Stanine, Standardpoäng, Lexplore Score "
+
+### Välj startvy
+Efter att datan har laddats, får du valmöjlighet att välja vilken vy du vill börja med. Det finns två generella vyer: Lärare och Rektor/Skolchef.
+* Som lärare, får du välja vilken klass och årsgång du vill börja visa, som ett sätt att få lagom med data att visa till att börja med.
+* Som rektor/skolchef visar all data på en gång.
+Notera att valet påverkar *bara* startvyn; inga begränsningar sätts på hur datan filtreras och visas.
+
+## Utforska datan
+Nu när datan är laddad och startvy är vald, kan du börja utforska datan. Det finns en massa olika funktioner för att interagera med datan, och för att begripa dem, rekommenderas det att man tacklar en i taget. Det finns generellt två olika metoder att interagera med datan: Direkt frågebesvarning och allmän utforskning.
+
+För frågebesvarning börjar man med en särskild, konkret fråga, och sedan använder man sina verktyg för att ta reda på det. För ett sådant tillvägagångsätt, är det bra att veta vilka verktyg man har till hands, och därför är det nog en rätt dålig tillvägagångsätt för nybörjare. Därför rekommenderas det istället att börja med utforsking medan man lär sig mer om visualiseringsupplevelsens verktyg. Se det som att "leka runt" lite, medan man *kanske* lyckas få någon djupare förståelse under tiden.
+
+### Att tolka grafen
+Grafen, som befinner sig i nedre vänstra hörnet av sidan, är huvudkomponenten av hela visualiseringsupplevelsen. Den framställer datan efter samtliga inställningar och funktioner som är tillgängliga.
+
+### Filtrera över skolor och klasser
+
 
 ## The scatterplot view
 
