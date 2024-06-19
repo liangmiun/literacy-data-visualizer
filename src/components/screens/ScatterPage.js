@@ -65,8 +65,6 @@ const ScatterPage = () => {
   const [showAverageLine, setShowAverageLine] = useState(false);
   const [meanScores, setMeanScores] = useState(new Map());
 
-  console.log("selectedClassDetail", selectedClassDetail);
-
   // Set average line data
   useEffect(() => {
     const treeViewSelectedGrades = new Set(

@@ -1,4 +1,5 @@
 import { csvParse } from "d3";
+import * as d3 from "d3";
 import {
   initial_principal_preset,
   initial_teacher_preset,
@@ -106,6 +107,12 @@ export const handleFileUpload = (event, fileUploadSetters) => {
       setData(parsedData);
       setLogicFilteredData(parsedData);
       //handleResetOnboard(configSetters, userType, teacherChoice)();
+
+      const [minValue, maxValue] = d3.extent(
+        parsedData,
+        (d) => d["Födelsedatum"]
+      );
+      console.log("initially parsed minValue", minValue, "maxValue", maxValue);
     };
     reader.readAsText(file);
   }
