@@ -61,14 +61,17 @@ Sista komponenten av visualiseringsupplevelsen är ett filter i textformat. I f�
 
 Varje attribut kan refereras till i det symboliska filtret. De attributer som har "sträng"-värden, alltså typiskt sätt ord, kan jämföras med funktionerna 'contains' (innehåller delvis), '!contains' (innehåller delvis _inte_), '==' (Är _exakt_ lika med), '!=' (Är _inte_ lika med). De attributer som har numeriska värden, alltså siffror, kan jämföras med funktionerna '==', '!=', '<', och '>'.
 
-| Jämförelse | Kan användas för | Exempel                                                                                                                                                                                         |
-|------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| contains   | Ord              | Skola contains "dån"<br><br>I ett dataset med "Bondånger skola" inkluderat, kommer alla datapunkter som tillhör den skolan att göra uttrycket 'Sant', eftersom "Bon-_dån_-ger" har "dån" i sig.      |
-| !contains  | Ord              | Skola !contains "kråka"<br><br>I ett dataset med "Klackamo skola" inkluderat, kommer alla datapunkter som tillhör den skolan att göra uttrycket 'Falskt', eftersom "Klackmo" har _inte_ "kråka" i sig. |
-| ==         | Ord, Nummer      |                                                                                                                                                                                                 |
-| !=         | Ord, Nummer      |                                                                                                                                                                                                 |
-| <          | Nummer           |                                                                                                                                                                                                 |
-| >          | Nummer           |                                                                                                                                                                                                 |
+| Jämförelse | Kan användas för | Exempel                                                                                                                                                                                                                                                                                    
+                    |
+|------------|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| contains   | Ord              | Skola contains "dån"<br><br>I ett dataset med "Bondånger skola" inkluderat, kommer alla datapunkter vars 'Skola' är den skolan att göra uttrycket 'Sant', eftersom "Bon-_dån_-ger" har "dån" i sig.                                                                                        
+                    |
+| !contains  | Ord              | Skola !contain "kråka"<br><br>I ett dataset med "Klackamo skola" inkluderat, kommer alla datapunkter vars 'Skola' är den skolan att göra uttrycket 'Falskt', eftersom "Klackmo" _inte_ har "kråka" i sig.                                                                                  
+                    |
+| ==         | Ord, Nummer      | Skola == "Svinarp skola"<br><br>I ett dataset med "Svinarp skola" inkluderat, kommer alla datapunkter som har _exakt_ det värdet i 'Skola' att göra uttrycket 'Sant'.<br><br>"Lexplore score" == 500<br><br>Alla datapunkter där 'Lexplore score' är _exakt_ lika med 500 kommer göra uttrycket 'Sant'.   |
+| !=         | Ord, Nummer      | Skola != "Loftbacken"<br><br>I ett dataset med "Loftbacken" inkluderat, kommer alla datapunkter som har _exakt_ det värdet i 'Skola' att göra uttrycket 'Falskt.<br><br>"Lexplore score" != 500<br><br>Alla datapunkter där 'lexplore score' är _exakt_ lika med 500 kommer att göra uttrycket 'Falskt'. |
+| <          | Nummer           | Stanine < 5<br><br>Alla datapunkter där 'Stanine' är lägre än 5 kommer att göra uttrycket 'Sant'.                                                                                                                                                                                                              |
+| >          | Nummer           | Stanine > 5<br><br>Alla datapunkter där 'Stanine är högre än 5 kommer att göra uttrycket 'Sant.                                                                                                                                                                                                                |
 
 ## The scatterplot view
 
