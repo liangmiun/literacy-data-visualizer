@@ -50,6 +50,8 @@ Från att datan laddades till visualiseringsupplevelsen, fick du välja en start
 
 Om man väljer att aggregera datapunkterna som stadier eller årsgångar, samlas datapunkter ihop för att framställas som enhetliga tre- eller nioårsperioder. T.ex. I en stadieaggregation, är datapunkter från 4A-19/20, 5A-20/21, och 6A-21/22 från samma skola tillsammans. Detta är för att enklare kunna se trender av grupper inte bara inom ett särskilt läsår, men även över flera läsår. I ett visst avseende går det att framställa dessa 3 klasser individuellt, via klassaggregationen, men de skulle då ha olika färger, och det kan då vara svårt att hålla reda på hur de är kopplade. Att aggregera datan på det här viset bör ses endast som ett sätt att hålla reda på klasser över en längre period, och *inte* som ett sätt att hålla reda på en särskild grupp individer.
 
+### Filtreringsval
+
 ## The scatterplot view
 
   Toggle off "Is Class View" to show a scatterplot of literacy record of individual students.
