@@ -51,6 +51,13 @@ Från att datan laddades till visualiseringsupplevelsen, fick du välja en start
 Om man väljer att aggregera datapunkterna som stadier eller årsgångar, samlas datapunkter ihop för att framställas som enhetliga tre- eller nioårsperioder. T.ex. I en stadieaggregation, är datapunkter från 4A-19/20, 5A-20/21, och 6A-21/22 från samma skola tillsammans. Detta är för att enklare kunna se trender av grupper inte bara inom ett särskilt läsår, men även över flera läsår. I ett visst avseende går det att framställa dessa 3 klasser individuellt, via klassaggregationen, men de skulle då ha olika färger, och det kan då vara svårt att hålla reda på hur de är kopplade. Att aggregera datan på det här viset bör ses endast som ett sätt att hålla reda på klasser över en längre period, och *inte* som ett sätt att hålla reda på en särskild grupp individer.
 
 ### Filtreringsval
+I rutan längst till höger, bredvid filtret för skolor och klasser, finns det lite allmänna filtreringsval. De är ganska självförklarande i vilka attributer de filtrerar över, och de byggs delvis upp av hur datasetet ser ut.
+
+### Allmänt om checkruta-filter
+Om en checkruta är grå, betyder det att dess status har ingen som helst påverkan på det nuvarande urvalet av data. Ett bra exempel på detta är att om man bara visar årskurs 7 i en skola, och skolan hade inga årskurs 7 som gjorde Lexplore-testen ett läsår 19/20, så kommer inklusionen eller exklusionen av detta läsår inte påverka filtret alls. Med det sagt, kan färgen återgå till blå, alltså att den nu spelar roll, om man ändrar lite. Det betyder att man behöver inte helt strunta i gråa rutor, om man ska ändra lite flera val.
+
+### Avancerad Nivå: Symboliska filtret
+Sista komponenten av visualiseringsupplevelsen är ett filter i textformat.
 
 ## The scatterplot view
 
