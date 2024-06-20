@@ -63,8 +63,8 @@ Varje attribut kan refereras till i det symboliska filtret. De attributer som ha
 
 | Jämförelse | Kan användas för | Exempel                                                                                                                                                                                         |
 |------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| contains   | Ord              | _Skola contains "dån"  I ett dataset med "Bondånger skola" inkluderat, kommer alla datapunkter som tillhör den skolan att göra uttrycket 'Sant', eftersom "Bon-_dån_-ger" har "dån" i sig.      |
-| !contains  | Ord              | Skola !contain "kråka"  I ett dataset med "Klackamo skola" inkluderat, kommer alla datapunkter som tillhör den skolan att göra uttrycket 'Falskt', eftersom "Klackmo" har _inte_ "kråka" i sig. |
+| contains   | Ord              | Skola contains "dån"\\I ett dataset med "Bondånger skola" inkluderat, kommer alla datapunkter som tillhör den skolan att göra uttrycket 'Sant', eftersom "Bon-_dån_-ger" har "dån" i sig.      |
+| !contains  | Ord              | Skola !contains "kråka"\\I ett dataset med "Klackamo skola" inkluderat, kommer alla datapunkter som tillhör den skolan att göra uttrycket 'Falskt', eftersom "Klackmo" har _inte_ "kråka" i sig. |
 | ==         | Ord, Nummer      |                                                                                                                                                                                                 |
 | !=         | Ord, Nummer      |                                                                                                                                                                                                 |
 | <          | Nummer           |                                                                                                                                                                                                 |
