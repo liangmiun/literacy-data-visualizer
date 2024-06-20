@@ -70,6 +70,8 @@ Varje attribut kan refereras till i det symboliska filtret. De attributer som ha
 | <          | Nummer           | Stanine < 5<br><br>Alla datapunkter där 'Stanine' är lägre än 5 kommer att göra uttrycket 'Sant'.                                                                                                                                                                                                              |
 | >          | Nummer           | Stanine > 5<br><br>Alla datapunkter där 'Stanine' är högre än 5 kommer att göra uttrycket 'Sant.                                                                                                                                                                                                               |
 
+När man har dessa enkla boolska uttryck, kan man kombinera dem till mer komplexa uttryck med konjunktion ('OR') eller disjunktion ('AND'). T.ex. "Lexplore score" > 500 AND "Lexplore score" < 700 kommer att vara sann för alla punkter med Lexplore score mellan 500 och 700. Uttryck evalueras från vänster till höger, med pritoritet för parenteser; 'P1 OR P2 AND P3' är _inte_ samma sak som 'P3 AND P2 OR P1', men P1 OR P2 AND P3 _är_ samma sak som P3 AND (P2 OR P1).
+
 ## The scatterplot view
 
   Toggle off "Is Class View" to show a scatterplot of literacy record of individual students.
