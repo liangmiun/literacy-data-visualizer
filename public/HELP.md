@@ -72,6 +72,8 @@ Varje attribut kan refereras till i det symboliska filtret. De attributer som ha
 
 När man har dessa enkla boolska uttryck, kan man kombinera dem till mer komplexa uttryck med konjunktion ('OR') eller disjunktion ('AND'). T.ex. "Lexplore score" > 500 AND "Lexplore score" < 700 kommer att vara sann för alla punkter med Lexplore score mellan 500 och 700. Uttryck evalueras från vänster till höger, med pritoritet för parenteser; 'P1 OR P2 AND P3' är _inte_ samma sak som 'P3 AND P2 OR P1', men P1 OR P2 AND P3 _är_ samma sak som P3 AND (P2 OR P1).
 
+Som sagt, denna filter är något svårare för gemene person att ge sig in på, men den är ett kraftfullt komplement som hade varit väldigt svårt att ge tillgång till via ett grafiskt gränssnitt. Börja försiktigt med enkla uttryck, och gå senare upp mot mer komplexa uttryck när det känns bekvämt. Läs mer om boolsk algebra [här](https://en.wikipedia.org/wiki/Boolean_algebra_(structure)), om du vill.
+
 ## The scatterplot view
 
   Toggle off "Is Class View" to show a scatterplot of literacy record of individual students.
