@@ -57,7 +57,18 @@ I rutan längst till höger, bredvid filtret för skolor och klasser, finns det 
 Om en checkruta är grå, betyder det att dess status har ingen som helst påverkan på det nuvarande urvalet av data. Ett bra exempel på detta är att om man bara visar årskurs 7 i en skola, och skolan hade inga årskurs 7 som gjorde Lexplore-testen ett läsår 19/20, så kommer inklusionen eller exklusionen av detta läsår inte påverka filtret alls. Med det sagt, kan färgen återgå till blå, alltså att den nu spelar roll, om man ändrar lite. Det betyder att man behöver inte helt strunta i gråa rutor, om man ska ändra lite flera val.
 
 ### Avancerad Nivå: Symboliska filtret
-Sista komponenten av visualiseringsupplevelsen är ett filter i textformat.
+Sista komponenten av visualiseringsupplevelsen är ett filter i textformat. I första anblick kan den se lite svår ut, men den är i verkligenheten rätt simpel när man börjar enkelt. Kortfattat tar den in "boolska" uttryck, alltså uttryck som kan evalueras som sanna eller falska för varje datapunkt. Detta filter appliceras utöver Skol- och klassfiltret och Filtreringsvalen beskrivna ovan. Om en datapunkt ger upphov till en falskt utfall från uttrycket, så visas inte den datapunkten; om istället den ger uppgov ett sant utfall, så visas den (om den också uppfyler får komma med enligt de andra filtren).
+
+Varje attribut kan refereras till i det symboliska filtret. De attributer som har "sträng"-värden, alltså typiskt sätt ord, kan jämföras med funktionerna 'contains' (innehåller delvis), '!contains' (innehåller delvis _inte_), '==' (Är _exakt_ lika med), '!=' (Är _inte_ lika med). De attributer som har numeriska värden, alltså siffror, kan jämföras med funktionerna '==', '!=', '<', och '>'.
+
+| Jämförelse | Kan användas för | Exempel                                                                                                                                                                                         |
+|------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| contains   | Ord              | _Skola contains "dån"  I ett dataset med "Bondånger skola" inkluderat, kommer alla datapunkter som tillhör den skolan att göra uttrycket 'Sant', eftersom "Bon-_dån_-ger" har "dån" i sig.      |
+| !contains  | Ord              | Skola !contain "kråka"  I ett dataset med "Klackamo skola" inkluderat, kommer alla datapunkter som tillhör den skolan att göra uttrycket 'Falskt', eftersom "Klackmo" har _inte_ "kråka" i sig. |
+| ==         | Ord, Nummer      |                                                                                                                                                                                                 |
+| !=         | Ord, Nummer      |                                                                                                                                                                                                 |
+| <          | Nummer           |                                                                                                                                                                                                 |
+| >          | Nummer           |                                                                                                                                                                                                 |
 
 ## The scatterplot view
 
