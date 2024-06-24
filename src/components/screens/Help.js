@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from 'remark-gfm'
 import { labels } from "utils/constants";
 import "assets/AxisSelectionCanvas.css";
 
@@ -7,7 +8,7 @@ const HelpWindow = ({ isOpen, markdown, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div
+    <div className="help-window"
       style={{
         position: "fixed",
         top: 0,
@@ -25,17 +26,17 @@ const HelpWindow = ({ isOpen, markdown, onClose }) => {
         style={{
           padding: "20px",
           backgroundColor: "rgba(255,255,255, 0.8)",
-          borderRadius: "8px",
-          maxWidth: "600px",
+          borderRadius: "px",
+          maxWidth: "1600px",
           maxHeight: "80%",
           overflow: "auto",
         }}
       >
-        <button onClick={onClose} style={{ float: "right" }}>
+        <button onClick={onClose} style={{ float: "right", marginTop: "50px"}}>
           Close
         </button>
-        <ReactMarkdown>{markdown}</ReactMarkdown>
-        <button onClick={onClose} style={{ float: "right" }}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
+        <button onClick={onClose} style={{ float: "right"}}>
           Close
         </button>
       </div>

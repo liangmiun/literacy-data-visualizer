@@ -31,6 +31,7 @@
     "react-scripts": "^5.0.1",
     "react-select": "^5.7.2",
     "react-typography": "^0.16.23",
+    "remark-gfm": "^4.0.0",
     "svgo": "^3.0.2",
     "typography": "^0.16.24",
     "web-vitals": "^2.1.4"
