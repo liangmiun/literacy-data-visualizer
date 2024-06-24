@@ -74,35 +74,32 @@ När man har dessa enkla boolska uttryck, kan man kombinera dem till mer komplex
 
 Som sagt, denna filter är något svårare för gemene person att ge sig in på, men den är ett kraftfullt komplement som hade varit väldigt svårt att ge tillgång till via ett grafiskt gränssnitt. Börja försiktigt med enkla uttryck, och gå senare upp mot mer komplexa uttryck när det känns bekvämt. Läs mer om boolsk algebra [här](https://en.wikipedia.org/wiki/Boolean_algebra_(structure)), om du vill.
 
-## The scatterplot view
+## Funktionsgenvägar
+Knapparna uppe där du importerade datan är genvägar för en del funktioner som berör hela visualiseringen. De gås igenom i detta avsnitt
 
-  Toggle off "Is Class View" to show a scatterplot of literacy record of individual students.
+### Nollställ
+Nollställ-knappen nollställer all val du har gjort efter att du importerade datan. Den är bekväm att använda när man ha stökat till det lite mycket, och det är enklare att börja om "färskt".
 
-1. Dimensions:
+### Nollställ till senaste sparad
+Likt nollställ-knappen, nollställer denna knapp till när du senaste klickade på "Spara Vy". Av olika anledningar, kan denna vy vara en bra start att nollställa till.
 
-    - Click on X-filed, Y-Field to select the record field intended for X-axis and Y-axis.
-    - Click on Color to select a record field whose values would present as different colors.
-2. Filtering:
-    - Toggle the "Only declined score" to show only the individuals with linear-regression declining lexplore scores.
-    - Navigate the School/Class tree  on the right side "Filter by School/Class" panel and toggle checkboxes, to filter results based on school and class-within-that-school selections.
-    - Select some filters for Grade/School Year/ Lexplore School/ Stanine/ Birth Date/ Test Date from the "Filter by options/ranges" panel on the right side, and select the desired option/range by checkbox or slider.
-    - Filter by logical expressions like "Skola.contains Bo AND Lexplore Score > 500" in the Symbolic Filter in the bottom right.
-    - When some or all the four filter panels work together, they work in a conjunctional way, like "Filter-by-school-Class AND Filter-by-options-ranges".
-3. Individual and group selection on the plot
-    - Select an individual dot by left-clicking, and its detailed would show on the top-right detail panel.
-    - Records belonging to the same student are connected by lines.
-    - Select multiple individuals, by clicking on the brush button (in the bottom-right of plot) and then rectangle-brush the desired dots, and their aggregated detail would show on the detail panel. De-select them by clicking on the de-brush button.
-4. Zoom and Pan: use mouse rolling and dragging to zoom and pan. Zoom and pan would stop when you are doing brushing (group selection).
-  
-5. Saving and loading presets
-    - Clicking on save preset would save a local json file containing information of  current axis and filters configurations.
-    - Clicking on load preset would load a preset json file into the current view.
-  
-## The class aggregation plot 
+### Spara vy
+Denna knapp låter dig exportera nuvarande inställningar som en fil för att ladda upp senare.
 
-  Toggle on "Is Class View" to show box/violin/circle plots of aggregation measures of selected classes.
+### Ladda vy
+Denna knapp låter dig importera en inställningsfil som du har sparat sedan tidigare.
 
-- Click on the top-sided Violin/Box button to switch between box/violin view.
-- Toggle the "Show Individuals" checkbox between showing or not showing individual dots in classes.
-- Click on a single box or violin, and its aggregated detail would show in the detail panel on the right.
-- The box/violin plots represent the performance of students from the same class across different years, with each cross-year-class consistently color-coded for easy comparison. The lines connecting the box plots illustrate the progression or trends of these student groups over the years.
+Observera att om det är annan data vid det tillfälle en inställningsfil importeras, görs inga garantier för hur den hanterar specifika attributer som klass- och skolnamn.
+
+### Importera data
+Som beskrivet ovan, importerar man data att visualisera med denna knapp
+
+### Ändra inställningar
+Denna knapp låter användaren ställa in specifika inställningar som inte är menade att vara särskilt dynamiska, men som användaren kan vilja ändra på.
+
+Mest relevant är nog "seasonBoundaries" som avgör gränserna för kvartal. Om man märker att vissa individer som egentligen har testats vid samma period har hamnat på varsin sida av en kvartalgräns, kan man ändra gränsen här.
+
+Utöver "seasonBoundaries" är dessa inställningar inget som rekommenderas att man ändrar så mycket på, om man inte verkligen vill det.
+
+### Instruktioner
+Denna knapp visar dessa instruktioner. Mer behöver inte sägas.
