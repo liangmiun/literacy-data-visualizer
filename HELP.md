@@ -50,35 +50,56 @@ Från att datan laddades till visualiseringsupplevelsen, fick du välja en start
 
 Om man väljer att aggregera datapunkterna som stadier eller årsgångar, samlas datapunkter ihop för att framställas som enhetliga tre- eller nioårsperioder. T.ex. I en stadieaggregation, är datapunkter från 4A-19/20, 5A-20/21, och 6A-21/22 från samma skola tillsammans. Detta är för att enklare kunna se trender av grupper inte bara inom ett särskilt läsår, men även över flera läsår. I ett visst avseende går det att framställa dessa 3 klasser individuellt, via klassaggregationen, men de skulle då ha olika färger, och det kan då vara svårt att hålla reda på hur de är kopplade. Att aggregera datan på det här viset bör ses endast som ett sätt att hålla reda på klasser över en längre period, och *inte* som ett sätt att hålla reda på en särskild grupp individer.
 
-## The scatterplot view
+### Filtreringsval
+I rutan längst till höger, bredvid filtret för skolor och klasser, finns det lite allmänna filtreringsval. De är ganska självförklarande i vilka attributer de filtrerar över, och de byggs delvis upp av hur datasetet ser ut.
 
-  Toggle off "Is Class View" to show a scatterplot of literacy record of individual students.
+### Allmänt om checkruta-filter
+Om en checkruta är grå, betyder det att dess status har ingen som helst påverkan på det nuvarande urvalet av data. Ett bra exempel på detta är att om man bara visar årskurs 7 i en skola, och skolan hade inga årskurs 7 som gjorde Lexplore-testen ett läsår 19/20, så kommer inklusionen eller exklusionen av detta läsår inte påverka filtret alls. Med det sagt, kan färgen återgå till blå, alltså att den nu spelar roll, om man ändrar lite. Det betyder att man behöver inte helt strunta i gråa rutor, om man ska ändra lite flera val.
 
-1. Dimensions:
+### Avancerad Nivå: Symboliska filtret
+Sista komponenten av visualiseringsupplevelsen är ett filter i textformat. I första anblick kan den se lite svår ut, men den är i verkligenheten rätt simpel när man börjar enkelt. Kortfattat tar den in "boolska" uttryck, alltså uttryck som kan evalueras som sanna eller falska för varje datapunkt. Detta filter appliceras utöver Skol- och klassfiltret och Filtreringsvalen beskrivna ovan. Om en datapunkt ger upphov till en falskt utfall från uttrycket, så visas inte den datapunkten; om istället den ger uppgov ett sant utfall, så visas den (om den också uppfyler får komma med enligt de andra filtren).
 
-    - Click on X-filed, Y-Field to select the record field intended for X-axis and Y-axis.
-    - Click on Color to select a record field whose values would present as different colors.
-2. Filtering:
-    - Toggle the "Only declined score" to show only the individuals with linear-regression declining lexplore scores.
-    - Navigate the School/Class tree  on the right side "Filter by School/Class" panel and toggle checkboxes, to filter results based on school and class-within-that-school selections.
-    - Select some filters for Grade/School Year/ Lexplore School/ Stanine/ Birth Date/ Test Date from the "Filter by options/ranges" panel on the right side, and select the desired option/range by checkbox or slider.
-    - Filter by logical expressions like "Skola.contains Bo AND Lexplore Score > 500" in the Symbolic Filter in the bottom right.
-    - When some or all the four filter panels work together, they work in a conjunctional way, like "Filter-by-school-Class AND Filter-by-options-ranges".
-3. Individual and group selection on the plot
-    - Select an individual dot by left-clicking, and its detailed would show on the top-right detail panel.
-    - Records belonging to the same student are connected by lines.
-    - Select multiple individuals, by clicking on the brush button (in the bottom-right of plot) and then rectangle-brush the desired dots, and their aggregated detail would show on the detail panel. De-select them by clicking on the de-brush button.
-4. Zoom and Pan: use mouse rolling and dragging to zoom and pan. Zoom and pan would stop when you are doing brushing (group selection).
-  
-5. Saving and loading presets
-    - Clicking on save preset would save a local json file containing information of  current axis and filters configurations.
-    - Clicking on load preset would load a preset json file into the current view.
-  
-## The class aggregation plot 
+Varje attribut kan refereras till i det symboliska filtret. De attributer som har "sträng"-värden, alltså typiskt sätt ord, kan jämföras med funktionerna 'contains' (innehåller delvis), '!contains' (innehåller delvis _inte_), '==' (Är _exakt_ lika med), '!=' (Är _inte_ lika med). De attributer som har numeriska värden, alltså siffror, kan jämföras med funktionerna '==', '!=', '<', och '>'.
 
-  Toggle on "Is Class View" to show box/violin/circle plots of aggregation measures of selected classes.
+| Jämförelse | Kan användas för | Exempel                                                                                                                                                                                                                                                                                                        |
+|------------|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| contains   | Ord              | Skola contains "dån"<br><br>I ett dataset med "Bondånger skola" inkluderat, kommer alla datapunkter vars 'Skola' är den skolan att göra uttrycket 'Sant', eftersom "Bon-_dån_-ger" har "dån" i sig.                                                                                                            |
+| !contains  | Ord              | Skola !contain "kråka"<br><br>I ett dataset med "Klackamo skola" inkluderat, kommer alla datapunkter vars 'Skola' är den skolan att göra uttrycket 'Falskt', eftersom "Klackmo" _inte_ har "kråka" i sig.                                                                                                      |
+| ==         | Ord, Nummer      | Skola == "Svinarp skola"<br><br>I ett dataset med "Svinarp skola" inkluderat, kommer alla datapunkter som har _exakt_ det värdet i 'Skola' att göra uttrycket 'Sant'.<br><br>"Lexplore score" == 500<br><br>Alla datapunkter där 'Lexplore score' är _exakt_ lika med 500 kommer göra uttrycket 'Sant'.        |
+| !=         | Ord, Nummer      | Skola != "Loftbacken"<br><br>I ett dataset med "Loftbacken" inkluderat, kommer alla datapunkter som har _exakt_ det värdet i 'Skola' att göra uttrycket 'Falskt.<br><br>"Lexplore score" != 500<br><br>Alla datapunkter där 'lexplore score' är _exakt_ lika med 500 kommer att göra uttrycket 'Falskt'.       |
+| <          | Nummer           | Stanine < 5<br><br>Alla datapunkter där 'Stanine' är lägre än 5 kommer att göra uttrycket 'Sant'.                                                                                                                                                                                                              |
+| >          | Nummer           | Stanine > 5<br><br>Alla datapunkter där 'Stanine' är högre än 5 kommer att göra uttrycket 'Sant.                                                                                                                                                                                                               |
 
-- Click on the top-sided Violin/Box button to switch between box/violin view.
-- Toggle the "Show Individuals" checkbox between showing or not showing individual dots in classes.
-- Click on a single box or violin, and its aggregated detail would show in the detail panel on the right.
-- The box/violin plots represent the performance of students from the same class across different years, with each cross-year-class consistently color-coded for easy comparison. The lines connecting the box plots illustrate the progression or trends of these student groups over the years.
+När man har dessa enkla boolska uttryck, kan man kombinera dem till mer komplexa uttryck med konjunktion ('OR') eller disjunktion ('AND'). T.ex. "Lexplore score" > 500 AND "Lexplore score" < 700 kommer att vara sann för alla punkter med Lexplore score mellan 500 och 700. Uttryck evalueras från vänster till höger, med pritoritet för parenteser; 'P1 OR P2 AND P3' är _inte_ samma sak som 'P3 AND P2 OR P1', men P1 OR P2 AND P3 _är_ samma sak som P3 AND (P2 OR P1).
+
+Som sagt, denna filter är något svårare för gemene person att ge sig in på, men den är ett kraftfullt komplement som hade varit väldigt svårt att ge tillgång till via ett grafiskt gränssnitt. Börja försiktigt med enkla uttryck, och gå senare upp mot mer komplexa uttryck när det känns bekvämt. Läs mer om boolsk algebra [här](https://en.wikipedia.org/wiki/Boolean_algebra_(structure)), om du vill.
+
+## Funktionsgenvägar
+Knapparna uppe där du importerade datan är genvägar för en del funktioner som berör hela visualiseringen. De gås igenom i detta avsnitt
+
+### Nollställ
+Nollställ-knappen nollställer all val du har gjort efter att du importerade datan. Den är bekväm att använda när man ha stökat till det lite mycket, och det är enklare att börja om "färskt".
+
+### Nollställ till senaste sparad
+Likt nollställ-knappen, nollställer denna knapp till när du senaste klickade på "Spara Vy". Av olika anledningar, kan denna vy vara en bra start att nollställa till.
+
+### Spara vy
+Denna knapp låter dig exportera nuvarande inställningar som en fil för att ladda upp senare.
+
+### Ladda vy
+Denna knapp låter dig importera en inställningsfil som du har sparat sedan tidigare.
+
+Observera att om det är annan data vid det tillfälle en inställningsfil importeras, görs inga garantier för hur den hanterar specifika attributer som klass- och skolnamn.
+
+### Importera data
+Som beskrivet ovan, importerar man data att visualisera med denna knapp
+
+### Ändra inställningar
+Denna knapp låter användaren ställa in specifika inställningar som inte är menade att vara särskilt dynamiska, men som användaren kan vilja ändra på.
+
+Mest relevant är nog "seasonBoundaries" som avgör gränserna för kvartal. Om man märker att vissa individer som egentligen har testats vid samma period har hamnat på varsin sida av en kvartalgräns, kan man ändra gränsen här.
+
+Utöver "seasonBoundaries" är dessa inställningar inget som rekommenderas att man ändrar så mycket på, om man inte verkligen vill det.
+
+### Instruktioner
+Denna knapp visar dessa instruktioner. Mer behöver inte sägas.
