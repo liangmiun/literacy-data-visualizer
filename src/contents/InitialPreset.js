@@ -7,6 +7,7 @@ export const initial_preset = JSON.stringify({
     Läsår: ["18/19", "19/20", "20/21", "21/22", "22/23"],
     Stanine: [7, 5, 8, 4, 9, 3, 6, 2, 1],
   },
+  // revised range options, to include more time and score ranges.
   rangeOptions: {
     Födelsedatum: ["2000-01-01T23:00:00.000Z", "2050-12-01T22:00:00.000Z"],
     Testdatum: ["2000-01-01T23:00:00.000Z", "2050-12-01T23:00:00.000Z"],
