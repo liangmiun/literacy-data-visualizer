@@ -280,6 +280,7 @@ const ScatterPage = () => {
     const nonNullData = dataToShow.filter(
       (d) => d[xField] !== null && d[yField] !== null
     );
+
     return checkedFilteredData(
       rangeFilteredData(schoolClassFilteredData(nonNullData, selectedClasses))
     );

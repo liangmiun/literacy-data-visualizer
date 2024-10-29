@@ -283,7 +283,6 @@ const App = () => {
 
   useEffect(() => {
     // Update the ref's current value whenever userType changes
-    console.log("firstSchoolChoices", firstSchoolChoices);
 
     onResetToOnboardingRef.current = settingsIO.handleResetOnboard(
       configSetters,

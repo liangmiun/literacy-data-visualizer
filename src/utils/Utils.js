@@ -353,13 +353,13 @@ export function colorLegend(data, colorField, svg, width, margin) {
         .filter((value) => value != null)
     )
   );
+
   colorDomain.sort();
+  const colorScale = fieldDomainTocolorScale(colorField, colorDomain);
+
   if (!isNaN(colorDomain[0])) {
     colorDomain.reverse();
   } // sort descending if numeric;
-
-  //const colorScale = d3.scaleOrdinal(colors20()).domain(colorDomain); // d3.schemeCategory10
-  const colorScale = fieldDomainTocolorScale(colorField, colorDomain);
 
   // Add a group for the legend
   const legend = svg

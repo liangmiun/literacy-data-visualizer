@@ -392,15 +392,6 @@ export function PrepareTrajectoryData(
     sequenceType
   );
 
-  // console.log(
-  //   "trajectorySumstat",
-  //   trajectorySumstat,
-  //   "trajectoryData",
-  //   trajectoryData,
-  //   "anchorClass",
-  //   anchorClass
-  // );
-
   const trajectorySeasons = Array.from(
     new Set([
       ...trajectorySumstat.map((d) => d.value.season.toString()),
@@ -645,9 +636,6 @@ function setTrajectorySumStat(
 function setTrajectoryData(data, school, className, schoolYear) {
   const mappedIDs = data
     .filter((d) => {
-      // Log the schoolYear of the current item being processed
-      //console.log("schoolYear", d.Läsår, schoolYear);
-
       // Continue with the existing filter condition
       return (
         d.Skola === school && d.Klass === className && d.Läsår === schoolYear
@@ -656,7 +644,6 @@ function setTrajectoryData(data, school, className, schoolYear) {
     .map((d) => d.ElevID);
 
   const trajectoryIDs = Array.from(new Set(mappedIDs));
-  console.log("trajectoryIDs", trajectoryIDs.length, trajectoryIDs);
 
   const trajectoryData = data.filter(
     (d) =>
