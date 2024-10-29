@@ -319,10 +319,10 @@ const ScatterCanvas = React.memo(
 
           let newlySelected = shownData.filter(
             (d) =>
-              currentXScale(getStrValue(d[xField])) >= x0 &&
-              currentXScale(getStrValue(d[xField])) <= x1 &&
-              currentYScale(getStrValue(d[yField])) >= y0 &&
-              currentYScale(getStrValue(d[yField])) <= y1
+              currentXScale(getStrValue(d[xField], xType)) >= x0 &&
+              currentXScale(getStrValue(d[xField], xType)) <= x1 &&
+              currentYScale(getStrValue(d[yField], xType)) >= y0 &&
+              currentYScale(getStrValue(d[yField], yType)) <= y1
           );
 
           if (showLines) {
@@ -333,6 +333,7 @@ const ScatterCanvas = React.memo(
             ...new Set([...combinedSelection, ...newlySelected]),
           ];
           setSelectedRecords(combinedSelection);
+          console.log("Brushed records: ", combinedSelection);
 
           g.selectAll("circle")
             .attr("stroke", (d) =>
@@ -452,6 +453,7 @@ function GetScale(vField, filteredData, innerWidth, yFlag = false) {
     type = "time";
   } else if (categoricals.includes(vField)) {
     const uniqueValues = set(filteredData.map((d) => d[vField])).values();
+    console.log("uniqueValues: ", uniqueValues, typeof uniqueValues[0]);
     uniqueValues.sort();
     vScale = d3
       .scalePoint()

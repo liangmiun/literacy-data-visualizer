@@ -5,7 +5,7 @@ import { isDateFieldString } from "utils/Utils";
 import { personalFields } from "utils/personalFields";
 import { aggr_panel_labels } from "utils/constants";
 
-const DetailCanvas = ({ data, keyList }) => {
+const DetailCanvas = ({ data, keyList, isClassView }) => {
   const formatDetailPanelDate = d3.timeFormat("%Y-%m-%d");
   const isIndividualList = data.length === 1;
 
@@ -77,7 +77,7 @@ const DetailCanvas = ({ data, keyList }) => {
   };
 
   const detailKey = (key) => {
-    if (isIndividualList) return key;
+    if (!isClassView) return key;
     return aggr_panel_labels[key];
   };
 

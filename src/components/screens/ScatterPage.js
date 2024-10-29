@@ -509,6 +509,7 @@ const ScatterPage = () => {
       <DetailCanvas
         data={isClassView ? selectedClassDetail : clickedRecords}
         keyList={isClassView ? classKeyList : studentKeyList}
+        isClassView={isClassView}
       />
 
       <FilterCanvas
